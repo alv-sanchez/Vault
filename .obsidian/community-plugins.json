@@ -1,4 +1,10 @@
 [
   "obsidian-excalidraw-plugin",
-  "obsidian-git"
+  "obsidian-git",
+  "terminal",
+  "obsidian-style-settings",
+  "obsidian-minimal-settings",
+  "theme-picker",
+  "obsidian-file-color",
+  "obsidian-icon-folder"
 ]

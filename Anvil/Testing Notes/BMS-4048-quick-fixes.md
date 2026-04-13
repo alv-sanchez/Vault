@@ -1,0 +1,56 @@
+# Testing Notes - BMS-4048: Quick Fixes
+
+## Related
+- Ticket: [[Anvil/Documentation/BMS-4048-quick-fixes]] (in Tickets/)
+- Jira: https://ohanafy.atlassian.net/browse/BMS-4048
+
+---
+
+| Ticket | Component | Change Type | Ticket Link |
+|--------|-----------|-------------|-------------|
+| BMS-4048 | RegisterController, ecomRegister, navigationMenu | Bug Fix | https://ohanafy.atlassian.net/browse/BMS-4048 |
+
+---
+
+## Overview
+**Component**: RegisterController (Apex), ecomRegister (LWC), navigationMenu (LWC)
+**Change Type**: Bug Fix (3 items)
+**Ticket Description**: Fix registration ZIP field, make account search flexible with special characters, and correct delivery banner cutoff to weekdays only.
+**Impact Assessment**: Affects self-registration flow and delivery banner on all pages.
+**Load Testing Required**: [ ] Yes [x] No
+
+---
+
+## Test Cases
+
+*ID prefix: TC-QF*
+
+### 1. Shipping ZIP Code
+
+| Test Case | Expected Outcome |
+|-----------|------------------|
+| TC-QF-001: Search with ZIP that matches ShippingPostalCode but NOT BillingPostalCode | Account is found |
+| TC-QF-002: Search with ZIP that matches BillingPostalCode but NOT ShippingPostalCode | Account is NOT found |
+
+### 2. Flexible Account Search
+
+| Test Case | Expected Outcome |
+|-----------|------------------|
+| TC-QF-003: Search "Dixie Bar Grill" (account is "Dixie's Bar & Grill") | Account is found |
+| TC-QF-004: Search "Dixie's Bar & Grill" (exact match) | Account is found |
+| TC-QF-005: Search "Dixie" only | Account is found |
+| TC-QF-006: Search "Bar Grill" (partial, no apostrophe or ampersand) | Account is found |
+| TC-QF-007: Search "O'Brien's Pub" (apostrophe in search) | Account is found |
+| TC-QF-008: Search "OBriens Pub" (no apostrophe) | Account is found |
+| TC-QF-009: Enter 1-2 characters and blur | Error: "Please enter at least 3 characters" |
+| TC-QF-010: Enter 1-2 characters and click Search | Error: "Please enter at least 3 characters", no API call |
+
+### 3. Delivery Banner — Weekday Cutoff
+
+| Test Case | Expected Outcome |
+|-----------|------------------|
+| TC-QF-011: Account with Monday delivery, cutoff 4:30 PM | Banner: "Place order by 4:30 PM Friday..." |
+| TC-QF-012: Account with Tuesday delivery, cutoff 4:30 PM | Banner: "Place order by 4:30 PM Monday..." |
+| TC-QF-013: Account with Wednesday delivery, cutoff 4:30 PM | Banner: "Place order by 4:30 PM today" (if today is Tuesday) |
+| TC-QF-014: View banner after cutoff time has passed | Banner is hidden |
+| TC-QF-015: Account with no Warehouse_Cutoff_Time__c on Location | Banner is hidden |
