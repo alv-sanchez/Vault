@@ -191,8 +191,10 @@ flowchart LR
 
 ## Questions for Refinement
 
-1. Where does this dashboard live — internal Salesforce tab or distro app?
-2. Does the `Credit__c.Delivery__c` lookup reliably capture which route the return is coming from?
-3. Is there a status between "Created" (on route) and "Applied" (processed) that we should use, or do we add one?
-4. Should warehouse leads be able to flag/triage items from this dashboard (e.g., "needs inspection", "refuse return")?
-5. How granular is route ETA — do we have truck GPS data or just route completion status?
+1. Where does this dashboard live — internal Salesforce tab or distro app? 
+- Home Page
+1. Does the `Credit__c.Delivery__c` lookup reliably capture which route the return is coming from?
+2. Is there a status between "Created" (on route) and "Applied" (processed) that we should use, or do we add one?
+3. Should warehouse leads be able to flag/triage items from this dashboard (e.g., "needs inspection", "refuse return")?
+4. How granular is route ETA — do we have truck GPS data or just route completion status?
+

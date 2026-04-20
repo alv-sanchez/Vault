@@ -1,3 +1,28 @@
+---
+ticket: BMS-XXXX
+title: "[Title]"
+type: Story
+status: Backlog
+priority: TBD
+assignee: Alvaro Sanchez
+reporter:
+epic: BMS-XXXX
+sprint:
+labels:
+  - ecom
+package: E-Commerce
+effort:
+components:
+blocked_by:
+blocks:
+created:
+updated:
+jira: https://ohanafy.atlassian.net/browse/BMS-XXXX
+tags:
+  - ticket
+  - ecom
+---
+
 # BMS-XXXX: [Title] |ECOM|
 
 ## Related

@@ -1,9 +1,28 @@
-# BMS-XXXX: [Feature Name] - Documentation
+---
+feature: "[Feature Name]"
+type: Documentation
+component:
+package: E-Commerce
+status: Draft
+tickets:
+confluence:
+last_updated:
+tags:
+  - docs
+  - ecom
+---
 
-## Related
+# [Feature Name]
+> **Confluence**: [paste published URL here or TBD]
 
-- Ticket: [[BMS-XXXX]] (in Tickets/)
-- Testing: [[BMS-XXXX]] (in Testing/)
+## Component
+`[ComponentName]` LWC / Apex class / Custom Metadata Type
+
+## Tickets
+
+| Ticket | Date Added | Engineer | Ticket Type |
+|---|---|---|---|
+| [[BMS-XXXX]] | M/D/YYYY | Engineer Name | Story / Bug Fix / Task |
 
 ---
 

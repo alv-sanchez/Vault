@@ -1,3 +1,18 @@
+---
+ticket: BMS-XXXX
+title: "[Feature Name]"
+type: Testing Notes
+status: Draft
+component:
+change_type: New Feature
+load_testing: false
+package: E-Commerce
+jira: https://ohanafy.atlassian.net/browse/BMS-XXXX
+tags:
+  - testing
+  - ecom
+---
+
 # Testing Notes - BMS-XXXX: [Feature Name]
 
 ## Related
