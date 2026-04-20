@@ -57,11 +57,6 @@ As a [Retailer / Sales Rep / Admin], I want to [observable action], so that [bus
 - **This Story Unlocks**: [linked story or None]
 - **Ships With**: [linked story or None]
 
-## Testing Notes
-- [Key fields involved]
-- [Edge cases found in the logic]
-- [Error states and validations]
-- [Flows to verify end to end]
 
 ## Implementation Notes
 - [Key classes, methods, LWCs, objects]
