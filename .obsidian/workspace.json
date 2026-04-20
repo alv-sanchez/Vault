@@ -11,12 +11,14 @@
             "id": "dc4015398f2c9234",
             "type": "leaf",
             "state": {
-              "type": "image",
+              "type": "markdown",
               "state": {
-                "file": "Images/Screenshot 2026-03-26 at 1.40.00 PM.png"
+                "file": "Personal/compensation-negotiation.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-image",
-              "title": "Screenshot 2026-03-26 at 1.40.00 PM"
+              "icon": "lucide-file",
+              "title": "compensation-negotiation"
             }
           }
         ]
@@ -111,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Images/Screenshot 2026-03-26 at 1.40.00 PM.png",
+                "file": "Personal/compensation-negotiation.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Screenshot 2026-03-26 at 1.40.00 PM"
+              "title": "Outgoing links from compensation-negotiation"
             }
           },
           {
@@ -140,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Images/Screenshot 2026-03-26 at 1.40.00 PM.png",
+                "file": "Personal/compensation-negotiation.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Screenshot 2026-03-26 at 1.40.00 PM"
+              "title": "Outline of compensation-negotiation"
             }
           },
           {
@@ -179,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Images/Screenshot 2026-03-26 at 1.40.00 PM.png"
+                "file": "Personal/compensation-negotiation.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for Screenshot 2026-03-26 at 1.40.00 PM"
+              "title": "File properties for compensation-negotiation"
             }
           },
           {
@@ -219,52 +221,52 @@
   },
   "active": "dc4015398f2c9234",
   "lastOpenFiles": [
-    "Images/Screenshot 2026-04-09 at 1.14.47 PM.png",
-    "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
-    "Images/IMG_0675.png",
-    "Images/IMG_0674.png",
-    "Images/Pasted Image 20260302100712_544.png",
-    "Images/Screenshot 2026-01-29 at 4.55.32 PM.png",
+    "Anvil/Engineering/Notes For Elliott/Untitled.md",
+    "Personal/compensation-negotiation.md",
+    "Personal",
+    "Anvil/Engineering/planning/BMS-3926-lovable-approval-ui.md",
+    "Anvil/Engineering/Notes For Elliott",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+    "Anvil/Engineering/planning/BMS-3926-lovable-spec.md",
+    "Anvil/Engineering/planning/BMS-3926-registration-workflow.md",
+    "Anvil/Documentation/example-feature.md",
+    "Anvil/Engineering/planning",
     "Work/Twilio.md",
     "Work/Scripts.md",
     "Work/Passwords.md",
     "Work/LWCS.md",
-    "Welcome.md",
+    "Work",
     "Untitled.canvas",
-    "BMS-4011.md",
-    "All.base",
-    "2026-02-26.md",
-    "Anvil/Templates/ticket-template.md",
-    "Anvil/Templates/testing-template.md",
-    "Anvil/Templates/manager-template.md",
-    "Anvil/Templates/engineering-template.md",
-    "Anvil/Templates/documentation-template.md",
-    "Anvil/Tickets/Created Tickets/BMS-4048-quick-fixes.md",
-    "Anvil/Manager/manager.base",
-    "Anvil/Engineering/playwright/returnPreVisibility-spec-walkthrough.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
-    "Anvil/Manager/Managing Tickets/Alvaro Sanchez - Ticket Overview.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-4049-cart-checkout-gulf-pricing-spike.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3923-experience-cloud-theme-brand-setup.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3926-retailer-account-registration-onboarding.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3923.md",
-    "Anvil/Engineering/planning",
-    "Anvil/Engineering/playwright",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3926.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-4049.md",
-    "Anvil/Manager/Managing Tickets/Polishing/BMS-4049-cart-checkout-spike-architecture-discovery.md",
-    "Anvil/Manager/Managing Tickets/Polishing/BMS-3926-retailer-registration-onboarding-flow.md",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira",
-    "Anvil/Manager/Managing Tickets/Polishing",
-    "Anvil/Manager/POC - Backorder Availability",
-    "Anvil/Engineering",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic",
-    "Anvil/Manager/Managing Tickets",
-    "Images/Screenshot 2026-01-22 at 2.59.27 PM.png",
+    "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
+    "Ticket Notes/BMS-3838-return-pre-visibility.md",
+    "Ticket Notes/BMS-3823-inter-warehouse-inventory.md",
+    "Ticket Notes",
+    "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
+    "Images/Screenshot 2026-04-09 at 1.14.47 PM.png",
     "Images/Screenshot 2026-03-26 at 1.40.00 PM.png",
     "Images/Screenshot 2026-03-10 at 9.35.59 AM.png",
     "Images/Screenshot 2026-03-09 at 5.15.26 PM.png",
-    "Images/Screenshot 2026-03-09 at 5.12.47 PM.png"
+    "Images/Screenshot 2026-03-09 at 5.12.47 PM.png",
+    "Images/Screenshot 2026-02-19 at 1.07.15 AM.png",
+    "Images/Screenshot 2026-02-19 at 1.06.37 AM.png",
+    "Images/Screenshot 2026-02-11 at 9.55.06 AM.png",
+    "Images/Screenshot 2026-02-10 at 11.58.07 AM.png",
+    "Images",
+    "Excalidraw/Drawing 2026-01-22 15.17.04.excalidraw.md",
+    "Excalidraw",
+    "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
+    "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
+    "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
+    "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
+    "Anvil/Tickets/Created Tickets/BMS-4074-reorder-modal-stock-check.md",
+    "Anvil/Tickets/Created Tickets/BMS-4073-notification-services.md",
+    "Anvil/Tickets/Created Tickets/BMS-4072-delivery-banner-cutoff-fix.md",
+    "Anvil/Tickets/Created Tickets/BMS-4071-registration-sms-optin-license.md",
+    "Anvil/Tickets/Created Tickets/BMS-4070-product-image-branding.md",
+    "Anvil/Tickets/Created Tickets/BMS-4069-shop-category-carousel-pagination.md",
+    "Anvil/Tickets/Created Tickets/BMS-4068-order-placed-cleanup.md",
+    "Anvil/Manager/manager.base",
+    "Anvil/Manager/Refinement",
+    "Anvil/Manager/POC - Backorder Availability"
   ]
 }

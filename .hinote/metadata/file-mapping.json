@@ -67,7 +67,19 @@
     "Images/IMG_0675.png": "images_img_0675.png.json",
     "Images/Screenshot 2026-04-13 at 3.50.08 PM.png": "images_screenshot_2026-04-13_at_3.50.08_pm.png.json",
     "Images/Screenshot 2026-04-09 at 1.14.47 PM.png": "images_screenshot_2026-04-09_at_1.14.47_pm.png.json",
-    "Images/Screenshot 2026-03-26 at 1.40.00 PM.png": "images_screenshot_2026-03-26_at_1.40.00_pm.png.json"
+    "Images/Screenshot 2026-03-26 at 1.40.00 PM.png": "images_screenshot_2026-03-26_at_1.40.00_pm.png.json",
+    "Anvil/Tickets/Created Tickets/BMS-0000-example-feature.md": "anvil_tickets_created_tickets_bms-0000-example-feature.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-002-example-bulk-upload.md": "anvil_tickets_drafts_draft-002-example-bulk-upload.md.json",
+    "Anvil/Manager/On-site Feedback/example-stakeholder-request.md": "anvil_manager_on-site_feedback_example-stakeholder-request.md.json",
+    "Anvil/Documentation/example-feature.md": "anvil_documentation_example-feature.md.json",
+    "Anvil/Engineering/planning/BMS-3926-registration-workflow.md": "anvil_engineering_planning_bms-3926-registration-workflow.md.json",
+    "Anvil/Engineering/planning/BMS-3926-lovable-spec.md": "anvil_engineering_planning_bms-3926-lovable-spec.md.json",
+    "Anvil/Engineering/planning/BMS-3926-lovable-approval-ui.md": "anvil_engineering_planning_bms-3926-lovable-approval-ui.md.json",
+    "Anvil/Engineering/Notes For Elliott": "anvil_engineering_notes_for_elliott.json",
+    "Anvil/Engineering/Notes For Elliott/Untitled.md": "anvil_engineering_notes_for_elliott_untitled.md.json",
+    "Untitled": "untitled.json",
+    "Personal": "personal.json",
+    "Personal/compensation-negotiation.md": "personal_compensation-negotiation.md.json"
   },
-  "lastUpdated": 1776694684332
+  "lastUpdated": 1776719685086
 }
