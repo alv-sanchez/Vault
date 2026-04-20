@@ -4,7 +4,7 @@ title: "[Title]"
 type: Story
 status: Backlog
 priority: TBD
-assignee: Alvaro Sanchez
+assignee:
 reporter:
 epic: BMS-XXXX
 sprint:

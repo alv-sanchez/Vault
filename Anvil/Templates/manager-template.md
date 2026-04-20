@@ -1,6 +1,6 @@
 ---
 item: "[Short title — the ask in 5 words]"
-source: "[Who raised it — Theresa, Gulf workshop, Slack, QA, etc.]"
+source: "[Who raised it — stakeholder name, workshop, Slack, QA, etc.]"
 priority: High
 status: Not Started
 type:
@@ -98,7 +98,7 @@ tags:
 
 ## Next Action
 
-[One concrete next step — "Draft BMS ticket", "Ask Theresa about X", "Spike for 2 hours", "Ship it"]
+[One concrete next step — "Draft BMS ticket", "Ask [stakeholder] about X", "Spike for 2 hours", "Ship it"]
 
 ---
 

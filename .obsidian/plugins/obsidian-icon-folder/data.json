@@ -34,9 +34,7 @@
     "debugMode": false,
     "useInternalPlugins": false
   },
-  "Anvil/Documentation": "LiBook",
   "Anvil/Templates": "LiBookTemplate",
-  "Anvil/Testing Notes": "LiNotebookTabs",
   "Anvil/Tickets": "LiTicket",
   "Anvil": "LiAnvil"
 }
