@@ -1,3 +1,4 @@
+
 ---
 ticket: BMS-XXXX
 title: "[Title]"
