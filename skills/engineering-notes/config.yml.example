@@ -1,0 +1,18 @@
+# engineering-notes config — copy to config.yml and fill in.
+# The skill reads this on every invocation. Paths must be absolute.
+
+vault_path: /Users/YOU/Documents/Obsidian/Vault
+
+engineer:
+  # Display name used in Working Notes entries and commit author matching.
+  name: First Last
+  # Atlassian account ID (found via GET /rest/api/3/myself). Used as the
+  # default assignee/reporter when creating tickets from this vault.
+  jira_account_id: ""
+  # Work email (must match the Atlassian account).
+  email: you@ohanafy.com
+
+jira:
+  cloud_id: ohanafy.atlassian.net
+  project_key: BMS
+  browse_url: https://ohanafy.atlassian.net/browse

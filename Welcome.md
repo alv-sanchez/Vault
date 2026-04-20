@@ -4,6 +4,7 @@ This vault is a template for the Anvil documentation workflow — drafting ticke
 
 ## Start here
 
+- **[[SETUP]]** — new users: one-time config to wire up the `/engineering-notes` skill
 - **[[Anvil/README]]** — structure, naming, and workflow
 - **[[Anvil/workflow-diagram]]** — visual flowchart
 - **`Anvil/Templates/`** — reusable templates for each doc type
