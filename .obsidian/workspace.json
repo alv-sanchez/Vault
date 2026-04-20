@@ -1,0 +1,272 @@
+{
+  "main": {
+    "id": "7ce1be0f57afd8a4",
+    "type": "split",
+    "children": [
+      {
+        "id": "319916869b306be2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "dc4015398f2c9234",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Anvil/Documentation/example-feature.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "example-feature"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9639f0c735ef850c",
+    "type": "split",
+    "children": [
+      {
+        "id": "965ab25bb6a8e05a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "006432ec89b51e78",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "7ecb859c491a5b1b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "pending final approva",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "c392a70cc51fd03c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 465.50312423706055
+  },
+  "right": {
+    "id": "65035a2562b2b34e",
+    "type": "split",
+    "children": [
+      {
+        "id": "ec2ac7825d340886",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0aca768ba5c47bdd",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Excalidraw/Drawing 2026-01-22 15.17.04.excalidraw.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Drawing 2026-01-22 15.17.04.excalidraw"
+            }
+          },
+          {
+            "id": "cf0114c29bf7c8fd",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Anvil/Documentation/example-feature.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from example-feature"
+            }
+          },
+          {
+            "id": "7bb31340c01b5f73",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "42389ed1f9b474a4",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Anvil/Documentation/example-feature.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of example-feature"
+            }
+          },
+          {
+            "id": "e899aaf35053240e",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          },
+          {
+            "id": "c4d86b0b59c5c022",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "a534641a3b35fbf1",
+            "type": "leaf",
+            "state": {
+              "type": "file-properties",
+              "state": {
+                "file": "Anvil/Documentation/example-feature.md"
+              },
+              "icon": "lucide-info",
+              "title": "File properties for example-feature"
+            }
+          },
+          {
+            "id": "a8730d7c8a5015a5",
+            "type": "leaf",
+            "state": {
+              "type": "hinote-view",
+              "state": {},
+              "icon": "highlighter",
+              "title": "HiNote"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 442.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "obsidian-git:Open Git source control": false,
+      "terminal:Open terminal": false,
+      "hi-note:HiNote": false
+    }
+  },
+  "active": "dc4015398f2c9234",
+  "lastOpenFiles": [
+    "Anvil/Manager/On-site Feedback/example-stakeholder-request.md",
+    "Anvil/Tickets/Drafts/DRAFT-002-example-bulk-upload.md",
+    "Anvil/Tickets/Created Tickets/BMS-0000-example-feature.md",
+    "Anvil/Templates/engineering-template.md",
+    "Anvil/Engineering/BMS-0000-example-feature.md",
+    "Anvil/Documentation/example-feature.md",
+    "Anvil/Testing Notes/BMS-0000-example-feature.md",
+    "Anvil/Templates/manager-template.md",
+    "Anvil/Manager/On-site Feedback",
+    "Anvil/Manager",
+    "Anvil/Engineering",
+    "Anvil/Documentation",
+    "Anvil/Testing Notes",
+    "Anvil/Tickets/Created Tickets",
+    "Anvil/Tickets/Drafts",
+    "Anvil/Templates/testing-template.md",
+    "Anvil/Templates/ticket-template.md",
+    "Anvil/Engineering/playwright/returnPreVisibility-spec-walkthrough.md",
+    "Images/Screenshot 2026-03-26 at 1.40.00 PM.png",
+    "Images/Screenshot 2026-04-09 at 1.14.47 PM.png",
+    "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
+    "Images/IMG_0675.png",
+    "Images/IMG_0674.png",
+    "Images/Pasted Image 20260302100712_544.png",
+    "Images/Screenshot 2026-01-29 at 4.55.32 PM.png",
+    "Work/Twilio.md",
+    "Work/Scripts.md",
+    "Work/Passwords.md",
+    "Work/LWCS.md",
+    "Welcome.md",
+    "Untitled.canvas",
+    "BMS-4011.md",
+    "All.base",
+    "2026-02-26.md",
+    "Anvil/Templates/documentation-template.md",
+    "Anvil/Tickets/Created Tickets/BMS-4048-quick-fixes.md",
+    "Anvil/Manager/manager.base",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
+    "Anvil/Manager/Managing Tickets/Alvaro Sanchez - Ticket Overview.md",
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-4049-cart-checkout-gulf-pricing-spike.md",
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3923-experience-cloud-theme-brand-setup.md",
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira/BMS-3926-retailer-account-registration-onboarding.md",
+    "Anvil/Engineering/planning",
+    "Images/Screenshot 2026-01-22 at 2.59.27 PM.png",
+    "Images/Screenshot 2026-03-10 at 9.35.59 AM.png",
+    "Images/Screenshot 2026-03-09 at 5.15.26 PM.png"
+  ]
+}
