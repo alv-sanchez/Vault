@@ -1,0 +1,12 @@
+# ticket-create config — copy to config.yml and fill in.
+# Gitignored — your identity stays local.
+
+engineer:
+  # Atlassian account ID (found via GET /rest/api/3/myself, or left blank to
+  # resolve on first run via the atlassian MCP and pasted back here).
+  jira_account_id: ""
+
+jira:
+  cloud_id: ohanafy.atlassian.net
+  project_key: BMS
+  browse_url: https://ohanafy.atlassian.net/browse

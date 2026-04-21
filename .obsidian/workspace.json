@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "SETUP.md",
+                "file": "skills/engineering-notes/SKILL.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "SETUP"
+              "title": "SKILL"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "pending final approva",
+                "query": "config.yml.example",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "SETUP.md",
+                "file": "skills/engineering-notes/SKILL.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from SETUP"
+              "title": "Outgoing links from SKILL"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "SETUP.md",
+                "file": "skills/engineering-notes/SKILL.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of SETUP"
+              "title": "Outline of SKILL"
             }
           },
           {
@@ -181,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "SETUP.md"
+                "file": "skills/engineering-notes/SKILL.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for SETUP"
+              "title": "File properties for SKILL"
             }
           },
           {
@@ -219,24 +219,24 @@
       "hi-note:HiNote": false
     }
   },
-  "active": "dc4015398f2c9234",
+  "active": "006432ec89b51e78",
   "lastOpenFiles": [
-    "skills/engineering-notes/SKILL.md",
-    "CLAUDE.md",
-    "Anvil/README.md",
-    "SETUP.md",
+    "skills/ticket-create/SKILL.md",
+    "skills/ticket-create/config.yml.example",
     "Welcome.md",
-    "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
+    "skills/engineering-notes/SKILL.md",
+    "skills/ticket-create",
     "skills/engineering-notes/config.yml.example",
     "skills/engineering-notes",
     "skills",
+    "SETUP.md",
+    "CLAUDE.md",
     "Anvil/Tickets/Drafts/DRAFT-002-example-bulk-upload.md",
     "Anvil/Tickets/Created Tickets/BMS-0000-example-feature.md",
     "Anvil/Testing Notes/BMS-0000-example-feature.md",
     "Anvil/Manager/On-site Feedback/example-stakeholder-request.md",
     "Anvil/Engineering/BMS-0000-example-feature.md",
     "Anvil/Documentation/example-feature.md",
-    "Anvil/Engineering/Notes For Elliott/Retailer Registration & Onboarding Flow  BMS-3926.md",
     "Work/Twilio.md",
     "Work/Scripts.md",
     "Work/Passwords.md",
@@ -244,8 +244,8 @@
     "Work",
     "Untitled.canvas",
     "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
-    "Ticket Notes/BMS-3838-return-pre-visibility.md",
     "Ticket Notes/BMS-3823-inter-warehouse-inventory.md",
+    "Ticket Notes/BMS-3838-return-pre-visibility.md",
     "Ticket Notes",
     "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
     "Images/Screenshot 2026-04-09 at 1.14.47 PM.png",
@@ -265,8 +265,7 @@
     "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
     "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
     "Anvil/Tickets/Created Tickets/BMS-4074-reorder-modal-stock-check.md",
-    "Anvil/Manager/manager.base",
-    "Anvil/Manager/Refinement",
-    "Anvil/Manager/POC - Backorder Availability"
+    "Anvil/Tickets/Created Tickets/BMS-4073-notification-services.md",
+    "Anvil/Manager/manager.base"
   ]
 }
