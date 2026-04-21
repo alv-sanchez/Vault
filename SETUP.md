@@ -48,7 +48,6 @@ The file has YAML frontmatter (ticket metadata) and structured sections: story, 
 - [Obsidian](https://obsidian.md) installed (for browsing the vault).
 - Git installed (to clone).
 
-**Required only for the optional skill (steps 2–5):**
 - [Claude Code](https://docs.claude.com/en/docs/claude-code) installed and signed in.
 - An Atlassian (Jira) account on the team's cloud (`ohanafy.atlassian.net`).
 
