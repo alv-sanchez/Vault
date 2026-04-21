@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Personal/compensation-negotiation.md",
+                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "compensation-negotiation"
+              "title": "BMS-3838-return-pre-visibility"
             }
           }
         ]
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Personal/compensation-negotiation.md",
+                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from compensation-negotiation"
+              "title": "Outgoing links from BMS-3838-return-pre-visibility"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Personal/compensation-negotiation.md",
+                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of compensation-negotiation"
+              "title": "Outline of BMS-3838-return-pre-visibility"
             }
           },
           {
@@ -181,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Personal/compensation-negotiation.md"
+                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for compensation-negotiation"
+              "title": "File properties for BMS-3838-return-pre-visibility"
             }
           },
           {
@@ -221,16 +221,10 @@
   },
   "active": "dc4015398f2c9234",
   "lastOpenFiles": [
-    "Anvil/Engineering/Notes For Elliott/Untitled.md",
-    "Personal/compensation-negotiation.md",
-    "Personal",
-    "Anvil/Engineering/planning/BMS-3926-lovable-approval-ui.md",
-    "Anvil/Engineering/Notes For Elliott",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
-    "Anvil/Engineering/planning/BMS-3926-lovable-spec.md",
-    "Anvil/Engineering/planning/BMS-3926-registration-workflow.md",
-    "Anvil/Documentation/example-feature.md",
-    "Anvil/Engineering/planning",
+    "Anvil/Engineering/Notes For Elliott/Retailer Registration & Onboarding Flow  BMS-3926.md",
+    "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
+    "Welcome.md",
+    "SETUP.md",
     "Work/Twilio.md",
     "Work/Scripts.md",
     "Work/Passwords.md",
@@ -265,8 +259,14 @@
     "Anvil/Tickets/Created Tickets/BMS-4070-product-image-branding.md",
     "Anvil/Tickets/Created Tickets/BMS-4069-shop-category-carousel-pagination.md",
     "Anvil/Tickets/Created Tickets/BMS-4068-order-placed-cleanup.md",
+    "Anvil/Tickets/Created Tickets/BMS-4066-support-page-overhaul.md",
+    "Anvil/Tickets/Created Tickets/BMS-4048-quick-fixes.md",
+    "Anvil/Testing Notes/BMS-4076-promotions.md",
     "Anvil/Manager/manager.base",
     "Anvil/Manager/Refinement",
-    "Anvil/Manager/POC - Backorder Availability"
+    "Anvil/Manager/POC - Backorder Availability",
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira",
+    "Anvil/Manager/Managing Tickets/Polishing",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic"
   ]
 }

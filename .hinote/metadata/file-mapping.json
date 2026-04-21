@@ -79,7 +79,11 @@
     "Anvil/Engineering/Notes For Elliott/Untitled.md": "anvil_engineering_notes_for_elliott_untitled.md.json",
     "Untitled": "untitled.json",
     "Personal": "personal.json",
-    "Personal/compensation-negotiation.md": "personal_compensation-negotiation.md.json"
+    "Personal/compensation-negotiation.md": "personal_compensation-negotiation.md.json",
+    "Anvil/workflow-diagram.md": "anvil_workflow-diagram.md.json",
+    "SETUP.md": "setup.md.json",
+    "Anvil/Engineering/Notes For Elliott/Retailer Registration & Onboarding Flow.md": "anvil_engineering_notes_for_elliott_retailer_registration_&_onboarding_flow.md.json",
+    "Anvil/Engineering/Notes For Elliott/Retailer Registration & Onboarding Flow  BMS-3926.md": "anvil_engineering_notes_for_elliott_retailer_registration_&_onboarding_flow_bms-3926.md.json"
   },
-  "lastUpdated": 1776719685086
+  "lastUpdated": 1776740988617
 }

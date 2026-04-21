@@ -75,8 +75,43 @@ Today returns are only reconciled after delivery close-out. Seeing anticipated r
 | `OHFY-WMS-UI/force-app/main/default/classes/wrappers/WMS_UI_Wrappers.cls` | **modified** | Added `@AuraEnabled` wrapper method exposing the executable to the LWC. |
 | `OHFY-WMS-UI/force-app/main/default/classes/wrappers/tests/ReturnPreVisibility_Wrappers_T.cls` | **new** (122 lines) | Tests for the new wrapper entry point. |
 | `OHFY-WMS-UI/force-app/main/default/lwc/returnPreVisibility/` | **new** | New LWC (`.js`, `.html`, `.css`, `.js-meta.xml`) rendering the pre-visibility view. |
-| `OHFY-WMS-UI/force-app/main/default/flexipages/Return_Pre_Visibility.flexipage-meta.xml` | **new** | Hosting FlexiPage for the LWC. |
+| `OHFY-WMS-UI/force-app/main/default/flexipages/Return_Pre_Visibility.flexipage-meta.xml` | **new** | Hosting FlexiPage (AppPage) that renders the `ohfy:returnPreVisibility` LWC. Required — see wiring note below. |
+| `OHFY-WMS-UI/force-app/main/default/tabs/Return_Pre_Visibility.tab-meta.xml` | **new** | CustomTab that registers `/lightning/n/ohfy__Return_Pre_Visibility` and points at the FlexiPage. |
 | `e2e/tests/returnPreVisibility.spec.ts` | **new** (184 lines) | Playwright E2E covering the pre-visibility flow. |
+
+---
+
+## Metadata Wiring — Tab → FlexiPage → LWC ❗NOTED
+
+**Summary:** `/lightning/n/ohfy__Return_Pre_Visibility` works because the **CustomTab** registers the URL and the **FlexiPage** is what renders inside it — nuking either one breaks the route.
+
+- **`tabs/Return_Pre_Visibility.tab-meta.xml`** — the `n` in `/lightning/n/<TabApiName>` means "navigation item" (CustomTab). This file is what makes the URL resolvable. Its `<flexiPage>Return_Pre_Visibility</flexiPage>` element says *what* to render when the route is hit.
+- **`flexipages/Return_Pre_Visibility.flexipage-meta.xml`** — an `AppPage` FlexiPage whose only region contains the `ohfy:returnPreVisibility` LWC. Without this, the tab deploy fails (the `<flexiPage>` reference can't resolve) and even if it deployed the URL would render nothing.
+- **Why both are required:** Salesforce does not support pointing a CustomTab directly at an LWC. An LWC-backed tab is always the three-file chain `Tab → FlexiPage (AppPage) → LWC`. That's the minimum wiring.
+- **Tab visibility (`Default On` on the Admin profile) is separate** — it controls *who sees it in the nav*, not whether the route exists. **Now source-controlled** via `utilityScripts/assignOrgMetadata.js` Step 1 (`deployProfileAssignments` + `collectTabVisibilities`): every tab found in `org-metadata/scratch/tabs/` or in any `*/force-app/main/default/tabs/*.tab-meta.xml` is set to `DefaultOn` on the Admin profile as part of `npm run deploy:full`. No more manual Setup clicks for new tabs.
+
+---
+
+## Pattern for Other Engineers — Standalone Tabbed LWC
+
+This ticket establishes the template for home page-level LWCs (not record-page embeds). If you're adding a new standalone screen accessed from its own tab, copy this PR's layout verbatim.
+
+### Required files (per package's `force-app/main/default/`)
+1. **LWC** — `lwc/<name>/` (`.js`, `.html`, `.css`, `.js-meta.xml`).
+2. **FlexiPage** — `flexipages/<Name>.flexipage-meta.xml` with `<type>AppPage</type>` referencing the LWC in its only region.
+3. **CustomTab** — `tabs/<Name>.tab-meta.xml` with `<flexiPage>` pointing at the FlexiPage.
+4. **E2E spec + per-spec fixtures** (new pattern this PR introduces):
+   - Spec at `e2e/tests/<name>.spec.ts`. Entry URL = `/lightning/n/ohfy__<TabApiName>`.
+   - Fixture folder at `e2e/fixtures/<name>/` with `setup.apex`, `teardown.apex`, `fixture.ts`. Reference implementation: `e2e/fixtures/returnPreVisibility/`.
+
+### What you no longer need to do manually
+- Flipping Setup → Profiles → Admin → Object Settings → Tab Settings → `Default On`. `assignOrgMetadata.js` Step 1 now unions all synced tabs + any source-controlled `*.tab-meta.xml` across `OHFY-*` packages and flips them to `DefaultOn` automatically on the Admin profile. Runs as part of `npm run deploy:full`.
+
+### Gotchas to flag in code review
+- **FlexiPage must be `AppPage`, not `RecordPage`.** Different types, different activation paths. RecordPages go through the `activateFlexiPages()` step; AppPages just need to exist.
+- **Salesforce won't let a CustomTab point directly at an LWC.** The FlexiPage is the required middle layer — the chain is `Tab → FlexiPage (AppPage) → LWC`. Don't try to shortcut it.
+- **E2E URL uses the namespaced tab name** (`/lightning/n/ohfy__<TabApiName>`) because the scratch org is namespaced.
+- **Tab visibility automation is Admin-profile-only.** If the feature needs non-Admin profiles or ships in a packaged install, write a PermissionSet with `<tabSettings>` and assign it in the seed flow. Not in scope for this PR.
 
 ---
 
