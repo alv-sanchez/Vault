@@ -9,6 +9,59 @@ Maintains per-ticket engineering notes in an Obsidian vault. The vault location 
 
 Each ticket gets one file: `{project_key}-XXXX-short-description.md` under `{vault_path}/Anvil/Engineering/`. The file is created on first contact with a ticket and iterated on during and after the work — never recreated from scratch.
 
+---
+
+## Installing the skill (human setup)
+
+_This section is for a new teammate setting up the skill for the first time. Claude itself can skip straight to Config._
+
+### Prerequisites
+- [Claude Code](https://docs.claude.com/en/docs/claude-code) installed and signed in.
+- An Atlassian (Jira) account on the team's cloud (default `ohanafy.atlassian.net`).
+- This vault cloned locally (see the vault's top-level `SETUP.md` for the clone step).
+
+### 1. Install the Atlassian MCP
+
+```sh
+claude plugin install atlassian@claude-plugins-official
+```
+
+Restart Claude Code. On first use, a browser window opens to authorize the plugin against your Atlassian account — approve access for your Jira cloud.
+
+Verify with `/mcp` — you should see `atlassian` listed as connected.
+
+### 2. Install this skill into Claude's user-skill dir
+
+From the vault root:
+
+```sh
+mkdir -p ~/.claude/skills/engineering-notes
+cp skills/engineering-notes/SKILL.md ~/.claude/skills/engineering-notes/
+cp skills/engineering-notes/config.yml.example ~/.claude/skills/engineering-notes/
+```
+
+### 3. Configure your identity
+
+```sh
+cp ~/.claude/skills/engineering-notes/config.yml.example ~/.claude/skills/engineering-notes/config.yml
+```
+
+Open `config.yml` and set `vault_path`, `engineer.name`, and `engineer.email`. Leave `engineer.jira_account_id` blank — the skill fills it on first Jira call. Jira defaults are correct for the Anvil team.
+
+> `config.yml` is gitignored — your identity never leaves your machine.
+
+Or: skip this step and just run `/engineering-notes <TICKET>`. The skill's first-run bootstrap (see Config → First-run bootstrap below) will ask you these questions interactively and write the file for you.
+
+### 4. Verify
+
+```
+/engineering-notes BMS-XXXX
+```
+
+with a ticket assigned to you. You should see a new file at `{vault_path}/Anvil/Engineering/BMS-XXXX-<summary>.md` populated from Jira.
+
+---
+
 ## Config
 
 Read `~/.claude/skills/engineering-notes/config.yml` at the start of every invocation. Required keys:
