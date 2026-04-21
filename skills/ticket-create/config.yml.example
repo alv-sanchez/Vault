@@ -1,9 +1,23 @@
 # ticket-create config — copy to config.yml and fill in.
 # Gitignored — your identity stays local.
 
+# Path to the Obsidian vault root (the directory containing Anvil/).
+# REQUIRED — drafts are written under {vault_path}/Anvil/Tickets/Drafts/.
+# Accepts ~ (home dir) and $HOME; the skill expands them at load time.
+# Examples:
+#   vault_path: ~/Documents/Obsidian/Vault              # macOS / Linux (typical)
+#   vault_path: $HOME/Documents/Obsidian/Vault          # same thing, explicit env var
+#   vault_path: /Users/jane/Documents/Obsidian/Vault    # fully absolute (Mac)
+#   vault_path: /home/jane/Documents/Obsidian/Vault     # fully absolute (Linux)
+vault_path: ~/Documents/Obsidian/Vault
+
 engineer:
-  # Atlassian account ID (found via GET /rest/api/3/myself, or left blank to
-  # resolve on first run via the atlassian MCP and pasted back here).
+  # Display name used for draft assignee/reporter when the template field is blank.
+  name: ""
+
+  # Atlassian account ID — only required at PROMOTION time (when pushing a draft
+  # to Jira). Left blank, the skill resolves it on first promotion via the
+  # atlassian MCP and asks you to paste it back here.
   jira_account_id: ""
 
 jira:
