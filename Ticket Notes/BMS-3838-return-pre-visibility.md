@@ -189,6 +189,42 @@ flowchart LR
 
 ---
 
+## Relationship to Item Return (Product Return)
+
+The supervisor view is **inspired by, but not a reuse of**, the existing
+`itemReturn` LWC workflow. The two features share the same source of truth for
+what's on a truck — three static helpers on `E_Delivery_ItemReturn` —
+but everything else is a separate, read-only implementation.
+
+| Concern                                      | Shared w/ Item Return? | Where                                                                       |
+| -------------------------------------------- | ---------------------- | --------------------------------------------------------------------------- |
+| `Inventory__c` fetch (truck location)        | ✓ shared               | `E_Delivery_ItemReturn.getUnsoldInventories`                                |
+| `Lot_Inventory__c` fetch                     | ✓ shared               | `E_Delivery_ItemReturn.getUnsoldLotInventories`                             |
+| Reason-code split on unsellable lot qty      | ✓ shared               | `E_Delivery_ItemReturn.getItemReturnReasons` → `Map<Id, Map<String, Decimal>>` |
+| Sellable vs. unsellable classification       | ≈ parallel             | both gate on `Lot__r.Is_Sellable__c`                                         |
+| Margin-of-error filter (`qty > 1 / UPC / 2`) | ≈ parallel (duplicated) | copied into `E_Delivery_ReturnPreVisibility.getTruckLoadSummary`             |
+| LWC / controller / wrapper class             | ✗ separate             | new `returnPreVisibility` LWC, new `WMS_UI_Wrappers` methods                 |
+| Cacheable wrappers                           | ✗ intentionally diverges | RPV's Refresh must bypass cache; Item Return caches                         |
+| Cost fields on the line shape                | ✗ not fetched          | RPV is read-only; no cost column                                             |
+| Per-lot vs. per-item aggregation             | ✗ intentionally diverges | RPV shows one row per lot (for the Code Date column); Item Return aggregates |
+
+**Why not reuse the Item Return LWC directly?** Item Return is an interactive
+credit-entry workflow — every sellable item has a numeric input, every
+unsellable item has a reason-coded adjustment path, and the page owns submit /
+cancel / validation state. RPV needs none of that: supervisors are planning,
+not entering. Forking the read path into its own `TruckLoadSummary` wrapper
+keeps the interactive flow untouched and lets RPV evolve its own grouping /
+sorting / code-date UX without bleeding into the credit workflow.
+
+**What's the risk of drift?** The margin-of-error constant (`1 / UPC / 2`) is
+duplicated in `E_Delivery_ReturnPreVisibility.marginOfError` and in
+`itemReturn.js`. If one moves, the two views will disagree on whether a
+fractional-case line exists. If that becomes a problem, pull the threshold into
+a shared Apex helper (e.g. on `E_Delivery_ItemReturn`) and have both sides call
+it.
+
+---
+
 ## Questions for Refinement
 
 1. Where does this dashboard live — internal Salesforce tab or distro app? 

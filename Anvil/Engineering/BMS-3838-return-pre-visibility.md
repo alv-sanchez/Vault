@@ -216,6 +216,38 @@ Option 1 if PM/architect signs off on the Data-Model change. Otherwise ship Opti
 - Bug fix: `buildLineFromInventory` / `buildLineFromLotInventory` were reading `Item__r.Item_Number__c` that wasn't in the parent SOQL. Fixed by querying `Item__c` separately in `fetchItemsForLines` rather than coupling the query shape to `E_Delivery_ItemReturn.getUnsoldInventories`.
 - Bug fix (unrelated, same session): `itemReturn.js:366` used `quantityOnHand` in the unsellable branch where only `qoh` was in scope — runtime ReferenceError. Replaced with `qoh`.
 
+### 2026-04-21 — `assignOrgMetadata.js` refactor safety review
+
+**Plain-language summary:** the old script had one function that assigned layouts to the Admin profile. I split it so the same function now also assigns tab visibilities (`DefaultOn`) in the same deploy. Concern was whether the layout behavior still works the same. **Answer: yes, it does.** The layout-generating code is the same logic, pulled out into a helper. Same files read, same XML built, same deploy command. The only new thing is that tab visibilities get tacked onto the same profile payload before the deploy goes out. Layouts can't stop being assigned because nothing in that path changed.
+
+**What changed in `utilityScripts/assignOrgMetadata.js`:**
+- `deployLayoutAssignments()` → `deployProfileAssignments()`.
+- Layout-building logic extracted into `collectLayoutAssignments()` (`:75-97`).
+- New `collectTabVisibilities()` (`:99-132`) unions tabs from `org-metadata/scratch/tabs/` + every `OHFY-*/force-app/main/default/tabs/*.tab-meta.xml`.
+- `deployProfileAssignments()` (`:134-157`) concatenates both entry lists into one Profile payload and deploys once.
+
+**Why the layout path is not at risk:**
+| Aspect | Before | After | Risk? |
+|---|---|---|---|
+| Source dir | `SCRATCH_DIR/layouts` | Same (`collectLayoutAssignments:76`) | None |
+| File filter | `.endsWith(".layout")` | Same (`:79`) | None |
+| Record-type mapping | `ACCOUNT_LAYOUT_MAP` | Same (`:85`) | None |
+| `<layoutAssignments>` XML template | 2 branches (with / without `<recordType>`) | Character-identical branches (`:86-93`) | None |
+| Profile envelope | `<Profile xmlns=…>…</Profile>` | Same (`:146`) | None |
+| `package.xml` | Profile members, v65.0 | Same (`:147`) | None |
+| Deploy command | `sf project deploy start --metadata-dir ./${WORKING_DIR} -o ${orgAlias} -w 10` | Same (`:154`) | None |
+| Cleanup sequence | `cleanup → mkdir → write → deploy → cleanup` | Same (`:149-155`) | None |
+| Iteration order | `readdirSync` filesystem order | Same | None |
+
+**Only three actual behavioral differences** (none affect layout correctness):
+1. **Skip condition widened.** Old: skipped when `layoutsDir` didn't exist. New: skips only when *both* layouts and tabs are empty (`:140`). If `layoutsDir` is missing but tabs exist, we now deploy a tabs-only profile — old code assigned zero layouts in that case either way, so nothing regressed.
+2. **Body order.** `[...layouts.entries, ...tabs.entries].join("\n")` puts layout elements first, tab elements after (`:145`). Profile XML is order-insensitive, so Salesforce doesn't care.
+3. **Log strings** changed (`"layouts"` → `"layouts + tab visibilities"`, new count in final log). Cosmetic.
+
+**Edge case considered:** `layoutsDir` exists but contains zero `.layout` files, tabs empty. Old behavior: deployed an empty-body Profile (no-op). New behavior: skips deploy entirely. Either way, zero layouts assigned. Safe.
+
+**Net:** the refactor strictly *adds* tab-visibility assignment to the same deploy. It doesn't reorder, weaken, or remove any layout assignment step. Low risk.
+
 ---
 
 ## Testing
@@ -227,6 +259,30 @@ Option 1 if PM/architect signs off on the Data-Model change. Otherwise ship Opti
 **Test notes:**
 - E2E spec is 184 lines; covers the golden path of viewing pre-visibility from a delivery context.
 - Still need to run the full Apex test suite against `apr16Org` and a Jest pass locally before opening the PR.
+
+### E2E test cases (in spec order) | **Generate/Link to Xray**
+
+Source: `e2e/tests/returnPreVisibility.spec.ts`. `beforeAll` seeds a deterministic truck + inventory + reason-coded adjustments via `e2e/fixtures/returnPreVisibility/`; `afterAll` tears down.
+
+**Core render + happy path**
+1. `renders the component shell on the app page` — LWC root, left panel, main panel (attached), warehouse select, and refresh button all render on `/lightning/n/ohfy__Return_Pre_Visibility`.
+2. `shows the initial warehouse-selection prompt` — `rpv-warehouse-prompt` is visible before any warehouse is picked.
+3. `drives the full happy path: warehouse → truck → load summary` — after picking warehouse + truck, main-panel truck location, KPI total, group-by, and sort-by render; load summary resolves to either populated `rpv-group` rows or the `rpv-empty-load` affordance.
+
+**Group By**
+4. `group-by 'Package Type' replaces sellability labels` — switching group-by to Package Type produces group labels that are neither `Sellable` nor `Non-Sellable`.
+5. `group-by 'None' collapses everything into a single 'All Items' group` — a single group renders with label `All Items`.
+6. `group-by 'Reason Code' produces non-sellability labels` — group labels are neither `Package Type` nor `Sellability`.
+
+**Sort By**
+7. `sort-by 'Item Name (A–Z)' orders rows alphabetically within a group` — with group-by forced to `None`, item-link names are alphabetically sorted.
+8. `sort-by 'Quantity (High → Low)' reorders rows vs alphabetical` — switching from A–Z to Quantity High→Low keeps the same row set but allows re-ordering.
+
+**Refresh**
+9. `refresh reloads data and preserves warehouse + truck selection` — clicking refresh disables then re-enables the button; warehouse + truck selection are preserved; group-by and sort-by controls still render after reload.
+
+**Read-only contract**
+10. `load summary is read-only — no editable inputs in the main panel` — main panel contains zero `input[type=text]`, `input[type=number]`, or `textarea` elements regardless of load state.
 
 ---
 
