@@ -253,12 +253,28 @@ Option 1 if PM/architect signs off on the Data-Model change. Otherwise ship Opti
 ## Testing
 - [ ] Apex tests passing locally (`E_Delivery_ReturnPreVisibility_T`, `ReturnPreVisibility_Wrappers_T`)
 - [ ] LWC Jest tests passing
-- [x] E2E coverage authored (`e2e/tests/returnPreVisibility.spec.ts`)
-- [x] Manual scratch-org verification — deploy succeeded to `apr16Org`
+- [x] E2E coverage authored (`e2e/tests/returnPreVisibility.spec.ts`) — **15 tests**
+- [x] E2E green against `apr16Org` — 15/15 passed, ~1m10s, zero retries
+- [x] E2E green against `apr20TestOrg` — 15/15 passed, ~1m06s, zero retries
+- [x] Manual scratch-org verification — deployed to both `apr16Org` and `apr20TestOrg`
 
 **Test notes:**
-- E2E spec is 184 lines; covers the golden path of viewing pre-visibility from a delivery context.
+- Spec covers: happy path, all four Group By modes, both Sort By modes, refresh preservation, table-layout (Code Date in, Sellability out), Cases/Units quantity split, KPI cases + optional units row, unsellable-row tint class, and the read-only contract.
+- Seed lives at `e2e/fixtures/returnPreVisibility/setup.apex` (deterministic truck + inventory + reason-coded adjustments); `teardown.apex` inverts.
 - Still need to run the full Apex test suite against `apr16Org` and a Jest pass locally before opening the PR.
+- **Scratch-org prerequisite:** `apr20TestOrg` needed `sf data import tree --plan data/sample-data-plan.json` + `postLoadResolver.apex` before the seed would work — the seed queries `Warehouse 1`, `Customer Account 0`, and a `Route__c` that only exist in sample data.
+
+### Running the spec
+
+```bash
+# Against your current scratch (replace alias as needed)
+SF_ORG_ALIAS=apr20TestOrg npm run test:e2e:headed -- \
+  e2e/tests/returnPreVisibility.spec.ts \
+  --project=chromium \
+  --retries=0
+```
+
+`--retries=0` gives a clean first-pass signal; drop it to let Playwright retry once on flake. Headed mode is useful to watch the Lightning nav + combobox reflow in real time.
 
 ### E2E test cases (in spec order) | **Generate/Link to Xray**
 
@@ -281,8 +297,15 @@ Source: `e2e/tests/returnPreVisibility.spec.ts`. `beforeAll` seeds a determinist
 **Refresh**
 9. `refresh reloads data and preserves warehouse + truck selection` — clicking refresh disables then re-enables the button; warehouse + truck selection are preserved; group-by and sort-by controls still render after reload.
 
+**Table layout & presentation**
+10. `table layout: Code Date column present, Sellability column removed` — asserts the new Code Date column header renders and the old Sellability column header is gone (matches the post-redesign table).
+11. `quantity cell splits qty into Cases (and Units when applicable)` — each row's quantity cell shows "Cases: X" always and "Units: Y" only when the row has a fractional/unit remainder (`line.hasUnits`).
+12. `group header total reads in cases` — group header shows `{count} products · {totalCases} cs` (and `· {totalUnits} ea` when any row contributes units).
+13. `KPI shows total cases (with optional units row)` — top-right KPI shows `{loadCases} cs` + "{totalDistinctItems} distinct products", with a secondary `{loadUnits} ea` line only when units roll up.
+14. `unsellable rows render with the unsellable tint class` — rows for unsellable lines carry `rpv-row-unsellable` (amber tint + left-accent via CSS), replacing the removed Sellability badge column.
+
 **Read-only contract**
-10. `load summary is read-only — no editable inputs in the main panel` — main panel contains zero `input[type=text]`, `input[type=number]`, or `textarea` elements regardless of load state.
+15. `load summary is read-only — no editable inputs in the main panel` — main panel contains zero `input[type=text]`, `input[type=number]`, or `textarea` elements regardless of load state.
 
 ---
 

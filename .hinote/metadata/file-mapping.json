@@ -106,7 +106,12 @@
     "Anvil/Manager/Managing Tickets/Polishing/sprint1/BMS-3929-order-history-one-click-reorder.md": "anvil_manager_managing_tickets_polishing_sprint1_bms-3929-order-history-one-click-reorder.md.json",
     "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3929 — Order History & One-Click Reorder.md": "anvil_manager_managing_tickets_gulf_retailer_portal_epic_specfic_bms-3929_—_order_history_&_one-click_reorder.md.json",
     "Anvil/Manager/Managing Tickets/Polishing/sprint1/BMS-3921-retailer-engagement-notifications.md": "anvil_manager_managing_tickets_polishing_sprint1_bms-3921-retailer-engagement-notifications.md.json",
-    "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md": "anvil_tickets_created_tickets_bms-4258-multi-profile-registration.md.json"
+    "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md": "anvil_tickets_created_tickets_bms-4258-multi-profile-registration.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-003-order-table-show-line-item-select-inline.md": "anvil_tickets_drafts_draft-003-order-table-show-line-item-select-inline.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-004-order-submission-does-not-lock-inputs.md": "anvil_tickets_drafts_draft-004-order-submission-does-not-lock-inputs.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-003-order-table-replace-plus-with-inline-single-select.md": "anvil_tickets_drafts_draft-003-order-table-replace-plus-with-inline-single-select.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-004-submitted-order-remains-editable-on-order-table.md": "anvil_tickets_drafts_draft-004-submitted-order-remains-editable-on-order-table.md.json",
+    "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md": "anvil_drawing_2026-04-09_13.57.15.excalidraw.md.json"
   },
-  "lastUpdated": 1776862659766
+  "lastUpdated": 1776880285226
 }
