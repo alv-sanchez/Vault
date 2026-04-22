@@ -2,7 +2,7 @@
 feature: "Featured Promotions Banner"
 type: Documentation
 component: homeFeaturedPromotionsBanner
-package: E-Commerce
+package:
 status: Published
 tickets:
   - BMS-0000

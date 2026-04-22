@@ -11,7 +11,7 @@ sprint:
 labels:
   - admin
   - ecom
-package: E-Commerce
+package:
 effort: M
 components:
 blocked_by:

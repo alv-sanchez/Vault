@@ -12,7 +12,7 @@ labels:
   - homepage
   - promotions
   - ecom
-package: E-Commerce
+package:
 effort: M
 components:
   - homeFeaturedPromotionsBanner (LWC)

@@ -6,7 +6,7 @@ status: Draft
 component:
 change_type: New Feature
 load_testing: false
-package: E-Commerce
+package:
 jira: https://ohanafy.atlassian.net/browse/BMS-XXXX
 tags:
   - testing

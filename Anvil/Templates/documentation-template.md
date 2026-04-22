@@ -2,7 +2,7 @@
 feature: "[Feature Name]"
 type: Documentation
 component:
-package: E-Commerce
+package:
 status: Draft
 tickets:
 confluence:

@@ -24,11 +24,12 @@ Self-contained — reads its own `config.yml`. If you want a local engineering n
 
 ## Setup
 
-1. Copy the example:
+1. Copy the example, or ask claude to do it for you:
 
    ```sh
    cp ~/.claude/skills/ticket-create/config.yml.example ~/.claude/skills/ticket-create/config.yml
    ```
+
 
 2. Set `vault_path` to the absolute path of your Obsidian vault (the directory containing `Anvil/`). Default in the example: `$HOME/Documents/Obsidian/Vault`.
 
@@ -110,40 +111,58 @@ Scan BOTH `Anvil/Tickets/Drafts/` and `Anvil/Tickets/Created Tickets/` for files
 
 **Do not** reuse IDs even from drafts that were already promoted — the DRAFT-NNN id persists in the Created-Tickets filename only if you choose to keep it; numbering monotonically avoids collisions either way.
 
-### 4. Build the draft file
+### 4. Build the draft file — fully populated, no placeholders
 
 **Filename**: `DRAFT-NNN-<kebab-summary>.md` where `<kebab-summary>` is the first ~6 words of `summary` kebab-cased, lowercase, ASCII.
+
+**Auto-fill posture**: every section and every inferable frontmatter field MUST be filled in on the first pass using the summary + pasted context. Do not write `TBD`, leave template placeholders, or emit `*_tbd: true` markers. The engineer will edit a fully-populated draft, not fill in blanks.
+
+The only fields that may stay blank are external identifiers the agent cannot know:
+
+- `epic` — Jira epic key
+- `sprint` — see Sprint handling below
+- `blocked_by`, `blocks` — Jira issue keys
+- `jira` — populated at promotion
+
+**Sprint handling**: ask the user **once** at the start of the run: _"What sprint should this land in? (e.g. `Sprint 24`, or say `skip` to leave blank.)"_ If they answer with a sprint name, write it to `sprint:`. If they say `skip`, `none`, `blank`, or `later`, leave `sprint:` empty. Do not ask twice.
 
 **Contents**:
 
 1. Read `{vault_path}/Anvil/Templates/ticket-template.md` verbatim — both YAML frontmatter and body structure come from this file. Do not invent frontmatter keys or body sections.
-2. Fill in frontmatter from parse results + config:
+2. Fill in frontmatter from parse results + config + inference:
    - `ticket` → `DRAFT-NNN`
    - `title` → the summary (quote it)
    - `type` → flag or `Story`
    - `status` → `Backlog`
-   - `priority` → `TBD` (user fills in)
-   - `assignee`, `reporter` → `engineer.name` from config (if present)
-   - `labels` → list from `--labels` flag (plus any sensible defaults from the template)
-   - `package` → from `--package` flag, else leave blank (DO NOT default to `E-Commerce` when outside the ecom repo)
+   - `priority` → infer from context (security/data-loss/blocking → `High`; visible bug or new feature → `Medium`; cleanup/polish → `Low`). Default `Medium` if signal is weak.
+   - `assignee`, `reporter` → `engineer.name` from config
+   - `labels` → list from `--labels` flag plus any sensible defaults from the template
+   - `package` → from `--package` flag, else infer from the paste (file paths, class names, repo signals); leave blank only if truly unknowable (DO NOT default to `E-Commerce` when outside the ecom repo)
+   - `effort` → infer from scope (single LWC tweak → `S`; multi-file feature → `M`; cross-package or schema change → `L`)
+   - `components` → list classes/LWCs/objects mentioned in the paste; empty list if none referenced
    - `created`, `updated` → today's ISO date
-   - `jira` → blank (gets filled in at promotion)
-3. Fill in the body, preserving the template section order:
+   - `epic`, `sprint`, `blocked_by`, `blocks`, `jira` → blank (or sprint per user answer above)
+3. Fill in the body, preserving the template section order. **Every section gets real content** — no placeholders, no `<!-- tbd -->` comments:
    - Replace the title line with `# DRAFT-NNN: <summary>`.
-   - Under `## Story Statement`: if the user's paste includes a clearly-formed "As a X, I want Y, so that Z" sentence, use it verbatim; else leave the template placeholder and add `<!-- story-statement-tbd -->`.
-   - Under `## Acceptance Criteria`: if the paste contains GIVEN/WHEN/THEN or numbered criteria, preserve verbatim; else leave the template scenarios as placeholders and add `acceptance_criteria_tbd: true` to frontmatter.
-   - Under `## Implementation Notes` or a new `## Context` block near the top: drop the user's paste verbatim. Do not rewrite, summarize, or invent content when the paste is empty.
+   - `## Related` → drop in any links/tickets/threads referenced in the paste. If none, write `- (none)`. (Obsidian-only; stripped at promotion.)
+   - `## Story Statement` → if the paste contains a clearly-formed "As a X, I want Y, so that Z", use it verbatim. Otherwise infer one from summary + context. Always one sentence in that exact shape.
+
+     **Actor inference** Pick the role from explicit signals in the paste + frontmatter:
+       - **Retailer** — only when ecom-related: `package` is `E-Commerce`, labels include `ecom`, or the paste names the storefront / Experience Cloud / "My Orders" / product-browse / checkout surface. No ecom signal → not Retailer.
+       - **Sales Rep** — sales-route or order-entry-on-behalf-of-account flows (OHFY-OMS).
+       - **Driver** — delivery, load, route-execution, or offline-tagged workflows (OHFY-OMS / OHFY-WMS).
+       - **Warehouse Supervisor** — picking, receiving, transfers, return pre-visibility, inventory adjustments (OHFY-WMS).
+       - **Admin** — configuration surfaces: pricelists, promotions, CMDT edits, trigger configuration, user setup.
+       - **Engineer** — tooling, CI, refactor, or test-infra tickets with no user-facing surface.
+     If the signal is weak, prefer **Admin** (configuration) or **Engineer** (internal) over Retailer — Retailer requires an affirmative ecom signal.
+   - `## Acceptance Criteria` → if the paste contains GIVEN/WHEN/THEN or numbered criteria, preserve verbatim. Otherwise generate at least one happy-path scenario and one failure/edge-case scenario from the summary + context, in the template's GIVEN/WHEN/THEN format.
+   - `## Dependencies` → fill from the paste (`Cannot Start Until`, `This Story Unlocks`, `Ships With`); use `None` for any line the paste doesn't address.
+   - `## Testing Notes` → list the key fields, edge cases, error states, and end-to-end flows implied by the AC. Three to six bullets.
+   - `## Implementation Notes` → drop the user's paste verbatim plus any concrete classes/LWCs/objects you can name. (Obsidian-only; stripped at promotion.)
 
 Write to `{vault_path}/Anvil/Tickets/Drafts/DRAFT-NNN-<slug>.md`. If a file with the same name already exists, abort and show the path — do not overwrite.
 
-### 5. Minimum-viable-requirements check + preview
-
-After writing, check that the draft contains at minimum:
-
-- non-empty `title`
-- `type` set
-- Story Statement NOT marked tbd OR an explicit plan to fill it in
-- AC scenarios present OR `acceptance_criteria_tbd: true` in frontmatter (honest marker is fine)
+### 5. Preview
 
 Report back to the user:
 
@@ -152,16 +171,11 @@ Draft written (NOT in Jira):
   File  : {vault_path}/Anvil/Tickets/Drafts/DRAFT-NNN-<slug>.md
   Title : <summary>
   Type  : <type>
+  Sprint: <sprint or "(blank)">
   Labels: <labels or "(none)">
 
-  Minimum requirements:
-    [x] title
-    [x] type
-    [ ] story statement  ← placeholder, needs your edit
-    [ ] acceptance criteria  ← tbd, needs your edit
-
   Next:
-    - Edit the draft in Obsidian.
+    - Review the draft in Obsidian and edit anything that's wrong.
     - When ready, say "push it" / "push to Jira" to promote to BMS.
 ```
 
@@ -172,7 +186,15 @@ Draft written (NOT in Jira):
 Triggered by phrases like `push it`, `push to Jira`, `promote`, `create the Jira issue`. If the user references a specific draft (`promote DRAFT-003`), target that file; if there is exactly one draft in `Drafts/` and the user doesn't name one, prompt to confirm. If there are multiple and no name, ask which one.
 
 1. Read the draft file.
-2. Split frontmatter from body. Strip frontmatter entirely from the Jira description — only the body after `---` goes to Jira. Also strip the leading `# DRAFT-NNN: ...` title line (Jira has its own summary field).
+2. Split frontmatter from body, then build the Jira description by stripping:
+   - The YAML frontmatter (everything between the leading `---` fences).
+   - The leading `# DRAFT-NNN: ...` title line (Jira has its own summary field).
+   - The `## Related` section (Obsidian-only links).
+   - Any `## Context` section (legacy drafts only — never emitted by step 4 anymore, but strip if present).
+   - The `## Implementation Notes` section (engineer-private notes).
+
+   "Strip a section" means: remove the heading line and every line up to (but not including) the next `^## ` heading, or end-of-file if none follows. Collapse any resulting double-blank lines to a single blank.
+
 3. Call `mcp__atlassian__createJiraIssue`:
 
    ```json
@@ -224,7 +246,10 @@ Branch prefix mapping: `Story → story/`, `Bug → fix/`, `Task → chore/`, `S
 
 - **Draft first, always.** The initial `/ticket-create` invocation MUST result in a vault file and MUST NOT call `mcp__atlassian__createJiraIssue`. Even under auto mode. Even if the user sounds impatient. The user gets a preview + a file path, nothing more.
 - **Push is a separate command.** Only explicit phrases (`push it`, `push to Jira`, `promote`) trigger the Jira call. "Create", "yes", "ok" are NOT push triggers — they're too ambiguous given this skill's draft-first shape.
-- **Never invent context.** An empty paste means an empty `## Context` block or `acceptance_criteria_tbd: true` — do not pull from conversation history to fill in fields the user didn't provide.
+- **Fully populated on first pass.** Every body section gets real content and every inferable frontmatter field is filled in. No `TBD`, no template placeholders, no `*_tbd: true` markers. The engineer edits a populated draft, not blanks.
+- **Only these fields may stay blank**: `epic`, `sprint` (unless user names one), `blocked_by`, `blocks`, `jira`. Everything else is filled.
+- **Ask for sprint exactly once**, at the start. Accept a name, or `skip`/`none`/`blank`/`later` to leave it empty. Never ask twice.
+- **Jira description omits Obsidian-only sections.** `## Related`, `## Context`, and `## Implementation Notes` exist for the engineer's reference and MUST be stripped from the Jira description at promotion (see step 6.2). They stay in the vault file.
 - **Never overwrite a draft.** If the target filename already exists, abort and show the path.
 - **Template wins.** Frontmatter keys and body sections come from `ticket-template.md` verbatim. If the template lacks a field you wish existed, surface it — don't silently invent one.
 - **One ticket per invocation.** If the user pastes multiple distinct topics, ask which one to draft or offer to split into N invocations.

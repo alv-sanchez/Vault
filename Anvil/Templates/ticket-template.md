@@ -10,7 +10,7 @@ epic: BMS-XXXX
 sprint:
 labels:
   - ecom
-package: E-Commerce
+package:
 effort:
 components:
 blocked_by:
@@ -37,7 +37,7 @@ tags:
 
 ## Story Statement
 
-As a [Retailer / Sales Rep / Admin], I want to [observable action], so that [business outcome].
+As a [Actor], I want to [observable action], so that [business outcome].
 
 ## Acceptance Criteria
 

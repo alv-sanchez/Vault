@@ -6,7 +6,7 @@ status: Ready for QA
 component: homeFeaturedPromotionsBanner
 change_type: New Feature
 load_testing: false
-package: E-Commerce
+package:
 jira: https://example.atlassian.net/browse/BMS-0000
 tags:
   - testing
