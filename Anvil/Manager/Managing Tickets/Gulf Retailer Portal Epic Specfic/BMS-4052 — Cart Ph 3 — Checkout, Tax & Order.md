@@ -59,3 +59,30 @@ Checkout with entity-aware tax calculation (FL vs AL), order creation with full 
 
 - **Blocks**: [[BMS-3931 — Order Status Tracking & Delivery Notifications]] (delivery notifications need orders), [[BMS-3929 — Order History & One-Click Reorder]] (reorder needs order records)
 - **Blocked by**: [[BMS-4051 — Cart Ph 2 — Volume Tiers & Promos]] (volume tier pricing must be resolved first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~62% already built** • **~38% Gulf-specific work remaining**
+
+Progress: `████████████░░░░░░░░` (62%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 7 |
+| Partial (BROKEN / STUB) | 2 |
+| Missing | 4 |
+| **Total tracked items** | **13** |
+
+> Hard-coded 8.75% tax rate and Rainforest Pay stub are counted as PARTIAL (0.5 each) since the hook points exist but behavior is incorrect/incomplete.
+
+**Top gap drivers (what still needs building):**
+- Replace hard-coded 8.75% tax with FL vs AL jurisdiction-based calculation
+- Minimum order enforcement per warehouse territory
+- Pricing snapshot at order time (lineage for invoice traceability)
+- Cart-to-order total reconciliation / validation
+- Complete Rainforest Pay integration (or defer)
+- Order summary with full pricing breakdown before submission
+
+> **Most complex checkout ticket** — tax logic, minimum order enforcement, and pricing snapshot are all non-trivial.

@@ -55,3 +55,26 @@ Spike — timebox to 1 sprint. Output is documentation, not code.
 
 - **Blocks**: [[BMS-4050 — Cart Ph 1 — Cart & Basic Pricing]], [[BMS-4051 — Cart Ph 2 — Volume Tiers & Promos]], [[BMS-4052 — Cart Ph 3 — Checkout, Tax & Order]] (all cart phases)
 - **Blocked by**: None
+
+---
+
+## Completion — Built vs Wanted
+
+**Infrastructure readiness: ~56%** • **Spike deliverable: 0% (no ADR written yet)**
+
+Progress (infra): `███████████░░░░░░░░░` (56%)
+
+| Status | Count |
+|---|---:|
+| Infra exists (ready to extend) | 5 |
+| Missing / to be designed | 4 |
+| **Total tracked items** | **9** |
+
+> **Note:** This is a spike — the output is an ADR + schema design, not code. The percentage above measures **infrastructure readiness** (how much of the surrounding cart/checkout code exists to build against), not spike completion. The spike itself has produced no decision record yet.
+
+**Top gap drivers (what the spike must define):**
+- PRC pricing engine integration contract (API vs Apex callout vs custom object)
+- Multi-pricing-code resolution logic (Gulf's 154+ codes → single resolved price)
+- `Order__c` schema extensions for pricing lineage / snapshot audit trail
+- Multi-warehouse pricing resolution (FL vs AL)
+- Tax calculation approach (FL vs AL jurisdiction — replaces hard-coded 8.75%)

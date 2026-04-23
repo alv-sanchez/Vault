@@ -50,3 +50,27 @@ Config + design. The branding infrastructure (controller + MDT) is already built
 
 - **Blocks**: Everything — all components inherit this theme
 - **Blocked by**: None (should be first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~50% already built** • **~50% Gulf-specific work remaining**
+
+Progress: `██████████░░░░░░░░░░` (50%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 3 |
+| Partial | 1 |
+| Missing | 3 |
+| **Total tracked items** | **7** |
+
+**Codebase audit note (2026-04-22):** `Ecom_Branding__mdt` has **only 1 record** in `OHFY-Ecom` (not 23 as assumed in earlier docs). Infrastructure exists; content is thin. Static resources count is 54 (not 56).
+
+**Top gap drivers (what still needs building):**
+- Gulf-branded static resources (logo, favicon, hero banners, category icons)
+- Populate Gulf `Ecom_Branding__mdt` records mapping to new resources
+- Experience Cloud site theme config (colors, fonts, header/footer)
+- Experience Cloud site metadata (`.site-meta.xml`)
+- Theme layout customization

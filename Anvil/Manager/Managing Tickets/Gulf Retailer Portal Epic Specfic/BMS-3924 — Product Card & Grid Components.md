@@ -30,3 +30,25 @@ Parent story for product card and grid work. **Do not execute directly** — wor
 
 - Blocked by: [[BMS-3930 — Credit Terms & Payment Status]] (credit terms)
 - Related: [[BMS-4053 — Product Card Ph 1 — Card Component]], [[BMS-4054 — Product Card Ph 2 — Grid Layout & Reuse]]
+
+---
+
+## Completion — Built vs Wanted
+
+**~55% already built** • **~45% Gulf-specific work remaining**
+
+Progress: `███████████░░░░░░░░░` (55%)
+
+Decomposed parent — percentage is the average of child tickets:
+
+| Child ticket | % Built |
+|---|---:|
+| BMS-4053 (Card Component) | 60% |
+| BMS-4054 (Grid Layout & Reuse) | 50% |
+
+**Top gap drivers (rolled up from children):**
+- Extract product card from `ecomShop` into a standalone reusable LWC
+- Unified responsive grid shared across `ecomShop`, `reorderModal`, `ecomOrderHistory`
+- Gulf pricing code resolution on the card (account-specific price)
+- Warehouse availability indicator (FL/AL)
+- Tablet-optimized breakpoints (sales reps in the field)

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
+                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "BMS-3838-return-pre-visibility"
+              "title": "00 - Gulf Retailer Portal — Execution Order"
             }
           }
         ]
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
+                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from BMS-3838-return-pre-visibility"
+              "title": "Outgoing links from 00 - Gulf Retailer Portal — Execution Order"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
+                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of BMS-3838-return-pre-visibility"
+              "title": "Outline of 00 - Gulf Retailer Portal — Execution Order"
             }
           },
           {
@@ -181,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Anvil/Engineering/BMS-3838-return-pre-visibility.md"
+                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for BMS-3838-return-pre-visibility"
+              "title": "File properties for 00 - Gulf Retailer Portal — Execution Order"
             }
           },
           {
@@ -220,25 +220,26 @@
       "hi-note:HiNote": false
     }
   },
-  "active": "dc4015398f2c9234",
+  "active": "006432ec89b51e78",
   "lastOpenFiles": [
-    "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md",
-    "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
-    "Anvil/Engineering/planning/BMS-3926-lovable-spec.md",
-    "Anvil/Engineering/planning/BMS-3926-registration-workflow.md",
-    "Anvil/Engineering/planning/BMS-3926-lovable-approval-ui.md",
-    "Anvil/Engineering/Notes For Elliott/Retailer Registration & Onboarding Flow  BMS-3926.md",
-    "Anvil/Engineering/BMS-3838-return-pre-visibility.md",
-    "Anvil/Engineering/playwright/returnPreVisibility-spec-walkthrough.md",
-    "Anvil/workflow-diagram.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/01 - Decomposed Tickets & Parallel Workstreams.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3921 — Retailer Engagement Notifications.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3920 — Retailer Online Ordering Experience.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/00 - README - Pricing Code Block & New Sprint Flow.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/03 - Decision Gate — Pre-Sprint 2.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/02 - Sprint-by-Sprint Execution Order.md",
+    "Anvil/Manager/Managing Tickets/Polishing/BMS-3923-experience-cloud-theme-brand-setup.md",
+    "skills/ticket-create/SKILL.md",
     "Work/Twilio.md",
     "Work/Scripts.md",
     "Work/Passwords.md",
     "Work/LWCS.md",
     "Work",
     "Untitled.canvas",
-    "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
     "Ticket Notes/BMS-3838-return-pre-visibility.md",
+    "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
     "Ticket Notes/BMS-3823-inter-warehouse-inventory.md",
     "Ticket Notes",
     "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
@@ -254,6 +255,7 @@
     "Images",
     "Excalidraw/Drawing 2026-01-22 15.17.04.excalidraw.md",
     "Excalidraw",
+    "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
     "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md",
     "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
     "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
@@ -261,13 +263,11 @@
     "Anvil/Tickets/Created Tickets/BMS-4074-reorder-modal-stock-check.md",
     "Anvil/Tickets/Created Tickets/BMS-4073-notification-services.md",
     "Anvil/Tickets/Created Tickets/BMS-4072-delivery-banner-cutoff-fix.md",
-    "Anvil/Tickets/Created Tickets/BMS-4071-registration-sms-optin-license.md",
-    "Anvil/Tickets/Created Tickets/BMS-4070-product-image-branding.md",
     "Anvil/Manager/manager.base",
     "Anvil/Manager/Refinement",
     "Anvil/Manager/POC - Backorder Availability",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block",
     "Anvil/Manager/Managing Tickets/Polishing/sprint1",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block"
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira"
   ]
 }

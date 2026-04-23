@@ -55,3 +55,25 @@ Build the atomic product card component that displays account-specific pricing, 
 
 - **Blocks**: [[BMS-4054 — Product Card Ph 2 — Grid Layout & Reuse]] (grid needs the card component)
 - **Blocked by**: [[BMS-3925 — Product Catalog & Availability]] (catalog provides the data), [[BMS-4049 — Gulf Pricing Spike — Architecture Discovery]] (pricing approach)
+
+---
+
+## Completion — Built vs Wanted
+
+**~60% already built** • **~40% Gulf-specific work remaining**
+
+Progress: `████████████░░░░░░░░` (60%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 6 |
+| Partial | 0 |
+| Missing | 4 |
+| **Total tracked items** | **10** |
+
+**Top gap drivers (what still needs building):**
+- Extract card markup from `ecomShop` into a standalone reusable LWC
+- Gulf pricing code resolution on the card (multi-code → account-specific price)
+- Warehouse availability indicator (FL / AL badge)
+- Pack configuration details on the card (beyond UOM)
+- Parent-agnostic data contract (shop, search, reorder, promotions)

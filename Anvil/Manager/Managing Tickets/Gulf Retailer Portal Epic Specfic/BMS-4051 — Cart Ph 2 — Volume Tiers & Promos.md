@@ -55,3 +55,25 @@ Volume tier recalculation when quantities change, plus correct handling of mixed
 
 - **Blocks**: [[BMS-4052 — Cart Ph 3 — Checkout, Tax & Order]] (checkout needs correct pricing)
 - **Blocked by**: [[BMS-4050 — Cart Ph 1 — Cart & Basic Pricing]] (basic pricing must work first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~56% already built** • **~44% Gulf-specific work remaining**
+
+Progress: `███████████░░░░░░░░░` (56%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 5 |
+| Partial | 0 |
+| Missing | 4 |
+| **Total tracked items** | **9** |
+
+**Top gap drivers (what still needs building):**
+- Volume tier recalculation when cart quantities cross tier thresholds
+- Pricing code cross-contamination prevention between line items
+- Chain-specific negotiated rate overlay (e.g., 7-Eleven vs independent)
+- Visible pricing waterfall breakdown (frontline → volume → promo → final)
+- Dynamic promotion-savings updates as tiers shift

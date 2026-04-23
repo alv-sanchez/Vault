@@ -52,3 +52,32 @@ This ticket is fulfilled by the sum of the other Gulf tickets:
 
 - **Blocks**: None (capstone)
 - **Blocked by**: All other Gulf tickets (this validates the whole flow)
+
+---
+
+## Completion — Built vs Wanted
+
+**~64% already built** • **~36% Gulf-specific work remaining**
+
+Progress: `█████████████░░░░░░░` (64%)
+
+Umbrella ticket — percentage is the weighted average of child ticket completion (BMS-3921, 3925, 3926, 3927, 3929, 3931, 4049, 4050, 4051, 4052, 4053, 4054).
+
+| Capability | % Built |
+|---|---:|
+| Product browsing (3925) | 73% |
+| Search & filtering (3927) | 71% |
+| Product cards (4053 + 4054) | 55% |
+| Cart + pricing (4050 + 4051) | 66% |
+| Checkout + tax (4052) | 62% |
+| Order history + reorder (3929) | 87% |
+| Registration (3926) | 58% |
+| Notifications (3921 + 3931) | 61% |
+
+**Top gap drivers across the epic:**
+- Gulf pricing engine (PRC waterfall + multi-pricing-code resolution) — net new
+- Multi-warehouse filtering (FL vs AL catalog) — extend existing
+- FL vs AL tax jurisdiction (currently hard-coded 8.75%)
+- Credit/AR visibility for retailers — net new
+- Call center agent UI (BMS-3922, 40% built)
+- Gulf branding assets + Experience Cloud site config

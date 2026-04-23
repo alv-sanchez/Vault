@@ -54,3 +54,26 @@ Call center agents need to place and manage on-premise orders with full promotio
 
 - **Blocks**: None
 - **Blocked by**: [[BMS-4052 — Cart Ph 3 — Checkout, Tax & Order]] (checkout flow for agent order placement), [[BMS-3925 — Product Catalog & Availability]] (catalog for agent browsing)
+
+---
+
+## Completion — Built vs Wanted
+
+**~40% already built** • **~60% Gulf-specific work remaining**
+
+Progress: `████████░░░░░░░░░░░░` (40%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 4 |
+| Partial | 0 |
+| Missing | 6 |
+| **Total tracked items** | **10** |
+
+**Top gap drivers (what still needs building):**
+- Agent-facing customer lookup component (search by name / phone / email / account #)
+- Agent order dashboard / workqueue
+- Account context panel (pricing code, territory, credit status, active promotions)
+- Order placement on behalf of retailer
+- Order modification (edit quantities, cancel)
+- Case management integration + customer communication history

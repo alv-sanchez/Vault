@@ -58,3 +58,27 @@ Automated notifications to ensure retailers place orders before route cutoff win
 
 - **Blocks**: None
 - **Blocked by**: [[BMS-3923 — Experience Cloud Theme & Brand Setup]] (Gulf branding for email templates)
+
+---
+
+## Completion — Built vs Wanted
+
+**~62% already built** • **~38% Gulf-specific work remaining**
+
+Progress: `████████████░░░░░░░░` (62%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 8 |
+| Partial | 0 |
+| Missing | 5 |
+| **Total tracked items** | **13** |
+
+**Codebase audit note (2026-04-22):** The `DeliveryCutoffReminderBatch` and `DeliveryCutoffReminderScheduler` classes referenced above are **not present** in `OHFY-Ecom/force-app/main/default/classes/notifications/` — previously assumed complete. Adjusted from 77% → 62% to reflect this.
+
+**Top gap drivers (what still needs building):**
+- `DeliveryCutoffReminderBatch` + `DeliveryCutoffReminderScheduler` classes (net new — previously believed to exist)
+- Gulf-specific delivery cutoff window configuration (per-territory, 5 territories)
+- Gulf-branded email templates (abandoned cart, cutoff reminder)
+- Gulf Twilio Content Templates (SMS)
+- Sales rep stalled-cart alert notification

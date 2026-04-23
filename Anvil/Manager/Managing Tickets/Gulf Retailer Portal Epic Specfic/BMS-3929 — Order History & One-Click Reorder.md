@@ -57,3 +57,26 @@ Gulf's high-value retailers frequently reorder the same product mix. Self-servic
 
 - **Blocks**: None
 - **Blocked by**: [[BMS-3925 — Product Catalog & Availability]] (catalog/pricing for reorder validation)
+
+---
+
+## Completion — Built vs Wanted
+
+**~87% already built** • **~13% Gulf-specific work remaining**
+
+Progress: `█████████████████░░░` (87%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 13 |
+| Partial | 0 |
+| Missing | 2 |
+| **Total tracked items** | **15** |
+
+**Top gap drivers (what still needs building):**
+- 1-click "Reorder All" button (currently requires modal → select → add)
+- Validate Gulf pricing codes resolve correctly on reordered items
+- Handle stock-availability drift between original order and reorder
+- Recurring order templates / saved order preferences (optional)
+
+> **Highest-completion ticket in the epic.** Fast-trackable — primarily a quick-reorder shortcut + Gulf pricing validation.

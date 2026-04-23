@@ -182,3 +182,54 @@ These parent stories are decomposed into the phases above. Don't execute directl
 6. **Call center tooling** — Agent-facing order management (net new)
 
 The fast-trackable tickets (labeled in Jira) are: BMS-3929, BMS-3921, BMS-3931, BMS-3932, BMS-3922.
+
+---
+
+## Completion % — Wanted vs Built (per ticket)
+
+> Snapshot: 2026-04-22. Percentage is computed per ticket from its "What Already Exists" table: `(COMPLETE + 0.5 × PARTIAL) ÷ total items`. Individual tickets carry the same breakdown + gap drivers at the bottom. Umbrella tickets (3920, 3924, 3928) aggregate their children.
+
+### Ranked by completion
+
+| % Built | Ticket | Notes |
+|---:|---|---|
+| 87% | [[BMS-3929 — Order History & One-Click Reorder]] | Highest — fast-trackable |
+| 77% | [[BMS-4050 — Cart Ph 1 — Cart & Basic Pricing]] | |
+| 73% | [[BMS-3925 — Product Catalog & Availability]] | |
+| 71% | [[BMS-3927 — Product Search & Filtering]] | |
+| 69% | [[BMS-3932 — Self-Service Account Management]] | |
+| 64% | [[BMS-3920 — Retailer Online Ordering Experience]] | Umbrella — avg of children |
+| 63% | [[BMS-3928 — Cart & Checkout with Gulf Pricing]] | Umbrella — avg of children |
+| 62% | [[BMS-3921 — Retailer Engagement Notifications]] | ⚠ Adjusted from 77% (see note) |
+| 62% | [[BMS-4052 — Cart Ph 3 — Checkout, Tax & Order]] | Tax hard-coded, Rainforest stubbed |
+| 60% | [[BMS-3931 — Order Status Tracking & Delivery Notifications]] | |
+| 60% | [[BMS-4053 — Product Card Ph 1 — Card Component]] | |
+| 58% | [[BMS-3926 — Registration & Onboarding Flow]] | |
+| 56% | [[BMS-4049 — Gulf Pricing Spike — Architecture Discovery]] | Infra readiness; spike output: 0% |
+| 56% | [[BMS-4051 — Cart Ph 2 — Volume Tiers & Promos]] | |
+| 55% | [[BMS-3924 — Product Card & Grid Components]] | Umbrella — avg of children |
+| 50% | [[BMS-3923 — Experience Cloud Theme & Brand Setup]] | ⚠ Only 1 branding MDT record |
+| 50% | [[BMS-4054 — Product Card Ph 2 — Grid Layout & Reuse]] | |
+| 40% | [[BMS-3922 — Call Center Order Visibility]] | |
+| 32% | [[BMS-3930 — Credit Terms & Payment Status]] | Lowest — needs refinement + data source decision |
+
+**Epic weighted average (executable tickets, excluding umbrellas):** ~61% built.
+
+### Grouped by phase
+
+| Phase | Avg % built | Tickets |
+|---|---:|---|
+| Phase 1 — Foundation | 55% | 3923 (50%), 4049 (56%), 3926 (58%) |
+| Phase 2a — Catalog & Product Display | 73% | 3925 (73%), 3927 (71%), 4053 (60%), 3929 (87%) |
+| Phase 2b — Cart & Checkout (core) | 63% | 4050 (77%), 4054 (50%), 4051 (56%), 3921 (62%) |
+| Phase 2c — Checkout & Post-Order | 64% | 4052 (62%), 3931 (60%), 3932 (69%) |
+| Phase 3 — Advanced & Support | 45% | 3922 (40%), 3930 (32%), 3920 (64% umbrella) |
+
+### Codebase audit corrections (2026-04-22)
+
+Verified against `/Users/alvarosanchez_1/Documents/OHFY-Ecom/`. Two discrepancies caught by the audit — applied to the affected tickets:
+
+1. **BMS-3921** — `DeliveryCutoffReminderBatch` and `DeliveryCutoffReminderScheduler` are **not present** in `OHFY-Ecom/force-app/main/default/classes/notifications/`. Earlier docs had them as COMPLETE. Ticket adjusted 77% → 62%.
+2. **BMS-3923** — `Ecom_Branding__mdt` has **only 1 record** (not 23 as claimed in earlier docs). Static resources count is 54 (not 56). MDT row marked PARTIAL.
+
+All other claimed components (ecomShop, ecomProductPage, ecomCartPage, ecomReviewSummary, ecomOrderHistory, ecomRegister, ecomProfilePage, ecomPromotions, draftInvoiceService, userDataService, reorderModal, RegisterController, UpdateContactController, OrderHistoryController, EcomBrandingController, CartController, OrderConfirmationService, TwilioSMSService, NotificationPreferenceController, AbandonedCartReminderBatch/Scheduler, Notification/Contact_Notification/Notification_Log objects, hard-coded `0.0875` in ecomReviewSummary, `Contact.SMS_Opt_In__c`) validated as present.

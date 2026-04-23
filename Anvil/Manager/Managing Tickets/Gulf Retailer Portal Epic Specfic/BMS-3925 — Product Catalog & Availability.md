@@ -55,3 +55,24 @@ Gulf retailers need to browse a product catalog with real-time warehouse-specifi
 
 - **Blocks**: [[BMS-4053 — Product Card Ph 1 — Card Component]] (product card needs catalog data), [[BMS-3927 — Product Search & Filtering]] (search filters catalog)
 - **Blocked by**: [[BMS-3923 — Experience Cloud Theme & Brand Setup]] (theme), [[BMS-4049 — Gulf Pricing Spike — Architecture Discovery]] (spike — pricing approach)
+
+---
+
+## Completion — Built vs Wanted
+
+**~73% already built** • **~27% Gulf-specific work remaining**
+
+Progress: `███████████████░░░░░` (73%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 8 |
+| Partial | 0 |
+| Missing | 3 |
+| **Total tracked items** | **11** |
+
+**Top gap drivers (what still needs building):**
+- Multi-warehouse query support in `getQuantityAvailableAtFulfillmentLocation()` (currently single-location)
+- Warehouse-specific catalog filtering (FL vs AL partial-overlap)
+- Account-specific pricing display (resolved from Gulf pricing codes — depends on BMS-4049 spike)
+- Warehouse indicator badge on product cards

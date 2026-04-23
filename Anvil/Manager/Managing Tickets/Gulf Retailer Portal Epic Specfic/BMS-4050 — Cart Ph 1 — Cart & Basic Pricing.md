@@ -59,3 +59,26 @@ Add products to cart and see account-specific pricing with warehouse-filtered av
 
 - **Blocks**: [[BMS-4051 — Cart Ph 2 — Volume Tiers & Promos]] (volume tiers build on basic pricing)
 - **Blocked by**: [[BMS-4049 — Gulf Pricing Spike — Architecture Discovery]] (spike must define pricing contract first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~77% already built** • **~23% Gulf-specific work remaining**
+
+Progress: `███████████████░░░░░` (77%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 10 |
+| Partial | 0 |
+| Missing | 3 |
+| **Total tracked items** | **13** |
+
+**Top gap drivers (what still needs building):**
+- Integrate pricing resolution from spike (BMS-4049) into cart add / update flow
+- Resolve account-specific Gulf pricing code when items are added to cart
+- Filter cart products by retailer's assigned warehouse (FL / AL)
+- Store resolved price at cart-item level for audit trail / pricing snapshot
+
+> Cart UI is effectively complete — the Gulf-specific work is plumbing the pricing engine into the existing data flow.

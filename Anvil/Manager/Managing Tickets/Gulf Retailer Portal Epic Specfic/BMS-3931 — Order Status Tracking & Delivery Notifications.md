@@ -53,3 +53,25 @@ Gulf retailers have no visibility between order placement and truck arrival (fix
 
 - **Blocks**: None
 - **Blocked by**: [[BMS-4052 — Cart Ph 3 — Checkout, Tax & Order]] (checkout creates orders), [[BMS-3921 — Retailer Engagement Notifications]] (notification templates)
+
+---
+
+## Completion — Built vs Wanted
+
+**~60% already built** • **~40% Gulf-specific work remaining**
+
+Progress: `████████████░░░░░░░░` (60%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 6 |
+| Partial | 0 |
+| Missing | 4 |
+| **Total tracked items** | **10** |
+
+**Top gap drivers (what still needs building):**
+- Delivery-status-change trigger / flow firing notifications on transitions
+- Email + SMS templates for each status (Confirmed → In Transit → Out For Delivery → Delivered)
+- Route-based delivery window display (e.g., "Expected: Tuesday AM")
+- Delivery tracking timeline component in order detail (optional)
+- Web / mobile push notifications (optional)

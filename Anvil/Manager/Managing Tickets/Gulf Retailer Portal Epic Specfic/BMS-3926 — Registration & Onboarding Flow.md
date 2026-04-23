@@ -55,3 +55,25 @@ New retail accounts (e.g., 7-Eleven FL locations) need to self-register, get pri
 
 - **Blocks**: All downstream ordering (can't order without an account)
 - **Blocked by**: [[BMS-3923 — Experience Cloud Theme & Brand Setup]] (theme should be in place first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~58% already built** • **~42% Gulf-specific work remaining**
+
+Progress: `████████████░░░░░░░░` (58%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 7 |
+| Partial | 0 |
+| Missing | 5 |
+| **Total tracked items** | **12** |
+
+**Top gap drivers (what still needs building):**
+- Gulf pricing code auto-assignment during registration (account type / location)
+- Route + warehouse auto-association for new accounts
+- Welcome / onboarding email template
+- Terms & conditions acceptance step (if required by Gulf)
+- Payment method capture during registration (optional)

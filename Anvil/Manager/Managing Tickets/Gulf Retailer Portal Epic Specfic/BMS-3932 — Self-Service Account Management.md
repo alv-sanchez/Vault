@@ -57,3 +57,25 @@ On-premise retail accounts (bars, restaurants, convenience stores) need to maint
 
 - **Blocks**: None
 - **Blocked by**: [[BMS-3926 — Registration & Onboarding Flow]] (account must exist first)
+
+---
+
+## Completion — Built vs Wanted
+
+**~69% already built** • **~31% Gulf-specific work remaining**
+
+Progress: `██████████████░░░░░░` (69%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 9 |
+| Partial | 0 |
+| Missing | 4 |
+| **Total tracked items** | **13** |
+
+**Top gap drivers (what still needs building):**
+- Address editing in `ecomProfilePage` (billing address is currently read-only)
+- Extend `UpdateContactController` to handle address-field updates
+- Shipping address as separate from billing address
+- Additional contacts per account (optional)
+- Email change flow with re-verification (optional)

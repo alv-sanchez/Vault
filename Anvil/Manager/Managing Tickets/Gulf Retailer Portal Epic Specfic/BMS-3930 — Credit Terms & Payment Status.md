@@ -57,3 +57,30 @@ Retailers need to view their credit terms, outstanding balances, and payment sta
 
 - **Blocks**: None (despite Jira links — see note above)
 - **Blocked by**: None technically, but needs data source decision
+
+---
+
+## Completion — Built vs Wanted
+
+**~32% already built** • **~68% Gulf-specific work remaining**
+
+Progress: `██████░░░░░░░░░░░░░░` (32%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 3 |
+| Partial | 1 |
+| Missing | 7 |
+| **Total tracked items** | **11** |
+
+**Top gap drivers (what still needs building):**
+- Account-level credit limit + available credit display
+- Outstanding balance / AR balance component
+- Payment status per order (Paid / Unpaid / Overdue / Partial)
+- AR aging display (Current, 30, 60, 90+ days)
+- Invoice download / PDF generation
+- Payment history / transaction log
+- Payment method management (Rainforest)
+- **Data source decision** — AR data origin (ERP integration vs custom objects vs external API) is not yet defined
+
+> **Lowest-completion ticket in the epic** and marked "Needs Refinement" in Jira — data source decision blocks meaningful implementation.

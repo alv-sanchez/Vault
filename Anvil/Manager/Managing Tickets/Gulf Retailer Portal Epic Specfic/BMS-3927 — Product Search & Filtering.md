@@ -57,3 +57,24 @@ Retailer buyers need to quickly locate products by category, brand, and pack siz
 
 - **Blocks**: None directly
 - **Blocked by**: [[BMS-3925 — Product Catalog & Availability]] (catalog data feeds the filters)
+
+---
+
+## Completion — Built vs Wanted
+
+**~71% already built** • **~29% Gulf-specific work remaining**
+
+Progress: `██████████████░░░░░░` (71%)
+
+| Status | Count |
+|---|---:|
+| Built (COMPLETE) | 10 |
+| Partial | 0 |
+| Missing | 4 |
+| **Total tracked items** | **14** |
+
+**Top gap drivers (what still needs building):**
+- Pack size as a dedicated filter (currently bundled in UOM)
+- Gulf category taxonomy mapping to existing filter hierarchy
+- Full-text search across product descriptions (currently name + SKU only)
+- Search autocomplete / typeahead (optional)
