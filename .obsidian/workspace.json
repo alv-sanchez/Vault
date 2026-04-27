@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Anvil/workflow-diagram.md",
+                "file": "skills/ticket-create/SKILL.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "workflow-diagram"
+              "title": "SKILL"
             }
           }
         ]
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Anvil/workflow-diagram.md",
+                "file": "skills/ticket-create/SKILL.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from workflow-diagram"
+              "title": "Outgoing links from SKILL"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Anvil/workflow-diagram.md",
+                "file": "skills/ticket-create/SKILL.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of workflow-diagram"
+              "title": "Outline of SKILL"
             }
           },
           {
@@ -181,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Anvil/workflow-diagram.md"
+                "file": "skills/ticket-create/SKILL.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for workflow-diagram"
+              "title": "File properties for SKILL"
             }
           },
           {
@@ -231,52 +231,52 @@
   },
   "active": "dc4015398f2c9234",
   "lastOpenFiles": [
-    "Anvil/README.md",
-    "Anvil/Tickets/Created Tickets/BMS-0000-example-feature.md",
-    "Anvil/workflow-diagram.md",
     "Anvil/Templates/ticket-template.md",
-    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3930-credit-terms-ph1-compact.md",
-    "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md",
-    "skills/engineering-notes/config.yml.example",
-    "skills/engineering-notes/SKILL.md",
+    "Anvil/Templates/manager-template.md",
     "skills/ticket-create/config.yml.example",
     "skills/ticket-create/SKILL.md",
-    "skills/engineering-notes",
+    "skills/engineering-notes/config.yml.example",
+    "skills/engineering-notes/SKILL.md",
     "skills/ticket-create",
+    "skills/engineering-notes",
     "skills",
     "SETUP.md",
     "CLAUDE.md",
     "Anvil/Tickets/Drafts/DRAFT-002-example-bulk-upload.md",
+    "Anvil/Tickets/Created Tickets/BMS-0000-example-feature.md",
     "Anvil/Testing Notes/BMS-0000-example-feature.md",
     "Anvil/Manager/On-site Feedback/example-stakeholder-request.md",
     "Anvil/Engineering/BMS-0000-example-feature.md",
     "Anvil/Documentation/example-feature.md",
-    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation-compact.md",
-    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3929 — Order History & One-Click Reorder.md",
-    "Anvil/Engineering/Hackathon/The Ultimate Salesforce + Claude Code Hackathon Playbook.md",
-    "Anvil/Manager/Managing Tickets/Polishing/sprint2",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
-    "Anvil/Engineering/Hackathon",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/01 - Decomposed Tickets & Parallel Workstreams.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3921 — Retailer Engagement Notifications.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3920 — Retailer Online Ordering Experience.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/00 - README - Pricing Code Block & New Sprint Flow.md",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/03 - Decision Gate — Pre-Sprint 2.md",
+    "Anvil/README.md",
+    "Anvil/workflow-diagram.md",
+    "Work/Twilio.md",
+    "Work/Passwords.md",
+    "Work/Scripts.md",
+    "Work/LWCS.md",
     "Work",
     "Untitled.canvas",
+    "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
+    "Ticket Notes/BMS-3838-return-pre-visibility.md",
+    "Ticket Notes/BMS-3823-inter-warehouse-inventory.md",
     "Ticket Notes",
-    "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
     "Images/Screenshot 2026-04-09 at 1.14.47 PM.png",
     "Images/Screenshot 2026-03-26 at 1.40.00 PM.png",
+    "Images/Screenshot 2026-03-09 at 5.15.26 PM.png",
+    "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
     "Images/Screenshot 2026-03-10 at 9.35.59 AM.png",
     "Images/Screenshot 2026-03-09 at 5.12.47 PM.png",
-    "Images/Screenshot 2026-03-09 at 5.15.26 PM.png",
     "Images/Screenshot 2026-02-19 at 1.07.15 AM.png",
     "Images/Screenshot 2026-02-19 at 1.06.37 AM.png",
     "Images/Screenshot 2026-02-11 at 9.55.06 AM.png",
     "Images/Screenshot 2026-02-10 at 11.58.07 AM.png",
-    "Images"
+    "Images",
+    "Excalidraw/Drawing 2026-01-22 15.17.04.excalidraw.md",
+    "Excalidraw",
+    "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
+    "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md",
+    "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
+    "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
+    "Anvil/Manager/manager.base"
   ]
 }

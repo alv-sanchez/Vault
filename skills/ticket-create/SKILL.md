@@ -144,7 +144,6 @@ The only fields that may stay blank are external identifiers the agent cannot kn
    - `epic`, `sprint`, `blocked_by`, `blocks`, `jira` → blank (or sprint per user answer above)
 3. Fill in the body, preserving the template section order. **Every section gets real content** — no placeholders, no `<!-- tbd -->` comments:
    - Replace the title line with `# DRAFT-NNN: <summary>`.
-   - `## Related` → drop in any links/tickets/threads referenced in the paste. If none, write `- (none)`. (Obsidian-only; stripped at promotion.)
    - `## Story Statement` → if the paste contains a clearly-formed "As a X, I want Y, so that Z", use it verbatim. Otherwise infer one from summary + context. Always one sentence in that exact shape.
 
      **Actor inference** Pick the role from explicit signals in the paste + frontmatter:
@@ -189,7 +188,6 @@ Triggered by phrases like `push it`, `push to Jira`, `promote`, `create the Jira
 2. Split frontmatter from body, then build the Jira description by stripping:
    - The YAML frontmatter (everything between the leading `---` fences).
    - The leading `# DRAFT-NNN: ...` title line (Jira has its own summary field).
-   - The `## Related` section (Obsidian-only links).
    - Any `## Context` section (legacy drafts only — never emitted by step 4 anymore, but strip if present).
    - The `## Implementation Notes` section (engineer-private notes).
 
@@ -249,7 +247,7 @@ Branch prefix mapping: `Story → story/`, `Bug → fix/`, `Task → chore/`, `S
 - **Fully populated on first pass.** Every body section gets real content and every inferable frontmatter field is filled in. No `TBD`, no template placeholders, no `*_tbd: true` markers. The engineer edits a populated draft, not blanks.
 - **Only these fields may stay blank**: `epic`, `sprint` (unless user names one), `blocked_by`, `blocks`, `jira`. Everything else is filled.
 - **Ask for sprint exactly once**, at the start. Accept a name, or `skip`/`none`/`blank`/`later` to leave it empty. Never ask twice.
-- **Jira description omits Obsidian-only sections.** `## Related`, `## Context`, and `## Implementation Notes` exist for the engineer's reference and MUST be stripped from the Jira description at promotion (see step 6.2). They stay in the vault file.
+- **Jira description omits Obsidian-only sections.** `## Context` and `## Implementation Notes` exist for the engineer's reference and MUST be stripped from the Jira description at promotion (see step 6.2). They stay in the vault file.
 - **Never overwrite a draft.** If the target filename already exists, abort and show the path.
 - **Template wins.** Frontmatter keys and body sections come from `ticket-template.md` verbatim. If the template lacks a field you wish existed, surface it — don't silently invent one.
 - **One ticket per invocation.** If the user pastes multiple distinct topics, ask which one to draft or offer to split into N invocations.

@@ -25,10 +25,6 @@ tags:
 
 # BMS-XXXX: [Title] |ECOM|
 
-## Related
-- Testing: [[BMS-XXXX]] (in Testing/)
-- Docs: [[BMS-XXXX]] (in Documentation/)
-
 ---
 
 **Priority**: Critical | High | Medium | Low
