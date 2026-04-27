@@ -111,7 +111,21 @@
     "Anvil/Tickets/Drafts/DRAFT-004-order-submission-does-not-lock-inputs.md": "anvil_tickets_drafts_draft-004-order-submission-does-not-lock-inputs.md.json",
     "Anvil/Tickets/Drafts/DRAFT-003-order-table-replace-plus-with-inline-single-select.md": "anvil_tickets_drafts_draft-003-order-table-replace-plus-with-inline-single-select.md.json",
     "Anvil/Tickets/Drafts/DRAFT-004-submitted-order-remains-editable-on-order-table.md": "anvil_tickets_drafts_draft-004-submitted-order-remains-editable-on-order-table.md.json",
-    "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md": "anvil_drawing_2026-04-09_13.57.15.excalidraw.md.json"
+    "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md": "anvil_drawing_2026-04-09_13.57.15.excalidraw.md.json",
+    "Anvil/Testing Notes/BMS-0000-example-feature.md": "anvil_testing_notes_bms-0000-example-feature.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-003-replace-plus-button-with-always-visible-item-select.md": "anvil_tickets_drafts_draft-003-replace-plus-button-with-always-visible-item-select.md.json",
+    "Anvil/Tickets/Drafts/DRAFT-004-lock-order-table-after-submit-from-review.md": "anvil_tickets_drafts_draft-004-lock-order-table-after-submit-from-review.md.json",
+    "Anvil/Tickets/Created Tickets/BMS-4270-replace-plus-button-with-always-visible-item-select.md": "anvil_tickets_created_tickets_bms-4270-replace-plus-button-with-always-visible-item-select.md.json",
+    "Anvil/Tickets/Created Tickets/BMS-4271-lock-order-table-after-submit-from-review.md": "anvil_tickets_created_tickets_bms-4271-lock-order-table-after-submit-from-review.md.json",
+    "Anvil/Manager/Thomas": "anvil_manager_thomas.json",
+    "Anvil/Engineering/Hackathon": "anvil_engineering_hackathon.json",
+    "Anvil/Engineering/Hackathon/Untitled.md": "anvil_engineering_hackathon_untitled.md.json",
+    "Anvil/Engineering/Hackathon/HEre.md": "anvil_engineering_hackathon_here.md.json",
+    "Anvil/Engineering/Hackathon/The Ultimate Salesforce + Claude Code Hackathon Playbook.md": "anvil_engineering_hackathon_the_ultimate_salesforce_+_claude_code_hackathon_playbook.md.json",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2": "anvil_manager_managing_tickets_polishing_sprint2.json",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation.md": "anvil_manager_managing_tickets_polishing_sprint2_bms-3929-reorder-pricing-stock-validation.md.json",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation-compact.md": "anvil_manager_managing_tickets_polishing_sprint2_bms-3929-reorder-pricing-stock-validation-compact.md.json",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3930-credit-terms-ph1-compact.md": "anvil_manager_managing_tickets_polishing_sprint2_bms-3930-credit-terms-ph1-compact.md.json"
   },
-  "lastUpdated": 1776880285226
+  "lastUpdated": 1777000381073
 }

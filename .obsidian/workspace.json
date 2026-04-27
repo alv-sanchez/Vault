@@ -13,15 +13,28 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+                "file": "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3930-credit-terms-ph1-compact.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "00 - Gulf Retailer Portal — Execution Order"
+              "title": "BMS-3930-credit-terms-ph1-compact"
+            }
+          },
+          {
+            "id": "21897f2a2e693581",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2026-04-09 13.57.15.excalidraw"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -113,12 +126,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+                "file": "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 00 - Gulf Retailer Portal — Execution Order"
+              "title": "Outgoing links from Drawing 2026-04-09 13.57.15.excalidraw"
             }
           },
           {
@@ -142,13 +155,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+                "file": "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 00 - Gulf Retailer Portal — Execution Order"
+              "title": "Outline of Drawing 2026-04-09 13.57.15.excalidraw"
             }
           },
           {
@@ -181,10 +194,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md"
+                "file": "Anvil/Drawing 2026-04-09 13.57.15.excalidraw.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for 00 - Gulf Retailer Portal — Execution Order"
+              "title": "File properties for Drawing 2026-04-09 13.57.15.excalidraw"
             }
           },
           {
@@ -196,14 +209,23 @@
               "icon": "highlighter",
               "title": "HiNote"
             }
+          },
+          {
+            "id": "55f839cb4b656505",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw-sidepanel",
+              "state": {},
+              "icon": "excalidraw-icon",
+              "title": "Excalidraw Sidepanel"
+            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 8
       }
     ],
     "direction": "horizontal",
-    "width": 442.5,
-    "collapsed": true
+    "width": 442.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -220,10 +242,17 @@
       "hi-note:HiNote": false
     }
   },
-  "active": "006432ec89b51e78",
+  "active": "21897f2a2e693581",
   "lastOpenFiles": [
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3930-credit-terms-ph1-compact.md",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation-compact.md",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2/BMS-3929-reorder-pricing-stock-validation.md",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3929 — Order History & One-Click Reorder.md",
+    "Anvil/Engineering/Hackathon/The Ultimate Salesforce + Claude Code Hackathon Playbook.md",
+    "Anvil/Manager/Managing Tickets/Polishing/sprint2",
     "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/00 - Gulf Retailer Portal — Execution Order.md",
+    "Anvil/Engineering/Hackathon",
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/01 - Gulf Retailer Portal — Flow Diagram.md",
     "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block/01 - Decomposed Tickets & Parallel Workstreams.md",
     "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3921 — Retailer Engagement Notifications.md",
     "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-3920 — Retailer Online Ordering Experience.md",
@@ -258,16 +287,9 @@
     "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
     "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md",
     "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
-    "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
-    "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
-    "Anvil/Tickets/Created Tickets/BMS-4074-reorder-modal-stock-check.md",
-    "Anvil/Tickets/Created Tickets/BMS-4073-notification-services.md",
-    "Anvil/Tickets/Created Tickets/BMS-4072-delivery-banner-cutoff-fix.md",
     "Anvil/Manager/manager.base",
     "Anvil/Manager/Refinement",
     "Anvil/Manager/POC - Backorder Availability",
-    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block",
-    "Anvil/Manager/Managing Tickets/Polishing/sprint1",
-    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira"
+    "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/Pricing Code Block"
   ]
 }
