@@ -3,8 +3,10 @@ ticket: BMS-XXXX
 title: "[Title]"
 type: Story
 status: Backlog
+wip: false
 priority: TBD
 assignee:
+assigned_engineer:
 reporter:
 epic: BMS-XXXX
 sprint:
@@ -23,7 +25,7 @@ tags:
   - ecom
 ---
 
-# BMS-XXXX: [Title] |ECOM|
+# BMS-XXXX: [Title]
 
 ---
 

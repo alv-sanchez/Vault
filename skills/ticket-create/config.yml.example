@@ -20,7 +20,41 @@ engineer:
   # atlassian MCP and asks you to paste it back here.
   jira_account_id: ""
 
+  # ID of the "Assigned Engineer" custom field in your Jira (e.g. customfield_10234).
+  # Left blank, the skill auto-discovers it on first promotion: it pulls a recent
+  # ticket via mcp__atlassian__getJiraIssue, surfaces the candidate field IDs whose
+  # name contains "engineer", asks you to confirm one, and writes it back here.
+  # If you already know the ID (Jira admin → Custom Fields), set it now to skip
+  # the discovery prompt.
+  assigned_engineer_field_id: ""
+
 jira:
   cloud_id: ohanafy.atlassian.net
   project_key: BMS
   browse_url: https://ohanafy.atlassian.net/browse
+
+labels:
+  # Labels the skill is allowed to INFER from a paste. The user can always force
+  # any label via the --labels= flag — this list only governs auto-inference.
+  allow_list:
+    - bug
+    - tech-debt
+    - security
+    - frontend
+    - backend
+    - ecom
+    - wms
+    - oms
+    - rex
+
+  # Cap on labels added by inference. User-provided --labels are uncapped.
+  max_inferred: 2
+
+links:
+  # Maps the skill's logical link kinds to the literal "type" name in your Jira.
+  # If your Jira uses non-default link names ("Dependency" instead of "Blocks",
+  # etc.), edit the right-hand side. Most Jira Cloud installs use these defaults.
+  type_map:
+    blocked_by: "is blocked by"   # frontmatter blocked_by: [...] -> outward link from this issue
+    blocks: "blocks"              # frontmatter blocks: [...]      -> outward link from this issue
+    relates_to: "relates to"      # body "Ships With" entries      -> outward link from this issue
