@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Anvil/Engineering/Working On/Playwright Test Suite E-Commerce — File & Method Reference.md",
+                "file": "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Playwright Test Suite E-Commerce — File & Method Reference"
+              "title": "BMS-4075-delete-abandoned-drafts-flow-fix"
             }
           }
         ]
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Anvil/Engineering/Working On/Playwright Test Suite E-Commerce — File & Method Reference.md",
+                "file": "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Playwright Test Suite E-Commerce — File & Method Reference"
+              "title": "Outgoing links from BMS-4075-delete-abandoned-drafts-flow-fix"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Anvil/Engineering/Working On/Playwright Test Suite E-Commerce — File & Method Reference.md",
+                "file": "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Playwright Test Suite E-Commerce — File & Method Reference"
+              "title": "Outline of BMS-4075-delete-abandoned-drafts-flow-fix"
             }
           },
           {
@@ -181,10 +181,10 @@
             "state": {
               "type": "file-properties",
               "state": {
-                "file": "Anvil/Engineering/Working On/Playwright Test Suite E-Commerce — File & Method Reference.md"
+                "file": "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md"
               },
               "icon": "lucide-info",
-              "title": "File properties for Playwright Test Suite E-Commerce — File & Method Reference"
+              "title": "File properties for BMS-4075-delete-abandoned-drafts-flow-fix"
             }
           },
           {
@@ -231,20 +231,18 @@
   },
   "active": "dc4015398f2c9234",
   "lastOpenFiles": [
-    "Anvil/Engineering/Working On/Here.md",
-    "Anvil/Engineering/Working On/Playwright Test Suite E-Commerce — File & Method Reference.md",
-    "Anvil/Engineering/Working On/BMS-3838-return-pre-visibility.md",
-    "Anvil/Templates/ticket-template.md",
-    "Anvil/Engineering/Working On",
-    "skills/ticket-create/SKILL.md",
-    "Work/LWCS.md",
-    "Work/Twilio.md",
+    "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
+    "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
+    "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md",
+    "Anvil/workflow-diagram.md",
     "Work/Scripts.md",
+    "Work/Twilio.md",
     "Work/Passwords.md",
+    "Work/LWCS.md",
     "Work",
     "Untitled.canvas",
-    "Ticket Notes/BMS-3838-return-pre-visibility.md",
     "Ticket Notes/BMS-4171-ecom-order-minimum-configuration.md",
+    "Ticket Notes/BMS-3838-return-pre-visibility.md",
     "Ticket Notes/BMS-3823-inter-warehouse-inventory.md",
     "Ticket Notes",
     "Images/Screenshot 2026-04-13 at 3.50.08 PM.png",
@@ -261,9 +259,6 @@
     "Excalidraw/Drawing 2026-01-22 15.17.04.excalidraw.md",
     "Excalidraw",
     "Anvil/Tickets/Drafts/DRAFT-002-retailer-sales-rep-chat.md",
-    "Anvil/Tickets/Created Tickets/BMS-4258-multi-profile-registration.md",
-    "Anvil/Tickets/Created Tickets/BMS-4192-confirmation-email-sales-rep-contact.md",
-    "Anvil/Tickets/Created Tickets/BMS-4076-promotions-across-portal.md",
     "Anvil/Tickets/Created Tickets/BMS-4075-delete-abandoned-drafts-flow-fix.md",
     "Anvil/Tickets/Created Tickets/BMS-4074-reorder-modal-stock-check.md",
     "Anvil/Tickets/Created Tickets/BMS-4073-notification-services.md",
@@ -273,9 +268,14 @@
     "Anvil/Tickets/Created Tickets/BMS-4069-shop-category-carousel-pagination.md",
     "Anvil/Tickets/Created Tickets/BMS-4068-order-placed-cleanup.md",
     "Anvil/Tickets/Created Tickets/BMS-4066-support-page-overhaul.md",
+    "Anvil/Tickets/Created Tickets/BMS-4048-quick-fixes.md",
+    "Anvil/Testing Notes/BMS-4076-promotions.md",
+    "Anvil/Testing Notes/BMS-4075-delete-abandoned-drafts.md",
+    "Anvil/Testing Notes/BMS-4074-reorder-modal-stock-check.md",
     "Anvil/Manager/manager.base",
     "Anvil/Manager/Refinement",
     "Anvil/Manager/POC - Backorder Availability",
+    "Anvil/Manager/Managing Tickets/Polishing/ready-for-jira",
     "Anvil/Manager/Managing Tickets/Polishing/sprint2",
     "Anvil/Manager/Managing Tickets/Polishing/sprint1"
   ]
