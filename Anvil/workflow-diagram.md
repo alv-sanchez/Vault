@@ -38,17 +38,17 @@ flowchart TD
 
 ## The Funnel
 
-| Stage                 | Where                            | Driver                                       | What Happens                                               |
-| --------------------- | -------------------------------- | -------------------------------------------- | ---------------------------------------------------------- |
-| **Intake**            | `Manager/On-site Feedback/`      | manual                                       | Raw stakeholder asks captured before ticketing             |
-| **Draft**             | `Tickets/Drafts/`                | `/ticket-create` or `split-ticket-creator`   | Ticket written with story, AC, dependencies                |
-| **Review**            | Obsidian                         | human                                        | Engineer reviews, adjusts, approves                        |
-| **Push Tickets**      | MCP → Jira                       | `push it` / `promote`                        | Tickets created in Jira, get BMS numbers                   |
-| **Create**            | `Tickets/Created Tickets/`       | ticket-create skill                          | Renamed with BMS number, Jira link added                   |
-| **Engineering**       | `Engineering/`                   | `/engineering-notes`, `/start-ticket`        | Dev notes scaffolded; branch, PR, packages tracked         |
-| **Testing**           | `Testing Notes/`                 | manual (QA)                                  | QA notes written referencing BMS tickets                   |
-| **Documentation**     | `Documentation/`                 | manual                                       | Feature doc updated with BMS ticket references             |
-| **Push Notes & Docs** | MCP → Jira / Confluence          | manual                                       | QA tab + release notes pushed                              |
+| Stage                 | Where                       | Driver                                     | What Happens                                       |
+| --------------------- | --------------------------- | ------------------------------------------ | -------------------------------------------------- |
+| **Intake**            | `Manager/On-site Feedback/` | manual                                     | Raw stakeholder asks captured before ticketing     |
+| **Draft**             | `Tickets/Drafts/`           | `/ticket-create`                           | Ticket written with story, AC, dependencies        |
+| **Review**            | Obsidian                    | human                                      | Engineer reviews, adjusts, approves                |
+| **Push Tickets**      | MCP → Jira                  | `push it` / `promote`                      | Tickets created in Jira, get BMS numbers           |
+| **Create**            | `Tickets/Created Tickets/`  | ticket-create skill                        | Renamed with BMS number, Jira link added           |
+| **Engineering**       | `Engineering/`              | `/engineering-notes`                       | Dev notes scaffolded; branch, PR, packages tracked |
+| **Testing**           | `Testing Notes/`            | manual (QA)                                | QA notes written referencing BMS tickets           |
+| **Documentation**     | `Documentation/`            | manual                                     | Feature doc updated with BMS ticket references     |
+| **Push Notes & Docs** | MCP → Jira / Confluence     | manual                                     | QA tab + release notes pushed                      |
 
 ## Key Rules
 
@@ -58,11 +58,6 @@ flowchart TD
 4. **Documentation is per-feature** — one `.md` per Experience Cloud page or backend feature; tickets accumulate via the changelog
 5. **Green light required** — MCP push only after explicit approval
 
-## Ecom vs. Split
+## Project
 
-The same vault serves both projects:
-
-- **OHFY-Ecom** tickets: drafted via `/ticket-create`, generic storefront context
-- **OHFY-Split** tickets: drafted via `/ticket-create` or the `split-ticket-creator` agent (baked-in package/tier awareness for WMS, OMS, REX, Platform, and the Tier 0–4 deploy order)
-
-Both write to the same `Tickets/Drafts/` directory and share the same template and numbering.
+All tickets target the `BMS` Jira project (configured in `~/.claude/skills/engineering-notes/config.yml`). Drafts, engineering notes, and testing notes all key off the `BMS-XXXX` number assigned at push time.
