@@ -30,12 +30,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/Twilio/twilio-investigation-findings.md",
+                "file": "Work/Twilio/Twilio.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "twilio-investigation-findings"
+              "title": "Twilio"
             }
           },
           {
@@ -277,12 +277,11 @@
             }
           }
         ],
-        "currentTab": 7
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 442.5,
-    "collapsed": true
+    "width": 442.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -301,8 +300,8 @@
   },
   "active": "a6a8d79c47880c13",
   "lastOpenFiles": [
-    "Work/LWCS.md",
     "Work/Twilio/twilio-investigation-findings.md",
+    "Work/LWCS.md",
     "Work/Twilio/Twilio.md",
     "Excalidraw/Drawing 2026-05-19 10.11.31.excalidraw.md",
     "Images/Screenshot 2026-05-19 at 10.13.50 AM.png",

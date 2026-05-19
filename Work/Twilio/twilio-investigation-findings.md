@@ -356,7 +356,7 @@ with their not knowing the DID was actively in use for the scam.
       primary Auth Token revoked. Tracked under: *E-Commerce - Rotate
       Twilio API credentials to remediate unauthorized account access*.
 
-### Pending actions
+### Pending actions 
 
 - [ ] **Customer outreach to TBM** to assess whether their 3CX PBX
       was compromised, and what (if any) intended use they had for
