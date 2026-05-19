@@ -9,7 +9,10 @@ Account SID - ACCOUNT_SID
 ACe4c6b5faeb8677fee84ed3ed7148179d
 
 API
-SID - SK2d0ad4799c4cc1d592571ec93a3003a3
+
+SID
+SK2d0ad4799c4cc1d592571ec93a3003a3
+
 Auth Token
 7edeb572bd32a624e3743e0391da7b6b
 
@@ -42,3 +45,34 @@ My Twilio phone number: +16813373211
 
 Worked on Go-Live Blockers yesterday to get E-Commerce up and running on TBM prod
 
+
+Account SID
+<redacted — see 1Password>
+
+Auth Token
+<redacted — see 1Password>
+
+
+SID
+<redacted — see 1Password>
+
+Auth Token
+<redacted — see 1Password>
+
+
+TBM Key
+
+Account SID
+<redacted — see 1Password>
+
+
+SID
+<redacted — see 1Password>
+
+Secret
+<redacted — see 1Password>
+
+
+Works ✅
+Username = <redacted — see 1Password>
+Password = <redacted — see 1Password>
