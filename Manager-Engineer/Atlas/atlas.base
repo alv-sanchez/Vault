@@ -1,0 +1,22 @@
+filters:
+  and:
+    - file.inFolder("Manager-Engineer")
+    - file.ext == "md"
+    - 'packages_touched != null'
+properties:
+  file.link:
+    displayName: Note
+  packages_touched:
+    displayName: Area(s)
+  status:
+    displayName: Status
+  epic:
+    displayName: Epic
+views:
+  - type: table
+    name: 🗺️ By area
+    order: [file.link, packages_touched, status, epic]
+    columnSize:
+      file.link: 320
+      packages_touched: 260
+      status: 120

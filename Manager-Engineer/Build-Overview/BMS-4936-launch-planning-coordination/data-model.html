@@ -1,0 +1,192 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4936 — Launch Plan Data Model & Movement</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --accent:#58a6ff;--ok:#3fb950;--warn:#d29922;--create:#3fb950;--update:#58a6ff;--pull:#a371f7;--gate:#d29922}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:1080px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
+  h2{font-size:16px;margin:30px 0 10px;color:#c4cad8}
+  .sub{color:var(--dim);margin:0 0 20px}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8;margin-bottom:8px}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  a{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:12.5px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;letter-spacing:.02em}
+  .pill.create{background:rgba(63,185,80,.16);color:var(--create)}
+  .pill.update{background:rgba(88,166,255,.16);color:var(--update)}
+  .pill.pull{background:rgba(163,113,247,.16);color:var(--pull)}
+  .pill.gate{background:rgba(210,153,34,.16);color:var(--gate)}
+  .pill.md{background:rgba(63,185,80,.16);color:var(--create)}
+  .pill.lookup{background:rgba(88,166,255,.16);color:var(--update)}
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;font-size:13px;overflow-x:auto}
+  .diagram pre{margin:0;white-space:pre;font-family:"SF Mono",Consolas,monospace;color:#c4cad8;line-height:1.65}
+  .diagram .own{color:var(--create);font-weight:600}
+  .diagram .ext{color:var(--dim)}
+  .note{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.3);border-radius:10px;padding:12px 16px;font-size:13.5px;margin:10px 0}
+  .callout{background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.3);border-radius:10px;padding:12px 16px;font-size:13.5px;margin:10px 0}
+</style></head><body>
+
+<h1><span class="key">BMS-4936</span> — Launch Plan: Data Model & What Moves It</h1>
+<p class="sub">Relation dependencies for <code>Product_Launch__c</code> / <code>Product_Launch_Step__c</code>, and every place that creates, updates, or pulls that data.</p>
+<div class="meta">Branch <code>feat/launch-plan-checklist-bms-5592</code> · Org <code>ohfy-bms5592</code> · generated 2026-07-09</div>
+
+<h2>Object relationships</h2>
+<div class="diagram"><pre>
+                 <span class="ext">Item__c</span>  (Data-Model, pre-existing)
+                    │  lookup
+                    ▼
+        <span class="own">Product_Launch__c</span>  (master)  ◄── this story
+        External_Id__c · Launch_Date__c · Status__c
+        Readiness_Percent__c · At_Risk__c
+        Purchasing_Ready__c / Warehouse_Ready__c / POS_Ready__c / Sales_Activation_Ready__c
+                    │  master-detail
+                    ▼
+     <span class="own">Product_Launch_Step__c</span>  (detail)  ◄── this story
+     Lane__c · Step_Label__c · Offset_Days__c · Due_Date__c
+     Status__c · At_Risk__c · External_Id__c
+                    │  lookup
+                    ▼
+                  <span class="ext">User</span>  (Owner__c — who owns the step)
+
+  Read-only, informational only (queried by Item__c, never written to):
+    <span class="ext">Inventory__c</span>              → Warehouse Readiness context signal
+    <span class="ext">Purchase_Order_Item__c</span>     → Purchasing context signal
+    <span class="ext">Promotion__c</span>               → Sales Activation context signal
+</pre></div>
+
+<h2>Worked example — how a real record's checklist ties to its lanes</h2>
+<p class="sub">Using the actual demo record <code>PL-00000003</code>. Two separate fields are doing two separate jobs — that's the whole trick.</p>
+<div class="diagram"><pre>
+<span class="own">Product_Launch__c  "PL-00000003"</span>   (Id: a2lEi000001EKW9IAO)
+ Launch_Date__c = 07/13/26
+ Purchasing_Ready__c        = false  ◄─┐
+ Warehouse_Ready__c         = false  ◄─┤
+ POS_Ready__c               = false  ◄─┤  4 booleans, ONE per lane —
+ Sales_Activation_Ready__c  = false  ◄─┤  computed FROM the children below,
+ Readiness_Percent__c       = 13%    ◄─┘  never set directly
+
+        ▲ FK field "Product_Launch__c" (master-detail) — the ONLY real link
+        │ every step below points back up via this field
+        │
+  ┌─────┴──────────────────────────────────────────────────────────────┐
+  │  8 child Product_Launch_Step__c rows, all sharing that one FK      │
+  └──────────────────────────────────────────────────────────────────── ┘
+
+   Step                          Product_Launch__c (FK)   Lane__c                Status__c
+   ────────────────────────────  ───────────────────────  ─────────────────────  ───────────
+   Confirm supplier & initial PO  → a2lEi...EKW9IAO         "Purchasing"           Complete
+   PO received into DC            → a2lEi...EKW9IAO         "Purchasing"           Not Started
+   Slotting & location setup      → a2lEi...EKW9IAO         "Warehouse Readiness"  Not Started
+   Inventory staged at DCs        → a2lEi...EKW9IAO         "Warehouse Readiness"  Not Started
+   Design POS materials           → a2lEi...EKW9IAO         "POS Material"         Not Started
+   POS materials delivered        → a2lEi...EKW9IAO         "POS Material"         Not Started
+   Pricelist & promo configured   → a2lEi...EKW9IAO         "Sales Activation"     Not Started
+   Sales team briefed             → a2lEi...EKW9IAO         "Sales Activation"     Not Started
+
+        │
+        │ S_ProductLaunch.recalculateReadiness (fires on every step insert/update/delete)
+        ▼
+  1. Pull all 8 rows WHERE Product_Launch__c = a2lEi...EKW9IAO   (the FK — this is the only query filter)
+  2. In Apex memory, bucket them by their Lane__c STRING VALUE (plain text match, not a join):
+       "Purchasing"           → [Complete, Not Started]        → 1/2 complete → NOT ready
+       "Warehouse Readiness"  → [Not Started, Not Started]     → 0/2 complete → NOT ready
+       "POS Material"         → [Not Started, Not Started]     → 0/2 complete → NOT ready
+       "Sales Activation"     → [Not Started, Not Started]     → 0/2 complete → NOT ready
+  3. Write ONE UPDATE back to the parent, one boolean per bucket + overall %:
+       Purchasing_Ready__c = false, Warehouse_Ready__c = false,
+       POS_Ready__c = false, Sales_Activation_Ready__c = false,
+       Readiness_Percent__c = 1/8 = 13%
+</pre></div>
+<div class="note"><strong>The one-sentence version:</strong> the master-detail field (also confusingly named <code>Product_Launch__c</code>) is the only actual database relationship — it says "this step belongs to that launch." <code>Lane__c</code> is just a text value living on that same row; nothing in the schema forces it to be one of the four canonical strings except application code. The "linkage" you're looking for isn't a foreign key at all — it's a <em>grouping key</em> that Apex uses in memory, every time a step changes, to decide which of the 4 rollup booleans on the parent to rewrite.</div>
+
+<h2>Relationship table</h2>
+<table>
+<tr><th>From</th><th>To</th><th>Type</th><th>Cardinality</th><th>Notes</th></tr>
+<tr><td><code>Product_Launch__c</code></td><td><code>Item__c</code></td><td><span class="pill lookup">Lookup</span></td><td>Many → 1</td><td>The item being launched. Drives every context-signal query.</td></tr>
+<tr><td><code>Product_Launch_Step__c</code></td><td><code>Product_Launch__c</code></td><td><span class="pill md">Master-Detail</span></td><td>Many → 1</td><td>Deleting the launch cascades and deletes all its steps.</td></tr>
+<tr><td><code>Product_Launch_Step__c</code></td><td><code>User</code></td><td><span class="pill lookup">Lookup</span></td><td>Many → 1</td><td>Required via validation rule (<code>Owner_Required</code>), not at the lookup level — preserves <code>SetNull</code> delete behavior if a user is deactivated.</td></tr>
+<tr><td><code>Inventory__c</code></td><td><code>Item__c</code></td><td>Queried by</td><td>—</td><td>Read-only. <code>ProductLaunchController</code> counts distinct <code>Location__c</code> for the launch's item.</td></tr>
+<tr><td><code>Purchase_Order_Item__c</code></td><td><code>Item__c</code></td><td>Queried by</td><td>—</td><td>Read-only. Filtered to <code>Outstanding_Case_Quantity__c &gt; 0</code>.</td></tr>
+<tr><td><code>Promotion__c</code></td><td><code>Item__c</code></td><td>Queried by</td><td>—</td><td>Read-only. Ordered by <code>Start_Date__c</code> to find the earliest.</td></tr>
+</table>
+
+<h2>What moves it — creates, updates, pulls</h2>
+<table>
+<tr><th>Trigger point</th><th>Class / method</th><th>Action</th><th>Object touched</th><th>What happens</th></tr>
+<tr>
+  <td><code>Product_Launch__c</code><br>after insert</td>
+  <td><code>ProductLaunchTriggerService.afterInsert</code><br>→ <code>S_ProductLaunch.initiateLaunch</code></td>
+  <td><span class="pill create">CREATE</span></td>
+  <td><code>Product_Launch_Step__c</code> ×8</td>
+  <td>Generates the full 4-lane, 8-step checklist from the hardcoded <code>TEMPLATE</code>. Every step's <code>Due_Date__c</code> = <code>Launch_Date__c</code> − offset; <code>At_Risk__c</code> computed immediately if already overdue. <code>Owner__c</code> defaults to the launch's creator (placeholder, no persona logic).</td>
+</tr>
+<tr>
+  <td><code>Product_Launch__c</code><br>after update (<code>Launch_Date__c</code> changed)</td>
+  <td><code>ProductLaunchTriggerService.afterUpdate</code><br>→ <code>S_ProductLaunch.handleLaunchDateChange</code></td>
+  <td><span class="pill update">UPDATE</span></td>
+  <td><code>Product_Launch_Step__c</code> (all children)</td>
+  <td>Re-derives every step's <code>Due_Date__c</code> from its fixed <code>Offset_Days__c</code> against the new date, and re-evaluates <code>At_Risk__c</code>. Never auto-extends for late supplier changes — only recomputes.</td>
+</tr>
+<tr>
+  <td><code>Product_Launch_Step__c</code><br>after insert / update / delete</td>
+  <td><code>ProductLaunchStepTriggerService.*</code><br>→ <code>S_ProductLaunch.recalculateReadiness</code></td>
+  <td><span class="pill update">UPDATE</span></td>
+  <td><code>Product_Launch__c</code> (parent)</td>
+  <td>Re-queries <strong>all</strong> steps for the parent (not incremental), tallies per lane, and rewrites <code>Purchasing_Ready__c</code> / <code>Warehouse_Ready__c</code> / <code>POS_Ready__c</code> / <code>Sales_Activation_Ready__c</code>, <code>Readiness_Percent__c</code>, <code>At_Risk__c</code>, and <code>Status__c</code>. A lane with 0 steps is never "ready" (needs ≥1 step, 0 incomplete) — this is what makes a deleted lane show as not-ready with a lower total step count in the % denominator.</td>
+</tr>
+<tr>
+  <td>LWC load<br><code>productLaunchPlan</code></td>
+  <td><code>ProductLaunchController.getLaunchPlan</code></td>
+  <td><span class="pill pull">PULL</span></td>
+  <td><code>Product_Launch__c</code>, <code>Product_Launch_Step__c</code>, <code>Item__r.Name</code>, <code>Owner__r.Name</code></td>
+  <td>Cacheable read. Assembles the 4-lane view the board renders — no writes.</td>
+</tr>
+<tr>
+  <td>LWC load<br><code>productLaunchPlan</code></td>
+  <td><code>ProductLaunchController.buildContextSignals</code></td>
+  <td><span class="pill pull">PULL</span></td>
+  <td><code>Inventory__c</code>, <code>Purchase_Order_Item__c</code>, <code>Promotion__c</code></td>
+  <td>Three independent read-only queries by <code>Item__c</code>, one per applicable lane (POS Material has none wired). Purely informational — never feeds back into the ready flags.</td>
+</tr>
+<tr>
+  <td>Inline edit<br>(status dropdown / Reassign)</td>
+  <td><code>ProductLaunchController.updateStep</code></td>
+  <td><span class="pill update">UPDATE</span></td>
+  <td><code>Product_Launch_Step__c</code> (single row)</td>
+  <td>Writes <code>Status__c</code> and/or <code>Owner__c</code> on one step. This is what <em>re-triggers</em> the step trigger above — one inline edit cascades into a full parent-readiness recompute.</td>
+</tr>
+<tr>
+  <td>"+ New Task" (per-lane, added post-review)</td>
+  <td><code>ProductLaunchController.createStep</code></td>
+  <td><span class="pill create">CREATE</span></td>
+  <td><code>Product_Launch_Step__c</code> (single row)</td>
+  <td>Ad-hoc step outside the template. Re-queries the launch's <code>Launch_Date__c</code> and back-derives an <code>Offset_Days__c</code> from the given due date, so this step reflows the same as templated ones if the launch date later changes. Also re-triggers the step trigger → parent readiness recompute.</td>
+</tr>
+<tr>
+  <td>"Delete" (per-step, added post-review)</td>
+  <td><code>ProductLaunchController.deleteStep</code></td>
+  <td><span class="pill gate">DELETE</span></td>
+  <td><code>Product_Launch_Step__c</code> (single row)</td>
+  <td>Removes a step entirely. <code>afterDelete</code> on the step trigger still fires <code>recalculateReadiness</code> — a lane that drops to 0 steps is never "ready" (see note below), same behavior as the manually-emptied Sales Activation lane on demo record <code>PL-00000009</code>.</td>
+</tr>
+<tr>
+  <td>Save on any <code>Product_Launch_Step__c</code></td>
+  <td><code>Owner_Required</code> validation rule</td>
+  <td><span class="pill gate">GATE</span></td>
+  <td><code>Product_Launch_Step__c</code></td>
+  <td>Blocks save if <code>Owner__c</code> is blank. Not a mover — a guard rail.</td>
+</tr>
+</table>
+
+<div class="note"><strong>The cascade in one line:</strong> LWC edit → <code>updateStep</code> writes one step → step trigger fires → <code>recalculateReadiness</code> re-reads <em>all</em> sibling steps → rewrites the parent's rollups → LWC's cacheable read reflects the new state on next load/refresh.</div>
+<div class="callout"><strong>Known gap:</strong> the context-signal pulls (Inventory/PO/Promotion) and the checklist steps are entirely decoupled — completing a step never creates/updates the real PO, inventory, or promotion record it references, and vice versa. They're two independent signals meant to cross-check each other, not synced.</div>
+<div class="note"><strong>Post-review additions (not yet committed):</strong> ad-hoc task create/delete per lane, one-per-row collapsible layout, and <code>Offset_Days__c</code> now surfaced next to each step's due date (e.g. <code>Due 07/06/26 (-7d)</code>) — previously computed but never displayed. No permission-set changes were needed: <code>Lane__c</code>/<code>Step_Label__c</code>/<code>Offset_Days__c</code>/<code>Status__c</code> are all required fields, which Salesforce makes implicitly accessible to anyone with object create/edit rights (already granted) — explicit FLS entries for required fields aren't even deployable.</div>
+
+<p class="sub" style="margin-top:24px">Related: <a href="./overview.html">overview.html</a> · <a href="./orientation.html">orientation.html</a> (strata code-verified brief) · <a href="https://github.com/Ohanafy/OHFY-Split/pull/488">PR #488</a></p>
+</body></html>

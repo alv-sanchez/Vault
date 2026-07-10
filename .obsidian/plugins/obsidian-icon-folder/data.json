@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
-      "LiAnvil",
-      "LiTicket",
-      "LiNotebookTabs",
-      "LiBookTemplate",
-      "LiBook"
+      "LiAlertOctagon",
+      "LiAlertCircle",
+      "LiAlarmClockCheck",
+      "LiAlignHorizontalDistributeCenter",
+      "LiAlarmSmoke"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -38,5 +38,17 @@
   "Anvil/Templates": "LiBookTemplate",
   "Anvil/Testing Notes": "LiNotebookTabs",
   "Anvil/Tickets": "LiTicket",
-  "Anvil": "LiAnvil"
+  "Anvil": "LiAnvil",
+  "Anvil/Engineering/Sprints/Visuals/Process-Tooling": "LiAlarmSmoke",
+  "Anvil/Engineering/Sprints/Visuals/Transfers/Transfers-Quick-Wins-Whole-Picture.html": "LiAlarmClockMinus",
+  "Manager-Engineer": {
+    "iconName": "LiAlignHorizontalDistributeCenter",
+    "iconColor": "#fa0000"
+  },
+  "Manager-Engineer/Mission-Control/mission-control.html": {
+    "iconName": "LiAlarmClockCheck",
+    "iconColor": "#ff0000"
+  },
+  "Manager-Engineer/Build-Overview/BMS-5068-safety-stock": "LiAlertCircle",
+  "Manager-Engineer/Build-Overview/BMS-4965-short-pay": "LiAlertOctagon"
 }

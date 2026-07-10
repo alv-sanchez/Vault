@@ -1,0 +1,1009 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="900">
+<title>Mission Control — Active Epics</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --done:#3fb950;--prog:#d29922;--todo:#333b4d;--review:#a371f7;--refine:#58a6ff;--accent:#58a6ff;}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:26px}
+  h1{font-size:21px;margin:0 0 2px} .sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:104px}
+  .sc .n{font-size:24px;font-weight:700} .sc .l{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .sc.done .n{color:var(--done)} .sc.prog .n{color:var(--prog)} .sc.review .n{color:var(--review)} .sc.todo .n{color:var(--refine)}
+  section.todo-epics{background:linear-gradient(180deg,#12151d,#111722);border:1px dashed #2c3346;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  section.todo-epics>h2{font-size:13px;margin:0 0 14px;color:var(--refine);text-transform:uppercase;letter-spacing:.05em}
+  .phgroup{margin-bottom:14px} .phgroup:last-child{margin-bottom:0}
+  .phlabel{display:flex;align-items:center;gap:8px;margin:0 0 8px} .phlabel .phn{color:var(--dim);font-size:12px}
+  .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  a.tcard{display:block;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;text-decoration:none;transition:.12s}
+  a.tcard:hover{border-color:#3b4a6b;background:#1e2536;transform:translateY(-1px)}
+  .tc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .tkey{color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;font-size:12.5px}
+  .tc-title{color:var(--txt);font-weight:600;font-size:13px;line-height:1.35;margin-bottom:3px}
+  .tc-dom{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+  .tc-sum{color:#9aa3b8;font-size:12px;line-height:1.4}
+  .ph{display:inline-block;padding:1px 8px;border-radius:11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .ph.ph-crawl{background:rgba(63,185,80,.16);color:var(--done)}
+  .ph.ph-walk{background:rgba(210,153,34,.16);color:var(--prog)}
+  .ph.ph-run{background:rgba(163,113,247,.18);color:var(--review)}
+  .band{background:linear-gradient(180deg,#1c1526,#151925);border:1px solid #3a2d52;border-radius:12px;padding:14px 18px;margin-bottom:22px}
+  .band h2{font-size:13px;margin:0 0 10px;color:var(--review);text-transform:uppercase;letter-spacing:.05em}
+  .band .row{display:flex;gap:10px;align-items:center;padding:5px 0;flex-wrap:wrap}
+  .band .row a.k{color:var(--accent);text-decoration:none;font-weight:600}
+  .band .row .t{color:#c9cfe0} .band .row .ep{color:var(--dim);font-size:12px}
+  .band .bnote{flex-basis:100%;color:#9aa3b8;font-size:12.5px;line-height:1.45;margin:2px 0 4px;padding-left:2px}
+  .band .bnote.missing{color:#d29922;font-style:italic}
+  .prage{font-size:11px;color:var(--dim);background:#1c2130;border:1px solid var(--line);border-radius:6px;padding:0 7px;white-space:nowrap}
+  .prage.stale{color:#f0b429;background:rgba(210,153,34,.12);border-color:rgba(210,153,34,.35)}
+  section.epic{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  .ehead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .etitle a{color:var(--accent);text-decoration:none;font-weight:600}
+  .etitle b{font-weight:600} .dom{color:var(--dim);font-size:12px;margin-left:6px}
+  .eprog{min-width:210px;text-align:right} .pnum{color:var(--dim);font-size:12px;margin-left:8px} .pnum b{color:var(--txt)}
+  .esum{color:#b9c0d2;font-size:13px;margin:8px 0 10px;max-width:70ch}
+  .ecounts{margin:8px 0 12px}
+  .bar{display:inline-flex;vertical-align:middle;width:150px;height:8px;border-radius:5px;overflow:hidden;background:var(--todo)}
+  .seg{height:100%} .seg.done{background:var(--done)}.seg.prog{background:var(--prog)}.seg.todo{background:var(--todo)}
+  .twrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+  table.tix{border-collapse:collapse;width:100%;min-width:640px}
+  table.tix th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:8px 12px;background:var(--card2);border-bottom:1px solid var(--line)}
+  table.tix td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.tix tr:last-child td{border-bottom:none}
+  table.tix tr:hover td{background:var(--card2)}
+  .k a{color:var(--accent);text-decoration:none;font-weight:600;font-variant-numeric:tabular-nums}
+  .tt{color:#cdd3e2;max-width:44ch} .prc .dim,.dim{color:var(--dim)}
+  a.pr{color:var(--accent);text-decoration:none;font-weight:600}
+  .st{display:inline-block;padding:1px 8px;border-radius:11px;font-size:12px;font-weight:600;white-space:nowrap}
+  .st-review{background:rgba(163,113,247,.18);color:var(--review)}
+  .st-prog{background:rgba(210,153,34,.18);color:var(--prog)}
+  .st-done{background:rgba(63,185,80,.18);color:var(--done)}
+  .st-refine{background:rgba(88,166,255,.16);color:var(--refine)}
+  .st-todo{background:rgba(136,145,165,.14);color:var(--dim)}
+  .tag{display:inline-block;padding:0 7px;border-radius:6px;font-size:11px;font-weight:600;margin-left:4px}
+  .tag.pin{background:rgba(210,153,34,.16);color:var(--prog)}
+  .tag.rev{background:rgba(163,113,247,.2);color:var(--review)}
+  .tag.merged{background:rgba(163,113,247,.2);color:#c9a5ff}
+  .tag.closed{background:rgba(248,81,73,.16);color:#f85149}
+  .tag.draft{background:rgba(136,145,165,.18);color:var(--dim)}
+  .tag.exp{background:rgba(248,81,73,.16);color:#f85149}
+  .tag.ty-story{background:#22283a;color:#9fb4e6}.tag.ty-spike{background:#2a2340;color:#c4a5f5}.tag.ty-demo{background:#243024;color:#8fce8f}
+  .tag.pol{background:rgba(88,166,255,.16);color:#79c0ff}
+  .tag.bd{border:1px solid transparent}
+  .tag.bd.bd-ui{background:rgba(219,109,222,.16);color:#e29aff;border-color:rgba(219,109,222,.35)}
+  .tag.bd.bd-be{background:rgba(88,166,255,.14);color:#8cc2ff;border-color:rgba(88,166,255,.32)}
+  .tag.bd.bd-both{background:rgba(63,185,80,.15);color:#7ee787;border-color:rgba(63,185,80,.32)}
+  .tag.bd.bd-spike{background:rgba(163,113,247,.18);color:#c4a5f5;border-color:rgba(163,113,247,.35)}
+  .tag.bd.bd-docs{background:rgba(136,145,165,.16);color:#b3bccf;border-color:rgba(136,145,165,.32)}
+  .tnote{color:#8891a5;font-size:12px;line-height:1.4;margin-top:3px}
+  .ectx{display:flex;flex-direction:column;gap:5px;margin:2px 0 12px;padding:10px 12px;background:var(--card2);border:1px solid var(--line);border-radius:8px;max-width:78ch}
+  .ectx .ctx{display:flex;gap:9px;align-items:baseline;font-size:12.5px;line-height:1.45}
+  .ectx .cl{flex:0 0 92px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .ectx .cl-user{color:#8cc2ff} .ectx .cl-impact{color:var(--prog)} .ectx .cl-sol{color:var(--done)}
+  .ectx .cv{color:#c9cfe0}
+  .tc-impact{color:#c9a24a;font-size:11.5px;line-height:1.4;margin-top:5px}
+  .pill{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin-right:5px}
+  .pill.done{background:rgba(63,185,80,.16);color:var(--done)}.pill.prog{background:rgba(210,153,34,.16);color:var(--prog)}
+  .pill.todo{background:rgba(136,145,165,.14);color:var(--dim)}.pill.tot{background:#222a3c;color:var(--txt)}
+  .pill.pol{background:rgba(88,166,255,.16);color:#79c0ff}
+  .orgchips{margin-left:6px;color:var(--dim);font-size:12px}
+  td.org code,.orgchips code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:12px}
+  .cpy{cursor:pointer;transition:.12s} .cpy:hover{background:#2a3550 !important;color:#c9e0ff !important;outline:1px solid #3b4a6b}
+  .cmdblock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 13px;margin:14px 0 4px;font-size:13px}
+  .cmdblock .lbl{color:var(--dim)} .cmdblock code{background:#0d1017;border:1px solid var(--line);color:#9ecbff;border-radius:6px;padding:4px 9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .cmdblock .hint{color:var(--dim);font-size:11.5px;margin-left:auto}
+  .cpybtn{background:var(--accent);color:#08131f;border:none;border-radius:6px;padding:4px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+  .cpybtn:hover{filter:brightness(1.08)}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2634;color:#e7e9f0;border:1px solid #3b4a6b;border-radius:8px;padding:9px 16px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 24px rgba(0,0,0,.4);z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{color:var(--dim);font-size:12px;margin-top:16px}
+</style></head><body>
+  <h1>🛰️ Mission Control</h1>
+  <div class="sub">6 active epics · 32 tickets · refreshed <b>2026-07-08 22:57</b> · auto-reloads every 15 min</div>
+  <div class="cmdblock"><span class="lbl">Open a dev org →</span><code class="cpy" data-copy="sf org open --target-org &lt;orgName&gt;">sf org open --target-org &lt;orgName&gt;</code><button class="cpybtn" data-copy="sf org open --target-org &lt;orgName&gt;">Copy</button><span class="hint">tip: click any org below to copy its real command</span></div>
+
+  <div class="cards">
+    <div class="sc"><div class="n">6</div><div class="l">Active epics</div></div>
+    <div class="sc"><div class="n">32</div><div class="l">Tickets</div></div>
+    <div class="sc prog"><div class="n">7</div><div class="l">In progress</div></div>
+    <div class="sc review"><div class="n">8</div><div class="l">In review / PR</div></div>
+    <div class="sc done"><div class="n">10</div><div class="l">Done</div></div>
+    <div class="sc todo"><div class="n">12</div><div class="l">To-do epics</div></div>
+  </div>
+
+  <div class="band"><h2>⚡ Needs your eyes — in review / open PR</h2>
+    <div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5592">BMS-5592</a>
+      <span class="st st-review">Review</span>
+      <span class="t">New-Product Launch Plan record + cross-functional readiness checklist</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/488">PR #488</a><span class="prage" title="PR opened 1 day ago">1d old</span>
+      <span class="ep">· BMS-4936</span><div class="bnote">Foundation of launch planning — one launch-plan record + 4-track readiness checklist (purchasing/warehouse/POS/sales); the later 'don't launch dry' + 'don't promote early' guards read this.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a>
+      <span class="st st-refine">Needs Refinement</span>
+      <span class="t">Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/439">PR #439</a><span class="prage stale" title="PR opened 8 days ago">8d old ⏳</span>
+      <span class="ep">· BMS-4965</span><div class="bnote">Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4079">BMS-4079</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Shift-End Workflow — Ph 2: Cycle Counts &amp; Pass-Down Notes</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/470">PR #470</a><span class="prage" title="PR opened 3 days ago">3d old</span>
+      <span class="ep">· BMS-5070</span><div class="bnote">Shift-End Ph2 — ties cycle counts + categorized pass-down notes to the shift record, replacing the informal handoff.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4080">BMS-4080</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Shift-End Workflow — Ph 3: Submission &amp; Finance Reporting</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/470">PR #470</a><span class="prage" title="PR opened 3 days ago">3d old</span>
+      <span class="ep">· BMS-5070</span><div class="bnote">Shift-End Ph3 — submission flow + breakage→shrinkage rollup feeding finance/ops reporting.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5754">BMS-5754</a>
+      <span class="st st-prog">In Progress</span>
+      <span class="t">Surface estimated additional inventory value ($) on the override impact report</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/492">PR #492</a><span class="prage" title="PR opened 1 day ago">1d old</span>
+      <span class="ep">· BMS-5068</span><div class="bnote">Adds the estimated additional-inventory $ value to the safety-stock override impact report (the missing dollar figure flagged in 5068 QA / BMS-5641).</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a>
+      <span class="st st-review">Review</span>
+      <span class="t">E-Commerce — Gulf login page (passwordless) + registration placeholder</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/458">PR #458</a><span class="prage" title="PR opened 3 days ago">3d old</span>
+      <span class="ep">· BMS-5576</span><div class="bnote">Ecom storefront auth — passwordless Gulf login + a registration entry point.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Self-service account management (address, contacts)</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">PR #388</a><span class="prage stale" title="PR opened 14 days ago">2w old ⏳</span>
+      <span class="ep">· BMS-5576</span><div class="bnote">Ecom self-service — retailers manage their own addresses + contacts in the portal.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5344">BMS-5344</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Reorder - Updated-pricing banner unreadable (blue-on-blue) in themed storefronts</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/302">PR #302</a><span class="prage stale" title="PR opened 25 days ago">3w old ⏳</span>
+      <span class="ep">· BMS-5576</span><div class="bnote">Ecom fix — the updated-pricing banner renders blue-on-blue (unreadable) in themed storefronts; fix the contrast.</div></div>
+  </div>
+
+  <section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4936">BMS-4936</a> <b>Launch Planning Coordination</b>
+        
+        <span class="dom">Allocation &amp; Launch Planning · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 1 in progress · 0 to do of 1">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:100%"></span><span class="seg todo" style="width:0%"></span></div><span class="pnum"><b>0%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">One shared plan to sequence a new-product launch across teams. Foundation story (5592) in review; epic just picked up.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf new-product launch coordinator + purchasing, warehouse, marketing &amp; sales.</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Stops promos firing before product lands and POS arriving late — one plan so nothing slips at launch.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Launch Plan record + 4-track readiness checklist (purchasing/warehouse/POS/sales), owners &amp; due-dates back-counted from launch day.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">1 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">1 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5592">BMS-5592</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">New-Product Launch Plan record + cross-functional readiness checklist <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">Foundation of launch planning — one launch-plan record + 4-track readiness checklist (purchasing/warehouse/POS/sales); the later 'don't launch dry' + 'don't promote early' guards read this.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/488">#488</a> <span class='tag rev'>review</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> <b>Short Pay Automation</b>
+        
+        <span class="dom">Delivery · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 2 in progress · 10 to do of 12">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:17%"></span><span class="seg todo" style="width:83%"></span></div><span class="pnum"><b>0%</b> done · 17% started</span></div>
+    </div>
+    <div class="esum">Driver short-pay detection → FL/AL compliance escalation → resolution/reporting. Ph2 &amp; Ph3 in progress; Ph4+ backlog.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf delivery drivers + AR/finance and FL/AL compliance teams.</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Driver-side detection with reason coding → FL/AL escalation rules → resolution, reporting &amp; history.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">2 in progress</span><span class="pill todo">10 to do</span><span class="pill tot">12 total</span><span class="pill pol">✨ 2/12 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4057">BMS-4057</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Spike: Data Model &amp; Compliance Rules <span class="tag bd bd-spike" title="what gets built">Spike</span><div class="tnote">define data model + FL/AL compliance rules</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4058">BMS-4058</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 1: Driver Detection &amp; Reason Coding <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">driver flags short-pay at delivery w/ reason codes</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 2: Compliance Escalation (FL/AL) <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">auto-escalate per FL/AL market rules</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 3: Resolution, Reporting &amp; History <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">resolution workflow + history &amp; reporting</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4784">BMS-4784</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — Short Pay Automation <span class="tag bd bd-ui" title="what gets built">UI</span><div class="tnote">design/prototype for customer demo</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4785">BMS-4785</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — Short Pay Automation <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">scope the reporting model</div></td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4786">BMS-4786</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — Short Pay Automation <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">build the short-pay reports</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5561">BMS-5561</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Returns mismatch detection with recon credit hold <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">detect returns mismatch, hold recon credit</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.</div></td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/439">#439</a></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 5: EFT Short Pay Detection via Bank Reconciliation <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">detect EFT short-pays via bank reconciliation</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5627">BMS-5627</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 6: AR Aging Visibility (Net-30 Not-Yet-Due) [Pending Product Confirmation] <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">surface Net-30 not-yet-due AR aging (pending product)</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay Automation — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">stateful multi-layer approve/reject workflow</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5070">BMS-5070</a> <b>Shift-End Workflow</b>
+        
+        <span class="dom">Inventory Management · crawl</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 2 in progress · 2 to do of 5">
+    <span class="seg done" style="width:20%"></span><span class="seg prog" style="width:40%"></span><span class="seg todo" style="width:40%"></span></div><span class="pnum"><b>20%</b> done · 60% started</span></div>
+    </div>
+    <div class="esum">Ph1 (4078) MERGED/Done; Ph2 &amp; Ph3 (4079/4080) now in Review; spike + umbrella still backlog.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf warehouse supervisors + finance (shrinkage reporting).</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Ends lost breakage/pass-down context between shifts and gives finance shift-attributed shrinkage without manual VIP keying.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Structured shift-end checklist — breakage review, cycle counts, pass-down notes → finance roll-up.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">2 in progress</span><span class="pill todo">2 to do</span><span class="pill tot">5 total</span><span class="pill pol">✨ 1/5 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3831">BMS-3831</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Shift-End Workflow <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">umbrella story for the workflow</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4077">BMS-4077</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Shift-End Workflow — Spike: Checklist Schema &amp; Breakage Model <span class="tag bd bd-spike" title="what gets built">Spike</span><div class="tnote">checklist schema + breakage data model</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4078">BMS-4078</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Shift-End Workflow — Ph 1: Checklist &amp; Breakage Review <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">shift-end checklist + breakage review</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/431">#431</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4079">BMS-4079</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Shift-End Workflow — Ph 2: Cycle Counts &amp; Pass-Down Notes <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">Shift-End Ph2 — ties cycle counts + categorized pass-down notes to the shift record, replacing the informal handoff.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/470">#470</a> <span class='tag rev'>review</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4080">BMS-4080</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Shift-End Workflow — Ph 3: Submission &amp; Finance Reporting <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">Shift-End Ph3 — submission flow + breakage→shrinkage rollup feeding finance/ops reporting.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/470">#470</a> <span class='tag rev'>review</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5067">BMS-5067</a> <b>Practical Days on Hand</b>
+        
+        <span class="dom">Inventory Management · walk</span></div>
+      <div class="eprog"><div class="bar" title="2 done · 0 in progress · 0 to do of 2">
+    <span class="seg done" style="width:100%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:0%"></span></div><span class="pnum"><b>100%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">MERGED — variance surfacing (3816) + spike-doc merge (5702) both Done. Benchmark storage + DOI calc already shipped; epic effectively complete.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf inventory analysts &amp; purchasing (warehouse and location grain).</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Turns the already-shipped DOH benchmarks into actionable over/understock signals without spreadsheets.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Surface target-vs-actual variance on inventory + reports; benchmark storage &amp; DOI calc already shipped.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">2 done</span><span class="pill prog">0 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">2 total</span><span class="pill pol">✨ 2/2 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3816">BMS-3816</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Practical DOH — target-vs-actual variance at warehouse and location grain <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">variance fields + report columns + 'No Benchmark' state</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/481">#481</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5702">BMS-5702</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Merge DOH/DOI spike docs from refactor/3817-doi-doh-spike to main <span class="tag bd bd-docs" title="what gets built">Docs</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">merge DOI/DOH spike docs to main</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/481">#481</a> <span class='tag merged'>merged</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5068">BMS-5068</a> <b>Safety Stock Controls</b>
+        
+        <span class="dom">Inventory Management · crawl</span></div>
+      <div class="eprog"><div class="bar" title="7 done · 1 in progress · 0 to do of 8">
+    <span class="seg done" style="width:88%"></span><span class="seg prog" style="width:13%"></span><span class="seg todo" style="width:-1%"></span></div><span class="pnum"><b>88%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">Core epic MERGED (PR #442): clone + 5 hardening stories all Done. New story 5754 (extra-inventory $ on impact report) now In Progress.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf demand planners raising buffers for specific suppliers/SKUs.</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Protects service levels during supply disruption without touching system-wide reorder defaults.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Production-ready clone + hardened supplier/SKU override lifecycle, expiry, UI, audit &amp; reporting.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">7 done</span><span class="pill prog">1 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">8 total</span><span class="pill pol">✨ 1/8 polished</span><span class="orgchips">🖥️ <code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠</span></span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4025">BMS-4025</a></td>
+      <td class="ty"><span class="tag ty-demo">Demo</span></td>
+      <td class="tt">Safety Stock Controls [Demo April 17] <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">April 17 demo baseline</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4217">BMS-4217</a></td>
+      <td class="ty"><span class="tag ty-demo">Demo</span></td>
+      <td class="tt">CLONE - Safety Stock Controls [Production Ready] <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">hardened production clone</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5636">BMS-5636</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Safety Stock: supplier-scope override + Scheduled/Manually-Closed lifecycle <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">supplier-scope override + scheduled/closed lifecycle</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5638">BMS-5638</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Safety Stock: override expiry &amp; approaching-expiry notifications <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">override expiry + approaching-expiry alerts</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5639">BMS-5639</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Safety Stock: freeze effective DOI + resolution source on replenishment task <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">freeze effective DOI + resolution source on task</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5640">BMS-5640</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Safety Stock: planning &amp; management UI + impact preview <span class="tag bd bd-ui" title="what gets built">UI</span><div class="tnote">planning/management UI + impact preview</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5641">BMS-5641</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Safety Stock: override audit history + impact reporting <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">override audit history + impact reporting</div></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class='tag merged'>merged</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5754">BMS-5754</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Surface estimated additional inventory value ($) on the override impact report <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">Adds the estimated additional-inventory $ value to the safety-stock override impact report (the missing dollar figure flagged in 5068 QA / BMS-5641).</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org shortStock4" title="Copy: sf org open --target-org shortStock4">shortStock4</code> <span class='tag exp'>⚠ expired</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/492">#492</a></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4935">BMS-4935</a> <b>Red Bull Allocation Import Automation</b>
+        
+        <span class="dom">Allocation &amp; Launch Planning · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 1 in progress · 3 to do of 4">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:25%"></span><span class="seg todo" style="width:75%"></span></div><span class="pnum"><b>0%</b> done · 25% started</span></div>
+    </div>
+    <div class="esum">Ph1 import/validation/warehouse-split in progress.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf purchasing team processing Red Bull's weekly allocation files.</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Eliminates manual entry/reconciliation and prevents over-ordering against supplier limits across 5 warehouses.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Automated import + validation + warehouse split, with account mapping, seasonality &amp; audit trail.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">1 in progress</span><span class="pill todo">3 to do</span><span class="pill tot">4 total</span><span class="pill pol">✨ 4/4 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3735">BMS-3735</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Allocation Import Automation <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">umbrella story</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4119">BMS-4119</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Allocation Import — Spike: File Format &amp; Validation Rules <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">file format + validation rules</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4120">BMS-4120</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Allocation Import — Ph 1: Import, Validation &amp; Warehouse Split <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">import + validation + 5-warehouse split</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4121">BMS-4121</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Allocation Import — Ph 2: Account Mapping, Seasonality &amp; Audit <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">account mapping, seasonality &amp; audit</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="todo-epics">
+    <h2>📋 To Do — assigned to you · 12 epics (children expanded)</h2>
+    <section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a> <b>Ecom — Phase 2: Pricing/Promo Completion &amp; Checkout</b>
+        
+        <span class="dom">E-Commerce &amp; Ordering · walk</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 5 in progress · 3 to do of 9">
+    <span class="seg done" style="width:11%"></span><span class="seg prog" style="width:56%"></span><span class="seg todo" style="width:33%"></span></div><span class="pnum"><b>11%</b> done · 67% started</span></div>
+    </div>
+    <div class="esum">Closes the storefront ordering loop; several stories already in review/in-progress.</div>
+    
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">5 in progress</span><span class="pill todo">3 to do</span><span class="pill tot">9 total</span><span class="pill pol">✨ 6/9 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">E-Commerce — Gulf login page (passwordless) + registration placeholder<div class="tnote">Ecom storefront auth — passwordless Gulf login + a registration entry point.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/458">#458</a> <span class='tag rev'>review</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Self-service account management (address, contacts) <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">Ecom self-service — retailers manage their own addresses + contacts in the portal.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">#388</a> <span class='tag rev'>review</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4050">BMS-4050</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Cart &amp; Checkout with Gulf Pricing — Ph 1: Cart + Basic Pricing <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Won't Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/294">#294</a> <span class='tag draft'>draft</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4051">BMS-4051</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Cart &amp; Checkout with Gulf Pricing — Ph 2: Volume Tiers + Promos <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4052">BMS-4052</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Cart &amp; Checkout with Gulf Pricing — Ph 3: Checkout + Tax + Order</td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4053">BMS-4053</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer Portal Product Card — Ph 1: Card Component <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/293">#293</a> <span class='tag draft'>draft</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4054">BMS-4054</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer Portal Product Card — Ph 2: Grid Layout + Reuse <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/296">#296</a> <span class='tag draft'>draft</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5321">BMS-5321</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">E-Commerce — segmented promotional banners at login (retailer group, promos, seasonality) <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5344">BMS-5344</a></td>
+      <td class="ty"><span class="tag ty-bug">Bug</span></td>
+      <td class="tt">Reorder - Updated-pricing banner unreadable (blue-on-blue) in themed storefronts<div class="tnote">Ecom fix — the updated-pricing banner renders blue-on-blue (unreadable) in themed storefronts; fix the contrast.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/302">#302</a> <span class='tag merged'>merged</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5577">BMS-5577</a> <b>Ecom — Post-MVP: Credit, Self-Service v2, Allocation, Availability, Reporting</b>
+        
+        <span class="dom">E-Commerce &amp; Ordering · run</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 6 to do of 6">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Deferred / dependency-gated ecom work beyond Ph1/Ph2.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">6 to do</span><span class="pill tot">6 total</span><span class="pill pol">✨ 1/6 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3920">BMS-3920</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">E-Commerce — supplier allocation constraints &amp; case-pack rounding on storefront orders</td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3925">BMS-3925</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Product Catalog &amp; Availability for Retailers</td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4494">BMS-4494</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — Retailer Online Ordering Experience <span class="tag bd bd-spike" title="what gets built">Spike</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4495">BMS-4495</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — Retailer Online Ordering Experience</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4525">BMS-4525</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer credit terms — Ph 2: AR sync, invoice list &amp; payment history (Gulf) <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5322">BMS-5322</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Self-service account management v2 — zone model, address validation, change-approval process (deferred from BMS-3932)</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a> <b>Retailer Engagement Notifications</b>
+        
+        <span class="dom">E-Commerce &amp; Ordering · walk</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 0 in progress · 5 to do of 6">
+    <span class="seg done" style="width:17%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:83%"></span></div><span class="pnum"><b>17%</b> done · 17% started</span></div>
+    </div>
+    <div class="esum">Rep-notify done; abandoned-cart, order-status, spike + design remain.</div>
+    
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">0 in progress</span><span class="pill todo">5 to do</span><span class="pill tot">6 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3921">BMS-3921</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer Engagement Notifications</td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3931">BMS-3931</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Order status tracking &amp; delivery notifications</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4073">BMS-4073</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">E-Commerce - Notification Services: Abandoned Cart Reminder &amp; Order Confirmation</td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4192">BMS-4192</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Sales rep notifications on order confirmation (rep contact in retailer email + new rep-facing email)</td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4534">BMS-4534</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Discovery Spike — Retailer Engagement Notifications <span class="tag bd bd-spike" title="what gets built">Spike</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4535">BMS-4535</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — Retailer Engagement Notifications</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a> <b>DOI Formula Standardization</b>
+        
+        <span class="dom">Purchasing &amp; Supply Planning · walk</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 0 in progress · 4 to do of 5">
+    <span class="seg done" style="width:20%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:80%"></span></div><span class="pnum"><b>20%</b> done · 20% started</span></div>
+    </div>
+    <div class="esum">Resolver baseline done; spike + build + demo remain.</div>
+    
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">0 in progress</span><span class="pill todo">4 to do</span><span class="pill tot">5 total</span><span class="pill pol">✨ 4/5 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">DOI Formula Standardization <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3822">BMS-3822</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Inventory Threshold — Baseline Object &amp; Resolver <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4543">BMS-4543</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — DOI Formula Standardization <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4544">BMS-4544</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — DOI Formula Standardization <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4545">BMS-4545</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — DOI Formula Standardization</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5062">BMS-5062</a> <b>Inter-Warehouse Inventory Visibility</b>
+        
+        <span class="dom">Inventory Management · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 2 to do of 2">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Base story + draft-transfer netting.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">2 to do</span><span class="pill tot">2 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3823">BMS-3823</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Inter-Warehouse Inventory Visibility</td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5567">BMS-5567</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Forecast: draft transfers netted in</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5060">BMS-5060</a> <b>Days of Inventory (DOI)</b>
+        
+        <span class="dom">Inventory Management · walk</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 0 in progress · 1 to do of 2">
+    <span class="seg done" style="width:50%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:50%"></span></div><span class="pnum"><b>50%</b> done · 50% started</span></div>
+    </div>
+    <div class="esum">Spike done; forecast warehouse-space constraint remains.</div>
+    
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">0 in progress</span><span class="pill todo">1 to do</span><span class="pill tot">2 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3817">BMS-3817</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Days on Hand / Days of Inventory - Spike</td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5566">BMS-5566</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Forecast: warehouse-space constraint</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5155">BMS-5155</a> <b>DOT-Aware Transfer Scheduling Logic</b>
+        
+        <span class="dom">Transfers &amp; Regulatory Compliance · walk</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 4 to do of 4">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Base story + design + reporting spike/build.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">4 to do</span><span class="pill tot">4 total</span><span class="pill pol">✨ 4/4 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3788">BMS-3788</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">DOT-Aware Transfer Scheduling Logic <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4738">BMS-4738</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — DOT-Aware Transfer Scheduling Logic <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4739">BMS-4739</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — DOT-Aware Transfer Scheduling Logic <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4740">BMS-4740</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — DOT-Aware Transfer Scheduling Logic <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5139">BMS-5139</a> <b>Supplier Portal: Payment Method Capture</b>
+        
+        <span class="dom">Supplier Management · walk</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 1 to do of 1">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Single story.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">1 to do</span><span class="pill tot">1 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3738">BMS-3738</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Supplier Portal: Payment Method Capture</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5148">BMS-5148</a> <b>Supplier Portal: Automated Order Recommendations</b>
+        
+        <span class="dom">Supplier Management · walk</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 1 to do of 1">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Single story.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">1 to do</span><span class="pill tot">1 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3737">BMS-3737</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Supplier Portal: Automated Order Recommendations</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4997">BMS-4997</a> <b>Call Center Order Visibility</b>
+        
+        <span class="dom">OMS / Delivery · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 2 to do of 2">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Give call-center agents promo + account-pricing + order-history context in one view. Two backlog stories, unpolished.</div>
+    
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">2 to do</span><span class="pill tot">2 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3858">BMS-3858</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Call Center Order Visibility</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3922">BMS-3922</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Call Center Order Visibility (retailer view)</td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+    
+      <div class="phgroup"><div class="phlabel"><span class="ph ph-crawl">crawl</span> <span class="phn">2</span></div>
+      <div class="tgrid"><a class="tcard" href="https://ohanafy.atlassian.net/browse/BMS-5164">
+    <div class="tc-top"><span class="tkey">BMS-5164</span><span class="ph ph-crawl">crawl</span></div>
+    <div class="tc-title">FL Transfer Certificate Automation</div>
+    <div class="tc-dom">Transfers &amp; Regulatory Compliance</div>
+    <div class="tc-sum">No child stories yet.</div>
+    
+  </a><a class="tcard" href="https://ohanafy.atlassian.net/browse/BMS-5161">
+    <div class="tc-top"><span class="tkey">BMS-5161</span><span class="ph ph-crawl">crawl</span></div>
+    <div class="tc-title">Supplier Freight Cost Billbacks</div>
+    <div class="tc-dom">Transfers &amp; Regulatory Compliance</div>
+    <div class="tc-sum">No child stories yet.</div>
+    
+  </a></div></div>
+  </section>
+
+  <footer>🛰️ Generated by the <code>mission-control</code> skill from live Jira + GitHub. Status = Jira; PRs matched by BMS number on the branch. Re-run the skill (or <code>/loop</code> it) to refresh.</footer>
+  <div id="toast"></div>
+  <script>
+    document.addEventListener('click', function(e){
+      var el = e.target.closest('[data-copy]'); if(!el) return;
+      var cmd = el.getAttribute('data-copy');
+      (navigator.clipboard ? navigator.clipboard.writeText(cmd) : Promise.reject()).catch(function(){
+        var ta=document.createElement('textarea'); ta.value=cmd; document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta);
+      });
+      var t=document.getElementById('toast'); t.textContent='📋 Copied — '+cmd;
+      t.classList.add('show'); clearTimeout(window._t); window._t=setTimeout(function(){t.classList.remove('show');},1700);
+    });
+  </script>
+</body></html>

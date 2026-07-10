@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shift-End — breakage streams & data flow</title>
+<style>
+  :root{--bg:#0e1117;--card:#161b22;--line:#2a3140;--txt:#e6edf3;--dim:#9aa7b8;
+        --pick:#d29922;--truck:#f778ba;--shift:#7c5cff;--ok:#3fb950;--read:#58a6ff;--write:#f778ba}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;padding:28px}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px} .sub{color:var(--dim);margin:0 0 24px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin:30px 0 12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+  .stage{flex:1;min-width:118px;background:#12161e;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .stage .n{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .stage .l{font-weight:700;margin-top:2px} .stage .d{color:var(--dim);font-size:12px;margin-top:3px}
+  .stage.pick{border-color:var(--pick);box-shadow:0 0 0 1px rgba(210,153,34,.3)}
+  .stage.truck{border-color:var(--truck);box-shadow:0 0 0 1px rgba(247,120,186,.3)}
+  .stage.shift{border-color:var(--shift);box-shadow:0 0 0 1px rgba(124,92,255,.4)}
+  .arrow{align-self:center;color:var(--dim);font-size:18px;padding:0 2px}
+  .tag{display:inline-block;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-top:6px}
+  .t-read{background:rgba(88,166,255,.18);color:#79c0ff} .t-no{background:rgba(247,120,186,.14);color:#f0a3cf}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:780px){.cols{grid-template-columns:1fr}}
+  .col{border:1px solid var(--line);border-radius:10px;padding:12px}
+  .col.pick{border-color:var(--pick)} .col.truck{border-color:var(--truck)}
+  .col h3{margin:0 0 8px;font-size:14px} .col.pick h3{color:var(--pick)} .col.truck h3{color:#f0a3cf}
+  .col ul{margin:0;padding-left:18px} .col li{margin:4px 0;font-size:12.5px}
+  code{background:#0d1117;border:1px solid var(--line);border-radius:4px;padding:.5px 5px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:2px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:11px;text-transform:uppercase}
+  .rw{font-size:10px;font-weight:700;border-radius:4px;padding:1px 5px;margin-right:4px}
+  .r{background:rgba(88,166,255,.16);color:var(--read)} .w{background:rgba(247,120,186,.16);color:var(--write)}
+  .note{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:13px}
+  .note.warn{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.45)}
+  .note.gap{background:rgba(247,120,186,.08);border:1px solid rgba(247,120,186,.4)}
+  b.hi{color:var(--txt)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Shift-End — the two breakage streams & what it actually reads</h1>
+  <p class="sub">BMS-5070 · <b>there are TWO independent breakage-capture flows.</b> Shift-End reconciles <b>only the Pick Path one.</b></p>
+
+  <h2>Two places breakage is recorded (different objects, different flows)</h2>
+  <div class="card">
+    <div class="cols">
+      <div class="col pick">
+        <h3>🧾 Pick Path — warehouse picking</h3>
+        <ul>
+          <li><b>UI:</b> <code>pickPathStop.js</code> → <code>E_PickPathFulfillment</code></li>
+          <li><b>Records to:</b> <code>Pick_Event__c</code></li>
+          <li><b>Fields:</b> <code>Reason__c='DAMAGED'</code>, <code>Breakage_Quantity__c</code>, on the picked bin <code>Location__c</code></li>
+          <li><b>Who/when:</b> picker, during the shift, per stop</li>
+          <li><span class="tag t-read">✅ Shift-End READS this</span></li>
+        </ul>
+      </div>
+      <div class="col truck">
+        <h3>🚚 Add-to-Truck — delivery / load-out</h3>
+        <ul>
+          <li><b>UI:</b> <code>addToTruck.js</code> (OHFY-OMS-UI) → <code>AddToTruckController</code></li>
+          <li><b>Records to:</b> <code>Invoice_Item__c.Unsold_Reason__c</code> + <code>Credit__c</code> + <code>Inventory_Adjustment__c</code></li>
+          <li><b>Values:</b> <code>Breakage - Retail</code> / <code>Breakage - Driver</code> / <code>Breakage - Warehouse</code></li>
+          <li><b>Who/when:</b> driver / delivery, at load-out or the stop</li>
+          <li><span class="tag t-no">❌ Shift-End does NOT read this</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note warn">✅ <b>Correction:</b> earlier I said "add-to-truck records no breakage" — that was wrong. Add-to-Truck <b>does</b> record breakage, via unsold <b>Breakage-Retail/Driver/Warehouse</b> reason codes (credits + inventory adjustments). It's simply a <b>separate stream on a different object</b> than the one Shift-End reads.</div>
+    <div class="note gap">⚠️ <b>Gap to flag:</b> Shift-End's breakage = <b>Pick Path pick events only</b>. Delivery breakage captured at Add-to-Truck (Breakage-Driver/Retail) is <b>not</b> pulled into the shift close-out today. If "shift shrinkage" should include delivery breakage, that's a product decision, not currently built.</div>
+  </div>
+
+  <h2>Where in the cycle each sits</h2>
+  <div class="card">
+    <div class="flow">
+      <div class="stage"><div class="n">inbound</div><div class="l">Receiving</div></div>
+      <div class="arrow">›</div>
+      <div class="stage pick"><div class="n">warehouse · picking</div><div class="l">Pick Path</div><div class="d">breakage → <code>Pick_Event__c</code> DAMAGED</div><span class="tag t-read">read by shift-end</span></div>
+      <div class="arrow">›</div>
+      <div class="stage shift"><div class="n">end of shift · close-out</div><div class="l">Shift-End Checklist</div><div class="d">reads Pick Path breakage · cycle counts · pass-downs · submit</div><span class="tag" style="background:rgba(124,92,255,.18);color:#b9a5ff">THIS feature</span></div>
+      <div class="arrow">·</div>
+      <div class="stage truck"><div class="n">delivery · out on route</div><div class="l">Add-to-Truck</div><div class="d">breakage → <code>Invoice_Item.Unsold_Reason</code> "Breakage-*"</div><span class="tag t-no">not read by shift-end</span></div>
+      <div class="arrow">›</div>
+      <div class="stage"><div class="n">reporting</div><div class="l">Finance</div><div class="d">shift shrinkage</div></div>
+    </div>
+    <div class="note warn">The two breakage flows are parallel, not sequential — Pick Path breakage happens in the warehouse during picking; Add-to-Truck breakage happens on the delivery side. Shift-End only reconciles the warehouse (Pick Path) one.</div>
+  </div>
+
+  <h2>How Shift-End is scoped to Pick Path (no FK — attribute match)</h2>
+  <div class="card">
+    <code>S_BreakageReview.getDamagedEvents(warehouseId, shiftDate)</code> pulls the same <code>Pick_Event__c</code> rows the Pick Path wrote, matched on 3 things:
+    <ul>
+      <li><b class="hi">Reason:</b> <code>Reason__c = 'DAMAGED'</code></li>
+      <li><b class="hi">Warehouse:</b> the picked bin's <code>Location__r.Warehouse__c</code> (formula: bin → warehouse Name) <code>= :warehouseName</code></li>
+      <li><b class="hi">Date:</b> <code>Timestamp__c</code> within the shift date's <b>GMT day</b> window</li>
+    </ul>
+    No lookup/FK from <code>Pick_Event__c</code> to the checklist — it's an attribute match. Sign-off writes only the review fields (<code>Breakage_Reviewed__c</code>, reviewer, timestamp); it never edits <code>Breakage_Quantity__c</code>/<code>Reason__c</code>.
+  </div>
+
+  <h2>Where each Shift-End section pulls its data</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Section</th><th>Source object</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>Warehouse dropdown</td><td><span class="rw r">read</span><code>Location__c</code></td><td>Type=Warehouse, Active</td></tr>
+        <tr><td>Shift dropdown</td><td><span class="rw r">read</span><code>Warehouse_Shift_Config__mdt</code></td><td>Warehouse_Code = warehouse name</td></tr>
+        <tr><td><b>Breakage Review</b></td><td><span class="rw r">read</span><code>Pick_Event__c</code></td><td>Reason=DAMAGED · warehouse · shift GMT-day — <b>Pick Path only</b></td></tr>
+        <tr><td><b>Cycle Counts</b></td><td><span class="rw r">read</span><span class="rw w">write</span><code>Inventory_Log_Group__c</code></td><td>cycle-count · warehouse · date · unapproved; Verify sets the checklist lookup</td></tr>
+        <tr><td><b>Pass-Downs</b></td><td><span class="rw w">write</span><span class="rw r">read</span><code>Shift_Pass_Down__c</code></td><td>created live; sorted flagged→High→Med→Low</td></tr>
+        <tr><td><b>Submit rollup</b></td><td><span class="rw r">read</span><code>Picker_Shift_Presence__c</code>→<code>Pick_Performance_Summary__c</code></td><td>present pickers' Total_Breakage; fallback DAMAGED <code>Pick_Event__c</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sub" style="margin-top:24px">Locked in: <b>two breakage systems</b> — Pick Path (<code>Pick_Event__c</code> DAMAGED, warehouse picking) and Add-to-Truck (<code>Invoice_Item.Unsold_Reason</code> "Breakage-*", delivery). <b>Shift-End reconciles the Pick Path stream only.</b></p>
+</div>
+</body>
+</html>

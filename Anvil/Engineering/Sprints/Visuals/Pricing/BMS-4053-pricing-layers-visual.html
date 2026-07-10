@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4053 · eCommerce Pricing Layers (Frontline → Promo → Volume)</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#ffffff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --yellow:#e4f223; --green:#0f6e56;
+    --green-soft:#e7f4ef; --amber:#92400e; --amber-soft:#fdf4e3; --crimson:#a32d2d;
+    --code:#0e1726; --code-ink:#e7ecf5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 28px 80px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:var(--yellow);color:var(--ink);margin-left:6px;}
+  h1{font-size:27px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;}
+  h2{font-size:20px;margin:42px 0 6px;padding-top:14px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+    background:var(--denim);color:#fff;border-radius:50%;font-size:14px;margin-right:9px;vertical-align:2px;}
+  h3{font-size:15px;margin:26px 0 8px;color:var(--denim);text-transform:uppercase;letter-spacing:.05em;}
+  p{margin:10px 0;}
+  pre{background:var(--code);color:var(--code-ink);border-radius:10px;padding:18px 20px;
+    overflow-x:auto;font:12.5px/1.5 "SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    box-shadow:0 6px 18px rgba(74,95,176,.14);}
+  pre.diagram{font-size:12px;line-height:1.42;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:var(--card);border-radius:10px;
+    overflow:hidden;box-shadow:0 2px 10px rgba(22,35,58,.05);font-size:13.5px;}
+  th{background:var(--ink);color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.04em;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf9f8;}
+  .layer{border-radius:12px;padding:16px 18px;margin:12px 0;border-left:6px solid;}
+  .l1{background:var(--card);border-color:var(--denim);}
+  .l2{background:var(--card);border-color:var(--amber);}
+  .l3{background:var(--card);border-color:var(--green);}
+  .lh{font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+  .l1 .lh{color:var(--denim);} .l2 .lh{color:var(--amber);} .l3 .lh{color:var(--green);}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;}
+  .pill.frontline{background:var(--denim-soft);color:var(--denim);}
+  .pill.promo{background:var(--amber-soft);color:var(--amber);}
+  .pill.volume{background:var(--green-soft);color:var(--green);}
+  .pill.call{background:#fbeaea;color:var(--crimson);}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13.5px;}
+  .note b{color:var(--denim);}
+  .strike{text-decoration:line-through;color:#9aa3b2;}
+  .win{color:var(--green);font-weight:700;}
+  ul{margin:10px 0;padding-left:22px;} li{margin:5px 0;}
+  .foot{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4053</span><span class="tag y">eCommerce Pricing</span>
+  <h1>Catalog Pricing — Layered Reference</h1>
+  <p class="sub">Frontline base → Promo / Volume promotions, the seeded demo data, navigation, and the SOQL that ties it together. Org: <code class="inl">product-card-component</code> · Account: <em>Customer Account 0</em> (<span class="kvs">seed:acct-customer-0</span>).</p>
+</header>
+
+<!-- ───────────────────────────── 1 ───────────────────────────── -->
+<h2><span class="n">1</span>The resolution pipeline — layered in order</h2>
+<p>Read top-to-bottom. <b>Frontline is the floor (Layer&nbsp;1, always runs).</b> Promotions sit on top (Layer&nbsp;2); inside Layer&nbsp;2 the <b>tier</b> sub-layer is QD-only and is how a Volume promo picks its discount by quantity. Exactly one thing wins — <b>no stacking</b>.</p>
+
+<pre class="diagram">
+                      ┌──────────────────────────────────────────────────────────┐
+  Storefront request  │ Ecom_UI_Wrappers.resolveCatalogPricing(acct, wh, items)   │
+  (userDataService)   └────────────────────────────────┬─────────────────────────┘
+                                                        │ builds CartResolutionRequest
+                                                        │ (qty = 1 per line on the catalog)
+                                                        ▼
+                      ┌──────────────────────────────────────────────────────────┐
+                      │            S_PriceResolver.resolve(cart)                   │  ← the ONE entry point
+                      └────────────────────────────────┬─────────────────────────┘
+ ┌───────────────────────────────────────────────────  │  ─────────────────────────────────────┐
+ │ LAYER 1 · FRONTLINE  (the BASE — always first)       ▼                                        │
+ │ S_FrontLinePricing.resolve() — most-specific cascade wins:                                    │
+ │     ITEM ▸ ITEM_TYPE_PKG ▸ ITEM_LINE_PKG ▸ ITEM_DEFAULT ▸ NONE                                │
+ │ gated by: Account_Pricing_Group membership + warehouse + date                                 │
+ │ ── produces: casePrice (base) , flpResolutionPath ───────────────────────────┐                │
+ └────────────────────────────────────────────────────────────────────────────  │  ─────────────┘
+                                                        │ base in hand            │
+                       flpResolutionPath == 'NONE' ─────┼───────────► "Call for pricing" (stop)
+                                                        ▼                         │
+ ┌────────────────────────────────────────────────────────────────────────────  │  ─────────────┐
+ │ LAYER 2 · PROMOTIONS  (Promo + Volume compete in ONE pool, discount the base)  │                │
+ │   ① eligible?  Status≠Draft/Cancelled · dates cover today ·                    │                │
+ │                account ∈ Promotion_Group (Account_Promotion_Group) · not excl. │                │
+ │   ② scope?     ITEM / ITEM_TYPE / ITEM_LINE / SUPPLIER (+ packaging filter)     │                │
+ │   ③ threshold? Post-off: qty ≥ Min_Quantity                                    │                │
+ │                QD (Volume): highest Promotion_Tier where cartQty ≥ Min_Qty  ◄───┼── TIER layer   │
+ │   ④ priority winnow (if any Priority__c set, drop the rest)                     │                │
+ │   ⑤ best-for-customer: deepest $/case wins → ONE winner, NO stacking            │                │
+ └────────────────────────────────────────────────────────────────────────────  │  ─────────────┘
+                                                        ▼
+                       finalCasePrice = base − winningDiscount
+                                                        │
+                  ┌─────────────────────────┬───────────┴───────────┬─────────────────────────┐
+                  ▼                          ▼                       ▼                         ▼
+          tierId != null            promotionId only          (no promotion)           path == NONE
+        → "Volume Price"           → "Promo Price"            → Frontline (no label)  → "Call for pricing"
+</pre>
+
+<div class="layer l1"><div class="lh">Layer 1 · Frontline <span class="pill frontline">base, always</span></div>
+  The account's negotiated case price, chosen by a most-specific-wins cascade. Not in competition with promotions — it's the foundation every promo discounts.</div>
+<div class="layer l2"><div class="lh">Layer 2 · Promotions <span class="pill promo">Promo Price</span> <span class="pill volume">Volume Price</span></div>
+  Post-off and QD live in the <b>same pool</b> and fight it out per line. Priority winnow first (if set), then deepest discount. One winner.</div>
+<div class="layer l3"><div class="lh">Tier sub-layer · Volume only <span class="pill volume">Volume Price</span></div>
+  A QD promotion carries <code class="inl">Promotion_Tier__c</code> rows. The resolver picks the highest tier whose <code class="inl">Min_Quantity__c</code> ≤ the summed <em>cart</em> quantity. This is why Volume is quantity-gated and cart-reactive — not a static catalog value.</div>
+
+<!-- ───────────────────────────── 2 ───────────────────────────── -->
+<h2><span class="n">2</span>The data that's loaded — two stacked layers</h2>
+
+<h3>Layer 1 foundation — seed-flp-demo.apex <span class="kvs">(prefix flpdemo:)</span></h3>
+<pre class="diagram">
+Account "Customer Account 0"  (seed:acct-customer-0)
+   └──&lt; Account_Pricing_Group__c  (flpdemo:apg-cust0, effective today)
+          └── Front_Line_Pricing_Group__c "Retail Tier 1"  (flpdemo:grp-retail-tier-1)
+                 └──&lt; Front_Line_Price__c  (warehouse-scoped, Status=Upcoming):
+                      ┌────────────────┬────────────────┬────────┐
+                      │ scope          │ key            │ $/case │
+                      ├────────────────┼────────────────┼────────┤
+                      │ ITEM           │ Wave Splitter  │  $69   │ ◄ Promo target
+                      │ ITEM_TYPE_PKG  │ Sharks Fin+Can │  $17   │ ◄ Volume target
+                      │ ITEM_LINE_PKG  │ Beverage+Can   │  $22   │
+                      │ ITEM_LINE_PKG  │ Beverage+1/6   │  $60   │
+                      │ ITEM_LINE_PKG  │ Beverage+1/2   │  $160  │
+                      └────────────────┴────────────────┴────────┘
+</pre>
+
+<h3>Layer 2 overlay — seed-promo-demo.apex <span class="kvs">(prefix promodemo:)</span></h3>
+<pre class="diagram">
+Account "Customer Account 0"
+   └──&lt; Account_Promotion_Group__c  (promodemo:apg-cust0, effective 2026-06-17, open-ended)
+          └── Promotion_Group__c "Promo Demo Group"  (promodemo:grp)
+                 ├── Promotion__c "Demo Post-off — Wave Splitter 1/6 BBL"  (promodemo:promo-postoff)
+                 │      Type=Post-off · scope=ITEM (Wave Splitter) · Dollar · −$10 · MinQty 1 · Active
+                 │      →  $69 − $10 = $59     "Promo Price"   (card + PDP, qty 1)
+                 │
+                 └── Promotion__c "Demo Volume Deal — Sharks Fin"  (promodemo:promo-qd)
+                        Type=QD · scope=ITEM_TYPE (Sharks Fin) · Dollar · Active
+                        ├──&lt; Promotion_Tier__c (promodemo:tier-10)  MinQty 10 → −$3/case
+                        └──&lt; Promotion_Tier__c (promodemo:tier-50)  MinQty 50 → −$6/case
+                        →  $17 − $3 = $14 @ qty 10   "Volume Price"   (cart / PDP-with-qty)
+</pre>
+
+<h3>Verified resolver output (live, against the org)</h3>
+<table>
+  <tr><th>Scenario</th><th>Item</th><th>Base</th><th>Final</th><th>Label</th></tr>
+  <tr><td>Catalog, qty 1</td><td>Wave Splitter 1/6 BBL</td><td>$69</td><td class="win">$59</td><td><span class="pill promo">Promo Price</span></td></tr>
+  <tr><td>Catalog, qty 1</td><td>Sharks Fin (can case)</td><td>$17</td><td>$17</td><td><span class="pill frontline">Frontline</span></td></tr>
+  <tr><td>qty 10 (cart)</td><td>Sharks Fin (can case)</td><td>$17</td><td class="win">$14</td><td><span class="pill volume">Volume Price</span></td></tr>
+</table>
+<div class="note">The Sharks Fin row reading <b>Frontline at qty 1</b> but <b>Volume Price at qty 10</b> is the quantity-gating in action — Volume is a price-per-quantity curve, not a single catalog number.</div>
+
+<h3>Per-item resolution matrix — what each item has &amp; what it pulls (by condition)</h3>
+<p>Every item in the demo catalog, with its attributes and what the resolver returns. <b>Card (qty&nbsp;1)</b> = what the storefront catalog card shows. <b>Cart (qty&nbsp;≥&nbsp;tier)</b> = what resolves once quantity hits a QD tier (the cart-reactive Volume). The QD promo is scoped to <b>Item&nbsp;Type = Sharks&nbsp;Fin</b>, so <em>every</em> Sharks Fin variant flips to Volume at qty&nbsp;≥&nbsp;10 (−$3/case), regardless of packaging — a clean illustration of ITEM_TYPE scope.</p>
+<table>
+  <tr><th>Item</th><th>Type</th><th>Pkg</th><th>Default</th><th>FLP path</th><th>Base</th><th>Card (qty 1)</th><th>Cart (qty ≥10)</th><th>Pulls / condition</th></tr>
+  <tr><td>Boats Float: 1/2 BBL</td><td>Boats Float</td><td>1/2 BBL Keg</td><td>$170</td><td>ITEM_LINE_PKG</td><td>$160</td><td>$160 <span class="pill frontline">Frontline</span></td><td>$160 <span class="pill frontline">Frontline</span></td><td>line+pkg row $160; no promo</td></tr>
+  <tr><td>Boats Float: 1/4 BBL</td><td>Boats Float</td><td>1/4 BBL Keg</td><td>$90</td><td>ITEM_DEFAULT</td><td>$90</td><td>$90 <span class="pill frontline">Frontline</span></td><td>$90 <span class="pill frontline">Frontline</span></td><td>no FLP row → item default; no promo</td></tr>
+  <tr><td>Boats Float: 1/6 BBL</td><td>Boats Float</td><td>1/6 BBL Keg</td><td>$75</td><td>ITEM_LINE_PKG</td><td>$60</td><td>$60 <span class="pill frontline">Frontline</span></td><td>$60 <span class="pill frontline">Frontline</span></td><td>line+pkg row $60; no promo</td></tr>
+  <tr><td>Boats Float: Case</td><td>Boats Float</td><td>4/6/12oz Can</td><td>$25</td><td>ITEM_LINE_PKG</td><td>$22</td><td>$22 <span class="pill frontline">Frontline</span></td><td>$22 <span class="pill frontline">Frontline</span></td><td>line+pkg row $22; no promo</td></tr>
+  <tr><td>Shark Fin: 1/2 BBL</td><td>Sharks Fin</td><td>1/2 BBL Keg</td><td>$150</td><td>ITEM_LINE_PKG</td><td>$160</td><td>$160 <span class="pill frontline">Frontline</span></td><td class="win">$157 <span class="pill volume">Volume</span></td><td>QD type tier@10 −$3</td></tr>
+  <tr><td>Shark Fin: 1/4 BBL</td><td>Sharks Fin</td><td>1/4 BBL Keg</td><td>$70</td><td>ITEM_DEFAULT</td><td>$70</td><td>$70 <span class="pill frontline">Frontline</span></td><td class="win">$67 <span class="pill volume">Volume</span></td><td>QD type tier@10 −$3</td></tr>
+  <tr><td>Shark Fin: 1/6 BBL</td><td>Sharks Fin</td><td>1/6 BBL Keg</td><td>$55</td><td>ITEM_LINE_PKG</td><td>$60</td><td>$60 <span class="pill frontline">Frontline</span></td><td class="win">$57 <span class="pill volume">Volume</span></td><td>QD type tier@10 −$3</td></tr>
+  <tr><td>Shark Fin: Case</td><td>Sharks Fin</td><td>4/6/12oz Can</td><td>$15</td><td>ITEM_TYPE_PKG</td><td>$17</td><td>$17 <span class="pill frontline">Frontline</span></td><td class="win">$14 <span class="pill volume">Volume</span></td><td>QD type tier@10 −$3</td></tr>
+  <tr><td>Wave Splitter: 1/2 BBL</td><td>Wave Splitter</td><td>1/2 BBL Keg</td><td>$150</td><td>ITEM_LINE_PKG</td><td>$160</td><td>$160 <span class="pill frontline">Frontline</span></td><td>$160 <span class="pill frontline">Frontline</span></td><td>line+pkg row $160; no promo</td></tr>
+  <tr><td>Wave Splitter: 1/4 BBL</td><td>Wave Splitter</td><td>1/4 BBL Keg</td><td>$80</td><td>ITEM_DEFAULT</td><td>$80</td><td>$80 <span class="pill frontline">Frontline</span></td><td>$80 <span class="pill frontline">Frontline</span></td><td>no FLP row → item default; no promo</td></tr>
+  <tr><td><b>Wave Splitter: 1/6 BBL</b></td><td>Wave Splitter</td><td>1/6 BBL Keg</td><td>$65</td><td>ITEM</td><td>$69</td><td class="win">$59 <span class="pill promo">Promo</span></td><td class="win">$59 <span class="pill promo">Promo</span></td><td>ITEM FLP $69 − Post-off $10 (any qty)</td></tr>
+  <tr><td>Wave Splitter: Case</td><td>Wave Splitter</td><td>4/6/12oz Can</td><td>$20</td><td>ITEM_LINE_PKG</td><td>$22</td><td>$22 <span class="pill frontline">Frontline</span></td><td>$22 <span class="pill frontline">Frontline</span></td><td>line+pkg row $22; no promo</td></tr>
+  <tr><td>Wave Splitter: Sticker Pack</td><td>Wave Splitter</td><td><em>none</em></td><td>$12</td><td>ITEM_DEFAULT</td><td>$12</td><td>$12 <span class="pill frontline">Frontline</span></td><td>$12 <span class="pill frontline">Frontline</span></td><td>no Packaging_Style → tiers can't match; item default</td></tr>
+</table>
+<div class="note">
+  <b>How to read the conditions:</b>
+  <b>FLP path</b> shows which cascade rung produced the base (ITEM ▸ ITEM_TYPE_PKG ▸ ITEM_LINE_PKG ▸ ITEM_DEFAULT). <b>Promo</b> (Wave Splitter 1/6) is flat, so it applies at any quantity — visible on the card now. <b>Volume</b> (all Sharks Fin) is tier-gated at qty&nbsp;10, so it is dormant on the card (Phase&nbsp;1) and surfaces in the cart once quantity is set (the cart-reactive work). Sticker Pack has no packaging style, so packaging-scoped rows can never match — it always falls to the item default.
+</div>
+
+<!-- ───────────────────────────── 3 ───────────────────────────── -->
+<h2><span class="n">3</span>Navigating it — where each surfaces & what references what</h2>
+<table>
+  <tr><th>Tier</th><th>Where you see it</th><th>What it reads</th><th>Label logic (userDataService)</th></tr>
+  <tr><td><span class="pill frontline">Frontline</span></td><td>Card · PDP · cart — every item, any qty</td><td>Front_Line_Price__c cascade → casePrice</td><td>no promo → <b>no label</b></td></tr>
+  <tr><td><span class="pill promo">Promo Price</span></td><td>Card + PDP (qty 1 is enough; MinQty 1)</td><td>Promotion__c Type=Post-off + audience junction</td><td><code class="inl">promotionId</code> set, <code class="inl">promotionTierId</code> null → "Promo Price"</td></tr>
+  <tr><td><span class="pill volume">Volume Price</span></td><td>Cart / PDP-with-qty (gated: cartQty ≥ tier)</td><td>Promotion__c Type=QD + Promotion_Tier__c</td><td><code class="inl">promotionTierId</code> set → "Volume Price"</td></tr>
+  <tr><td><span class="pill call">Call for pricing</span></td><td>Card + PDP</td><td>flpResolutionPath == 'NONE' (no base)</td><td>overrides everything</td></tr>
+</table>
+
+<h3>Storefront walk-through</h3>
+<ul>
+  <li>Log in as the retailer on <em>Customer Account 0</em> → <b>Shop / catalog grid</b>: Wave Splitter shows <span class="strike">$69</span> <span class="win">$59</span> + <span class="pill promo">Promo Price</span>; Sharks Fin shows <b>$17</b> (Frontline — Volume dormant at qty 1).</li>
+  <li>Click a card → <b>Product page</b>: same treatment, plus a proper <span class="pill call">Call for pricing</span> state for unresolved items.</li>
+  <li><em>(Volume fast-follow)</em> <b>Cart</b>: raise Sharks Fin to 10 → flips to <span class="strike">$17</span> <span class="win">$14</span> + <span class="pill volume">Volume Price</span>.</li>
+</ul>
+
+<h3>Code reference / logic map</h3>
+<ul>
+  <li><b>Entry:</b> <code class="inl">Ecom_UI_Wrappers.resolveCatalogPricing</code> → <code class="inl">S_PriceResolver.resolve</code> (OHFY-OMS / priceResolver).</li>
+  <li><b>Base cascade:</b> <code class="inl">S_FrontLinePricing.resolve</code> — most-specific scope wins; tie-break = newest Start_Date.</li>
+  <li><b>Promo waterfall:</b> <code class="inl">S_PriceResolver.resolveLine</code> — eligibility → scope → threshold → priority winnow → best-for-customer. <code class="inl">applicableDiscount</code> sets <code class="inl">tierId</code> <em>only</em> on a QD win — that's what distinguishes Volume from Promo.</li>
+  <li><b>Label + strikethrough:</b> <code class="inl">userDataService.resolveAccountPricing</code> stamps <code class="inl">_basePrice / _finalPrice / _hasPromoPrice / _priceSourceLabel</code> onto each catalog clone.</li>
+  <li><b>Render:</b> <code class="inl">ecomProductCard.html</code> + <code class="inl">ecomProductPage.html</code> — data-testids <code class="inl">price-source-label</code>, <code class="inl">base-price</code>, <code class="inl">resolved-price</code>, <code class="inl">call-for-pricing-price</code>.</li>
+  <li><b>Enablement gate:</b> the <em>Ohanafy Community User</em> profile needs read on the promotion objects (added this ticket — the PR&nbsp;#287-class fix), or promos silently fall back to base.</li>
+</ul>
+
+<h3>Key logic notes / gotchas</h3>
+<ul>
+  <li><b>Two independent junctions.</b> FLP eligibility = <code class="inl">Account_Pricing_Group__c</code>; Promo eligibility = <code class="inl">Account_Promotion_Group__c</code>. Different objects — both must exist.</li>
+  <li><b>Catalog passes qty 1</b>, so Volume stays dormant on the grid by design — it's a cart-reactive value.</li>
+  <li><b>One winner, no stacking.</b> Promo vs Volume compete; deepest discount wins unless <code class="inl">Priority__c</code> forces it.</li>
+  <li><b>NONE short-circuits</b> — no base ⇒ no promo ⇒ Call for pricing.</li>
+  <li><b>Both seeds idempotent</b>, keyed on <code class="inl">External_Id__c</code> (<span class="kvs">flpdemo: / promodemo:</span>). Re-run safe; revert in reverse order (promo, then FLP).</li>
+</ul>
+
+<!-- ───────────────────────────── 4 ───────────────────────────── -->
+<h2><span class="n">4</span>SOQL — setup &amp; relationships</h2>
+
+<h3>A · Account + its TWO eligibility memberships</h3>
+<pre>SELECT Id, Name, ohfy__External_Id__c, ohfy__Fulfillment_Location__r.Name,
+       (SELECT ohfy__Front_Line_Pricing_Group__r.Name, ohfy__Effective_Date__c
+          FROM ohfy__Account_Pricing_Groups__r),
+       (SELECT ohfy__Promotion_Group__r.Name, ohfy__Effective_Date__c, ohfy__End_Date__c
+          FROM ohfy__Account_Promotion_Groups__r)
+FROM Account
+WHERE ohfy__External_Id__c = 'seed:acct-customer-0'</pre>
+<div class="note">Child relationship names may differ in your schema (e.g. <span class="kvs">ohfy__Account_Pricing_Groups__r</span>). If a subquery errors, query each junction object directly (queries D / below).</div>
+
+<h3>B · Layer 1 — Frontline cascade rows for the demo group</h3>
+<pre>SELECT ohfy__External_Id__c, ohfy__Item_Scope_Level__c, ohfy__Case_Price__c,
+       ohfy__Item__r.Name, ohfy__Item_Type__r.Name, ohfy__Item_Line__r.Name,
+       ohfy__Packaging_Style__r.Name, ohfy__Fulfillment_Location__r.Name, ohfy__Status__c
+FROM ohfy__Front_Line_Price__c
+WHERE ohfy__Front_Line_Pricing_Group__r.ohfy__External_Id__c = 'flpdemo:grp-retail-tier-1'
+ORDER BY ohfy__Case_Price__c</pre>
+
+<h3>C · Layer 2 — Promotions + their QD tiers (parent → child)</h3>
+<pre>SELECT Name, ohfy__Type__c, ohfy__Item_Scope_Level__c,
+       ohfy__Item__r.Name, ohfy__Item_Type__r.Name,
+       ohfy__Discount_Type__c, ohfy__Discount_Amount__c, ohfy__Min_Quantity__c, ohfy__Status__c,
+       ohfy__Start_Date__c, ohfy__End_Date__c,
+       (SELECT ohfy__Min_Quantity__c, ohfy__Discount_Amount__c
+          FROM ohfy__Promotion_Tiers__r ORDER BY ohfy__Min_Quantity__c)
+FROM ohfy__Promotion__c
+WHERE ohfy__Promotion_Group__r.ohfy__External_Id__c = 'promodemo:grp'</pre>
+
+<h3>D · The audience link (which account the promos apply to)</h3>
+<pre>SELECT ohfy__Account__r.Name, ohfy__Promotion_Group__r.Name,
+       ohfy__Effective_Date__c, ohfy__End_Date__c
+FROM ohfy__Account_Promotion_Group__c
+WHERE ohfy__External_Id__c LIKE 'promodemo:%'</pre>
+
+<h3>E · The two sides side-by-side — promo and the base it discounts</h3>
+<pre>-- Promo side
+SELECT ohfy__Promotion_Group__r.Name, Name, ohfy__Type__c, ohfy__Item_Scope_Level__c
+FROM ohfy__Promotion__c
+WHERE ohfy__External_Id__c LIKE 'promodemo:%';
+
+-- Frontline side (the base each promo discounts)
+SELECT ohfy__Front_Line_Pricing_Group__r.Name, ohfy__Item_Scope_Level__c, ohfy__Case_Price__c
+FROM ohfy__Front_Line_Price__c
+WHERE ohfy__External_Id__c IN ('flpdemo:flp-ws16-item','flpdemo:flp-sharksfin-can-type');</pre>
+
+<h3>Relationship summary — the join keys</h3>
+<pre class="diagram">
+Account ─(Account_Pricing_Group__c)─ Front_Line_Pricing_Group__c ─(Front_Line_Price__c)→ base $/case
+Account ─(Account_Promotion_Group__c)─ Promotion_Group__c ─(Promotion__c)→ discount
+                                                          └─(Promotion_Tier__c, master-detail)→ qty tiers
+Promotion__c.Item__c / Item_Type__c / Item_Line__c / Supplier__c  →  scope match against Item__c
+Front_Line_Price__c.Fulfillment_Location__c                       →  warehouse match (FLP only)
+</pre>
+
+<!-- ───────────────────────────── 5 ───────────────────────────── -->
+<h2><span class="n">5</span>Worked trace — Wave Splitter: 1/6 BBL ($69 → $59)</h2>
+<p>One item, followed end-to-end. <b>Two independent eligibility chains run in parallel</b> — front-line pricing (the base) and promotion (the discount) — each gated by its <em>own</em> account junction — then they combine into one final price.</p>
+
+<pre class="diagram">
+  Account "Customer Account 0"  (seed:acct-customer-0)        warehouse  a1D…PMAR
+        │                                                            │
+   ┌────┴──────────── LAYER 1 · FRONT-LINE (base) ─────────┐   ┌─────┴──────── LAYER 2 · PROMOTION (discount) ────────┐
+   │ Account_Pricing_Group__c   (eff 2026-06-17)            │   │ Account_Promotion_Group__c   (audience junction)      │
+   │   └─ Front_Line_Pricing_Group__c  "Retail Tier 1"      │   │   └─ Promotion_Group__c  "Promo Demo Group"           │
+   │        └─ Front_Line_Price__c                          │   │        └─ Promotion__c                                │
+   │             Item_Scope_Level__c = ITEM (this item)     │   │             Item_Scope_Level__c = ITEM (this item)    │
+   │             Case_Price__c   = $69   ◄ BASE             │   │             Type__c = Post-off                        │
+   │             (most-specific rung — beats line/type/dflt)│   │             Discount: Dollar −$10   ◄ winner          │
+   │             Fulfillment_Location__c = this warehouse   │   │             Status Active · dates cover today         │
+   └───────────────────────────┬───────────────────────────┘   └───────────────────────────┬──────────────────────────┘
+                               │                                                            │
+                               └────────────────►  finalCasePrice = $69 − $10 = <b>$59</b>  ◄┘
+                                                    promotionTierId = null  →  label <b>"Promo Price"</b>
+</pre>
+
+<div class="layer l1"><div class="lh">Why $69 and not $65 (default) or $60 (line)?</div>
+  Front-line pricing is a <b>most-specific-wins cascade</b>. This item has an <code class="inl">ITEM</code>-scoped <code class="inl">Front_Line_Price__c</code> row ($69), which outranks the line-level and item-default rungs. The account sees that row only because it belongs to <b>Retail Tier 1</b> via <code class="inl">Account_Pricing_Group__c</code>, and the row is scoped to its <b>warehouse</b>. Its <code class="inl">Default_Case_Price__c</code> is $65 — that's the fallback used only if no FLP row resolves.</div>
+
+<div class="layer l2"><div class="lh">Why −$10 applies</div>
+  The account is in <b>Promo Demo Group</b> via <code class="inl">Account_Promotion_Group__c</code> (the audience junction). A <code class="inl">Post-off</code> <code class="inl">Promotion__c</code> scoped to this exact item, Active and in-date, offers <b>$10 off</b>. It wins (only candidate), discount applied to the $69 base. Because it's Post-off (not QD), <code class="inl">promotionTierId</code> stays null → the label is <b>"Promo Price"</b>, not "Volume Price".</div>
+
+<h3>The two eligibility chains (what makes the records visible + applicable)</h3>
+<table>
+  <tr><th>Step</th><th>Front-line (base $69)</th><th>Promotion (−$10)</th></tr>
+  <tr><td>Account link</td><td><code class="inl">Account_Pricing_Group__c</code></td><td><code class="inl">Account_Promotion_Group__c</code></td></tr>
+  <tr><td>Group</td><td>Front_Line_Pricing_Group__c "Retail Tier 1"</td><td>Promotion_Group__c "Promo Demo Group"</td></tr>
+  <tr><td>Priced/Discount record</td><td>Front_Line_Price__c (ITEM, $69)</td><td>Promotion__c (Post-off, −$10)</td></tr>
+  <tr><td>Extra gates</td><td>warehouse + date window</td><td>status≠Draft/Cancelled, dates, not excluded, scope match</td></tr>
+  <tr><td>Sharing (OWD ext.)</td><td>both objects ReadWrite (storefront)</td><td>both objects ReadWrite (storefront)</td></tr>
+</table>
+
+<h3>What the resolver actually queries for this line (S_PriceResolver.resolve)</h3>
+<pre class="diagram">
+  1. Item__c attributes (scope keys: Item_Type, Item_Line, Supplier, Packaging)
+  2. S_FrontLinePricing.resolve()  →  picks the ITEM row  →  $69 base   (3 SOQL inside)
+  3. candidate Promotion__c  (status/date/scope filter)
+  4. Account_Promotion_Group__c  (account's audience groups)         ← needs this junction visible
+  5. Promotion_Account_Exclusion__c  (none here)
+  6. Promotion_Tier__c  (only if a QD candidate exists — none here)
+  →  best-for-customer winner = the Post-off  →  $69 − $10 = $59
+</pre>
+
+<h3>See it yourself — SOQL (run as admin, or as the community user to confirm sharing)</h3>
+<pre>-- A · The item + its scope keys + fallback default
+SELECT Id, Name, ohfy__Item_Type__r.Name, ohfy__Item_Line__r.Name,
+       ohfy__Packaging_Style__r.Name, ohfy__Default_Case_Price__c
+FROM ohfy__Item__c WHERE Name = 'Wave Splitter: 1/6 BBL';
+
+-- B · FRONT-LINE base: every FLP row for this item, with the group + scope ($69 ITEM row wins)
+SELECT ohfy__Item_Scope_Level__c, ohfy__Case_Price__c, ohfy__Status__c,
+       ohfy__Front_Line_Pricing_Group__r.Name, ohfy__Fulfillment_Location__r.Name
+FROM ohfy__Front_Line_Price__c
+WHERE ohfy__Item__r.Name = 'Wave Splitter: 1/6 BBL'
+ORDER BY ohfy__Item_Scope_Level__c;
+
+-- C · Account is in that FLP group (why it can see the $69 row)
+SELECT ohfy__Front_Line_Pricing_Group__r.Name, ohfy__Effective_Date__c, ohfy__End_Date__c
+FROM ohfy__Account_Pricing_Group__c
+WHERE ohfy__Account__r.ohfy__External_Id__c = 'seed:acct-customer-0';
+
+-- D · PROMOTION: the Post-off on this item (−$10), with its group + type
+SELECT Name, ohfy__Type__c, ohfy__Item_Scope_Level__c, ohfy__Discount_Type__c,
+       ohfy__Discount_Amount__c, ohfy__Status__c, ohfy__Start_Date__c, ohfy__End_Date__c,
+       ohfy__Promotion_Group__r.Name
+FROM ohfy__Promotion__c
+WHERE ohfy__Item__r.Name = 'Wave Splitter: 1/6 BBL' AND ohfy__Type__c = 'Post-off';
+
+-- E · Account is in that promo audience group (why the −$10 applies)
+SELECT ohfy__Promotion_Group__r.Name, ohfy__Effective_Date__c, ohfy__End_Date__c
+FROM ohfy__Account_Promotion_Group__c
+WHERE ohfy__Account__r.ohfy__External_Id__c = 'seed:acct-customer-0';
+
+-- F · The whole resolution in one Apex call (returns casePrice $69, finalCasePrice $59, promotionId set)
+-- (anonymous Apex)
+Account a = [SELECT Id, ohfy__Fulfillment_Location__c FROM Account
+             WHERE ohfy__External_Id__c = 'seed:acct-customer-0' LIMIT 1];
+Id itemId = [SELECT Id FROM ohfy__Item__c WHERE Name = 'Wave Splitter: 1/6 BBL' LIMIT 1].Id;
+ohfy.LineResult r = ohfy.Ecom_UI_Wrappers.resolveCatalogPricing(
+    a.Id, a.ohfy__Fulfillment_Location__c, new List&lt;Id&gt;{ itemId })[0];
+System.debug('base=' + r.casePrice + ' final=' + r.finalCasePrice +
+             ' promo=' + r.promotionId + ' tier=' + r.promotionTierId);
+-- → base=69.00  final=59.00  promo=<set>  tier=null   ⇒ "Promo Price"</pre>
+
+<div class="note"><b>Mental model in one line:</b> the account reaches a <b>base price</b> through the <em>pricing</em> group chain and a <b>discount</b> through the <em>promotion</em> group chain; the resolver lays the discount on the base. Two chains, two junctions, one final number — and the label tells you which discount (if any) won.</div>
+
+<!-- ───────────────────────────── 6 ───────────────────────────── -->
+<h2><span class="n">6</span>What's implemented — component hierarchy &amp; what gets pulled</h2>
+<p>The card is <b>presentational</b>. Two backend streams feed it: the <b>pricing stream</b> (Sections 1–5) resolves money, and a <b>field-set stream</b> makes its extra data points admin-configurable with no code. <code class="inl">ecomShop</code> hands each card a fully-decorated item; the card just renders.</p>
+<pre class="diagram">
+  STORE PAGE · ecomShop   (owns data fetch, cart mutations, promo modal)
+     │  passes one decorated item  +  display-fields
+     ▼
+  ecomProductCard   (presentational, event-only)   ◄ extracted this ticket — reusable (Ph 2 grid too)
+     ├─ image · stock badge          ← Quantity_Available__c  (servicing warehouse only)
+     ├─ brand · name                 ← Item_Type__r.Name · Item__c.Name
+     ├─ pack row:  icon + pack short name   |   UPC: <upc>   ◄ right side, field-set-gated
+     │             ← Packaging_Type_Short_Name__c            ← UPC__c
+     ├─ price block                  ← price / strike basePrice / "Volume"|"Promo" label / "Call for Pricing"
+     └─ configurable data points     ← any OTHER field-set field  →  dataPoints
+
+  ── A · PRICING STREAM (money) ───────────────────────────────────────────────
+    S_FrontLinePricing.resolve (OMS)  →  S_PriceResolver promo layer (OMS · BMS-3876)
+      →  userDataService stamps  _basePrice / _finalPrice / _priceSourceLabel / _callForPricing
+      →  ecomShop.processItems  →  price · basePrice · hasPriceDiscount · priceSourceLabel · callForPricing
+
+  ── B · CONFIGURABLE-FIELDS STREAM (admin show/hide, no code) ─────────────────
+    Item field set  Ecom_Product_Card / Ecom_Product_Detail     (drag fields in/out → Save)
+      →  Fieldset_Customization__mdt    (Object_Name + Fieldset_Purpose → Fieldset_Name)
+      →  ProductDisplayController.getProductDisplayFields(purpose)  →  [{apiName, label, type}]
+      →  Ecom_UI_Wrappers  →  userDataService  (adds those field API names to the item query)
+      →  ecomShop.productCardFields  →  card.displayFields  →  dataPoints   (UPC split onto pack row)
+</pre>
+<div class="note"><b>What gets pulled, in one line:</b> the card receives an item whose price is already resolved (FLP + promo) and stamped, plus the admin-chosen field-set values — and renders. Lookup fields can't render in a field set, so related-object data (brand / flavor) must be exposed as a <b>formula field on Item</b> first.</div>
+
+<!-- ───────────────────────────── 7 ───────────────────────────── -->
+<h2><span class="n">7</span>What was accomplished — and what's left</h2>
+<div class="layer l3"><div class="lh">Shipped / working in the demo org <span class="pill volume">done</span></div>
+<ul>
+  <li>Card extracted into a reusable <code class="inl">c-ecom-product-card</code> LWC (presentational, event-driven)</li>
+  <li>Account-specific pricing renders on the card: resolved price, struck base, <b>source label</b> (Volume / Promo)</li>
+  <li>FLP cascade + promo layer verified end-to-end against seeded data (Sections 2–5)</li>
+  <li><span class="pill call">Call for pricing</span> fallback when no price resolves</li>
+  <li>Pack badge from <code class="inl">Packaging_Type_Short_Name__c</code> (backfilled)</li>
+  <li>Field-set-driven configurable data points — admin show/hide with no code</li>
+  <li><b>UPC</b>: field added, valid UPC-A backfilled, rendered on the pack row, relabeled “UPC”, gated by the field set</li>
+  <li>Full stack deployed to <code class="inl">product-card-component</code> (Data-Model → PLTFM → eCommerce → eCommerce-UI)</li>
+</ul></div>
+<div class="layer l2"><div class="lh">Outstanding before “Done” <span class="pill promo">to do</span></div>
+<ul>
+  <li>Commit the working-tree changes (9 files) and open the PR</li>
+  <li>Hand-verify pricing codes / volume tiers / promo across more accounts <em>(in progress — not AI-trusted)</em></li>
+  <li>Jest green (<code class="inl">npm test</code>); Apex tests + coverage; <code class="inl">/code-review</code>, <code class="inl">/document</code>, <code class="inl">/playwright-tests</code></li>
+  <li>Resolve the flavor/variant field binding (Category vs. none)</li>
+  <li>Community-profile permission for the storefront Apex call</li>
+  <li>Document the CMDT atomic-deploy gotcha for CI</li>
+</ul></div>
+
+<div class="foot">
+  BMS-4053 · Phase 1 = Frontline + Promo (live); Volume = cart-reactive fast-follow (data seeded, resolves at qty ≥ tier).<br/>
+  Seed: <span class="kvs">orgScripts/e-commerce/seed-flp-demo.apex</span> then <span class="kvs">seed-promo-demo.apex</span> · Revert in reverse order.<br/>
+  Generated from live data on org <span class="kvs">product-card-component</span>.
+</div>
+
+</div>
+</body>
+</html>

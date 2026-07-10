@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understand the Build — Tickets</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--warn:#d29922;--review:#a371f7;--accent:#58a6ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:1100px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .lede{color:var(--dim);margin:0 0 18px}
+  .how{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:26px;font-size:13.5px;color:#c4cad8}
+  .how b{color:var(--txt)}
+  .grp{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:26px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .grp b{color:var(--txt)} .grp .pr{color:var(--accent)}
+  .tk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px;border-left:4px solid var(--sol)}
+  .tk.refine{border-left-color:var(--warn)}
+  .th{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .th h2{font-size:16px;margin:0} .th .key{color:var(--accent);font-weight:700}
+  .st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:16px}
+  .st-prog{background:rgba(210,153,34,.16);color:var(--warn)} .st-review{background:rgba(163,113,247,.18);color:var(--review)} .st-refine{background:rgba(88,166,255,.16);color:#58a6ff}
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+  @media(max-width:760px){.row{grid-template-columns:1fr 1fr}}
+  .c{background:var(--card2);border-radius:9px;padding:10px 12px}
+  .c h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 5px}
+  .c p{margin:0;font-size:13px;color:#d7dce8}
+  .c.user h3{color:var(--user)}.c.impact h3{color:var(--impact)}.c.sol h3{color:var(--sol)}.c.next h3{color:var(--next)}
+  .meta{font-size:12px;color:var(--dim);margin:8px 0 0}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  details{margin-top:11px;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:1px 13px}
+  summary{cursor:pointer;font-weight:600;padding:10px 0;font-size:13px;color:var(--accent);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--dim)} details[open] summary::before{content:"▾ "}
+  .qa{border-top:1px solid var(--line);padding:9px 0;font-size:13px}
+  .qa .p{font-weight:700;margin-bottom:2px} .qa .q{font-style:italic;color:#cdd3e2;margin:0 0 3px} .qa .a{color:var(--dim);margin:0}
+  .qa.eng .p{color:#79c0ff}.qa.pm .p{color:#f0883e}.qa.ceo .p{color:#3fb950}.qa.mkt .p{color:#db61a2}
+</style></head><body>
+
+<h1>🎟️ Understand the Build — Tickets</h1>
+<p class="lede">The 8 tickets actually built today, grouped by their PR. Each: who it's for, why, what it does, what's next — plus the questions to close.</p>
+<div class="how"><b>These are "what," the epics are "why."</b> All 8 sit in three open PRs. Same four lenses as the epic page, tighter. Safety Stock's six stories all live in one PR (<span style="color:var(--accent)">#442</span>) on <code style="background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px">ohfy-val-4217</code> — that's why they move together.</div>
+
+<!-- ===== PR 442 : Safety Stock ===== -->
+<div class="grp">🟢 <b>PR <span class="pr">#442</span></b> — Safety Stock Controls epic (BMS-5068) · org <code style="background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px">ohfy-val-4217</code> · 6 stories, one branch</div>
+
+<section class="tk refine">
+  <div class="th"><h2><span class="key">BMS-5636</span> Supplier-scope override + Scheduled/Manually-Closed lifecycle</h2><span class="st st-prog">In Progress</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Inventory planner</p></div>
+    <div class="c impact"><h3>Impact</h3><p>Lets one override cover a whole supplier's SKUs, and adds real lifecycle states (schedule ahead, close early).</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Extend <code>SKU_Override__c</code>: Scope (SKU/Supplier), Account lookup, Scheduled + Manually-Closed statuses, closure audit; supplier tier in the resolver.</p></div>
+    <div class="c next"><h3>Next</h3><p>The <b>S2 blocker</b> — unblocks S3/S5/S6. Merge with #442.</p></div>
+  </div>
+  <p class="meta">Was flagged <i>Needs Refinement</i> — that was a stale label; it's fully specced (4 ACs) &amp; built. 5 pts · Sprint 7.</p>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"New object or extend?"</p><p class="a">Extend (decision D1) — reuse the shipped override model + expiration batch.</p></div>
+    <div class="qa pm"><div class="p">📋 PM</div><p class="q">"Why does everything depend on this one?"</p><p class="a">It owns the schema + resolution + lifecycle the other five build on. Land it first.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Business value in a line?"</p><p class="a">Set a buffer for an entire supplier at once, schedule it, and close it on your terms.</p></div>
+  </details>
+</section>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-4217</span> Production-ready DOH order sizing</h2><span class="st st-review">Review</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Inventory planner</p></div>
+    <div class="c impact"><h3>Impact</h3><p>Turns the April demo into hardened, production replenishment order sizing.</p></div>
+    <div class="c sol"><h3>Solution</h3><p><code>S_ReplenishmentOrderSizing</code> — DOH-driven order quantities, flag-gated, ≥90% covered.</p></div>
+    <div class="c next"><h3>Next</h3><p>The demo→prod clone. Review + merge.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"How's it different from the demo (4025)?"</p><p class="a">Hardened logic, edge cases, real coverage — the demo proved the idea, this ships it.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Why re-do a demo?"</p><p class="a">Demo ≠ production. This is the version safe to run against live replenishment.</p></div>
+  </details>
+</section>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-5638</span> Override expiry + approaching-expiry notifications</h2><span class="st st-prog">In Progress</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Override creator (planner)</p></div>
+    <div class="c impact"><h3>Impact</h3><p>Nobody gets surprised when a temporary buffer silently expires and SKUs snap back.</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Folds into the nightly expiration batch: notify on expiry + N-days-before (default 4, configurable) with extend/close/allow options.</p></div>
+    <div class="c next"><h3>Next</h3><p>3 pts · Sprint 7. Ships in #442.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"New job?"</p><p class="a">No — adds notifications to the existing expiration processor.</p></div>
+    <div class="qa pm"><div class="p">📋 PM</div><p class="q">"Is the 4-day window final?"</p><p class="a">AI-assumed default, configurable — confirm with Gulf in refinement.</p></div>
+  </details>
+</section>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-5639</span> Freeze effective DOI + resolution source on the task</h2><span class="st st-prog">In Progress</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Planner / auditor</p></div>
+    <div class="c impact"><h3>Impact</h3><p>A replenishment task records <i>why</i> it sized the way it did — and that never changes later.</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Stamp <code>Effective_Target_DOH__c</code> + <code>Resolution_Source__c</code> (SKU/Supplier/Default) at task creation, frozen against later expiry.</p></div>
+    <div class="c next"><h3>Next</h3><p>3 pts · Sprint 7. Ships in #442.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"Why freeze it?"</p><p class="a">Historical tasks must stay explainable even after the override that drove them expires.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Why care?"</p><p class="a">Auditability — every order decision is traceable to its rule.</p></div>
+  </details>
+</section>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-5640</span> Planning &amp; management UI + impact preview</h2><span class="st st-prog">In Progress</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Inventory planner (day-to-day screen)</p></div>
+    <div class="c impact"><h3>Impact</h3><p>The face of the feature — where planners actually create/edit overrides and see the cost before they commit.</p></div>
+    <div class="c sol"><h3>Solution</h3><p>LWC: list + filters (status/supplier/SKU), create/edit (reason required), <b>impact preview</b> (# SKUs, added qty, est. inventory value).</p></div>
+    <div class="c next"><h3>Next</h3><p>5 pts · Sprint 7. Design polish + Playwright follow-ups noted.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"WMS-UI or PLTFM-UI package?"</p><p class="a">Open — inventory config spans PLTFM today; confirm before final merge.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"Demo-able?"</p><p class="a">Yes — this is the screen you'd show: set a buffer, preview the impact, save.</p></div>
+  </details>
+</section>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-5641</span> Override audit history + impact reporting</h2><span class="st st-prog">In Progress</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Ops manager / finance</p></div>
+    <div class="c impact"><h3>Impact</h3><p>Answers "who buffered what, when, and what did it cost us in held inventory."</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Report type + dashboard: full override history + estimated additional inventory value by supplier/SKU. Mostly declarative.</p></div>
+    <div class="c next"><h3>Next</h3><p>2 pts · Sprint 7. Ships in #442.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Can I see the cost of all this buffering?"</p><p class="a">Yes — that's exactly this report: added inventory value by supplier and SKU.</p></div>
+    <div class="qa pm"><div class="p">📋 PM</div><p class="q">"Retention?"</p><p class="a">Keep expired overrides indefinitely (decision Q9).</p></div>
+  </details>
+</section>
+
+<!-- ===== PR 439 : Short Pay ===== -->
+<div class="grp">🟡 <b>PR <span class="pr">#439</span></b> — Short Pay Ph4 (BMS-4965) · org <code style="background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px">ohfy-val-5625</code></div>
+
+<section class="tk refine">
+  <div class="th"><h2><span class="key">BMS-5625</span> Driver Finalize-Stop Approval Gate (configurable)</h2><span class="st st-refine">Needs Refinement · PR open</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Delivery driver + AR reviewer</p></div>
+    <div class="c impact"><h3>Impact</h3><p>A driver can't finalize a stop that's short beyond the allowed threshold without an approval — stops leakage at the source.</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Configurable approval gate on finalize (CMDT-driven thresholds, optional % layer). Ph4a of Short Pay.</p></div>
+    <div class="c next"><h3>Next</h3><p>Your active punch — CI green + review + merge. Then Ph4b (multi-layer approve/reject).</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"Hard-coded thresholds?"</p><p class="a">No — configurable via CMDT so FL/AL rules change without a deploy.</p></div>
+    <div class="qa pm"><div class="p">📋 PM</div><p class="q">"Why is Jira still 'Needs Refinement' with a PR open?"</p><p class="a">Status lag — the build ran ahead of the board. Move it when the PR's in review for real.</p></div>
+  </details>
+</section>
+
+<!-- ===== PR 431 : Shift-End ===== -->
+<div class="grp">🟣 <b>PR <span class="pr">#431</span></b> — Shift-End Ph1 (BMS-5070) · org <code style="background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px">ohfy-val-4078</code></div>
+
+<section class="tk">
+  <div class="th"><h2><span class="key">BMS-4078</span> Checklist &amp; Breakage Review (Ph1)</h2><span class="st st-review">Review</span></div>
+  <div class="row">
+    <div class="c user"><h3>User</h3><p>Warehouse supervisor</p></div>
+    <div class="c impact"><h3>Impact</h3><p>First time breakage is captured at shift close instead of vanishing into a bin.</p></div>
+    <div class="c sol"><h3>Solution</h3><p>Shift-end checklist that aggregates breakage from picker reports + bin counts before handoff.</p></div>
+    <div class="c next"><h3>Next</h3><p>In review (PR #431). Merge → then Ph2/Ph3.</p></div>
+  </div>
+  <details><summary>Questions to close</summary>
+    <div class="qa eng"><div class="p">🛠️ Sr Eng</div><p class="q">"Schema risk for later phases?"</p><p class="a">Low — spiked up front (4077) so Ph2/3 layer on cleanly.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Standalone value?"</p><p class="a">Yes — breakage capture alone converts invisible shrinkage into data.</p></div>
+  </details>
+</section>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:24px">Why each epic exists → <a href="../understand-EPICS/understand-EPICS.html" style="color:var(--accent)">understand-EPICS.html</a> · visual map → <code>../build-map/build-map.excalidraw</code>. Live status → Mission Control.</p>
+</body></html>

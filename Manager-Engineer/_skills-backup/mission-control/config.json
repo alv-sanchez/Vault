@@ -1,0 +1,6 @@
+{
+  "out_dir": "/Users/alvarosanchez_1/Documents/Obsidian/Vault/Manager-Engineer/Mission-Control",
+  "refresh_seconds": 900,
+  "jira_browse": "https://ohanafy.atlassian.net/browse",
+  "pr_base": "https://github.com/Ohanafy/OHFY-Split/pull"
+}

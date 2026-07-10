@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safety Stock Controls — How the Code Actually Works (BMS-5068)</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --ink:#1c2431; --mut:#66738a; --line:#e3e8f0;
+    --sku:#2f6fed; --supplier:#8b5cf6; --batch:#e0672a; --notify:#1f9d57; --sizing:#c0392b; --ui:#0e9aa7;
+    --soft:#eef2fb; --amber:#b5821f; --hl:#fff3cd;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px 16px 80px}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:29px;line-height:1.15;margin:0 0 6px}
+  .sub{color:var(--mut);font-size:17px;margin:0 0 8px}
+  .tag{display:inline-block;background:var(--soft);color:var(--sku);font-weight:700;font-size:11.5px;
+    letter-spacing:.09em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:12px}
+  h2{font-size:22px;margin:38px 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .n{background:var(--ink);color:#fff;width:30px;height:30px;border-radius:50%;display:inline-flex;
+    align-items:center;justify-content:center;font-size:15px;flex:0 0 auto}
+  h3{font-size:17px;margin:20px 0 4px}
+  p{margin:8px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.05)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#eef1f6;padding:1px 6px;border-radius:5px;font-size:13.5px}
+  .anchor{background:#1c2431;color:#fff;border-radius:14px;
+    padding:18px 22px;margin:16px 0;font-size:17px;line-height:1.55}
+  .anchor b{color:#ffd873}
+  .analogy{background:#fffdf3;border:1px solid #f0e2b6;border-left:5px solid var(--amber);border-radius:12px;padding:16px 20px;margin:14px 0}
+  .analogy .h{font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;font-size:12px;margin-bottom:6px}
+  .why{background:var(--soft);border-radius:10px;padding:10px 15px;margin:10px 0;font-size:15px}
+  .why b{color:var(--sku)}
+  ul,ol{margin:8px 0;padding-left:22px}li{margin:6px 0}
+  .chip{display:inline-block;border-radius:7px;padding:1px 8px;font-size:13px;font-family:ui-monospace,Menlo,monospace;font-weight:600}
+  .c-sku{background:#e7effe;color:var(--sku)} .c-sup{background:#f1e9fe;color:var(--supplier)}
+  .c-batch{background:#fdeadf;color:var(--batch)} .c-notify{background:#e6f7ee;color:var(--notify)}
+  .c-sizing{background:#fbe6e4;color:var(--sizing)} .c-ui{background:#e0f5f7;color:var(--ui)}
+  /* actor cards */
+  .cast{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:640px){.cast{grid-template-columns:1fr}}
+  .actor{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--card)}
+  .actor .role{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:700}
+  .actor .nm{font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:14px;margin:2px 0 6px}
+  .actor.b-sku{border-top:4px solid var(--sku)} .actor.b-batch{border-top:4px solid var(--batch)}
+  .actor.b-notify{border-top:4px solid var(--notify)} .actor.b-sizing{border-top:4px solid var(--sizing)}
+  .actor.b-ui{border-top:4px solid var(--ui)} .actor.b-sup{border-top:4px solid var(--supplier)}
+  /* flow */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0;justify-content:center}
+  .node{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:600;text-align:center}
+  .arrow{color:var(--mut);font-weight:800;font-size:18px}
+  /* precedence ladder */
+  .ladder{counter-reset:step;margin:12px 0}
+  .rung{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:6px 0;position:relative}
+  .rung .lv{font-weight:800;color:#fff;background:var(--mut);border-radius:6px;padding:2px 9px;font-size:13px;flex:0 0 auto}
+  .rung.win{border:2px solid var(--sku);background:#f5f9ff}
+  .rung.win .lv{background:var(--sku)}
+  /* timeline */
+  .tl{border-left:3px solid var(--line);margin:14px 0 14px 10px;padding-left:20px}
+  .tl .ev{position:relative;margin:0 0 16px}
+  .tl .ev::before{content:"";position:absolute;left:-27px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--sku);border:2px solid #fff;box-shadow:0 0 0 2px var(--sku)}
+  .tl .ev .st{font-weight:700}
+  .tl .ev.exp::before{background:var(--batch);box-shadow:0 0 0 2px var(--batch)}
+  .tl .ev.done::before{background:var(--notify);box-shadow:0 0 0 2px var(--notify)}
+  details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 16px;margin:8px 0}
+  details[open]{padding-bottom:12px}
+  summary{cursor:pointer;font-weight:600;padding:12px 0;list-style:none}
+  summary::marker{display:none}
+  summary::before{content:"🧠 ";}
+  .q-a{border-top:1px dashed var(--line);padding-top:10px;color:#243}
+  .mnem{background:#f5f9ff;border:1px dashed var(--sku);border-radius:10px;padding:12px 16px;margin:10px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+  .foot{color:var(--mut);font-size:13px;text-align:center;margin-top:36px}
+  .big{font-size:19px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">BMS-5068 · code + business logic · built to stick</div>
+  <h1>Safety Stock Controls — how the code actually works</h1>
+  <p class="sub">Read top-to-bottom once. The quiz cards (🧠) and analogies are the point — don't skip them; recalling is what wires it in.</p>
+
+  <div class="anchor big">
+    🎯 <b>The one mental model — hold onto this:</b><br>
+    It's a <b>thermostat for inventory</b>. A planner sets a target ("keep 16 days of stock"). One part of the system <b>decides what the target is right now</b> (the resolver), another <b>acts on it</b> when reordering (order-sizing), and a nightly <b>caretaker</b> flips overrides on/off by date and warns you before they lapse (the batch + notifier). Everything else is detail hanging off those three jobs.
+  </div>
+
+  <div class="analogy">
+    <div class="h">🌡️ Why "thermostat" is the right anchor</div>
+    A thermostat doesn't heat the room — it holds a <em>target</em> and tells the furnace how hard to work. Same here: an <b>override</b> is you turning the dial ("hold 16 days for this SKU"). The <b>resolver</b> reads the dial. The <b>replenishment engine</b> is the furnace — it orders enough to hit the target. The <b>nightly batch</b> is the programmable timer that turns the dial up on schedule and back down when the season ends. Keep picturing the dial.
+  </div>
+
+  <!-- ================= 1. THE CAST ================= -->
+  <h2><span class="n">1</span> Meet the cast (6 players)</h2>
+  <p>Before the flow, learn <em>who</em> does what. Each has <b>one job</b>. Colors repeat throughout the doc — that's deliberate (your brain tags them by hue).</p>
+
+  <div class="cast">
+    <div class="actor b-sku">
+      <div class="role">The record — the "dial"</div>
+      <div class="nm">SKU_Override__c</div>
+      A row that says "hold <b>this</b> target for <b>this</b> SKU (or supplier), from this date to that date, because <reason>." Has a <b>Scope</b> (<span class="chip c-sku">SKU</span> or <span class="chip c-sup">Supplier</span>), a status lifecycle, and an audit trail.
+    </div>
+    <div class="actor b-sku">
+      <div class="role">The decider — "what's the target NOW?"</div>
+      <div class="nm">S_InventoryThresholds.resolve()</div>
+      Given a SKU + location (+ maybe supplier), returns the <b>one effective target</b> after weighing all the overrides and baselines in a fixed priority order. Also stamps <em>which</em> tier won (<code>resolutionSource</code>).
+    </div>
+    <div class="actor b-sizing">
+      <div class="role">The furnace — "how many to order"</div>
+      <div class="nm">S_ReplenishmentOrderSizing</div>
+      Turns the target into a case count: <code>targetDOH × daily velocity ÷ units-per-case</code>, rounded to a layer/pallet, capped at bin capacity. Flag-guarded: un-configured SKUs are sized the old way.
+    </div>
+    <div class="actor b-batch">
+      <div class="role">The caretaker — runs nightly</div>
+      <div class="nm">BA_SKUOverride_ExpirationProcessor</div>
+      Once a night: turns <b>Scheduled → Active</b> when a start date arrives, <b>Active → Expired</b> when an end date passes, supersedes the old override a replacement is taking over from, and triggers the warnings.
+    </div>
+    <div class="actor b-notify">
+      <div class="role">The messenger</div>
+      <div class="nm">S_SafetyStockNotifier</div>
+      Sends the bell notification: "your override expires in N days" (approaching) and "your override expired" — to the person who created it.
+    </div>
+    <div class="actor b-ui">
+      <div class="role">The cockpit</div>
+      <div class="nm">safetyStockManager (LWC)</div>
+      The screen: list overrides, filter by status, <b>preview the cost</b> of a proposed target before saving, and close one early. Talks to Apex through <code>WMS_UI_Wrappers</code>.
+    </div>
+  </div>
+
+  <div class="mnem">
+    <b>Mnemonic to lock the cast:</b> <b>"D-D-F-C-M-C"</b> → <b>D</b>ial (record), <b>D</b>ecider (resolver), <b>F</b>urnace (sizing), <b>C</b>aretaker (batch), <b>M</b>essenger (notifier), <b>C</b>ockpit (LWC). Say it once out loud. Two D's and two C's — the pairs make it easy.
+  </div>
+
+  <details>
+    <summary>Quick recall — cover the cast above and answer:</summary>
+    <div class="q-a">
+      <b>Q:</b> Which player decides the target, and which one <em>acts</em> on it?<br>
+      <b>A:</b> <span class="chip c-sku">S_InventoryThresholds.resolve()</span> decides; <span class="chip c-sizing">S_ReplenishmentOrderSizing</span> acts. (Decider vs Furnace — never the same class. This separation is the whole design.)
+    </div>
+  </details>
+
+  <!-- ================= 2. THE RESOLVER ================= -->
+  <h2><span class="n">2</span> The decider: how one target wins</h2>
+  <p>Multiple things can have an opinion about a SKU's target at once — a SKU-specific override, a supplier-wide override, warehouse baselines. The resolver walks a <b>fixed priority ladder</b> and returns the <b>first match</b>. Most specific wins.</p>
+
+  <div class="ladder">
+    <div class="rung win"><span class="lv">1</span><div><b>SKU-scope override</b> — "for exactly this item at this warehouse" <span class="chip c-sku">most specific → wins if present</span></div></div>
+    <div class="rung"><span class="lv">2</span><div><b>Supplier-scope override</b> — "for everything from this supplier" <span class="chip c-sup">the BMS-5068 addition</span></div></div>
+    <div class="rung"><span class="lv">3</span><div>Supplier + warehouse baseline threshold</div></div>
+    <div class="rung"><span class="lv">4</span><div>Warehouse baseline threshold</div></div>
+    <div class="rung"><span class="lv">5</span><div>Supplier baseline threshold</div></div>
+    <div class="rung"><span class="lv">6</span><div><b>Nothing configured</b> → returns null → callers fall back to their old behavior</div></div>
+  </div>
+
+  <div class="why"><b>Why a ladder instead of "add them up"?</b> Buffers aren't additive — you want <em>one</em> answer, and the most specific instruction should win (a rule about one SKU beats a blanket rule about its supplier). The resolver returns a <code>resolutionSource</code> label — <span class="chip c-sku">"SKU Override"</span>, <span class="chip c-sup">"Supplier Override"</span>, or <span class="chip">"Standard"</span> — so every downstream number can say <em>why</em> it is what it is.</div>
+
+  <div class="analogy">
+    <div class="h">🎟️ Analogy: airport boarding groups</div>
+    First class boards before group 1 before group 2. The gate agent calls the <em>highest</em> group present and stops. The resolver is the gate agent; SKU-override is first class. It never "averages" the groups — it picks the top one standing there.
+  </div>
+
+  <div class="why" style="background:#fff8e6;border:1px solid #f0e2b6"><b>The safe-by-design bit (why existing code didn't break):</b> the new supplier tier only activates when a caller passes a <code>accountId</code>. Every pre-existing caller passes <code>null</code>, so for them the ladder behaves exactly as before. New capability, zero blast radius.</div>
+
+  <details>
+    <summary>Recall — a SKU has BOTH a SKU-override (16 days) and a supplier-override (18 days) active. What target does the resolver return, and what's the source label?</summary>
+    <div class="q-a"><b>A:</b> <b>16 days</b>, source <span class="chip c-sku">"SKU Override"</span>. Rung 1 beats rung 2 — most specific wins, no averaging.</div>
+  </details>
+
+  <!-- ================= 3. THE FURNACE ================= -->
+  <h2><span class="n">3</span> The furnace: target → cases to order</h2>
+  <p>This is the piece that makes an override <em>matter</em> (ticket BMS-4217). Before it, the target was just a number nobody read. Now the replenishment engine sizes the order to hit it.</p>
+
+  <div class="card" style="text-align:center;font-size:18px">
+    <span class="chip c-sizing" style="font-size:15px">target cases</span> =
+    round( <b>Target DOH</b> × <b>daily velocity</b> ÷ <b>units-per-case</b> )
+    <div style="color:var(--mut);font-size:14px;margin-top:8px">…then rounded up to a full layer/pallet, then capped at what the bin can hold. Order = target − what's already there.</div>
+  </div>
+
+  <div class="analogy">
+    <div class="h">🍞 Analogy: stocking a bakery shelf for a long weekend</div>
+    "I want 3 days of bread" (Target DOH). "We sell 40 loaves a day" (velocity). "Bread comes 8 to a tray" (units-per-case). So: 3 × 40 ÷ 8 = 15 trays. You can't order half a tray, and the shelf only fits 20 — that's the rounding + capacity cap. Raising the target to 5 days ⇒ order more trays. <em>That's the whole feature in one sentence.</em>
+  </div>
+
+  <div class="why"><b>Why "flag-guarded" + "additive"?</b> A SKU with no configured target or no velocity data is sized exactly the old way (fill-to-capacity). The DOH math only kicks in when both a target <em>and</em> velocity exist. So turning this on can't regress an un-configured SKU — it only ever <em>adds</em> smarter sizing where the data supports it.</div>
+
+  <div class="why" style="background:#fbe6e4;border:1px solid #f3c6c1"><b>The subtle flag — <code>dohDriven</code>:</b> a task records whether DOH drove its size. If the target's already met → <code>dohDriven=false</code> (DOH didn't order anything). If DOH computed a number but the bin was full → <code>SizingResult(0, true)</code>: 0 cases but <code>dohDriven=true</code>, because DOH <em>did</em> decide — capacity just capped it. "0 cases" and "DOH ran" aren't contradictory.</div>
+
+  <!-- ================= 4. FREEZE ================= -->
+  <h2><span class="n">4</span> The photograph: freezing the decision on the task</h2>
+  <div class="analogy">
+    <div class="h">📸 Analogy: a receipt, not a live price tag</div>
+    When a store rings you up, the receipt shows the price <em>at that moment</em> — even if the price changes tomorrow, your receipt doesn't. Every generated <span class="chip c-sizing">Replenishment_Task__c</span> takes a photograph: <code>Effective_Target_DOH__c</code> and <code>Resolution_Source__c</code> are stamped <b>once, at creation</b>. Change or close the override later and old tasks still truthfully show what drove them.
+  </div>
+  <div class="why"><b>Why it matters (BMS-5639):</b> without the freeze, a task generated last week would look — in hindsight — like it used today's numbers. And there are <b>two</b> code paths that make tasks (the nightly scheduled path and the real-time event path) — <em>both</em> must stamp the photo, or a task's history depends on which door it came through. The review caught the event path missing it; it's fixed.</div>
+
+  <!-- ================= 5. THE CARETAKER ================= -->
+  <h2><span class="n">5</span> The caretaker: the nightly batch's 3 jobs</h2>
+  <p>One batch, run once a night, does three things in a strict order. Picture a night-shift caretaker walking the building.</p>
+
+  <div class="flow">
+    <div class="node" style="border-color:var(--batch)">① <b>start()</b><br><span style="font-weight:400;font-size:12px">gather who's due</span></div>
+    <div class="arrow">→</div>
+    <div class="node" style="border-color:var(--batch)">② <b>execute()</b><br><span style="font-weight:400;font-size:12px">flip statuses + supersede</span></div>
+    <div class="arrow">→</div>
+    <div class="node" style="border-color:var(--notify)">③ <b>finish()</b><br><span style="font-weight:400;font-size:12px">warn what's expiring soon</span></div>
+  </div>
+
+  <h3>① start() — "who needs attention tonight?"</h3>
+  <p>Queries two groups: <b>Active</b> overrides whose <b>End Date has passed</b> (time to expire), and <b>Scheduled</b> overrides whose <b>Start Date has arrived</b> (time to activate).</p>
+  <div class="why" style="background:#fff8e6;border:1px solid #f0e2b6">🕐 <b>Why it must run 1–3 AM, not before midnight:</b> the filter is <code>End_Date &lt; TODAY</code>. A record ending "today" is only eligible once the clock rolls to tomorrow. Run it at 11 PM and you'd leave expired buffers active an extra day. (This is a real gotcha baked into the setup doc.)</div>
+
+  <h3>② execute() — flip the switches</h3>
+  <ul>
+    <li><b>Scheduled → Active</b> (its window is still open), or straight to <b>Expired</b> if the whole window already passed.</li>
+    <li><b>Active → Expired</b> for the ones past their end date.</li>
+    <li><b>Supersede the incumbent:</b> when a Scheduled replacement activates, the <em>old</em> Active override for the same key is flipped to <b>Superseded</b> in the same save.</li>
+  </ul>
+  <div class="why" style="background:#fbe6e4;border:1px solid #f3c6c1"><b>Why supersede matters (the blocker-adjacent bug the review caught):</b> there's a rule — only <em>one</em> Active override per SKU+location. If the batch activated the replacement without retiring the incumbent, the rule would reject it and (because the save is best-effort) it would <b>fail silently</b> — the planner's scheduled replacement just never turns on. Superseding the old one in the same breath makes it a clean hand-off.</div>
+
+  <h3>③ finish() — the courtesy heads-up</h3>
+  <p>After the flips, it finds Active overrides whose end date is within the <b>notice window</b> (a CMDT, default <b>4 days</b>) and hands them to the messenger. Runs <em>after</em> the transitions so it never warns about something it just expired.</p>
+  <div class="why"><b>Two access-mode details the review tightened:</b> both the transition writes and the finish() read now run in <code>SYSTEM_MODE</code> with a "rule 4 — background job" citation. Otherwise a scheduling user without special permissions would silently get zero rows and the notifications would quietly never fire.</div>
+
+  <details>
+    <summary>Recall — why does the batch expire overrides in the early morning and not at 11 PM?</summary>
+    <div class="q-a"><b>A:</b> The query is <code>End_Date &lt; TODAY</code>. An override ending "today" only qualifies once the clock passes midnight into the next day. Running pre-midnight skips them, leaving buffers active one extra day.</div>
+  </details>
+  <details>
+    <summary>Recall — a planner schedules a replacement override. The batch activates it but the old one is still Active. What goes wrong <em>without</em> the supersede step?</summary>
+    <div class="q-a"><b>A:</b> The "one Active per SKU+location" uniqueness rule rejects the activation, and because the batch save is best-effort (allOrNone=false) it fails <b>silently</b> — the replacement never turns on and the planner sees the old target persist. Superseding the incumbent in the same DML prevents this.</div>
+  </details>
+
+  <!-- ================= 6. THE MESSENGER ================= -->
+  <h2><span class="n">6</span> The messenger: notifications that scale</h2>
+  <p>Sends the bell alert to the override's <b>creator</b>. Two flavors: <b>approaching</b> ("expires in N days") and <b>expired</b>.</p>
+  <div class="why" style="background:#fbe6e4;border:1px solid #f3c6c1"><b>The trap the review caught:</b> Salesforce caps how many custom notifications you can send per transaction. The first version sent <em>one per override</em> — a big nightly batch would hit the cap and silently drop the rest. Fix: <b>group by recipient</b> — one aggregated notification per person ("you have 3 overrides expiring soon"), so the count scales with <em>people</em>, not records. Plus a single log line if any get dropped, so a silent failure becomes visible.</div>
+  <div class="analogy">
+    <div class="h">📮 Analogy: one envelope per person, not one per bill</div>
+    If you owe someone three things, you send them one letter listing all three — not three separate envelopes. Cheaper, and you won't run out of stamps (the send cap).
+  </div>
+
+  <!-- ================= 7. FULL JOURNEY ================= -->
+  <h2><span class="n">7</span> Follow one override through its whole life</h2>
+  <p>This narrative ties every player together. Picture the planner "Dana" raising a buffer for Red Bull before a summer promo.</p>
+
+  <div class="tl">
+    <div class="ev"><span class="st">Mon — Dana creates it (via the cockpit or a record page)</span><br>A <span class="chip c-sku">SKU_Override__c</span>: Scope=Supplier, Target=18 days, Start=next Mon, End=+30 days, reason="summer promo." Status starts <b>Scheduled</b>. First she hits <b>Preview</b> — the <span class="chip c-ui">LWC</span> asks the controller "what would 18 days cost?" → sees "+240 cases, ~$7,200" <em>before</em> saving.</div>
+    <div class="ev"><span class="st">Next Mon 1:30 AM — the caretaker activates it</span><br>The <span class="chip c-batch">nightly batch</span> sees Start Date arrived → flips <b>Scheduled → Active</b>, and supersedes any prior active Red Bull override.</div>
+    <div class="ev"><span class="st">Tue onward — the furnace reacts</span><br>Replenishment runs. The <span class="chip c-sku">resolver</span> now returns 18 days (source "Supplier Override"). <span class="chip c-sizing">Order-sizing</span> orders more cases to hit it. Each task <b>photographs</b> "18 / Supplier Override."</div>
+    <div class="ev exp"><span class="st">Day 26 — the heads-up</span><br>Within the 4-day window, <span class="chip c-batch">finish()</span> hands it to the <span class="chip c-notify">messenger</span> → Dana's bell: "expires in 4 days. Extend, close early, or let it expire."</div>
+    <div class="ev done"><span class="st">Day 30 — it retires itself</span><br>End date passes → batch flips <b>Active → Expired</b>. Red Bull reverts to its standard target automatically. Dana gets the "expired" note. No scramble, no forgotten buffer.</div>
+  </div>
+  <div class="why"><b>Alternate ending — Dana closes it early:</b> from the cockpit's row action she clicks <b>Close early</b>, a modal demands a reason, and it flips to <b>Manually Closed</b> with who/when/why stamped. Same revert, just planner-initiated.</div>
+
+  <!-- ================= 8. DATA FLOW MAP ================= -->
+  <h2><span class="n">8</span> The one-glance flow map</h2>
+  <div class="card">
+    <div class="flow" style="justify-content:flex-start">
+      <div class="node" style="border-color:var(--ui)">Planner @ <b>safetyStockManager</b> LWC</div>
+      <div class="arrow">→</div>
+      <div class="node">WMS_UI_Wrappers <span style="font-weight:400;font-size:12px">(@AuraEnabled proxy)</span></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--sku)">SafetyStockOverrideController</div>
+    </div>
+    <div style="text-align:center;color:var(--mut);margin:6px 0">controller uses ↓</div>
+    <div class="flow" style="justify-content:flex-start">
+      <div class="node" style="border-color:var(--sku)">S_InventoryThresholds.resolve() <span style="font-weight:400;font-size:12px">= the target</span></div>
+      <div class="arrow">+</div>
+      <div class="node" style="border-color:var(--sku)">SKU_Override__c <span style="font-weight:400;font-size:12px">= the records</span></div>
+    </div>
+    <hr style="border:none;border-top:1px dashed var(--line);margin:14px 0">
+    <div style="color:var(--mut);margin:6px 0">Meanwhile, on its own clock:</div>
+    <div class="flow" style="justify-content:flex-start">
+      <div class="node" style="border-color:var(--batch)">Nightly BA_SKUOverride_ExpirationProcessor</div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--notify)">S_SafetyStockNotifier → 🔔</div>
+    </div>
+    <div style="color:var(--mut);margin:6px 0">And when replenishment runs:</div>
+    <div class="flow" style="justify-content:flex-start">
+      <div class="node" style="border-color:var(--sku)">resolve() target</div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--sizing)">S_ReplenishmentOrderSizing</div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--sizing)">Replenishment_Task__c <span style="font-weight:400;font-size:12px">(photo frozen)</span></div>
+    </div>
+  </div>
+
+  <!-- ================= 9. WHY THIS SHAPE ================= -->
+  <h2><span class="n">9</span> Why the code is split this way (the "aha")</h2>
+  <table>
+    <tr><th>The split</th><th>Why it exists</th></tr>
+    <tr><td><b>Decider ≠ Furnace</b><br>(resolver vs order-sizing)</td><td>"What's the target" is a different question from "how many to order." Keeping them apart means the preview screen can ask the decider <em>without</em> ordering anything, and order-sizing can be tested on pure numbers.</td></tr>
+    <tr><td><b>Record ≠ Caretaker</b><br>(SKU_Override__c vs the batch)</td><td>The record just states intent. The batch enforces the calendar. A planner sets a date and forgets it; the caretaker makes the date real. Time-based state changes belong in a scheduled job, not in the UI.</td></tr>
+    <tr><td><b>Notification isolated from the transition</b></td><td>In <code>execute()</code> the status flip and the notification are deliberately separate — a notification failure must never roll back the lifecycle change. (The reviewer specifically praised this.)</td></tr>
+    <tr><td><b>Freeze on the task</b></td><td>A live lookup would rewrite history every time an override changed. A frozen photo makes each task auditable forever.</td></tr>
+    <tr><td><b>LWC → Wrapper → Controller</b></td><td>LWCs can't call another package's Apex directly; <code>WMS_UI_Wrappers</code> is the thin bridge. The controller holds the real logic and is reusable/testable on its own.</td></tr>
+  </table>
+
+  <!-- ================= 10. FINAL SELF-TEST ================= -->
+  <h2><span class="n">10</span> Final self-test (close the doc first, really)</h2>
+  <p>If you can answer these without peeking, it's in. If not, re-read just that section — targeted, not the whole thing.</p>
+  <details><summary>1. Name the 6 players and each one's single job.</summary><div class="q-a">Dial = <code>SKU_Override__c</code> (states intent) · Decider = <code>S_InventoryThresholds.resolve()</code> (picks the target) · Furnace = <code>S_ReplenishmentOrderSizing</code> (target→cases) · Caretaker = <code>BA_SKUOverride_ExpirationProcessor</code> (nightly lifecycle) · Messenger = <code>S_SafetyStockNotifier</code> (bell) · Cockpit = <code>safetyStockManager</code> LWC (screen).</div></details>
+  <details><summary>2. Write the order-sizing formula from memory.</summary><div class="q-a"><code>target cases = round(Target DOH × daily velocity ÷ units-per-case)</code>, rounded to layer/pallet, capped at capacity; order = target − on-hand.</div></details>
+  <details><summary>3. What are the batch's 3 steps, in order, and what does each do?</summary><div class="q-a">start() = gather due overrides (End passed / Start arrived); execute() = flip statuses + supersede the incumbent; finish() = notify the ones expiring within the notice window.</div></details>
+  <details><summary>4. Why can raising a Target DOH change what gets ordered, when it couldn't before BMS-4217?</summary><div class="q-a">Before, the target was a stored number nothing consumed. BMS-4217 wired the resolved target into <code>S_ReplenishmentOrderSizing</code>, so the order quantity is now computed from it (flag-guarded, additive).</div></details>
+  <details><summary>5. Two overrides, SKU=16 and Supplier=18, both active — what target, what source?</summary><div class="q-a">16 days, "SKU Override." Most specific wins; buffers are never summed.</div></details>
+
+  <div class="anchor big" style="margin-top:26px">
+    🔑 <b>If you forget everything else:</b> Override = turning a dial. Resolver = reads the dial (most-specific wins). Order-sizing = the furnace that hits the target. Nightly batch = the timer that turns the dial up on schedule, down when it expires, and taps you on the shoulder first. <b>Dial · Read · Furnace · Timer.</b>
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · BMS-5068 · code-design explainer · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a></p>
+</div>
+</body>
+</html>

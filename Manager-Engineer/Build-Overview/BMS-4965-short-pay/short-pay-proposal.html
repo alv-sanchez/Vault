@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay Automation — Proposal & Feedback (BMS-4965)</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--ask:#d29922;--accent:#58a6ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:34px;max-width:940px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 2px} h2{font-size:17px;margin:26px 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .key{color:var(--accent)} .sub{color:var(--dim);margin:0 0 6px}
+  .tl{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0 8px;font-size:15.5px}
+  .tl b{color:var(--txt)}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:680px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:13px 15px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 5px}
+  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
+  .box p{margin:0;color:#d7dce8;font-size:14px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0}
+  th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .st-built{color:var(--sol);font-weight:600}.st-pr{color:var(--accent);font-weight:600}.st-todo{color:var(--dim)}.st-hold{color:var(--ask);font-weight:600}
+  .ask{background:rgba(210,153,34,.10);border:1px solid #3a2f12;border-left:4px solid var(--ask);border-radius:10px;padding:6px 16px;margin:8px 0}
+  .ask h3{color:var(--ask);margin:12px 0 4px;font-size:14.5px}
+  .ask .who{color:var(--dim);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .ask p{margin:2px 0 12px;color:#e7e9f0;font-size:14px}
+  .locked li{color:#c4cad8;font-size:13.5px;margin:3px 0}
+  code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:12.5px}
+  .foot{color:var(--dim);font-size:12px;margin-top:22px}
+</style></head><body>
+
+<h1>💸 Short Pay Automation — Proposal & Feedback</h1>
+<p class="sub"><span class="key">BMS-4965</span> · AR-Finance / Delivery · owner Alvaro Sanchez · PO Elliot Flores · <em>we need your input on 5 decisions (below)</em></p>
+
+<div class="tl">🧠 <b>In one line:</b> When a Gulf driver collects <b>less than the invoice</b> at delivery, today it's a manual, error-prone chase. This <b>captures the short pay at the truck, gates big ones behind an approval, escalates by each state's rules, and resolves it to a credit or a collection</b> — so leaked cash gets recovered and every short pay is auditable.</div>
+
+<div class="quad">
+  <div class="box user"><h3>👤 Who it's for</h3><p>Gulf <b>delivery drivers</b> (capture at the stop) and the <b>AR / finance</b> team (back-office resolution).</p></div>
+  <div class="box impact"><h3>💥 Why it matters</h3><p>Short pays happen regularly; the gap is real money. Today there's no back-office flow — collections/credits get missed and there's no FL/AL compliance trail. This recovers cash at the source with an audit trail.</p></div>
+  <div class="box sol"><h3>🛠️ The approach</h3><p>Extend the <b>shipped</b> capture (no new objects): driver logs the short pay → configurable <b>approval gate</b> on big ones → back-office <b>queue</b> → auto-<b>escalation</b> by state → <b>resolve</b> to credit or collected.</p></div>
+  <div class="box next"><h3>🚀 What's next</h3><p>Land the driver approval gate (in review), then plug in the FL/AL threshold numbers + confirm the EFT and AR-aging phases (need your calls below).</p></div>
+</div>
+
+<h2>Where it stands today</h2>
+<table>
+  <tr><th>Piece</th><th>What it does</th><th>Status</th></tr>
+  <tr><td>Driver capture (BMS-3844)</td><td>Driver logs short-pay reason + note at delivery</td><td class="st-built">✅ shipped</td></tr>
+  <tr><td>Ph4 · Finalize-stop approval gate (BMS-5625)</td><td>Configurable N-layer approval — a short pay over threshold can't be finalized without sign-off (CMDT-driven, no code change to retune)</td><td class="st-pr">🟣 in review — PR #439</td></tr>
+  <tr><td>Back-office queue</td><td>Worklist of short-paid invoices (amount / age / warehouse / state)</td><td class="st-built">✅ built</td></tr>
+  <tr><td>Resolve</td><td>Resolve-with-credit or mark-collected; status set is configurable</td><td class="st-built">✅ built</td></tr>
+  <tr><td>Auto-escalation</td><td>Escalates when a short pay is large <b>or</b> old, per-state — <b>but thresholds are empty</b>, so nothing escalates until Gulf gives numbers</td><td class="st-hold">⚠ needs numbers</td></tr>
+  <tr><td>Ph5 · EFT detection (BMS-5626)</td><td>Catch short pays via bank reconciliation</td><td class="st-todo">Backlog</td></tr>
+  <tr><td>Ph6 · AR aging / net-30 (BMS-5627)</td><td>Surface not-yet-due non-alcohol balances</td><td class="st-hold">⏸ pending confirm</td></tr>
+</table>
+<p style="font-size:13px;color:var(--dim)">Built the reuse-first way: on <code>Invoice__c</code> + <code>Credit__c</code>, <b>zero new objects</b>. Not built (were demo seed data, not code): repeat-offender flagging, driver/manager push alerts — decide if you want them.</p>
+
+<h2>Decisions locked (for transparency)</h2>
+<ul class="locked">
+  <li><b>Extend, don't rebuild</b> — build on the shipped capture; reuse <code>Credit__c</code> for resolution; no new objects.</li>
+  <li><b>Thresholds are configurable per state</b> (metadata: state → $ + aging-days) — values TBD (see ask #1).</li>
+  <li><b>"Resolved"</b> = a credit posted (write-off/deduction) or a manual "collected" close; manager approval optional.</li>
+  <li><b>Drivers see capture only</b> — resolution status, escalation, and AR balance are hidden from the driver (capture, don't chase).</li>
+</ul>
+
+<h2>🟡 We need your input (5 decisions)</h2>
+<div class="ask">
+  <h3>1. FL vs AL escalation thresholds — the actual numbers</h3>
+  <div class="who">→ Gulf (via Elliot)</div>
+  <p>At what <b>$ amount</b> and <b>days outstanding</b> should a short pay escalate, per state? And what's the <b>legal driver</b> for Alabama? The engine is built and waiting — nothing escalates until we have these.</p>
+  <h3>2. Field approval gate — the cut-off + who approves</h3>
+  <div class="who">→ Gulf ops</div>
+  <p>Below what <b>$ (or %)</b> can a driver finalize a short-paid stop <b>without</b> approval? And <b>who</b> can approve in the field, in real time (supervisor / sales manager / regional)?</p>
+  <h3>3. Ph5 EFT detection — build or reuse?</h3>
+  <div class="who">→ Product</div>
+  <p>Does the existing <b>bank-reconciliation sync already flag</b> short pays, or do we need to build the detection? (Determines 5626's size.)</p>
+  <h3>4. Ph6 AR aging (net-30) — confirm or kill</h3>
+  <div class="who">→ Product (Emily/Elliot)</div>
+  <p>Do we want a view of <b>not-yet-due non-alcohol (net-30)</b> balances? It was floated, not confirmed. Rule of thumb we're assuming: <b>alcohol = pay on delivery, non-alc = net-30.</b></p>
+  <h3>5. Ticket framing — ratify reality</h3>
+  <div class="who">→ Product / refinement</div>
+  <p>The Ph2/Ph3 tickets (4059/4060) read <b>driver-handheld-centric</b>, but what's built is the <b>back-office queue</b> (which is what AR/EFT actually needs). OK to re-word the tickets to match?</p>
+</div>
+
+<p class="foot">Deeper detail: <code>SESSION.md</code> + <code>short-pay-explained.html</code> in this folder. Live status: Mission Control. This page is for proposing + collecting your feedback — reply on the numbered asks.</p>
+</body></html>

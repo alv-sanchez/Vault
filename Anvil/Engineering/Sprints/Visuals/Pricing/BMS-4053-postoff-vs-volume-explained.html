@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Post-off vs Volume (QD) — one object, two shapes · BMS-4053</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#fff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --amber:#92400e; --amber-soft:#fdf4e3;
+    --green:#0f6e56; --green-soft:#e7f4ef; --crimson:#a32d2d; --crimson-soft:#fbeaea;
+    --code:#0e1726; --code-ink:#e7ecf5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 28px 80px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:#e4f223;color:var(--ink);margin-left:6px;}
+  h1{font-size:27px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:80ch;}
+  h2{font-size:20px;margin:42px 0 6px;padding-top:14px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+    background:var(--denim);color:#fff;border-radius:50%;font-size:14px;margin-right:9px;vertical-align:2px;}
+  h3{font-size:14px;margin:24px 0 8px;color:var(--denim);text-transform:uppercase;letter-spacing:.05em;}
+  p{margin:10px 0;}
+  pre{background:var(--code);color:var(--code-ink);border-radius:10px;padding:18px 20px;
+    overflow-x:auto;font:12.5px/1.5 "SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    box-shadow:0 6px 18px rgba(74,95,176,.14);}
+  pre.diagram{font-size:12px;line-height:1.42;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:var(--card);border-radius:10px;
+    overflow:hidden;box-shadow:0 2px 10px rgba(22,35,58,.05);font-size:13.5px;}
+  th{background:var(--ink);color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.04em;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf9f8;}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+  .pill.base{background:#eef0f4;color:var(--muted);}
+  .pill.promo{background:var(--amber-soft);color:var(--amber);}
+  .pill.volume{background:var(--green-soft);color:var(--green);}
+  .pill.call{background:var(--crimson-soft);color:var(--crimson);}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+  .box{border-radius:12px;padding:16px 18px;border-left:6px solid;background:var(--card);box-shadow:0 2px 10px rgba(22,35,58,.05);}
+  .box.promo{border-color:var(--amber);} .box.volume{border-color:var(--green);}
+  .box h4{margin:0 0 8px;font-size:14px;} .box.promo h4{color:var(--amber);} .box.volume h4{color:var(--green);}
+  .box ul{margin:6px 0 0;padding-left:20px;} .box li{margin:4px 0;font-size:13px;}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13.5px;}
+  .note b{color:var(--denim);}
+  .win{color:var(--green);font-weight:700;} .flat{color:var(--amber);font-weight:700;}
+  .truth{background:#fff;border:1px solid var(--line);border-left:6px solid var(--green);border-radius:10px;padding:14px 18px;margin:12px 0;}
+  .truth.no{border-left-color:var(--crimson);}
+  .truth h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;}
+  .truth.yes h4{color:var(--green);} .truth.no h4{color:var(--crimson);}
+  ul.tight{margin:6px 0;padding-left:20px;} ul.tight li{margin:4px 0;font-size:13.5px;}
+  .foot{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+  /* step chart */
+  .chart{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0;}
+  .ch{flex:1 1 280px;background:var(--card);border-radius:10px;box-shadow:0 2px 10px rgba(22,35,58,.05);padding:14px;}
+  .ch .ttl{font-weight:700;font-size:13px;margin-bottom:10px;}
+  .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font:12px ui-monospace,Menlo,monospace;}
+  .bar .q{width:54px;color:var(--muted);}
+  .bar .fill{height:16px;border-radius:3px;}
+  .bar .v{font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4053</span><span class="tag y">Promotions clarity</span>
+  <h1>Post-off vs Volume (QD) — one object, two shapes</h1>
+  <p class="sub">Both are <code class="inl">Promotion__c</code> records. They are <b>not</b> different features — a single field, <code class="inl">Type__c</code>, decides whether the discount is one flat cut (Post-off) or a quantity-stepped curve (Volume / QD). This page walks the difference, the three quantity scenarios, exactly what data/functions/files get pulled, and an honest note on what is &amp; isn't built.</p>
+</header>
+
+<!-- 1 -->
+<h2><span class="n">1</span>They are the same object — <code class="inl">Type__c</code> is the only fork</h2>
+<p>A promotion is one <code class="inl">Promotion__c</code> row. The resolver (<code class="inl">S_PriceResolver.applicableDiscount</code>) branches on <code class="inl">Type__c</code> and nothing else to decide the discount’s shape:</p>
+<pre class="diagram">
+                         Promotion__c  (one record)
+                                │  Type__c = ?
+              ┌─────────────────┴──────────────────┐
+        'Post-off'                                 'QD'  (Volume)
+              │                                     │
+   uses the PROMO's own fields:            uses child Promotion_Tier__c rows:
+     Min_Quantity__c                         each tier: Min_Quantity__c + Discount_Amount__c
+     Discount_Amount__c                      → pick HIGHEST tier where cartQty ≥ tier.Min_Quantity__c
+              │                                     │
+   ONE flat discount once cartQty            DISCOUNT GROWS as cartQty crosses tiers
+   ≥ Min_Quantity__c                                │
+              │                                     │
+   result.promotionTierId = null            result.promotionTierId = winning tier Id
+              ▼                                     ▼
+        label "Promo Price"                   label "Volume Price"
+</pre>
+<div class="note"><b>The label is just a tell, not a separate code path.</b> The storefront shows “Volume Price” whenever the winning discount came from a tier (<code class="inl">promotionTierId</code> set), and “Promo Price” when it came from the promotion’s own flat fields. Same resolver, same result object (<code class="inl">LineResult</code>).</div>
+
+<!-- 2 -->
+<h2><span class="n">2</span>The decision, in the actual code</h2>
+<p><code class="inl">S_PriceResolver.applicableDiscount()</code> — the per-promo, per-line discount calc (OHFY-OMS):</p>
+<pre>if (promo.Type__c == 'QD' && tiers != null && !tiers.isEmpty()) {
+    // VOLUME: walk tiers, keep the highest whose Min_Quantity ≤ cart-context qty
+    for (Promotion_Tier__c tier : tiers) {
+        if (cartQty &lt; (tier.Min_Quantity__c ?? 0)) continue;     // not reached yet
+        if (best == null || tierMin &gt; bestMin) { best = tier; } // deeper tier wins
+    }
+    if (best == null) return null;            // no tier reached → no discount
+    amount = best.Discount_Amount__c;  tierId = best.Id;          // ← "Volume Price"
+} else {
+    // POST-OFF (and any single-tier promo): one flat threshold + one amount
+    if (cartQty &lt; (promo.Min_Quantity__c ?? 0)) return null;     // threshold unmet → no discount
+    amount = promo.Discount_Amount__c;                            // ← "Promo Price"
+}
+// Percent vs Dollar comes from promo.Discount_Type__c for BOTH shapes
+perCase = (Discount_Type__c == 'Percent') ? casePrice * amount/100 : amount;</pre>
+<div class="note"><b>Threshold is cart-context quantity</b>, not a single line: <code class="inl">cartContextQuantities()</code> sums every cart line whose item falls in the promo’s scope, so the same item split across two lines still tiers correctly.</div>
+
+<!-- 3 -->
+<h2><span class="n">3</span>Your three scenarios — quantity drives everything</h2>
+<p>Base price (front-line) = <b>$17</b>. Watch what each promotion returns as quantity climbs. <b>The catalog card always resolves at qty 1</b>, so a threshold above 1 is invisible on the card and only “wakes up” in the cart.</p>
+
+<table>
+  <tr><th>Scenario</th><th>qty 1 (card)</th><th>qty 5</th><th>qty 10</th><th>qty 50</th><th>Behaviour</th></tr>
+  <tr>
+    <td><b>Post-off · MinQty 1</b><br/><span class="kvs">−$2 flat</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td>Effectively <b>always on</b> — you can never order 0, so qty ≥ 1 is always true. Flat the whole way.</td>
+  </tr>
+  <tr>
+    <td><b>Post-off · MinQty 10</b><br/><span class="kvs">−$2 flat</span></td>
+    <td>$17 <span class="pill base">base</span></td>
+    <td>$17 <span class="pill base">base</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td>$15 <span class="pill promo">Promo</span></td>
+    <td><b>Unlocks at 10</b>, then the SAME flat −$2 no matter how much higher. One step.</td>
+  </tr>
+  <tr>
+    <td><b>Volume / QD</b><br/><span class="kvs">tiers 10→−$3, 50→−$6</span></td>
+    <td>$17 <span class="pill base">base</span></td>
+    <td>$17 <span class="pill base">base</span></td>
+    <td>$14 <span class="pill volume">Volume</span></td>
+    <td>$11 <span class="pill volume">Volume</span></td>
+    <td><b>Deepens with quantity</b> — −$3 at 10, −$6 at 50. Multiple steps.</td>
+  </tr>
+</table>
+
+<div class="chart">
+  <div class="ch">
+    <div class="ttl">Post-off · MinQty 1 (flat, always)</div>
+    <div class="bar"><span class="q">qty 1</span><span class="fill" style="width:88%;background:var(--amber-soft)"></span><span class="v flat">$15</span></div>
+    <div class="bar"><span class="q">qty 10</span><span class="fill" style="width:88%;background:var(--amber-soft)"></span><span class="v flat">$15</span></div>
+    <div class="bar"><span class="q">qty 50</span><span class="fill" style="width:88%;background:var(--amber-soft)"></span><span class="v flat">$15</span></div>
+  </div>
+  <div class="ch">
+    <div class="ttl">Post-off · MinQty 10 (one step)</div>
+    <div class="bar"><span class="q">qty 1</span><span class="fill" style="width:100%;background:#eef0f4"></span><span class="v">$17</span></div>
+    <div class="bar"><span class="q">qty 10</span><span class="fill" style="width:88%;background:var(--amber-soft)"></span><span class="v flat">$15</span></div>
+    <div class="bar"><span class="q">qty 50</span><span class="fill" style="width:88%;background:var(--amber-soft)"></span><span class="v flat">$15</span></div>
+  </div>
+  <div class="ch">
+    <div class="ttl">Volume / QD (steps down)</div>
+    <div class="bar"><span class="q">qty 1</span><span class="fill" style="width:100%;background:#eef0f4"></span><span class="v">$17</span></div>
+    <div class="bar"><span class="q">qty 10</span><span class="fill" style="width:82%;background:var(--green-soft)"></span><span class="v win">$14</span></div>
+    <div class="bar"><span class="q">qty 50</span><span class="fill" style="width:65%;background:var(--green-soft)"></span><span class="v win">$11</span></div>
+  </div>
+</div>
+
+<div class="two">
+  <div class="box promo"><h4>Post-off — "a coupon"</h4>
+    <ul>
+      <li>One threshold (<code class="inl">Min_Quantity__c</code>), one discount (<code class="inl">Discount_Amount__c</code>).</li>
+      <li>MinQty 1 (or null) ⇒ looks unconditional.</li>
+      <li>MinQty &gt; 1 ⇒ a buy-N-to-unlock deal; flat after.</li>
+      <li>No <code class="inl">Promotion_Tier__c</code> rows.</li>
+      <li>Label: <span class="pill promo">Promo Price</span></li>
+    </ul>
+  </div>
+  <div class="box volume"><h4>Volume / QD — "a quantity ladder"</h4>
+    <ul>
+      <li>Discount lives in <code class="inl">Promotion_Tier__c</code> children.</li>
+      <li>Each tier = its own min qty + amount.</li>
+      <li>Resolver picks the deepest tier you’ve reached.</li>
+      <li>Below the first tier ⇒ no discount (base).</li>
+      <li>Label: <span class="pill volume">Volume Price</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- 4 -->
+<h2><span class="n">4</span>What gets pulled — data, functions, files</h2>
+
+<h3>Objects &amp; fields read</h3>
+<table>
+  <tr><th>Object</th><th>Fields the resolver reads</th><th>Role</th></tr>
+  <tr><td class="kvs">Item__c</td><td>Item_Type__c, Item_Line__c, Item_Line__r.Supplier__c, Packaging_Style__c</td><td>scope-match keys (which promos apply)</td></tr>
+  <tr><td class="kvs">Front_Line_Price__c</td><td>(via S_FrontLinePricing) → casePrice</td><td>the BASE the promo discounts</td></tr>
+  <tr><td class="kvs">Promotion__c</td><td>Type__c, Item_Scope_Level__c, Item/Item_Type/Item_Line/Supplier, Packaging_Style__c, Discount_Type__c, Discount_Amount__c, <b>Min_Quantity__c</b>, Priority__c, Promotion_Group__c, Location__c, Channel__c, Chain_Banner__c, Start/End/Status</td><td>the promo itself (Post-off uses its own Min/Amount)</td></tr>
+  <tr><td class="kvs">Promotion_Tier__c</td><td>Min_Quantity__c, Discount_Amount__c</td><td><b>QD only</b> — queried only when a QD candidate exists</td></tr>
+  <tr><td class="kvs">Account_Promotion_Group__c</td><td>Promotion_Group__c, Effective/End date</td><td>audience — is this account eligible?</td></tr>
+  <tr><td class="kvs">Promotion_Account_Exclusion__c</td><td>Promotion__c</td><td>per-account opt-out</td></tr>
+  <tr><td class="kvs">Account</td><td>Premise_Type__c, Chain_Banner__c</td><td>channel/chain scope (queried only if a candidate is so-scoped)</td></tr>
+</table>
+<p class="kvs">SOQL budget: ≤5 in S_PriceResolver + 1 Item query + 3 inside S_FrontLinePricing — flat regardless of cart size. The tier query fires only when a QD candidate is present.</p>
+
+<h3>Functions (call order inside <code class="inl">resolve()</code>)</h3>
+<pre class="diagram">
+S_PriceResolver.resolve(CartResolutionRequest)
+  ├─ resolveFlpBase()            → S_FrontLinePricing.resolve()   (base $/case per line)
+  ├─ queryItems()                (scope keys)
+  ├─ queryCandidatePromotions()  (status/date/scope-in-range)
+  ├─ queryAccountGroupIds()      (audience junction, date window)
+  ├─ queryExclusions()           (per-account opt-outs)
+  ├─ queryTiers()                (Promotion_Tier__c — QD candidates only)
+  ├─ filterEligiblePromotions()  (audience + exclusion + warehouse/channel/chain)
+  ├─ cartContextQuantities()     (sum in-scope cart qty per promo)
+  └─ per line → resolveLine()
+         └─ applicableDiscount()   ← the Post-off vs QD fork (Section 2)
+            → isBetterForCustomer() (deepest discount wins; priority winnow first)
+</pre>
+
+<h3>Files</h3>
+<table>
+  <tr><th>File</th><th>Package</th><th>Does</th></tr>
+  <tr><td class="kvs">services/priceResolver/S_PriceResolver.cls</td><td>OHFY-OMS</td><td>the promotion waterfall — Post-off + QD, eligibility, winner</td></tr>
+  <tr><td class="kvs">services/frontLinePricing/S_FrontLinePricing.cls</td><td>OHFY-OMS</td><td>front-line base price (the floor promos discount)</td></tr>
+  <tr><td class="kvs">classes/Ecom_UI_Wrappers.cls</td><td>OHFY-eCommerce-UI</td><td><code class="inl">resolveCatalogPricing</code> / <code class="inl">resolveCartPricing</code> → <code class="inl">S_PriceResolver.resolve</code>; <code class="inl">getEligibleItemPromotions</code> → discovery</td></tr>
+  <tr><td class="kvs">lwc/userDataService/userDataService.js</td><td>OHFY-eCommerce-UI</td><td>calls the wrapper; stamps <code class="inl">_basePrice / _finalPrice / _priceSourceLabel</code> on each item</td></tr>
+  <tr><td class="kvs">lwc/ecomShop/ecomShop.js</td><td>OHFY-eCommerce-UI</td><td>builds <code class="inl">price / basePrice / hasPriceDiscount / priceSourceLabel</code> for the card</td></tr>
+  <tr><td class="kvs">lwc/ecomProductCard/*</td><td>OHFY-eCommerce-UI</td><td>renders price, strike, source label</td></tr>
+</table>
+
+<!-- 5 -->
+<h2><span class="n">5</span>Honest reality — what IS and ISN'T built (this branch)</h2>
+<div class="truth yes"><h4>✓ Built &amp; committed on this branch</h4>
+<ul class="tight">
+  <li><b>The resolver handles BOTH Post-off and QD/Volume</b> — <code class="inl">S_PriceResolver.applicableDiscount</code> has a live QD-tier branch (not a stub). Volume pricing is <em>resolved</em>, not just modeled. (BMS-3876 / ADR-0010, extended by BMS-4144/4145, discovery API under BMS-4053 commit <span class="kvs">1daeccd4</span>.)</li>
+  <li><b>The storefront calls it</b> — <code class="inl">Ecom_UI_Wrappers.resolveCatalogPricing / resolveCartPricing → S_PriceResolver.resolve</code>; discovery via <code class="inl">eligiblePromotionsByItem</code>.</li>
+  <li>Data model: <code class="inl">Promotion__c</code>, <code class="inl">Promotion_Tier__c</code>, <code class="inl">Account_Promotion_Group__c</code>, <code class="inl">Promotion_Account_Exclusion__c</code> all present.</li>
+  <li>Demo data seeded (<span class="kvs">seed-promo-demo.apex</span>) — a Post-off and a QD-with-tiers, which is why both resolve live in the org.</li>
+</ul></div>
+<div class="truth no"><h4>○ NOT done / out of scope here</h4>
+<ul class="tight">
+  <li><b>BOGO</b> promotions — deliberately deferred to <b>BMS-3878</b> (no schema/branch; resolver emits no bonus lines).</li>
+  <li>Promotion <b>authoring/admin UX</b> and the broader promotion-feature stories — separate tickets, not BMS-4053.</li>
+  <li><b>End-to-end verification</b> across many accounts/quantities — being hand-tested (the part not trusted to AI).</li>
+  <li>On the <b>catalog card</b>, Volume looks dormant because the card resolves at qty 1 (below tier mins) — it surfaces in the cart at quantity. That’s expected, not missing.</li>
+</ul></div>
+<div class="note"><b>Why it felt confusing:</b> “volume pricing data model is in but the resolver isn’t” was true at one point, but the resolver (and the storefront wiring) landed in <code class="inl">S_PriceResolver</code> via BMS-3876 and the BMS-4053 discovery commit. So volume <em>does</em> resolve today — the remaining promotion work is BOGO + authoring UX + verification, not the Post-off/Volume math.</div>
+
+<div class="foot">
+  Source of truth: <span class="kvs">OHFY-OMS/force-app/main/default/classes/services/priceResolver/S_PriceResolver.cls</span> (read in full, this branch).
+  Base price: <span class="kvs">S_FrontLinePricing.cls</span>. Storefront: <span class="kvs">Ecom_UI_Wrappers.cls</span> · <span class="kvs">userDataService.js</span> · <span class="kvs">ecomShop.js</span> · <span class="kvs">ecomProductCard</span>.
+  Refs: ADR-0010 (promotion resolver), ADR-0009 (FLP), BMS-3876 / BMS-4144 / BMS-4145 / BMS-3878 (BOGO, deferred).
+</div>
+
+</div>
+</body>
+</html>

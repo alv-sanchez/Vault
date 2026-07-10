@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4053 · Pricing Priority — How Each Layer Decides a Winner</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#ffffff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --yellow:#e4f223; --green:#0f6e56;
+    --green-soft:#e7f4ef; --amber:#92400e; --amber-soft:#fdf4e3; --crimson:#a32d2d;
+    --crimson-soft:#fbeaea; --code:#0e1726; --code-ink:#e7ecf5; --code-dim:#8794ad;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1060px;margin:0 auto;padding:40px 28px 90px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:var(--yellow);color:var(--ink);margin-left:6px;}
+  h1{font-size:28px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:740px;}
+  h2{font-size:21px;margin:46px 0 6px;padding-top:16px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:27px;height:27px;align-items:center;justify-content:center;
+    background:var(--denim);color:#fff;border-radius:50%;font-size:14px;margin-right:9px;vertical-align:2px;}
+  h3{font-size:14px;margin:26px 0 8px;color:var(--denim);text-transform:uppercase;letter-spacing:.05em;}
+  p{margin:10px 0;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;white-space:nowrap;}
+  .src{display:inline-block;background:var(--code);color:var(--code-ink);font:11.5px ui-monospace,Menlo,monospace;
+    padding:2px 8px;border-radius:5px;margin:2px 4px 2px 0;}
+  .src b{color:var(--yellow);font-weight:700;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:var(--card);border-radius:10px;
+    overflow:hidden;box-shadow:0 2px 10px rgba(22,35,58,.05);font-size:13.5px;}
+  th{background:var(--ink);color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.04em;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf9f8;}
+  /* concept cards */
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:16px 0;}
+  .qcard{background:var(--card);border-radius:12px;padding:16px 18px;box-shadow:0 2px 10px rgba(22,35,58,.05);
+    border-top:4px solid var(--denim);}
+  .qcard h4{margin:0 0 6px;font-size:14px;color:var(--ink);}
+  .qcard p{margin:6px 0 0;font-size:13.5px;color:var(--muted);}
+  .qcard.q2{border-color:var(--amber);} .qcard.q3{border-color:var(--green);}
+  /* layer blocks */
+  .layer{border-radius:12px;padding:18px 20px;margin:14px 0;border-left:6px solid;background:var(--card);
+    box-shadow:0 2px 10px rgba(22,35,58,.05);}
+  .l1{border-color:var(--denim);} .l2{border-color:var(--amber);} .l3{border-color:var(--green);}
+  .lh{font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+  .l1 .lh{color:var(--denim);} .l2 .lh{color:var(--amber);} .l3 .lh{color:var(--green);}
+  .lsub{font-size:12.5px;color:var(--muted);margin:0 0 12px;}
+  .step{display:flex;gap:12px;margin:10px 0;padding:10px 0;border-top:1px dashed var(--line);}
+  .step:first-of-type{border-top:none;}
+  .stepn{flex:0 0 28px;height:28px;border-radius:7px;background:var(--ink);color:#fff;font-weight:700;
+    display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .l1 .stepn{background:var(--denim);} .l2 .stepn{background:var(--amber);} .l3 .stepn{background:var(--green);}
+  .stepbody{flex:1;}
+  .stepbody b{font-size:13.5px;}
+  .stepbody .d{font-size:13px;color:var(--muted);margin:3px 0 5px;}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;}
+  .pill.frontline{background:var(--denim-soft);color:var(--denim);}
+  .pill.promo{background:var(--amber-soft);color:var(--amber);}
+  .pill.volume{background:var(--green-soft);color:var(--green);}
+  .pill.call{background:var(--crimson-soft);color:var(--crimson);}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;}
+  .note b{color:var(--denim);}
+  .warn{background:var(--amber-soft);border-left:5px solid var(--amber);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13.5px;}
+  .warn b{color:var(--amber);}
+  .win{color:var(--green);font-weight:700;}
+  .strike{text-decoration:line-through;color:#9aa3b2;}
+  ul{margin:8px 0;padding-left:22px;} li{margin:5px 0;}
+  .foot{margin-top:54px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+  /* ── simulator ── */
+  .sim{background:var(--card);border-radius:14px;padding:0;margin:18px 0;overflow:hidden;
+    box-shadow:0 6px 22px rgba(22,35,58,.1);border:1px solid var(--line);}
+  .sim-controls{padding:18px 22px;background:#fbfbfc;border-bottom:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;}
+  .ctl{display:flex;flex-direction:column;gap:6px;}
+  .ctl label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+  .ctl select{font:14px inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;
+    min-width:230px;color:var(--ink);}
+  .qtywrap{flex:1;min-width:240px;}
+  .qtyrow{display:flex;align-items:center;gap:14px;}
+  .qtyrow input[type=range]{flex:1;accent-color:var(--denim);}
+  .qtyval{font:700 22px ui-monospace,Menlo,monospace;color:var(--denim);min-width:54px;text-align:right;}
+  .qtymarks{display:flex;justify-content:space-between;font:10px ui-monospace,Menlo,monospace;color:var(--code-dim);margin-top:2px;}
+  .sim-body{display:grid;grid-template-columns:1fr 300px;gap:0;}
+  @media(max-width:760px){.sim-body{grid-template-columns:1fr;} .sim-result{border-left:none!important;border-top:1px solid var(--line);}}
+  .sim-trace{padding:18px 22px;}
+  .trace-layer{margin:0 0 14px;}
+  .tl-head{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;}
+  .tl-dot{width:9px;height:9px;border-radius:50%;}
+  .tl1 .tl-dot{background:var(--denim);} .tl1{color:var(--denim);}
+  .tl2 .tl-dot{background:var(--amber);} .tl2{color:var(--amber);}
+  .tl3 .tl-dot{background:var(--green);} .tl3{color:var(--green);}
+  .row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--ink);
+    border-bottom:1px dotted var(--line);}
+  .row:last-child{border-bottom:none;}
+  .row .k{flex:1;}
+  .row .v{font:600 13px ui-monospace,Menlo,monospace;}
+  .row.muted{color:#9aa3b2;}
+  .row.muted .v{color:#9aa3b2;}
+  .chk{font-weight:700;}
+  .chk.yes{color:var(--green);} .chk.no{color:#c0c6d2;}
+  .row.winner{background:var(--green-soft);margin:0 -10px;padding:6px 10px;border-radius:6px;border-bottom:none;}
+  .sim-result{padding:22px;background:#fbfbfc;border-left:1px solid var(--line);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;gap:6px;}
+  .res-item{font-size:12.5px;color:var(--muted);font-weight:600;}
+  .res-base{font:600 15px ui-monospace,Menlo,monospace;}
+  .res-final{font:800 46px ui-monospace,Menlo,monospace;letter-spacing:-.02em;line-height:1;margin:4px 0;}
+  .res-save{font-size:12.5px;color:var(--green);font-weight:700;}
+  .res-pill{margin-top:8px;}
+  .formula{font:12px ui-monospace,Menlo,monospace;color:var(--muted);margin-top:10px;
+    background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4053</span><span class="tag y">Pricing Priority</span>
+  <h1>How Each Pricing Layer Picks a Winner</h1>
+  <p class="sub">The three layers — Frontline, Promotions, and the Volume tier sub-layer — and the exact code that establishes priority inside each. Plus an interactive replay so you can watch the resolution happen at any quantity. Companion to <span class="kvs">BMS-4053-pricing-layers-visual.html</span>.</p>
+</header>
+
+<!-- ───────────────────────── 0 · concept answers ───────────────────────── -->
+<h2><span class="n">0</span>The questions, answered first</h2>
+<div class="qgrid">
+  <div class="qcard">
+    <h4>Why is Frontline first?</h4>
+    <p>A promotion is not a price — it's a <em>discount</em> (<code class="inl">base − X</code>). You can't subtract from nothing. Frontline answers "what does <em>this account</em> pay for <em>this item</em> at <em>this warehouse</em> before any deal?" — the floor every promo modifies. It's also the short-circuit: no base (<code class="inl">NONE</code>) ⇒ promo layer never runs ⇒ "Call for pricing".</p>
+  </div>
+  <div class="qcard q2">
+    <h4>What is "QD-only"?</h4>
+    <p><b>QD = Quantity Discount</b> (the Volume promo type). Only QD promotions carry <code class="inl">Promotion_Tier__c</code> rows, so the tier-selection step is exclusively a QD concern. A Post-off promo is a single flat discount and skips the tier sub-layer entirely.</p>
+  </div>
+  <div class="qcard q2">
+    <h4>"Base in hand"?</h4>
+    <p>Not a field — it's the hand-off. After Layer 1 runs you're <em>holding</em> a concrete <code class="inl">casePrice</code> (e.g. $69). That resolved number is passed down to Layer 2 to be discounted. "Base in hand" = "Frontline has produced a base; proceed to promotions."</p>
+  </div>
+  <div class="qcard q2">
+    <h4>Post-off vs QD?</h4>
+    <p><b>Post-off</b> = one flat discount, applies at/above a single <code class="inl">Min_Quantity</code> (often 1), visible on the catalog card, label "Promo Price", <code class="inl">tierId == null</code>. <b>QD</b> = a <em>curve</em> of tiers, deeper discount as qty climbs, dormant until cart qty hits a tier, label "Volume Price", <code class="inl">tierId</code> set.</p>
+  </div>
+  <div class="qcard q3">
+    <h4>Draft eligibility — how do promos apply to a draft cart?</h4>
+    <p>The <code class="inl">Status≠Draft/Cancelled</code> filter is on the <b>Promotion__c record</b>, not the cart/invoice. It means "only <em>published</em> promotions are considered" — a half-built promo won't leak to the storefront. The cart's own draft state never enters the check; pricing re-resolves live on every catalog/cart render.</p>
+  </div>
+</div>
+
+<!-- ───────────────────────── 1 · priority per layer ───────────────────────── -->
+<h2><span class="n">1</span>Priority, layer by layer — with the code</h2>
+<p>Entry point for everything: <code class="inl">Ecom_UI_Wrappers.resolveCatalogPricing / resolveCartPricing</code> builds a <code class="inl">CartResolutionRequest</code> and calls <code class="inl">S_PriceResolver.resolve()</code> — the one sanctioned entry method. Below is how a winner is chosen inside each layer.</p>
+
+<!-- LAYER 1 -->
+<div class="layer l1">
+  <div class="lh">Layer 1 · Frontline <span class="pill frontline">base · always runs</span></div>
+  <p class="lsub">Priority = <b>most-specific scope wins</b>, ranked by a numeric <code class="inl">Specificity_Score__c</code> on each <code class="inl">Front_Line_Price__c</code> row. All candidates are gathered, scored, and the highest score wins.</p>
+  <div class="step"><div class="stepn">A</div><div class="stepbody">
+    <b>Gather candidates (gated)</b>
+    <div class="d">Only rows for the account's <em>active</em> pricing group (date-windowed junction), at the request's <em>warehouse</em>, with Status not Draft/Cancelled.</div>
+    <span class="src">S_FrontLinePricing.cls · <b>L333–347</b> activeGroupId() date window</span>
+    <span class="src">· <b>L364</b> warehouse composite key</span>
+    <span class="src">· <b>L66–69</b> status filter</span>
+    <span class="src">· <b>L420–425</b> dateCovers()</span>
+  </div></div>
+  <div class="step"><div class="stepn">B</div><div class="stepbody">
+    <b>Rank by specificity</b>
+    <div class="d">ITEM (score 3) ▸ ITEM_TYPE_PKG (2) ▸ ITEM_LINE_PKG (1) ▸ Item.Default_Case_Price__c ▸ NONE. Winner = <code class="inl">score &gt; bestScore</code>.</div>
+    <span class="src">S_FrontLinePricing.cls · <b>L8–13</b> scope levels</span>
+    <span class="src">· <b>L283–304</b> scoring &amp; selection loop</span>
+  </div></div>
+  <div class="step"><div class="stepn">C</div><div class="stepbody">
+    <b>Tie-break (equal score)</b>
+    <div class="d">Newest <code class="inl">Start_Date__c</code> wins; if still tied, highest record <code class="inl">Id</code>.</div>
+    <span class="src">S_FrontLinePricing.cls · <b>L430–440</b></span>
+  </div></div>
+  <div class="step"><div class="stepn">→</div><div class="stepbody">
+    <b>Produces</b> <code class="inl">casePrice</code>, <code class="inl">unitPrice</code>, <code class="inl">frontLinePriceId</code>, <code class="inl">flpResolutionPath</code> (ITEM | ITEM_TYPE_PKG | ITEM_LINE_PKG | ITEM_DEFAULT | NONE).
+    <div class="d"><code class="inl">flpResolutionPath == 'NONE'</code> ⇒ no base ⇒ stop ⇒ "Call for pricing".</div>
+    <span class="src">S_FrontLinePricing.cls · <b>L307–324</b> ResolutionResult</span>
+  </div></div>
+</div>
+
+<!-- LAYER 2 -->
+<div class="layer l2">
+  <div class="lh">Layer 2 · Promotions <span class="pill promo">Promo Price</span> <span class="pill volume">Volume Price</span></div>
+  <p class="lsub">Post-off and QD compete in <b>one pool</b>. Priority = a five-stage winnow ending in "best for customer". Exactly one winner, <b>no stacking</b>. Entry: <code class="inl">S_PriceResolver.resolve()</code> <span class="src">S_PriceResolver.cls · <b>L104–206</b></span>, per-line in <code class="inl">resolveLine()</code>.</p>
+  <div class="step"><div class="stepn">1</div><div class="stepbody">
+    <b>Eligibility</b> — drop promos that don't apply at all
+    <div class="d">Status≠Draft/Cancelled · date window covers today · account ∈ Promotion_Group (or scoped) · not excluded · warehouse / channel / chain scope.</div>
+    <span class="src">S_PriceResolver.cls · <b>L650–699</b> filterEligiblePromotions</span>
+    <span class="src">· <b>L92–95</b> INELIGIBLE_STATUSES</span>
+    <span class="src">· <b>L481–482</b> date SOQL</span>
+    <span class="src">· <b>L582–607</b> exclusions</span>
+  </div></div>
+  <div class="step"><div class="stepn">2</div><div class="stepbody">
+    <b>Scope match</b> — does this line's item fall in the promo's scope?
+    <div class="d">ITEM (exact) ▸ ITEM_TYPE ▸ ITEM_LINE ▸ SUPPLIER, plus an optional <code class="inl">Packaging_Style__c</code> filter.</div>
+    <span class="src">S_PriceResolver.cls · <b>L370–390</b> scopeMatches</span>
+    <span class="src">· <b>L82–86</b> scope levels</span>
+  </div></div>
+  <div class="step"><div class="stepn">3</div><div class="stepbody">
+    <b>Threshold</b> — does the quantity qualify? (this is where the tier sub-layer lives)
+    <div class="d">Post-off: <code class="inl">cartQty ≥ Min_Quantity__c</code>, <code class="inl">tierId</code> stays null. QD: pick the <em>highest</em> <code class="inl">Promotion_Tier__c</code> where <code class="inl">cartQty ≥ tier.Min_Quantity__c</code>; <code class="inl">tierId = best.Id</code> set <b>only here</b>. Qty is the <em>summed cart-context</em> quantity, not per-line.</div>
+    <span class="src">S_PriceResolver.cls · <b>L313–358</b> applicableDiscount</span>
+    <span class="src">· <b>L322–342</b> QD tier pick (tierId set L342)</span>
+    <span class="src">· <b>L343–348</b> Post-off</span>
+    <span class="src">· <b>L396–413</b> cartContextQuantities</span>
+  </div></div>
+  <div class="step"><div class="stepn">4</div><div class="stepbody">
+    <b>Priority winnow</b> — if any qualifier has <code class="inl">Priority__c</code> set, drop everything below the max
+    <div class="d">Capture <code class="inl">maxPriority</code> during qualification, then discard finalists whose priority ≠ max. (No priorities set ⇒ this stage is a no-op.)</div>
+    <span class="src">S_PriceResolver.cls · <b>L260–266</b> capture maxPriority</span>
+    <span class="src">· <b>L274–282</b> winnow</span>
+  </div></div>
+  <div class="step"><div class="stepn">5</div><div class="stepbody">
+    <b>Best for customer</b> — deepest discount wins
+    <div class="d">Primary: highest <code class="inl">perCase</code> discount. Tiebreak: higher <code class="inl">promotionId</code> (deterministic). One winner returned per line.</div>
+    <span class="src">S_PriceResolver.cls · <b>L299–304</b> isBetterForCustomer</span>
+  </div></div>
+  <div class="step"><div class="stepn">→</div><div class="stepbody">
+    <b>Produces</b> <code class="inl">finalCasePrice = casePrice − promotionDiscountPerCase</code>, plus <code class="inl">promotionId</code> and (QD only) <code class="inl">promotionTierId</code>.
+    <div class="d">Not floored — can go negative by design. <code class="inl">null</code> when FLP path = NONE.</div>
+    <span class="src">LineResult.cls · <b>L34–54</b></span>
+  </div></div>
+</div>
+
+<!-- LAYER 3 -->
+<div class="layer l3">
+  <div class="lh">Tier sub-layer · Volume only <span class="pill volume">Volume Price</span></div>
+  <p class="lsub">Not a separate pass — it's <b>inside Layer 2, Stage 3</b>, reached only when the winning promo is a QD. Priority = <b>highest tier the quantity unlocks</b>.</p>
+  <div class="step"><div class="stepn">i</div><div class="stepbody">
+    <b>Sum the cart-context quantity</b>
+    <div class="d">All in-scope cart lines for that promo are summed, so a 10-unit threshold is met across lines, not just per-line.</div>
+    <span class="src">S_PriceResolver.cls · <b>L396–413</b></span>
+  </div></div>
+  <div class="step"><div class="stepn">ii</div><div class="stepbody">
+    <b>Pick the deepest unlocked tier</b>
+    <div class="d">Iterate tiers; keep the one with the highest <code class="inl">Min_Quantity__c</code> that is still ≤ the summed qty. e.g. 10→−$3, 50→−$6: at qty 12 → −$3; at qty 60 → −$6.</div>
+    <span class="src">S_PriceResolver.cls · <b>L322–342</b></span>
+  </div></div>
+  <div class="step"><div class="stepn">→</div><div class="stepbody">
+    <b>The presence of <code class="inl">promotionTierId</code> is the whole tell.</b> The UI reads it: set ⇒ "Volume Price"; null (but promo won) ⇒ "Promo Price".
+    <span class="src">userDataService.js · <b>L525–531</b> label logic</span>
+  </div></div>
+</div>
+
+<h3>Where the label is decided (the UI side)</h3>
+<table>
+  <tr><th>Condition (userDataService.js)</th><th>Result</th><th>Line</th></tr>
+  <tr><td><code class="inl">flpResolutionPath === 'NONE'</code></td><td><span class="pill call">Call for pricing</span> (overrides all)</td><td>L507</td></tr>
+  <tr><td><code class="inl">promotionId != null &amp;&amp; finalPrice &lt; basePrice</code> → <code class="inl">promotionTierId != null</code></td><td><span class="pill volume">Volume Price</span></td><td>L519–530</td></tr>
+  <tr><td>…same, but <code class="inl">promotionTierId == null</code></td><td><span class="pill promo">Promo Price</span></td><td>L530</td></tr>
+  <tr><td>no promo won</td><td><span class="pill frontline">Frontline</span> (no label)</td><td>L525–531</td></tr>
+</table>
+<p>Fields stamped onto each catalog item clone: <code class="inl">_basePrice _finalPrice _hasPromoPrice _priceSourceLabel _promotionId _promotionTierId</code> <span class="src">userDataService.js · <b>L544–553</b></span>. Catalog resolves at <b>qty 1</b> <span class="src">L486 resolveCatalogPricing</span>; the cart re-resolves at <b>real qty</b> <span class="src">ecomShop.js · L799–818 resolveCartPricing</span> — that's the cart-reactive flip.</p>
+
+<!-- ───────────────────────── 2 · simulator ───────────────────────── -->
+<h2><span class="n">2</span>Replay — resolve any item at any quantity</h2>
+<p>Pick an item and drag the quantity. The trace replays all three layers live against the seeded demo data (<span class="kvs">flpdemo: / promodemo:</span>) and shows which rung, promo, and tier won. This mirrors the resolver logic above — it is a teaching model, not a live org call.</p>
+
+<div class="sim">
+  <div class="sim-controls">
+    <div class="ctl">
+      <label for="itemSel">Item</label>
+      <select id="itemSel"></select>
+    </div>
+    <div class="ctl qtywrap">
+      <label for="qty">Cart quantity</label>
+      <div class="qtyrow">
+        <input type="range" id="qty" min="1" max="60" value="1" />
+        <span class="qtyval" id="qtyVal">1</span>
+      </div>
+      <div class="qtymarks"><span>1</span><span>10 (tier 1)</span><span>50 (tier 2)</span><span>60</span></div>
+    </div>
+  </div>
+  <div class="sim-body">
+    <div class="sim-trace" id="trace"></div>
+    <div class="sim-result" id="result"></div>
+  </div>
+</div>
+
+<div class="note"><b>Try this:</b> select <b>Shark Fin: Case</b> and slide qty from 1 → 10 → 50. Watch the label flip Frontline → Volume Price, and the discount deepen from −$0 → −$3 → −$6. Then select <b>Wave Splitter: 1/6 BBL</b> — its Post-off −$10 is flat, so it shows "Promo Price" at <em>every</em> quantity. <b>Wave Splitter: Sticker Pack</b> has no packaging, so nothing matches — pure Frontline.</div>
+
+<!-- ───────────────────────── 3 · status / future ───────────────────────── -->
+<h2><span class="n">3</span>Status — what this is, and the future done-state</h2>
+<div class="warn">
+  <b>Resolver caveat (per today's read of the work).</b> The promotion <b>data model</b> (Promotion__c, Promotion_Tier__c, the junction objects) is considered the landed, agreed-on piece. The <b>resolver</b> you're seeing — <code class="inl">S_PriceResolver</code> with the full five-stage waterfall — exists and works against the seeded data in this branch, but it should be treated as <em>this ticket's working implementation</em>, not necessarily the canonical future resolver. Expect the official "done state" of promotions to refine or replace parts of:
+  <ul>
+    <li><b>The winnow contract</b> — priority semantics and the "deepest discount wins, no stacking" rule may be formalized differently (e.g. configurable stacking, exclusivity flags).</li>
+    <li><b>Cart-context quantity summing</b> — how qty aggregates across lines is a likely point of revision.</li>
+    <li><b>The catalog qty-1 assumption</b> — Volume is dormant on the grid by design today; the future UX may preview tier pricing on the card.</li>
+  </ul>
+  Bottom line: the layering model and priority order documented here are sound and code-true <em>now</em>; treat the specific resolver class as a fast-follow surface that will need to align with the promotions team's final design.
+</div>
+
+<div class="foot">
+  BMS-4053 · Priority model + interactive replay. Code as of branch <span class="kvs">feat/product-card-component-bms-4053</span>.<br/>
+  Frontline: <span class="kvs">OHFY-OMS/.../services/frontLinePricing/S_FrontLinePricing.cls</span> ·
+  Promo: <span class="kvs">OHFY-OMS/.../services/priceResolver/S_PriceResolver.cls</span> ·
+  Label: <span class="kvs">OHFY-eCommerce-UI/.../lwc/userDataService/userDataService.js</span><br/>
+  Companion overview: <span class="kvs">BMS-4053-pricing-layers-visual.html</span> · Mermaid version: <span class="kvs">BMS-4053-pricing-layers.md</span>
+</div>
+
+</div>
+
+<script>
+/* ── seeded demo model (mirrors flpdemo: / promodemo:) ── */
+const ITEMS = [
+  {n:'Boats Float: 1/2 BBL',   t:'Boats Float',   pkg:'1/2 BBL Keg',  base:160, path:'ITEM_LINE_PKG'},
+  {n:'Boats Float: 1/4 BBL',   t:'Boats Float',   pkg:'1/4 BBL Keg',  base:90,  path:'ITEM_DEFAULT'},
+  {n:'Boats Float: 1/6 BBL',   t:'Boats Float',   pkg:'1/6 BBL Keg',  base:60,  path:'ITEM_LINE_PKG'},
+  {n:'Boats Float: Case',      t:'Boats Float',   pkg:'4/6/12oz Can', base:22,  path:'ITEM_LINE_PKG'},
+  {n:'Shark Fin: 1/2 BBL',     t:'Sharks Fin',    pkg:'1/2 BBL Keg',  base:160, path:'ITEM_LINE_PKG'},
+  {n:'Shark Fin: 1/4 BBL',     t:'Sharks Fin',    pkg:'1/4 BBL Keg',  base:70,  path:'ITEM_DEFAULT'},
+  {n:'Shark Fin: 1/6 BBL',     t:'Sharks Fin',    pkg:'1/6 BBL Keg',  base:60,  path:'ITEM_LINE_PKG'},
+  {n:'Shark Fin: Case',        t:'Sharks Fin',    pkg:'4/6/12oz Can', base:17,  path:'ITEM_TYPE_PKG'},
+  {n:'Wave Splitter: 1/2 BBL', t:'Wave Splitter', pkg:'1/2 BBL Keg',  base:160, path:'ITEM_LINE_PKG'},
+  {n:'Wave Splitter: 1/4 BBL', t:'Wave Splitter', pkg:'1/4 BBL Keg',  base:80,  path:'ITEM_DEFAULT'},
+  {n:'Wave Splitter: 1/6 BBL', t:'Wave Splitter', pkg:'1/6 BBL Keg',  base:69,  path:'ITEM'},
+  {n:'Wave Splitter: Case',    t:'Wave Splitter', pkg:'4/6/12oz Can', base:22,  path:'ITEM_LINE_PKG'},
+  {n:'Wave Splitter: Sticker Pack', t:'Wave Splitter', pkg:null,      base:12,  path:'ITEM_DEFAULT'},
+];
+/* Layer-2 pool: one Post-off (ITEM scope) + one QD (ITEM_TYPE scope, tiered) */
+const POSTOFF = {label:'Post-off · Wave Splitter 1/6', scope:'ITEM', target:'Wave Splitter: 1/6 BBL', disc:10, minQty:1};
+const QD = {label:'QD Volume · Sharks Fin', scope:'ITEM_TYPE', target:'Sharks Fin',
+            tiers:[{min:10,disc:3},{min:50,disc:6}]};
+
+const itemSel = document.getElementById('itemSel');
+ITEMS.forEach((it,i)=>{const o=document.createElement('option');o.value=i;o.textContent=it.n;itemSel.appendChild(o);});
+itemSel.value = 7; // Shark Fin: Case — the most instructive default
+const qty = document.getElementById('qty');
+const qtyVal = document.getElementById('qtyVal');
+
+function rowsFor(item, q){
+  // ── Layer 2 candidates ──
+  const cands = [];
+  // Post-off candidate
+  const poMatch = POSTOFF.scope==='ITEM' && item.n===POSTOFF.target;
+  const poQual  = poMatch && q >= POSTOFF.minQty;
+  if(poMatch) cands.push({name:POSTOFF.label, type:'Post-off', match:true, qual:poQual,
+      disc:poQual?POSTOFF.disc:0, tierId:null, note:poQual?('qty ≥ '+POSTOFF.minQty):('needs qty ≥ '+POSTOFF.minQty)});
+  // QD candidate
+  const qdMatch = QD.scope==='ITEM_TYPE' && item.t===QD.target;
+  let qdTier=null;
+  if(qdMatch){ for(const tr of QD.tiers){ if(q>=tr.min) qdTier=tr; } }
+  if(qdMatch) cands.push({name:QD.label, type:'QD', match:true, qual:!!qdTier,
+      disc:qdTier?qdTier.disc:0, tierId:qdTier?('tier@'+qdTier.min):null,
+      note:qdTier?('tier@'+qdTier.min+' unlocked'):('no tier ≤ qty (min '+QD.tiers[0].min+')')});
+  // ── winner: deepest discount among qualifiers ──
+  const quals = cands.filter(c=>c.qual);
+  let winner=null; quals.forEach(c=>{ if(!winner||c.disc>winner.disc) winner=c; });
+  return {cands, winner};
+}
+
+function render(){
+  const item = ITEMS[+itemSel.value];
+  const q = +qty.value;
+  qtyVal.textContent = q;
+  const none = item.path==='NONE';
+  const {cands, winner} = rowsFor(item, q);
+  const finalPrice = none ? null : (item.base - (winner?winner.disc:0));
+
+  // ── trace ──
+  let h = '';
+  // layer 1
+  h += '<div class="trace-layer tl1"><div class="tl-head"><span class="tl-dot"></span>Layer 1 · Frontline</div>';
+  h += row('Resolution path', item.path, true);
+  h += row('Base case price', none?'— none —':('$'+item.base), !none);
+  h += '</div>';
+  // layer 2
+  h += '<div class="trace-layer tl2"><div class="tl-head"><span class="tl-dot"></span>Layer 2 · Promotion pool</div>';
+  if(none){ h += rowMuted('skipped — no base to discount'); }
+  else if(cands.length===0){ h += rowMuted('no promo in scope for this item'); }
+  else {
+    cands.forEach(c=>{
+      const isWin = winner && c===winner;
+      h += '<div class="row'+(isWin?' winner':(c.qual?'':' muted'))+'">'
+         + '<span class="k">'+c.name+'</span>'
+         + '<span class="v">'+(c.qual?('−$'+c.disc):'—')+'</span>'
+         + '<span class="chk '+(c.qual?'yes':'no')+'">'+(isWin?'★ WIN':(c.qual?'✓':'✗'))+'</span>'
+         + '</div>'
+         + '<div class="row muted" style="border:none;padding-top:0;font-size:11.5px"><span class="k">'+c.note+'</span></div>';
+    });
+  }
+  h += '</div>';
+  // layer 3
+  h += '<div class="trace-layer tl3"><div class="tl-head"><span class="tl-dot"></span>Tier sub-layer · Volume</div>';
+  if(winner && winner.type==='QD'){
+    QD.tiers.forEach(tr=>{
+      const unlocked = q>=tr.min;
+      const active = winner.tierId==='tier@'+tr.min;
+      h += '<div class="row'+(active?' winner':(unlocked?'':' muted'))+'">'
+         + '<span class="k">tier@'+tr.min+' (qty ≥ '+tr.min+')</span>'
+         + '<span class="v">−$'+tr.disc+'</span>'
+         + '<span class="chk '+(unlocked?'yes':'no')+'">'+(active?'★':(unlocked?'✓':'✗'))+'</span></div>';
+    });
+  } else {
+    h += rowMuted(winner?'winner is Post-off — no tiers':'no QD winner — tier sub-layer idle');
+  }
+  h += '</div>';
+  document.getElementById('trace').innerHTML = h;
+
+  // ── result card ──
+  let label, pill;
+  if(none){ label='Call for pricing'; pill='call'; }
+  else if(winner && winner.tierId){ label='Volume Price'; pill='volume'; }
+  else if(winner){ label='Promo Price'; pill='promo'; }
+  else { label='Frontline'; pill='frontline'; }
+  let r = '<div class="res-item">'+item.n+'</div>';
+  if(none){
+    r += '<div class="res-final" style="font-size:30px;color:#a32d2d">Call for<br>pricing</div>';
+    r += '<div class="res-pill"><span class="pill call">no base price</span></div>';
+  } else {
+    if(winner) r += '<div class="res-base"><span class="strike">$'+item.base+'.00</span></div>';
+    r += '<div class="res-final" style="color:'+(winner?'#0f6e56':'#16233a')+'">$'+finalPrice+'</div>';
+    if(winner) r += '<div class="res-save">you save $'+winner.disc+'/case</div>';
+    r += '<div class="res-pill"><span class="pill '+pill+'">'+label+'</span></div>';
+    r += '<div class="formula">$'+item.base+(winner?(' − $'+winner.disc):' − $0')+' = $'+finalPrice+'</div>';
+  }
+  document.getElementById('result').innerHTML = r;
+}
+function row(k,v,ok){return '<div class="row"><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="chk '+(ok?'yes':'no')+'">'+(ok?'✓':'✗')+'</span></div>';}
+function rowMuted(t){return '<div class="row muted"><span class="k">'+t+'</span></div>';}
+
+itemSel.addEventListener('change', render);
+qty.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>

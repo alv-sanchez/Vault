@@ -157,3 +157,357 @@ These overlays exist on purpose — they enable the warehouse-supervisor lens th
 | Date | Ticket | Change |
 |---|---|---|
 | May 2026 | BMS-3838 | Initial implementation — warehouse-wide truck load lens with KPIs, reason chips, status filter, bay selector, and high-return alert. Reuses Item Return data layer. |
+
+
+
+```
+Run # --config is required: the only Playwright config lives at
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:2)# --config is required: the only Playwright config lives at
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:3)# test-automation/playwright.config.ts (testDir ./tests +
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:4)# globalSetup auth). Without it, a repo-root run finds no
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:5)# config, skips auth setup, and matches no specs. The dir
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:6)# filters are repo-root-relative paths (test-automation/tests/<sku>/).
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:7)npx playwright test \
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:8)--config test-automation/playwright.config.ts \
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:9)--project=chromium \
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:10)test-automation/tests/oms/ test-automation/tests/pltfm/ test-automation/tests/wms/
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:11)shell: /usr/bin/bash -e {0}
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:12)env:
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:13)AWS_DEFAULT_REGION: us-east-2
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:14)AWS_REGION: us-east-2
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:15)AWS_ACCESS_KEY_ID: ***
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:16)AWS_SECRET_ACCESS_KEY: ***
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:17)AWS_SESSION_TOKEN: ***
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:18)SF_ORG_ALIAS: ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:20)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:21)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:22)✓ Assigned permission set ohfy__Legacy_Security_Bypass to test-n3tmxxvbsqqj@example.com
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:23)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:24)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:25)✓ Assigned permission set ohfy__BMS5258_Test_Tabs to test-n3tmxxvbsqqj@example.com
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:26)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:27)✓ Auth state saved for org: ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:28)✓ Test Account: 001VA00001G6m5IYAR
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:29)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:30)Running 188 tests using 1 worker
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:31)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:32)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:33)°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°×±··°···°°··°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:34)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:35)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:36)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:37)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:38)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:39)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:40)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:41)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:42)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:43)°°°°°°°°°°°°°°°°····°°··°°°°°°°°°°°°°°°°°°°°°°°↻ Pick-path scaffolding missing — seeding zones/PLAs/path version (orgScripts/seedPickPathData.apex)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:44)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:45)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:46)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:47)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:48)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:49)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:50)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:51)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:52)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:53)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:54)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:55)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:56)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:57)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:58)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:59)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:60)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:61)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:62)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:63)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:64)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:65)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:66)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:67)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:68)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:69)············↻ Auth state is 8m old — capturing a fresh session for ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:70)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:71)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:72)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:73)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:74)·°°°°°°°°°°°°°°°°°°°°
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:75)°°°✓ RPV setup completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:76)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:77)·····················✓ RPV teardown completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:78)×✓ RPV setup completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:79)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:80)✓ RPV teardown completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:81)F✓ RPV setup completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:82)› Warning: @salesforce/cli update available from 2.134.6 to 2.137.7.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:83)···✓ RPV teardown completed against org ci-org
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:84)·
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:85)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:86)1) [chromium] › test-automation/tests/wms/return-pre-visibility.spec.ts:519:9 › Return Pre-Visibility › unsellable rows tag the qty cell with the red-treatment inline style and a Non-restockable pill
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:87)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:88)Error: expect(received).toContain(expected) // indexOf
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:89)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:90)Expected substring: "color:#dc2626"
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:91)Received string: "color:rgb(var(--ohfy-danger,1634545));"
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:92)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:93)535 |
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:94)536 | const qtyStyle = (await firstUnsellable.locator("td").last().getAttribute("style")) || "";
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:95)> 537 | expect(qtyStyle.replace(/\s+/g, "")).toContain("color:#dc2626");
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:96)| ^
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:97)538 |
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:98)539 | // RESTOCKABLE column is the second-to-last cell in each row.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:99)540 | const restockCellText = (
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:100)at /home/runner/work/OHFY-Split/OHFY-Split/test-automation/tests/wms/return-pre-visibility.spec.ts:537:46
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:101)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:102)attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:103)test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium/test-failed-1.png
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:104)────────────────────────────────────────────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:105)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:106)Error Context: test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium/error-context.md
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:107)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:108)Error Context: test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium/error-context.md
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:109)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:110)Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:111)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:112)Error: expect(received).toContain(expected) // indexOf
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:113)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:114)Expected substring: "color:#dc2626"
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:115)Received string: "color:rgb(var(--ohfy-danger,1634545));"
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:116)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:117)535 |
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:118)536 | const qtyStyle = (await firstUnsellable.locator("td").last().getAttribute("style")) || "";
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:119)> 537 | expect(qtyStyle.replace(/\s+/g, "")).toContain("color:#dc2626");
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:120)| ^
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:121)538 |
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:122)539 | // RESTOCKABLE column is the second-to-last cell in each row.
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:123)540 | const restockCellText = (
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:124)at /home/runner/work/OHFY-Split/OHFY-Split/test-automation/tests/wms/return-pre-visibility.spec.ts:537:46
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:125)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:126)attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:127)test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium-retry1/test-failed-1.png
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:128)────────────────────────────────────────────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:129)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:130)Error Context: test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium-retry1/error-context.md
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:131)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:132)Error Context: test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium-retry1/error-context.md
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:133)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:134)attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:135)test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium-retry1/trace.zip
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:136)Usage:
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:137)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:138)npx playwright show-trace test-results/wms-return-pre-visibility--dee34--and-a-Non-restockable-pill-chromium-retry1/trace.zip
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:139)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:140)────────────────────────────────────────────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:141)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:142)2) [chromium] › test-automation/tests/oms/driver-home-page.spec.ts:26:9 › Driver Home Page › should load page with date selector and today button
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:143)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:144)Error: expect(locator).toBeVisible() failed
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:145)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:146)Locator: getByTestId('driver-home-prev-day-btn')
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:147)Expected: visible
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:148)Timeout: 15000ms
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:149)Error: element(s) not found
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:150)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:151)Call log:
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:152)- Expect "toBeVisible" with timeout 15000ms
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:153)- waiting for getByTestId('driver-home-prev-day-btn')
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:154)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:155)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:156)27 | await expect(sfPage.getByRole("heading", { name: "Driver Home" })).toBeVisible();
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:157)28 |
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:158)> 29 | await expect(sfPage.getByTestId("driver-home-prev-day-btn")).toBeVisible();
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:159)| ^
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:160)30 | await expect(sfPage.getByTestId("driver-home-next-day-btn")).toBeVisible();
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:161)31 | await expect(sfPage.getByTestId("driver-home-today-btn")).toBeVisible();
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:162)32 | });
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:163)at /home/runner/work/OHFY-Split/OHFY-Split/test-automation/tests/oms/driver-home-page.spec.ts:29:70
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:164)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:165)attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:166)test-results/oms-driver-home-page-Drive-1aad4-e-selector-and-today-button-chromium/test-failed-1.png
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:167)────────────────────────────────────────────────────────────────────────────────────────────────
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:168)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:169)Error Context: test-results/oms-driver-home-page-Drive-1aad4-e-selector-and-today-button-chromium/error-context.md
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:170)
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:171)1 failed
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:172)[chromium] › test-automation/tests/wms/return-pre-visibility.spec.ts:519:9 › Return Pre-Visibility › unsellable rows tag the qty cell with the red-treatment inline style and a Non-restockable pill
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:173)1 flaky
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:174)[chromium] › test-automation/tests/oms/driver-home-page.spec.ts:26:9 › Driver Home Page › should load page with date selector and today button
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:175)135 skipped
+
+[](https://github.com/Ohanafy/OHFY-Split/actions/runs/27165485562/job/80191938499?pr=259#step:13:176)51 passed (12.4m)
+```

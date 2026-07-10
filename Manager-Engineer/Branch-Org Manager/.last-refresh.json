@@ -1,0 +1,167 @@
+{
+  "stamp": {
+    "iso": "2026-07-10",
+    "human": "2026-07-10 11:54",
+    "file": "2026-07-10-1154"
+  },
+  "counts": {
+    "matched": 5,
+    "standing": 10,
+    "unmatchedOrgs": 1,
+    "orphanBranches": 28
+  },
+  "tied": [
+    {
+      "bms": "3932",
+      "org": "bms-3932-fix",
+      "branch": "bk-bms-3932-20260624-213413",
+      "exp": "2026-08-08",
+      "status": null
+    },
+    {
+      "bms": "4079",
+      "org": "4079",
+      "branch": "feat/shift-end-ph2-ph3-bms-4079",
+      "exp": "2026-08-06",
+      "status": null
+    },
+    {
+      "bms": "5592",
+      "org": "ohfy-bms5592",
+      "branch": "feat/launch-plan-checklist-bms-5592",
+      "exp": "2026-08-07",
+      "status": null
+    },
+    {
+      "bms": "5754",
+      "org": "bms5754",
+      "branch": "feat/safety-stock-impact-value-bms-5754",
+      "exp": "2026-08-07",
+      "status": null
+    },
+    {
+      "bms": "5789",
+      "org": "bms-5789-freight",
+      "branch": "feat/freight-cost-capture-bms-5789",
+      "exp": "2026-08-09",
+      "status": null
+    }
+  ],
+  "orphanBranches": [
+    {
+      "bms": "3742",
+      "branch": "feat/doi-invoiced-source-bms-3742"
+    },
+    {
+      "bms": "3816",
+      "branch": "feat/practical-doh-variance-bms-3816"
+    },
+    {
+      "bms": "3838",
+      "branch": "story/BMS-3838"
+    },
+    {
+      "bms": "3923",
+      "branch": "story/BMS-3923"
+    },
+    {
+      "bms": "3926",
+      "branch": "story/BMS-3926"
+    },
+    {
+      "bms": "3929",
+      "branch": "docs/order-history-pricing-bms-3929"
+    },
+    {
+      "bms": "3930",
+      "branch": "story/BMS-3930"
+    },
+    {
+      "bms": "4050",
+      "branch": "feat/cart-basic-pricing-bms-4050"
+    },
+    {
+      "bms": "4051",
+      "branch": "feat/cart-volume-tiers-promos-bms-4051"
+    },
+    {
+      "bms": "4053",
+      "branch": "feat/product-card-component-bms-4053"
+    },
+    {
+      "bms": "4054",
+      "branch": "feat/product-grid-reuse-bms-4054"
+    },
+    {
+      "bms": "4073",
+      "branch": "feat/ecom-notifications-bms-4073"
+    },
+    {
+      "bms": "4078",
+      "branch": "feat/shift-end-workflow-bms-4078"
+    },
+    {
+      "bms": "4120",
+      "branch": "feat/redbull-allocation-import-bms-4120"
+    },
+    {
+      "bms": "4217",
+      "branch": "feat/safety-stock-doh-sizing-bms-4217"
+    },
+    {
+      "bms": "4258",
+      "branch": "feat/multi-account-registration-bms-4258"
+    },
+    {
+      "bms": "4390",
+      "branch": "story/BMS-4390"
+    },
+    {
+      "bms": "4467",
+      "branch": "feat/pick-capacity-reporting-bms-4467"
+    },
+    {
+      "bms": "4490",
+      "branch": "feat/transfer-dock-optimization-bms-4490"
+    },
+    {
+      "bms": "4665",
+      "branch": "feat/min-transfer-qty-thresholds-bms-4665"
+    },
+    {
+      "bms": "4965",
+      "branch": "feat/short-pay-backoffice-bms-4965"
+    },
+    {
+      "bms": "5068",
+      "branch": "feat/safety-stock-controls-bms-5068"
+    },
+    {
+      "bms": "5237",
+      "branch": "bk/bms-5237-20260528-152745"
+    },
+    {
+      "bms": "5252",
+      "branch": "story/BMS-5252"
+    },
+    {
+      "bms": "5344",
+      "branch": "fix/reorder-banner-theming-bms-5344"
+    },
+    {
+      "bms": "5625",
+      "branch": "feat/driver-finalize-approval-gate-bms-5625"
+    },
+    {
+      "bms": "5710",
+      "branch": "fix/wms-playwright-blind-receiving-bms-5710"
+    },
+    {
+      "bms": "5790",
+      "branch": "feat/freight-billback-generation-bms-5790"
+    }
+  ],
+  "unmatchedOrgs": [
+    "bms-5113-doi"
+  ]
+}

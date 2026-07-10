@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5083 — Pick Location Capacity</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --wms:#4a8df0; --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--wms)}
+  .card h2{margin:0 0 2px;font-size:19px}
+  .meta{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .done{background:rgba(63,185,80,.16);color:var(--inv)}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:84px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .qs{margin:12px 0 0;border-top:1px solid var(--line);padding-top:12px}
+  .qs ul{margin:6px 0 0;padding-left:18px} .qs li{margin:5px 0;font-size:14.5px}
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)} .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:22px}
+  .box h2{margin:0 0 10px;font-size:17px}
+  .box li{margin:7px 0;font-size:14.5px}
+  .banner{background:rgba(63,185,80,.10);border:1px solid rgba(63,185,80,.35);border-left:4px solid var(--inv);border-radius:10px;padding:14px 18px;margin:14px 0 4px;font-size:14.5px}
+  .banner b{color:var(--inv)}
+  .primer{background:rgba(74,141,240,.08);border:1px solid rgba(74,141,240,.35);border-left:4px solid var(--wms);border-radius:12px;padding:18px 22px;margin:18px 0}
+  .primer h2{margin:0 0 8px;font-size:18px;color:var(--wms)}
+  .primer p{margin:8px 0;font-size:14.5px}
+  .primer .ex{color:var(--muted);font-style:italic}
+  .jargon{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:18px 0;border-left:4px solid var(--ar)}
+  .jargon h2{margin:0 0 10px;font-size:17px;color:var(--ar)}
+  .jargon dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+  .jargon dt{font-weight:700;color:var(--ink);font-size:13.5px;white-space:nowrap}
+  .jargon dd{margin:0;font-size:13.5px;color:var(--muted)}
+  details{background:#0b0d13;border:1px solid var(--line);border-radius:10px;padding:0 16px;margin:12px 0}
+  details[open]{padding-bottom:14px}
+  summary{cursor:pointer;font-weight:700;font-size:14px;padding:12px 0;color:var(--wms);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--muted)}
+  details[open] summary::before{content:"▾ "}
+  details p,details li{font-size:13.5px;color:var(--ink)}
+  details .muted{color:var(--muted)}
+  .calc{background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:8px 0;font-size:13px;color:#c9d1e6;line-height:1.8}
+  table{border-collapse:collapse;margin:10px 0 2px;font-size:13.5px;width:100%}
+  th,td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+  th{color:var(--muted);font-weight:600;background:#0b0d13}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-5083 — Pick Location Capacity</h1>
+  <div class="sub">WMS / Master Data Management · single-epic build overview</div>
+  <div class="legend">
+    <span><b class="tag ok">✓</b> confirmed</span>
+    <span><b class="tag ai">🧠</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">🟠</b> open (Gulf/PO)</span>
+    <span><span class="chip done">✅ DONE · on main</span></span>
+  </div>
+
+  <div class="primer">
+    <h2>New here? Warehouse-slotting primer (read this first)</h2>
+    <p>This whole epic is about one warehouse question: <b>for every product, which slot does it live in, and how much of it fits there?</b> A quick tour of the words before the Salesforce jargon starts:</p>
+    <p><b>Pick location (a.k.a. bin / slot).</b> A single, specific spot in the warehouse that a <i>picker</i> (the worker assembling an order) pulls product from — think one labeled shelf face. <b>Capacity</b> = how many cases of that one product physically fit in that spot. This is beverage DSD (direct-store-delivery) at Gulf Distributing, so the unit is <b>cases</b> (e.g. a 24-pack case of beer).</p>
+    <p><b>Slotting.</b> The decision of <i>which product goes in which location, and how much</i>. Good slotting means pickers walk less, refills happen less often, and bins are neither jammed full nor running empty. Bad slotting is the problem this epic attacks.</p>
+    <p><b>Min / Max stocking levels.</b> Two numbers per slot. <b>Max</b> = "don't put more than this in — it won't fit / it's unsafe." <b>Min</b> = "when you drop below this, send a refill (a <i>replenishment</i>) before you run out." Both should follow the product's <b>physical size</b>, so a bulky case isn't over-assigned to a tiny shelf.</p>
+    <p><b>"Informal knowledge → product data."</b> Today, how much fits in each slot lives only in experienced workers' heads. <span class="ex">"Everyone knows you can only get 8 cases of the big water on that end-cap."</span> This epic moves that knowledge <b>into the system as governed data</b> — so it survives turnover, and so software can report on it.</p>
+    <p><b>"Reclassification Recommended."</b> A flag the system raises when a slot's setup no longer fits the product — e.g. a SKU started selling much faster and outgrew its small shelf. It's a <b>"please re-slot me" alert</b> for a manager to review, not an automatic move.</p>
+  </div>
+
+  <div class="jargon">
+    <h2>Jargon legend</h2>
+    <dl>
+      <dt>SKU</dt><dd>Stock-Keeping Unit — one distinct sellable product (a specific brand/pack/size).</dd>
+      <dt>Picker</dt><dd>Warehouse worker who pulls product from pick locations to fill an order.</dd>
+      <dt>Replenishment</dt><dd>Refilling a pick location from bulk/backstock when it runs low.</dd>
+      <dt>Case</dt><dd>The unit of measure here — a packaged case of the product (the capacity numbers count cases).</dd>
+      <dt><code>__c</code></dt><dd>Salesforce suffix marking a <b>custom object or field</b> (built by us, not native to Salesforce).</dd>
+      <dt><code>__mdt</code></dt><dd>Custom Metadata Type — config tables that <b>deploy with the app and upgrade centrally</b> (used here for the per-warehouse %).</dd>
+      <dt>Report Type</dt><dd>A Salesforce definition of <b>which object + which fields a report is allowed to use</b>. You build a report type once; users then build many reports on top of it.</dd>
+      <dt>Report / Dashboard</dt><dd><b>Native</b> Salesforce features (point-and-click, no code) for tables/charts. A dashboard is a panel of report-driven charts.</dd>
+      <dt>LWC</dt><dd>Lightning Web Component — <b>custom-coded</b> UI. This epic deliberately uses <b>none</b>; native reporting covers the need.</dd>
+      <dt>Managed package upgrade</dt><dd>Ohanafy ships the app as a package; report types &amp; reference dashboards ride along and update every customer org centrally.</dd>
+      <dt>CMDT</dt><dd>Shorthand for the <code>__mdt</code> config above.</dd>
+    </dl>
+  </div>
+
+  <div class="banner">
+    <b>Build status — DONE, on main (<code>a00a3fe5</code>).</b>
+    Branch <code>feat/pick-capacity-reporting-bms-4467</code>.
+    Core build (3785, <code>Pick_Location_Assignment__c</code>) was already shipped. Added the native reporting layer:
+    a packaged report type on <code>Pick_Location_Assignment__c</code> + 3 reports (capacity compliance, override-rate by reason, reclassification-recommended queue) + 1 dashboard + <code>Pick_Capacity_Warehouse_Config__mdt</code> (5 placeholder records at 25%).
+    <b>Needs an org:</b> deploy + report/dashboard folder sharing + set the dashboard running-user.
+  </div>
+
+  <div class="card">
+    <h2>Pick Location Capacity <span class="chip done">✅ BMS-5083</span></h2>
+    <div class="meta">Domain: WMS / Master Data Management</div>
+    <div class="row"><span class="lbl">User</span> Slotting / replenishment teams · pickers · warehouse-layout planning</div>
+    <div class="row"><span class="lbl">Issue</span> No system-enforced min/max stocking by SKU physical size — it lives as informal picker knowledge, with no reporting on capacity compliance, override behavior, or reclassification need.</div>
+    <div class="row"><span class="lbl">Impact</span> Over/under-filled bins; replenishment + slotting on guesswork; no visibility into where assignments breach capacity or why pickers override.</div>
+    <div class="row"><span class="lbl">Solution</span> Core <code>Pick_Location_Assignment__c</code> (capacity fields) already shipped under 3785 → add a <b>native reporting layer</b> (packaged custom report type + 3 reports + 1 reference dashboard) + a <b>per-warehouse min-% config</b> (<code>Pick_Capacity_Warehouse_Config__mdt</code>) feeding the thresholds. <b>No custom LWC.</b></div>
+    <div class="qs"><b>Closed questions</b>
+      <ul>
+        <li><span class="tag ok">✓</span> Keep <b>5083 canonical</b> — it holds all 4 children (3785 Done, 4465, 4466, 4467); 4463 has zero. Flag 4463 to Elliot to close as duplicate (port the requirement link/labels).</li>
+        <li><span class="tag ai">🧠</span> <b>Native Reports/Dashboards + packaged custom report type — NO LWC.</b> Aggregate/filter/group reporting; native covers it. The report type + reference dashboard upgrade centrally; customer instances/filters/folders stay per-org config.</li>
+        <li><span class="tag ai">🧠</span> <b>Warehouse-specific min %</b> (not uniform 25%) — config keyed by warehouse code feeds the compliance thresholds.</li>
+        <li><span class="tag ai">🧠</span> <b>Fix 3785's doc-only noun drift</b> (3785 is Done; doc-only). Report off the real schema: <code>Pick_Location_Assignment__c</code> joined to <code>Item__c</code> + <code>Replenishment_Task__c</code> (<code>Inventory__c</code> is fine).</li>
+      </ul>
+      <table>
+        <tr><th>AC/Tech doc says</th><th>Real on main</th></tr>
+        <tr><td><code>Product__c</code></td><td><code>Item__c</code></td></tr>
+        <tr><td><code>Quantity_Needed__c</code></td><td><code>Quantity__c</code> (on <code>Replenishment_Task__c</code>)</td></tr>
+        <tr><td><code>Replenishment_Request__c</code></td><td><code>Replenishment_Task__c</code></td></tr>
+        <tr><td>"velocity tier" (no field)</td><td><code>Priority__c</code> / <code>Replenishment_Rank__c</code></td></tr>
+      </table>
+    </div>
+    <div class="qs"><b>Still open</b>
+      <ul>
+        <li><span class="tag op">🟠</span> <b>Per-warehouse % values (Gulf)</b> — the actual min-default numbers. Config only, not a blocker; CMDT ships with <b>5 placeholder records at 25%</b>.</li>
+        <li><span class="tag op">🟠</span> <b>Elliot (PO)</b> — bless closing BMS-4463 as duplicate (flagged on 4463, comment #54837).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>🗂️ The capacity fields, in plain English</h2>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 10px">These live on <code>Pick_Location_Assignment__c</code> — one record per "this SKU lives in this slot." All real, on main.</p>
+    <table>
+      <tr><th>Field</th><th>What it means</th></tr>
+      <tr><td><code>Calculated_Max_Capacity__c</code></td><td>How many cases the system says fit, computed from slot size ÷ case size. Set once at creation, <b>immutable</b>.</td></tr>
+      <tr><td><code>Max_Capacity__c</code></td><td>The <b>effective</b> max actually used. Defaults to Calculated, but a supervisor may override it.</td></tr>
+      <tr><td><code>Capacity_Override_Reason__c</code></td><td>Required when Max differs from Calculated. Picklist: <i>Structural Constraint · Safety Limit · Operational Preference · Other</i> — so overrides are auditable, not silent.</td></tr>
+      <tr><td><code>Min_Capacity__c</code></td><td>The refill trigger. Drop below this on-hand → replenishment fires.</td></tr>
+      <tr><td><code>Reclassification_Recommended__c</code></td><td>Checkbox flipped by the days-on-hand (DOH) engine when a SKU's velocity outgrew its slot → "review for re-slotting."</td></tr>
+    </table>
+
+    <details>
+      <summary>Go deeper — how <code>Calculated_Max_Capacity__c</code> is derived from case volume</summary>
+      <p>It's pure geometry, done in real code: <code>E_PickLocationAssignment.calculateCapacity(itemId, locationId)</code>.</p>
+      <p><b>Step 1 — case volume.</b> Each <code>Item__c</code> has a formula field <code>Case_Volume__c</code> = (<code>Case_Length__c</code> × <code>Case_Width__c</code> × <code>Case_Height__c</code>) ÷ 1728, in <b>cubic feet</b> (1728 = 12³, converting cubic inches → cubic feet).</p>
+      <p><b>Step 2 — slot volume.</b> The <code>Location__c</code> (the bin) carries its own <code>Cubic_Volume__c</code> (from its width/height/depth).</p>
+      <p><b>Step 3 — divide and floor.</b></p>
+      <div class="calc">Calculated_Max_Capacity = floor( Location.Cubic_Volume__c &divide; Item.Case_Volume__c )</div>
+      <p class="muted">Floor (round down) because you can't store a fraction of a case. If either dimension is missing or zero, the code returns <i>"Case dimensions not configured — capacity must be set manually"</i> and the supervisor enters the number by hand. <b>This is the "informal knowledge → product data" step</b>: a measurement, not a memory.</p>
+    </details>
+
+    <details>
+      <summary>Go deeper — why native Reports/Dashboards instead of a custom LWC</summary>
+      <p>Everything this epic needs to <i>show</i> is aggregate-and-filter: <b>% of slots over capacity</b>, <b>override rate grouped by reason</b>, <b>count of reclassification-recommended slots</b>. Salesforce's native reporting does grouping, filtering, charts and dashboards out of the box.</p>
+      <p><b>Native wins here because:</b></p>
+      <ul>
+        <li><b>Zero code to maintain</b> — no JavaScript, no Apex controller, no test coverage burden.</li>
+        <li><b>Central upgrade path</b> — the <b>report type</b> and a <b>reference dashboard</b> ship inside the managed package, so every customer org gets them on upgrade. Customers' own report instances, filters and folders stay per-org (they'd drift if hard-coded anyway).</li>
+        <li><b>Users self-serve</b> — admins clone/tweak reports without a developer.</li>
+      </ul>
+      <p class="muted">An LWC would be cost with no payoff: it can't be cloned by an admin, needs ongoing maintenance, and would re-implement what the platform already gives for free. You'd only reach for an LWC if you needed bespoke interactivity reporting can't express — not the case here.</p>
+    </details>
+  </div>
+
+  <div class="box">
+    <h2>🧱 What was built</h2>
+    <ul>
+      <li><b>Packaged custom report type</b> on <code>Pick_Location_Assignment__c</code> (joined to <code>Item__c</code> + <code>Replenishment_Task__c</code>) — defines the field palette reports can draw from.</li>
+      <li><b>3 reports</b> — (1) capacity compliance · (2) override-rate by reason · (3) reclassification-recommended queue.</li>
+      <li><b>1 dashboard</b> over those reports — the at-a-glance panel for slotting managers.</li>
+      <li><b><code>Pick_Capacity_Warehouse_Config__mdt</code></b> — per-warehouse min % (<code>Warehouse_Code__c</code> + <code>Min_Default_Percent__c</code>). 5 placeholder records (HSV, BHM, MOB, MLT, PEN) at 25%, pending Gulf's real numbers.</li>
+    </ul>
+  </div>
+
+  <div class="foot">Generated 2026-06-29 from <code>Open-Questions/BMS-5083-canonical-and-reporting.md</code> (code-grounded SME + owner input). Diagram: <code>diagram.excalidraw.md</code>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>

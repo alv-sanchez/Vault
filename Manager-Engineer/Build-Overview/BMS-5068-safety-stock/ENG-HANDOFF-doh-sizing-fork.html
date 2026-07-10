@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineer Handoff — Where does DOH order-sizing belong? (BMS-5068)</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb; --codebg:#f4f5f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px 18px;}
+  .wrap{max-width:860px;margin:0 auto}
+  .tag{display:inline-block;background:#fff2e0;color:var(--amb);font-weight:700;font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:26px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 22px;font-size:16px}
+  h2{font-size:19px;margin:28px 0 8px;border-bottom:2px solid var(--line);padding-bottom:4px}
+  h3{font-size:16px;margin:16px 0 4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:12px 0;box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--codebg);padding:1px 6px;border-radius:4px;font-size:13.5px}
+  pre{background:#1e2330;color:#e6e9f0;border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;line-height:1.5}
+  pre code{background:transparent;color:inherit;padding:0}
+  ul,ol{margin:6px 0;padding-left:22px}
+  li{margin:6px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .opt{border-radius:12px;padding:16px 18px;border:1px solid var(--line);background:var(--card)}
+  .opt.a{border-left:4px solid var(--grn)}
+  .opt.b{border-left:4px solid var(--blu)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .pill.built{background:#e8f7ee;color:var(--grn)} .pill.not{background:#f0f0f3;color:var(--mut)}
+  .q{background:var(--soft);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:10px 0}
+  .q b{color:var(--accent)}
+  .ask{background:#1f2733;color:#fff;border-radius:12px;padding:18px 20px;margin:18px 0}
+  .ask b{color:#9db8ff}
+  .ask ol{margin:8px 0 0}
+  .ask li{margin:9px 0}
+  .anchor{color:var(--mut);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .foot{color:var(--mut);font-size:13px;margin-top:26px;text-align:center}
+  .who{display:grid;grid-template-columns:130px 1fr;gap:4px 14px;font-size:14.5px;margin:6px 0}
+  .who dt{color:var(--mut);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">🟠 Engineer handoff · needs a product+eng decision</div>
+  <h1>Where should a raised Target DOH change the order quantity?</h1>
+  <p class="sub">Pick-face replenishment (built) vs inbound purchase-order sizing (not built). This is a scope/intent call — I need an engineer to confirm which reading is correct before more code is written either way.</p>
+
+  <div class="card">
+    <div class="who"><dt>Epic</dt><dd>BMS-5068 — Safety Stock Controls · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a></dd></div>
+    <div class="who"><dt>Related tickets</dt><dd>BMS-4217 (DOH sizing, shipped) · BMS-5636 (supplier-scope override, shipped)</dd></div>
+    <div class="who"><dt>Decision owner</dt><dd>Product/PO to rule on intent; eng (you) to confirm feasibility + effort of each path</dd></div>
+    <div class="who"><dt>Blocking?</dt><dd>No — Option A shipped and works. This decides whether we <em>extend</em> A, build B, or both. Nothing regresses while it's open.</dd></div>
+  </div>
+
+  <h2>1. The one-paragraph context</h2>
+  <div class="card">
+    A planner raises the safety-stock <b>Target DOH</b> ("Days of Inventory") for a SKU or supplier — meaning "keep more on hand." The buffer math is done and correct. The open question is <b>which order quantity that target should move</b>, because "keep more on hand" has two legitimate meanings that live in two different parts of the system:
+    <ul>
+      <li><b>Option A — pick-face replenishment:</b> move more cases from bulk storage to the front-of-shelf pick bin, using stock we <em>already own</em>. (This is what shipped.)</li>
+      <li><b>Option B — inbound PO sizing:</b> buy more cases from the supplier on the next purchase order. (Not built — no code consumes DOH here yet.)</li>
+    </ul>
+    The epic's own wording ("supplier lead-time variability, seasonal demand swings") <em>sounds like</em> Option B. But the only existing DOH consumer in the codebase was Option A, so that's what BMS-4217 wired into. Hence the fork.
+  </div>
+
+  <h2>2. What's actually in the code today</h2>
+  <div class="grid2">
+    <div class="opt a">
+      <h3>Option A — Pick-face replenishment <span class="pill built">✅ BUILT</span></h3>
+      <p>Refills the pick bin from bulk stock in the same warehouse. DOH sizing is flag-guarded and additive.</p>
+      <p class="anchor">OHFY-WMS/.../executables/replenishment/E_ReplenishmentTask.cls</p>
+      <ul>
+        <li>Sizing entry point: <code>applyDohSizing(...)</code> called at <span class="anchor">E_ReplenishmentTask.cls ~L405</span>, guarded by <code>dohSizingEnabled</code>.</li>
+        <li>Target resolved via <code>S_InventoryThresholds.resolveAll(...)</code> (bulk path) <span class="anchor">~L1252</span>.</li>
+        <li>Task freezes what it used: <code>Effective_Target_DOH__c</code> + <code>Resolution_Source__c</code> <span class="anchor">~L446-447</span>.</li>
+        <li>Velocity source: <code>Inventory__c.Average_Daily_Depletion__c</code>.</li>
+      </ul>
+      <p><b>DOH's role here:</b> keep the bin from going dry mid-shift.</p>
+    </div>
+    <div class="opt b">
+      <h3>Option B — Inbound PO sizing <span class="pill not">not built</span></h3>
+      <p>Decides how many cases to buy from the supplier on the next PO. Protects against a slow supplier / seasonal demand.</p>
+      <p class="anchor">OHFY-WMS/.../executables/…/E_PurchaseOrder.cls (no DOH consumer exists)</p>
+      <ul>
+        <li>No code reads Target DOH on the purchasing path today — this would be net-new.</li>
+        <li>Would need its own velocity + lead-time model (reorder point = lead-time demand + safety buffer), not just bin-capacity fill.</li>
+        <li>Conceptually a different epic (purchasing), not just an extension of the replenishment task engine.</li>
+      </ul>
+      <p><b>DOH's role here:</b> reorder buffer vs supplier lead-time + demand swings.</p>
+    </div>
+  </div>
+
+  <h2>3. The specific technical fork</h2>
+  <div class="card">
+    <p>BMS-5636 added a <b>supplier-scope</b> override (<code>SKU_Override__c.Scope__c = 'Supplier'</code>, keyed by <code>Account__c</code>). <code>S_InventoryThresholds.resolve(itemId, locationId, accountId)</code> already accepts a supplier <code>accountId</code> and will return the supplier-tier target — but the replenishment engine <b>deliberately passes <code>null</code> for it today.</b> The code says so explicitly:</p>
+    <pre><code>// OPEN (refinement): pick-face vs inbound-PO sizing — see BMS-5068.
+// ... We do NOT pass a supplier accountId into resolve(): v1 grain is
+// SKU+Location only, supplier-tier is deferred. The supplier id
+// (pla.Item__r.Item_Line__r.Supplier__r) would be threaded in here
+// when the supplier tier is switched on.
+//   — E_ReplenishmentTask.cls ~L396-404</code></pre>
+    <p>So the fork is concrete:</p>
+    <ul>
+      <li><b>If Option A is the answer</b> and supplier overrides should also drive pick-face sizing → thread <code>pla.Item__r.Item_Line__r.Supplier__r.Id</code> into the <code>resolveAll</code> requests so supplier-scope targets actually affect the bin. ~small, contained change in this same file.</li>
+      <li><b>If Option B is the answer</b> → supplier-scope DOH should <em>not</em> touch pick-face at all; it belongs on the purchasing path (new work, likely a separate ticket/epic), and the supplier override we built is really an input to PO sizing, not replenishment.</li>
+      <li><b>If both</b> → A's bin protection and B's buy-quantity are independent and both consume the target; needs the clearest data model (one target, two consumers).</li>
+    </ul>
+  </div>
+
+  <h2>4. What I need you to decide / confirm</h2>
+  <div class="ask">
+    <b>Answer these and I can finish the right path:</b>
+    <ol>
+      <li>When a planner raises safety stock for a <b>supplier</b>, what should physically change first — <b>more cases moved to the pick face</b> (A), <b>more bought on the next PO</b> (B), or both?</li>
+      <li>Does "supplier lead-time variability" in the epic mean we're really sizing <b>inbound POs</b> (B)? If yes, is that in-scope for BMS-5068 or a separate purchasing epic?</li>
+      <li>If A: should the <b>supplier-scope</b> override (BMS-5636) drive pick-face sizing too — i.e. should I thread the supplier <code>accountId</code> into <code>resolveAll</code>? (Right now it's built but inert for pick-face.)</li>
+      <li>Is there an existing purchasing/reorder-point service I should look at for B, or would it genuinely be net-new?</li>
+    </ol>
+  </div>
+
+  <h2>5. How to see it running (5 min)</h2>
+  <div class="card">
+    <ul>
+      <li>Org <code>ohfy-val-5068</code> has it live. Tab: <b>Safety Stock Manager</b>.</li>
+      <li>Impact preview with real data: SKU <b>Wave Splitter: 1/2 BBL</b>, Location <b>Warehouse 1</b>, Proposed Target DOH <b>20</b> → 17 cases / $510 (current target is 16; velocity 100/day, 24 units/case, $30/case). Warehouse 2 returns $0 — no velocity row there, expected.</li>
+      <li>Code to read first: <code>E_ReplenishmentTask.applyDohSizing</code> + the L396 comment block; then <code>S_InventoryThresholds.resolve/resolveAll</code>.</li>
+      <li>Tests proving A: <code>E_ReplenishmentTask_T</code>, <code>S_InventoryThresholds_T</code> (48/48 green on the branch).</li>
+    </ul>
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · BMS-5068 · engineer handoff · 2026-07-02 · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a></p>
+
+</div>
+</body>
+</html>

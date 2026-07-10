@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay — Demo Overview (BMS-4965)</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#171a23; --line:#262b38; --ink:#e7eaf0; --mut:#9aa3b2;
+    --grn:#3fb950; --amb:#d2a32a; --red:#e5534b; --blu:#4c8dff; --accent:#7c5cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:32px 18px;}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:var(--mut);margin:0 0 28px}
+  .calm{background:linear-gradient(135deg,#1b2030,#171a23);border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;margin:0 0 26px}
+  .calm b{color:var(--accent)}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);
+    margin:30px 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:10px 0}
+  .pipe{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:8px 0}
+  .step{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .step .k{font-size:12px;color:var(--mut)}
+  .step .t{font-weight:600;margin:3px 0 6px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .b-built{background:rgba(63,185,80,.15);color:var(--grn);border:1px solid rgba(63,185,80,.4)}
+  .b-skip{background:rgba(154,163,178,.12);color:var(--mut);border:1px solid var(--line)}
+  code,kbd{background:#0c0e14;border:1px solid var(--line);border-radius:6px;padding:2px 7px;
+    font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#cdd6f4}
+  .cmd{display:block;background:#0c0e14;border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin:10px 0;overflow-x:auto;white-space:pre;color:#9ce0a0;font:13px/1.6 ui-monospace,Menlo,monospace}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14.5px}
+  th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  .arc li{margin:6px 0}
+  .pill{display:inline-block;background:#0c0e14;border:1px solid var(--line);border-radius:20px;
+    padding:3px 11px;margin:3px 4px 3px 0;font-size:13px}
+  .pill .n{color:var(--blu);font-weight:700}
+  .foot{color:var(--mut);font-size:13px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+  .em{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Short Pay — what you're actually demoing</h1>
+  <p class="sub">BMS-4965 · org <code>ohfy-val-4965</code> · breathe — it's <b>one screen, two stories.</b></p>
+
+  <div class="calm">
+    Don't think of this as four tickets. You built the <b>back-office side</b>: a single review queue.
+    Everything below is that one screen. The "driver captures it on a handheld" part is a future phase you can mention, not show.
+  </div>
+
+  <h2>1 · What you see</h2>
+  <div class="card">
+    The <b>Short Pay Review Queue</b> — the screen that replaces Gulf's dead legacy ticket system (where managers
+    hunted open balances by hand). One list of every open short payment with:
+    <p>
+      <span class="pill">amount</span><span class="pill">status</span><span class="pill">age</span>
+      <span class="pill">warehouse</span><span class="pill">state (FL/AL)</span><span class="pill">customer</span>
+    </p>
+    Seeded with <span class="n" style="color:var(--blu);font-weight:700">13 rows</span> · 9 FL / 6 AL · plus a repeat offender (<b>Sunshine Beverages ×3</b>).
+  </div>
+
+  <h2>2 · How you get here</h2>
+  <div class="card">
+    One command logs you straight onto the screen:
+    <span class="cmd">sf org open -o ohfy-val-4965 -p /lightning/n/ohfy__Short_Pay_Review_Queue</span>
+    Or in the org: <b>App Launcher</b> (⠿) → search <kbd>Short Pay Review Queue</kbd>.
+    <span style="color:var(--mut);font-size:13.5px">(Tab visibility + data access already granted to your user.)</span>
+  </div>
+
+  <h2>3 · What gets resolved</h2>
+  <div class="card">
+    <table>
+      <tr><th>The pain</th><th>What the screen does</th></tr>
+      <tr><td>Short pays vanish into invisible AR discrepancies</td><td>Every one is captured in a single worklist</td></tr>
+      <tr><td>AL law: can't sell beer without full payment (~$10 threshold)</td><td><b>Auto-escalates by FL vs AL rules</b> — high-value gets attention, routine stays quiet</td></tr>
+      <tr><td>No way to spot patterns</td><td><b>Repeat-offender detection</b> (Sunshine Beverages ×3)</td></tr>
+      <tr><td>AR team works off dirty data</td><td><b>Resolve-with-credit</b> / <b>mark-collected</b> closes the loop cleanly</td></tr>
+    </table>
+  </div>
+
+  <h2>4 · The pipeline — what's covered per ticket, and why two were skipped</h2>
+  <div class="pipe">
+    <div class="step"><div class="k">BMS-4057</div><div class="t">Spike: Data Model & Rules</div><span class="badge b-skip">not a build</span></div>
+    <div class="step"><div class="k">BMS-4058</div><div class="t">Ph 1: Driver Handheld Capture</div><span class="badge b-skip">deferred</span></div>
+    <div class="step"><div class="k">BMS-4059</div><div class="t">Ph 2: Compliance Escalation</div><span class="badge b-built">built ✓</span></div>
+    <div class="step"><div class="k">BMS-4060</div><div class="t">Ph 3: Resolution & Reporting</div><span class="badge b-built">built ✓</span></div>
+  </div>
+  <table>
+    <tr><th>Ticket</th><th>What it is</th><th>Built?</th><th>Why</th></tr>
+    <tr>
+      <td><b>4057</b></td>
+      <td>Spike — define data model + FL/AL compliance rules</td>
+      <td><span class="badge b-skip">No</span></td>
+      <td>A <em>research / decide</em> ticket, not a deliverable. Its output (threshold config, status config, reason taxonomy) got <b>baked into the 4059/4060 build</b> — a spike has nothing to ship.</td>
+    </tr>
+    <tr>
+      <td><b>4058</b></td>
+      <td>Ph 1 — driver detects &amp; reason-codes short pays on the handheld at delivery</td>
+      <td><span class="badge b-skip">No</span></td>
+      <td>The <b>field-capture front-end</b> (mobile/handheld) — a separate, heavier surface. Capture already partly exists via <b>BMS-3844</b>, so the manager-facing back-office was the demoable slice. <b>Deferred, not dropped.</b></td>
+    </tr>
+    <tr>
+      <td><b>4059</b></td>
+      <td>Ph 2 — Compliance Escalation</td>
+      <td><span class="badge b-built">Yes</span></td>
+      <td>Short pays over the threshold auto-escalate by FL vs AL rules → shows as the <b>status + state filter</b> on the screen.</td>
+    </tr>
+    <tr>
+      <td><b>4060</b></td>
+      <td>Ph 3 — Resolution, Reporting &amp; History</td>
+      <td><span class="badge b-built">Yes</span></td>
+      <td>Review/resolve workflow, repeat-offender detection, clean AR reconciliation → shows as the <b>row actions + the worklist</b> itself.</td>
+    </tr>
+  </table>
+  <div class="card" style="border-color:rgba(124,92,255,.4)">
+    <b class="em">The mental model:</b> 4057 = planning · 4058 = the driver app (other surface) · <b>4059 + 4060 = this one queue.</b>
+    Escalation (4059) and resolution (4060) aren't two screens — they're two things the same queue does.
+  </div>
+
+  <h2>5 · Your 4-minute demo arc</h2>
+  <div class="card">
+    <ol class="arc">
+      <li>Open the queue — 13 short-pays in one place.</li>
+      <li>Filter <b>AL</b> → show threshold escalation (the legal angle).</li>
+      <li>Filter <b>Escalated</b> → high-value shortages surface for attention.</li>
+      <li>Spot <b>Sunshine Beverages ×3</b> → repeat-offender pattern.</li>
+      <li><b>Resolve with credit</b> on one row → close the loop, clean AR.</li>
+    </ol>
+  </div>
+
+  <div class="foot">
+    Verified live in <code>ohfy-val-4965</code> · queue controller returns 13 rows for your user · tab + FLS assigned.
+    The driver-capture phase (4058) is mentionable but not shown. · Updated 2026-06-30.
+  </div>
+
+</div>
+</body>
+</html>

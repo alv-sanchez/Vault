@@ -1,0 +1,281 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR #464 — Code Date Identifier (BMS-5119)</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --accent:#58a6ff;--be:#3fb950;--ui:#f0883e;--data:#a371f7;--test:#d29922;--warn:#d29922;--danger:#f85149}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:1000px;background:var(--bg);color:var(--txt);padding:32px 22px 60px;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:22px;margin:0 0 4px}.pr{color:var(--accent);text-decoration:none}
+  .stamp{color:var(--dim);font-size:12.5px;margin:0 0 14px}.stamp code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 6px}
+  .keys{margin:2px 0 16px}.keys a{display:inline-block;background:#1f2634;color:#9ecbff;border-radius:6px;padding:2px 9px;font-size:12.5px;font-weight:600;text-decoration:none;margin-right:6px}
+  .thesis{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:12px;padding:15px 18px;margin:12px 0 18px;font-size:16px;line-height:1.5}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-width:82px}
+  .sc .n{font-size:20px;font-weight:700}.sc .l{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+  .sc .n.add{color:var(--be)}.sc .n.del{color:var(--danger)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin:28px 0 10px;color:var(--accent)}
+  code.f{background:#141a24;color:#9ecbff;border-radius:4px;padding:0 5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+  .new{color:var(--be);font-size:10.5px;font-weight:700;margin-left:4px}
+  input.sr{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+
+  /* ---- FEFO interactive drawing (pure CSS, radio-driven) ---- */
+  .viz-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 20px 16px;position:relative}
+  .scenario-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .scenario-btns label{background:#1a1f2e;border:1px solid var(--line);color:#c9d1e0;padding:7px 13px;border-radius:8px;
+    font-size:13px;cursor:pointer;font-weight:600;transition:.15s;display:inline-block}
+  .scenario-btns label:hover{border-color:var(--accent);color:#fff}
+  #sc-single:checked ~ .scenario-btns label[for="sc-single"],
+  #sc-fefo:checked ~ .scenario-btns label[for="sc-fefo"],
+  #sc-split:checked ~ .scenario-btns label[for="sc-split"]{background:var(--accent);border-color:var(--accent);color:#0b0f16}
+  .rig{display:flex;align-items:flex-end;gap:26px;justify-content:center;min-height:210px;padding:22px 6px 0;position:relative}
+  .lot{display:flex;flex-direction:column;align-items:center;gap:8px;width:96px;transition:opacity .3s}
+  .tank{width:56px;height:160px;border:2px solid #3a4256;border-radius:8px;background:#0f131c;position:relative;overflow:hidden}
+  .tank .fill{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(180deg,#4fc3f7,#2f8fd1);
+    height:0%;display:none;transition:height .3s}
+  .tank .fill.show{display:block}
+  .tank .fill.clamped{background:linear-gradient(180deg,#f0883e,#d9691f)}
+  .tank .cap-line{position:absolute;left:0;right:0;border-top:1px dashed #55607a;display:none}
+  .tank .cap-line.show{display:block}
+  .lot .qty{font-size:15px;font-weight:700;color:#e7e9f0;margin-top:2px;height:18px}
+  .lot .qty span{display:none}.lot .qty span.show{display:inline}
+  .lot .qty small{color:var(--dim);font-weight:500;font-size:11px}
+  .lot .date{font-size:12px;color:#9ecbff;font-weight:600}
+  .lot .cap{font-size:10.5px;color:var(--dim);min-height:13px}
+  .fefo-arrow{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:6px;
+    font-size:11px;color:var(--dim);letter-spacing:.03em}
+  .fefo-arrow .line{height:1px;background:#3a4256;flex:1;max-width:120px}
+  .badge-first{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--be);color:#08150b;
+    font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;white-space:nowrap;z-index:2}
+  .caption{margin-top:14px;padding:11px 14px;background:var(--card2);border-left:3px solid var(--accent);border-radius:8px;
+    font-size:13.5px;color:#d7dce8;min-height:20px}
+  .caption p{display:none;margin:0}.caption p.show{display:block}
+  .total-row{display:flex;justify-content:center;gap:22px;margin-top:4px;font-size:12.5px;color:var(--dim)}
+  .total-row b{color:#e7e9f0;font-size:14px}
+  .total-row span{display:none}.total-row span.show{display:inline}
+
+  /* lotB/C dim for single-lot scenario */
+  #sc-single:checked ~ .rig #lotB, #sc-single:checked ~ .rig #lotC{opacity:.3}
+
+  /* ---- Timeline stepper (pure CSS, radio-driven) ---- */
+  .stepper{display:flex;justify-content:space-between;position:relative;margin:8px 0 4px;padding:0 4px}
+  .stepper::before{content:"";position:absolute;top:15px;left:20px;right:20px;height:2px;background:var(--line);z-index:0}
+  .stepper label{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;flex:1}
+  .stepper .dot{width:30px;height:30px;border-radius:50%;background:#1a1f2e;border:2px solid var(--line);color:var(--dim);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:.2s;margin:0 auto}
+  .stepper .lbl{font-size:11px;color:var(--dim);text-align:center;max-width:92px;font-weight:600;transition:.2s}
+  #step1:checked ~ .stepper label[for="step1"] .dot,
+  #step2:checked ~ .stepper label[for="step2"] .dot,
+  #step3:checked ~ .stepper label[for="step3"] .dot,
+  #step4:checked ~ .stepper label[for="step4"] .dot,
+  #step5:checked ~ .stepper label[for="step5"] .dot,
+  #step6:checked ~ .stepper label[for="step6"] .dot{background:var(--accent);border-color:var(--accent);color:#0b0f16;transform:scale(1.15)}
+  #step1:checked ~ .stepper label[for="step1"] .lbl,
+  #step2:checked ~ .stepper label[for="step2"] .lbl,
+  #step3:checked ~ .stepper label[for="step3"] .lbl,
+  #step4:checked ~ .stepper label[for="step4"] .lbl,
+  #step5:checked ~ .stepper label[for="step5"] .lbl,
+  #step6:checked ~ .stepper label[for="step6"] .lbl{color:#e7e9f0}
+  .step-panels{margin-top:18px}
+  .step-panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 18px}
+  #step1:checked ~ .step-panels .panel-1,
+  #step2:checked ~ .step-panels .panel-2,
+  #step3:checked ~ .step-panels .panel-3,
+  #step4:checked ~ .step-panels .panel-4,
+  #step5:checked ~ .step-panels .panel-5,
+  #step6:checked ~ .step-panels .panel-6{display:block}
+  .step-panel h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .step-panel h3 .tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;text-transform:uppercase}
+  .tag-info{background:rgba(88,166,255,.16);color:#89bcff}.tag-warn{background:rgba(210,153,34,.18);color:#f0c674}
+  .tag-ok{background:rgba(63,185,80,.16);color:#7ee08b}.tag-fix{background:rgba(163,113,247,.16);color:#c4a5f5}
+  .step-panel p{margin:0;color:#cdd3e2;font-size:13.5px}
+  .step-hint{color:var(--dim);font-size:12px;margin:6px 2px 0}
+
+  /* ---- Tabs (pure CSS, radio-driven) ---- */
+  .tabs{display:flex;gap:6px;margin-bottom:0;flex-wrap:wrap}
+  .tabs label{background:#1a1f2e;border:1px solid var(--line);color:#c9d1e0;padding:7px 14px;border-radius:8px 8px 0 0;
+    font-size:13px;cursor:pointer;font-weight:600;border-bottom:2px solid transparent;display:inline-block}
+  #tab1:checked ~ .tabs label[for="tab1"],
+  #tab2:checked ~ .tabs label[for="tab2"],
+  #tab3:checked ~ .tabs label[for="tab3"]{color:#fff;border-bottom:2px solid var(--accent);background:#1f2534}
+  .tab-panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:0 11px 11px 11px;padding:15px 18px}
+  #tab1:checked ~ .tab-panels .panel-1,
+  #tab2:checked ~ .tab-panels .panel-2,
+  #tab3:checked ~ .tab-panels .panel-3{display:block}
+  .tab-panel h3{margin:0 0 6px;font-size:15px}
+  .tab-panel p{margin:0;color:#cdd3e2;font-size:14px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}.rig{flex-wrap:wrap}.stepper{flex-wrap:wrap;gap:14px}.stepper::before{display:none}}
+  .layer{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 15px}
+  .layer h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:7px}
+  .layer.data h3{color:var(--data)}.layer.be h3{color:var(--be)}.layer.ui h3{color:var(--ui)}.layer.test h3{color:var(--test)}
+  .layer ul{margin:0;padding-left:2px;list-style:none}.layer li{margin:6px 0;padding-left:14px;position:relative;font-size:13.5px;color:#d7dce8}
+  .layer li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+
+  .note{background:var(--card2);border-left:3px solid var(--warn);border-radius:8px;padding:9px 14px;margin:9px 0;font-size:13.5px;color:#e7e9f0}
+  .note b{color:#f0c674}
+  .foot{color:var(--dim);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
+</style></head><body>
+
+<h1>📦 PR <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/464">#464</a> — Code Date Identifier</h1>
+<p class="stamp">feat(wms,wms-ui) · <b>OPEN</b> · <code>feat/code-date-selection-bms-5119</code> → <code>main</code> · author Bryson-Carroll · 9 commits</p>
+<div class="keys"><a href="https://ohanafy.atlassian.net/browse/BMS-5119">BMS-5119 · Code Date Identifier (epic)</a><a href="https://ohanafy.atlassian.net/browse/BMS-5523">BMS-5523 · Pick path</a><a href="https://ohanafy.atlassian.net/browse/BMS-5703">BMS-5703 · Replenishment queue</a></div>
+
+<div class="thesis">Wave 2 of <b>Code Date Identifier</b> — lets warehouse operators see and choose the code date (lot) they pull, instead of the system silently picking one. Default behavior is <b>earliest-expiration first (FEFO)</b>, with the option to override and split across lots. Ships on both the <b>pick path</b> (BMS-5523) and the <b>replenishment worker queue</b> (BMS-5703). Additive only — no schema changes, no released signature breaks.</div>
+
+<div class="stats">
+  <div class="sc"><div class="n add">+3,494</div><div class="l">added</div></div>
+  <div class="sc"><div class="n del">−60</div><div class="l">removed</div></div>
+  <div class="sc"><div class="n">36</div><div class="l">files</div></div>
+  <div class="sc"><div class="n">3</div><div class="l">tickets</div></div>
+  <div class="sc"><div class="n">133+79</div><div class="l">Apex+Jest ✓</div></div>
+</div>
+
+<h2>🎬 See it work — FEFO lot allocation (click a scenario)</h2>
+<div class="viz-card">
+  <input class="sr" type="radio" name="sc" id="sc-single" checked>
+  <input class="sr" type="radio" name="sc" id="sc-fefo">
+  <input class="sr" type="radio" name="sc" id="sc-split">
+
+  <div class="scenario-btns">
+    <label for="sc-single">① Single active lot</label>
+    <label for="sc-fefo">② Pick All → FEFO default</label>
+    <label for="sc-split">③ Override + split + clamp</label>
+  </div>
+
+  <div class="rig" id="rig">
+    <div class="fefo-arrow"><span>FEFO priority</span><span class="line"></span><span>→ later code dates</span></div>
+    <div class="lot" id="lotA">
+      <div class="badge-first">Earliest</div>
+      <div class="tank">
+        <div class="cap-line show" style="bottom:60%"></div>
+        <div class="fill state-single show" style="height:60%"></div>
+        <div class="fill state-fefo" style="height:40%"></div>
+        <div class="fill state-split" style="height:20%"></div>
+      </div>
+      <div class="qty"><span class="state-single show">3<small> / 3 on-hand</small></span><span class="state-fefo">2<small> / 2 on-hand</small></span><span class="state-split">1<small> / 2 on-hand</small></span></div>
+      <div class="date">08/05/26</div><div class="cap"></div>
+    </div>
+    <div class="lot" id="lotB">
+      <div class="tank">
+        <div class="cap-line" style="bottom:0%"></div>
+        <div class="fill state-fefo" style="height:40%"></div>
+        <div class="fill state-split" style="height:40%"></div>
+        <div class="cap-line state-fefo" style="bottom:100%"></div>
+        <div class="cap-line state-split" style="bottom:100%"></div>
+      </div>
+      <div class="qty"><span class="state-single show">0<small> / 0</small></span><span class="state-fefo">2<small> / 5 on-hand</small></span><span class="state-split">2<small> / 5 on-hand</small></span></div>
+      <div class="date">09/04/26</div><div class="cap"></div>
+    </div>
+    <div class="lot" id="lotC">
+      <div class="tank">
+        <div class="fill state-split clamped" style="height:20%"></div>
+        <div class="cap-line state-fefo" style="bottom:20%"></div>
+        <div class="cap-line state-split" style="bottom:20%"></div>
+      </div>
+      <div class="qty"><span class="state-single show">0<small> / 0</small></span><span class="state-fefo">0<small> / 1 on-hand</small></span><span class="state-split">1<small> / 1 on-hand</small></span></div>
+      <div class="date">10/04/26</div><div class="cap"></div>
+    </div>
+  </div>
+
+  <div class="total-row">Line needs <b><span class="state-single show">3</span><span class="state-fefo">4</span><span class="state-split">4</span></b> cases · allocated <b><span class="state-single show">3 of 3</span><span class="state-fefo">4 of 4</span><span class="state-split">4 of 4</span></b></div>
+
+  <div class="caption">
+    <p class="state-single show">Only one active lot exists → the picker sees a read-only line, no selector. The full quantity is attributed to that lot automatically.</p>
+    <p class="state-fefo">Pick All opens the code-date panel defaulted to FEFO: the earliest lot (08/05, cap 2) fills first, then the remaining 2 spill to the next-earliest lot (09/04). Allocated 4 of 4; 10/04 untouched.</p>
+    <p class="state-split">Picker overrides: pulls 08/05 down to 1, and tries to push 9 onto 10/04 — which only has 1 on-hand, so the per-lot clamp caps it at 1 (orange). The remaining 2 land on 09/04. Final split 1 / 2 / 1 = 4 — impossible to draw past any lot's real on-hand.</p>
+  </div>
+</div>
+
+<h2>🧭 Walk the PR's timeline (click a step)</h2>
+<div class="viz-card">
+  <input class="sr" type="radio" name="step" id="step1" checked>
+  <input class="sr" type="radio" name="step" id="step2">
+  <input class="sr" type="radio" name="step" id="step3">
+  <input class="sr" type="radio" name="step" id="step4">
+  <input class="sr" type="radio" name="step" id="step5">
+  <input class="sr" type="radio" name="step" id="step6">
+
+  <div class="stepper">
+    <label for="step1"><div class="dot">1</div><div class="lbl">Initial ship</div></label>
+    <label for="step2"><div class="dot">2</div><div class="lbl">Coverage escalation</div></label>
+    <label for="step3"><div class="dot">3</div><div class="lbl">Disposition: ship as-is</div></label>
+    <label for="step4"><div class="dot">4</div><div class="lbl">Zone badge added</div></label>
+    <label for="step5"><div class="dot">5</div><div class="lbl">Real QOH assertions</div></label>
+    <label for="step6"><div class="dot">6</div><div class="lbl">Your review fixes</div></label>
+  </div>
+  <p class="step-hint">Click any numbered step above to read what happened.</p>
+
+  <div class="step-panels">
+    <div class="step-panel panel-1"><h3>Initial ship <span class="tag tag-ok">Ship</span></h3>
+      <p>Pick path + replenishment lot selection land together: FEFO prefetch, confirm/split panel, docs, and the tests written to lift coverage on touched legacy classes.</p></div>
+    <div class="step-panel panel-2"><h3>Coverage escalation <span class="tag tag-warn">Blocked</span></h3>
+      <p>Two touched classes landed just under the 90%-per-file bar, on pre-existing legacy paths this change never touches. Per the skip policy, escalated to Bryson — PR held in draft rather than quietly shipping under the bar.</p></div>
+    <div class="step-panel panel-3"><h3>Disposition: ship as-is <span class="tag tag-ok">Resolved</span></h3>
+      <p>Full-suite run clears the bar on one class; the other lands at 89.5% on pre-existing legacy branches unrelated to this change. Residual gap tracked as known debt instead of expanding scope. Draft lifted.</p></div>
+    <div class="step-panel panel-4"><h3>Zone-completion badge added <span class="tag tag-info">Feedback</span></h3>
+      <p>Reviewer feedback: a fully-handled zone only surfaced via a one-shot toast on re-entry, no persistent signal. Added a server-computed isComplete flag and a persistent "✓ Complete" badge on the zone card.</p></div>
+    <div class="step-panel panel-5"><h3>Real QOH assertions added <span class="tag tag-fix">Deepened</span></h3>
+      <p>A review question — "do the tests prove actual inventory movement, or just that a lot was touched?" — showed they only asserted event/adjustment presence. Added ledger-level assertions, and along the way caught a real fixture bug: an inactive destination Inventory__c record was silently forking a duplicate.</p></div>
+    <div class="step-panel panel-6"><h3>Sanchez's review fixes <span class="tag tag-fix">Your review</span></h3>
+      <p>Zero-allocation guard on Confirm, zone-badge completion logic aligned to the same definition re-entry uses, NULL-expiration lot handling fixed in transfer FIFO, LotEligibilityRules + lotFefoAllocator extracted to kill duplication, a dead null-check removed, and the duplicate-lot regression generalized to 3+ lots.</p></div>
+  </div>
+</div>
+
+<h2>🎯 What it covers</h2>
+<div class="viz-card" style="padding-top:16px">
+  <input class="sr" type="radio" name="tb" id="tab1" checked>
+  <input class="sr" type="radio" name="tb" id="tab2">
+  <input class="sr" type="radio" name="tb" id="tab3">
+
+  <div class="tabs">
+    <label for="tab1">BMS-5523 · Pick path</label>
+    <label for="tab2">BMS-5703 · Replenishment</label>
+    <label for="tab3">Follow-up · Zone badge</label>
+  </div>
+  <div class="tab-panels">
+    <div class="tab-panel panel-1"><h3>Code-date selection at pick</h3>
+      <p><code class="f">E_PickPath.getPickStops</code> prefetches eligible lots (FEFO, active, not-past-code-date, null-expiration last) onto each lot-tracked stop in one bulk query. Single active lot renders read-only; 2+ lots open a confirm panel defaulted FEFO, override/split/clamp-able. <code class="f">E_PickPathFulfillment</code> honors the picker's chosen <code class="f">lotMoves</code> — validated + aggregate-clamped per lot — with empty/null falling back to unchanged FEFO.</p></div>
+    <div class="tab-panel panel-2"><h3>Default code-date selection at replenishment</h3>
+      <p>LWC-only — the FEFO/<code class="f">completeTask(lotMoves)</code> plumbing already shipped. Single eligible lot is read-only; 2+ lots expand by default with the full quantity pre-allocated FEFO to the earliest, reassignable/splittable by the worker.</p></div>
+    <div class="tab-panel panel-3"><h3>Persistent zone-completion badge</h3>
+      <p>Reviewer feedback: a fully-handled zone (picked/short/broken/skipped) only surfaced via a one-shot toast on re-entry. <code class="f">getPickZones</code> now returns a server-computed <code class="f">isComplete</code> flag, and <code class="f">pickPathAssignments</code> shows a persistent "✓ Complete" badge on the zone card.</p></div>
+  </div>
+</div>
+
+<h2>🔨 New changes applied</h2>
+<div class="grid">
+  <div class="layer data"><h3>🗄️ DTOs</h3><ul>
+    <li><code class="f">PickLotMoveDTO</code><span class="new">NEW</span> — global <code class="f">{lotInventoryId, quantity}</code>, mirrors the released <code class="f">ReplenishmentCompletionDTO.lotMoves</code> precedent</li>
+    <li><code class="f">PickActionDTO.lotMoves</code><span class="new">+</span> — additive property, no signature break (offline bulk pipeline needs a field, not an overload)</li>
+  </ul></div>
+  <div class="layer be"><h3>⚙️ Backend — OHFY-WMS</h3><ul>
+    <li><code class="f">E_PickPath.cls</code> <b>+183</b> — lot prefetch, zone <code class="f">isComplete</code></li>
+    <li><code class="f">E_PickPathFulfillment.cls</code> <b>+181</b> — validate + aggregate-clamp per lot, draw exact chosen lots</li>
+    <li><code class="f">LotEligibilityRules.cls</code><span class="new">NEW</span> — single source of truth for eligible-lot SOQL, shared by pick path + replenishment</li>
+    <li><code class="f">LocationTransferController.cls</code> +23/−6 — FIFO lot queries now tolerate NULL-expiration (non-perishable) lots</li>
+  </ul></div>
+  <div class="layer ui"><h3>🎨 UI — OHFY-WMS-UI</h3><ul>
+    <li><code class="f">pickPathStop.js</code> <b>+299</b> — single-lot read-only line, multi-lot confirm panel, short-across-lots, zero-allocation guard routes to required-reason capture</li>
+    <li><code class="f">replenishmentWorkerQueue.js</code> +51 — FEFO pre-allocation, reassign/split</li>
+    <li><code class="f">lotFefoAllocator</code><span class="new">NEW</span> — shared FEFO cascade LWC module, replacing two independent implementations that had a rounding mismatch</li>
+    <li><code class="f">pickPathAssignments</code> +8/HTML +14 — persistent "Complete" zone badge</li>
+  </ul></div>
+  <div class="layer test"><h3>🧪 Tests</h3><ul>
+    <li><b>Apex</b> — <code class="f">E_PickPath_T</code> +457, <code class="f">E_PickPathFulfillment_T</code> +628, <code class="f">LotEligibilityRules_T</code><span class="new">NEW</span>, <code class="f">E_ReplenishmentTask_T</code> +153</li>
+    <li><b>Jest</b> — <code class="f">pickPathStop.test</code> +276, <code class="f">lotFefoAllocator.test</code><span class="new">NEW</span>, <code class="f">pickPathAssignments.test</code> +27</li>
+    <li><b>Playwright</b> — <code class="f">code-date-selection.spec.ts</code><span class="new">NEW</span> + seed helper, 2 E2E pass live</li>
+    <li>133 targeted Apex + 79 Jest green on <code class="f">code-dates</code> dev org</li>
+  </ul></div>
+</div>
+
+<h2>⚠️ Notes &amp; decisions</h2>
+<div class="note"><b>Real BLOCKER caught pre-merge.</b> <code class="f">/code-review</code> found duplicate-lot over-allocation could walk past a lot's on-hand into negative inventory via the adjustment bypass — fixed by aggregate-then-clamp in <code class="f">validateAndClampLotMoves</code> with a regression test.</div>
+<div class="note" style="border-color:var(--dim)"><b>CI note.</b> Playwright E2E shows red — that's 3 pre-existing <code class="f">blind-receiving.spec.ts</code> (BMS-4622) failures, unrelated to this diff and reproducing on other unrelated PRs; the job is continue-on-error. This PR's own <code class="f">code-date-selection.spec.ts</code> passes.</div>
+<div class="note" style="border-color:var(--data)"><b>Over-allocation-disable dispositioned as defensive-only.</b> The per-input clamp already makes over-allocation unreachable through the UI; the confirm-disable guard is a belt-and-suspenders check, not a fix for a live bug.</div>
+
+<p class="foot">Overview of PR #464 as of its current head · generated from GitHub PR metadata + commit/file diff (not the full line diff). For the line-by-line, run <code class="f">/dev-review</code> on the branch or open the PR on GitHub. All interactions on this page are pure CSS (radio-button toggles) — no JavaScript — so they work in Obsidian's HTML preview too.</p>
+</body></html>

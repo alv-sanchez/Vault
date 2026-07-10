@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>audit-pull-request — Skill Reference</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-alt: #f5f3f0;
+    --border: #e7e5e0;
+    --border-strong: #d4d0ca;
+    --text: #1c1917;
+    --text-sec: #57534e;
+    --text-muted: #a8a29e;
+    --accent: #6d28d9;
+    --accent-light: #ede9fe;
+    --accent-mid: #a78bfa;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', 'Iowan Old Style', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2.5rem 1.5rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* Sans-serif utility */
+  .sans {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+  }
+
+  /* ---- Header ---- */
+  .hero {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .hero .eyebrow {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: 6px;
+    font-size: 0.9em;
+  }
+  .hero .tagline {
+    color: var(--text-sec);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .hero .loc {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+
+  /* ---- Flow diagram ---- */
+  .flow-section {
+    margin-bottom: 2.5rem;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    padding: 1.5rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .flow-step {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-arrow {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+    flex-shrink: 0;
+  }
+
+  /* ---- Section headings ---- */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    margin-top: 2.5rem;
+  }
+  .section-head .icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .section-head h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-head .count {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.1rem 0.55rem;
+    color: var(--text-sec);
+  }
+
+  /* ---- Criteria cards ---- */
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  @media (max-width: 700px) { .criteria-grid { grid-template-columns: 1fr; } }
+
+  .criteria-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .criteria-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+  }
+  .criteria-card h4 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .criteria-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .criteria-card li {
+    font-size: 0.82rem;
+    color: var(--text-sec);
+    padding: 0.25rem 0;
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.55;
+  }
+  .criteria-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-mid);
+  }
+
+  /* full-width card variant */
+  .criteria-full {
+    grid-column: 1 / -1;
+  }
+
+  /* ---- Severity badges ---- */
+  .severity-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .severity-badge {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    font-weight: 600;
+    flex: 1;
+    min-width: 200px;
+    border: 1px solid;
+  }
+  .severity-badge.blocker {
+    background: var(--red-bg);
+    color: var(--red);
+    border-color: #fecaca;
+  }
+  .severity-badge.warning {
+    background: var(--amber-bg);
+    color: var(--amber);
+    border-color: #fde68a;
+  }
+  .severity-badge.suggestion {
+    background: var(--blue-bg);
+    color: var(--blue);
+    border-color: #bfdbfe;
+  }
+  .severity-badge .sev-label {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.06);
+  }
+  .severity-badge .sev-desc {
+    font-weight: 400;
+    color: var(--text-sec);
+    font-size: 0.78rem;
+  }
+
+  /* ---- Naming table ---- */
+  .naming-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .naming-table th {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    text-align: left;
+    padding: 0.65rem 0.9rem;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-sec);
+  }
+  .naming-table td {
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .naming-table tr:last-child td { border-bottom: none; }
+  .naming-table code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    background: var(--surface-alt);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  /* ---- Output format ---- */
+  .output-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+  }
+  .output-block pre {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--text-sec);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .output-block .line-section {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .output-block .line-meta {
+    color: var(--text-muted);
+  }
+  .output-block .line-finding {
+    color: var(--text);
+  }
+
+  /* ---- Summary stats ---- */
+  .stats-strip {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .stat-pill {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.1rem;
+    flex: 1;
+    min-width: 130px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-pill .val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .stat-pill .lbl {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* ---- Callout ---- */
+  .callout {
+    background: var(--green-bg);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .callout .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .callout .callout-text {
+    font-size: 0.85rem;
+    color: var(--text-sec);
+    line-height: 1.6;
+  }
+  .callout strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="eyebrow">Claude Code Skill</div>
+  <h1><code>/audit-pull-request</code></h1>
+  <p class="tagline">A 126-line slash command that fetches a PR diff and audits it across six dimensions, posting a structured report as a single PR comment.</p>
+  <div class="loc">.claude/commands/audit-pull-request.md</div>
+</div>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stat-pill">
+    <div class="val" style="color: var(--accent);">6</div>
+    <div class="lbl">Audit Dimensions</div>
+  </div>
+  <div class="stat-pill">
+    <div class="val" style="color: var(--red);">3</div>
+    <div class="lbl">Severity Levels</div>
+  </div>
+  <div class="stat-pill">
+    <div class="val" style="color: var(--green);">10+</div>
+    <div class="lbl">Bug Patterns</div>
+  </div>
+  <div class="stat-pill">
+    <div class="val" style="color: var(--amber);">7</div>
+    <div class="lbl">Silent Failure Checks</div>
+  </div>
+  <div class="stat-pill">
+    <div class="val" style="color: var(--blue);">4</div>
+    <div class="lbl">File-Type Rules</div>
+  </div>
+</div>
+
+<!-- Flow -->
+<div class="flow-section">
+  <div class="section-head">
+    <span class="icon">&#8594;</span>
+    <h2>How It Works</h2>
+  </div>
+  <div class="flow">
+    <div class="flow-step">PR URL<br><small style="font-weight:400;color:var(--text-sec);">$ARGUMENTS</small></div>
+    <span class="flow-arrow">&#10145;</span>
+    <div class="flow-step">gh CLI<br><small style="font-weight:400;color:var(--text-sec);">Fetch diff + metadata</small></div>
+    <span class="flow-arrow">&#10145;</span>
+    <div class="flow-step">6-Dimension<br>Analysis</div>
+    <span class="flow-arrow">&#10145;</span>
+    <div class="flow-step">PR Comment<br><small style="font-weight:400;color:var(--text-sec);">Structured report</small></div>
+  </div>
+</div>
+
+<!-- Callout -->
+<div class="callout">
+  <span class="callout-icon">&#9432;</span>
+  <span class="callout-text"><strong>Extracted info:</strong> PR title, description, linked tickets, full file diff, and file types changed (Apex <code>.cls</code>/<code>.trigger</code>, LWC <code>.js</code>/<code>.html</code>/<code>.css</code>, metadata XML, etc.)</span>
+</div>
+
+<!-- Section: Audit Criteria -->
+<div class="section-head">
+  <span class="icon">&#128270;</span>
+  <h2>Audit Criteria</h2>
+  <span class="count">6 dimensions</span>
+</div>
+
+<div class="criteria-grid">
+
+  <!-- 1. Bugs -->
+  <div class="criteria-card">
+    <h4>&#128027; Bugs &amp; Runtime Errors</h4>
+    <ul>
+      <li>SOQL queries inside loops (governor limit)</li>
+      <li>DML statements inside loops (governor limit)</li>
+      <li>Null dereference without prior null check</li>
+      <li>Divide by zero (literal or unchecked)</li>
+      <li>Index out of bounds without size check</li>
+      <li>Map.put() with non-unique keys (silent overwrite)</li>
+      <li>Missing break in switch fall-through</li>
+      <li>Race conditions in LWC reactive properties</li>
+      <li>Sync/async mismatch in LWC/Aura</li>
+      <li>Uninitialized variable reads</li>
+    </ul>
+  </div>
+
+  <!-- 2. Silent Failures -->
+  <div class="criteria-card">
+    <h4>&#128263; Silent Failures &amp; Swallowed Errors</h4>
+    <ul>
+      <li>Async Apex (Queueable/Batch/Future) without try/catch on failable work</li>
+      <li>Empty or swallowing catch blocks</li>
+      <li>Over-broad catch(Exception) that continues</li>
+      <li>Partial-success DML results never inspected</li>
+      <li>Queueable without Finalizer on failable work</li>
+      <li>LWC promises with no .catch() or try/catch</li>
+      <li>Failures logged but never surfaced to user</li>
+    </ul>
+  </div>
+
+  <!-- 3. Conditional Logic -->
+  <div class="criteria-card">
+    <h4>&#128256; Conditional Logic &amp; Dead Branches</h4>
+    <ul>
+      <li>Effectively constant conditions (hardcoded flag)</li>
+      <li>Conditions that almost always take one route</li>
+      <li>Silent conditional skips on common cases</li>
+      <li>Identical if/else branches</li>
+      <li>Unreachable else/case/default paths</li>
+      <li>Redundant nested conditions</li>
+    </ul>
+  </div>
+
+  <!-- 4. Dead Code -->
+  <div class="criteria-card">
+    <h4>&#129529; Dead Code</h4>
+    <ul>
+      <li>Commented-out blocks (more than one line)</li>
+      <li>Unreachable code after return/throw</li>
+      <li>Unused variables, parameters, or imports</li>
+    </ul>
+  </div>
+
+  <!-- 5. Debug Statements -->
+  <div class="criteria-card">
+    <h4>&#128269; Debug Statements</h4>
+    <ul>
+      <li><code>System.debug()</code> in Apex production code</li>
+      <li><code>console.log()</code> in LWC/JavaScript</li>
+      <li><code>console.warn()</code> / <code>console.error()</code> left in</li>
+    </ul>
+  </div>
+
+  <!-- 6. Naming -->
+  <div class="criteria-card">
+    <h4>&#127991; Naming Conventions</h4>
+    <ul>
+      <li>Apex: PascalCase classes, camelCase methods</li>
+      <li>Constants: UPPER_SNAKE_CASE</li>
+      <li>LWC: camelCase folders, methods, functions</li>
+      <li>Metadata: label-to-API-name matching</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Naming rules table -->
+<div class="section-head">
+  <span class="icon">&#128209;</span>
+  <h2>Naming Rules Reference</h2>
+</div>
+
+<table class="naming-table">
+  <thead>
+    <tr><th>File Type</th><th>Element</th><th>Convention</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Apex <code>.cls</code></td>
+      <td>Class name</td>
+      <td>PascalCase</td>
+      <td><code>InvoiceService</code></td>
+    </tr>
+    <tr>
+      <td>Apex <code>.cls</code></td>
+      <td>Method name</td>
+      <td>camelCase</td>
+      <td><code>calculateTotal</code></td>
+    </tr>
+    <tr>
+      <td>Apex <code>.cls</code></td>
+      <td>Constant</td>
+      <td>UPPER_SNAKE_CASE</td>
+      <td><code>MAX_RETRY_COUNT</code></td>
+    </tr>
+    <tr>
+      <td>LWC <code>.js</code></td>
+      <td>Folder / component</td>
+      <td>camelCase</td>
+      <td><code>productCard</code></td>
+    </tr>
+    <tr>
+      <td>LWC <code>.js</code></td>
+      <td>Method / function</td>
+      <td>camelCase</td>
+      <td><code>handleClick</code></td>
+    </tr>
+    <tr>
+      <td>Metadata <code>.xml</code></td>
+      <td>Label &rarr; API name</td>
+      <td>Spaces &rarr; underscores</td>
+      <td><code>Invoice Line Item</code> &rarr; <code>Invoice_Line_Item__c</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Severity -->
+<div class="section-head">
+  <span class="icon">&#9888;</span>
+  <h2>Severity Levels</h2>
+</div>
+
+<div class="severity-row">
+  <div class="severity-badge blocker">
+    <span class="sev-label">[BLOCKER]</span>
+    <span class="sev-desc">Runtime error, data loss, or governor limit exception in prod</span>
+  </div>
+  <div class="severity-badge warning">
+    <span class="sev-label">[WARNING]</span>
+    <span class="sev-desc">Likely problem or bad practice &mdash; fix before merge</span>
+  </div>
+  <div class="severity-badge suggestion">
+    <span class="sev-label">[SUGGESTION]</span>
+    <span class="sev-desc">Minor style or hygiene &mdash; fix optional but recommended</span>
+  </div>
+</div>
+
+<!-- Output Format -->
+<div class="section-head">
+  <span class="icon">&#128196;</span>
+  <h2>Output Format</h2>
+</div>
+
+<div class="output-block">
+<pre><span class="line-section">## PR Audit Report</span>
+<span class="line-meta">**PR:** &lt;title and URL&gt;
+**Files changed:** &lt;count&gt; | **Lines added:** &lt;+n&gt; | **Lines removed:** &lt;-n&gt;</span>
+
+---
+
+<span class="line-section">### &#128027; Bugs &amp; Runtime Errors</span>
+<span class="line-finding">&lt;file&gt;:&lt;line&gt; — &lt;description and why it causes a problem&gt;</span>
+
+<span class="line-section">### &#128263; Silent Failures &amp; Swallowed Errors</span>
+<span class="line-finding">&lt;file&gt;:&lt;line&gt; — &lt;what can fail, why hidden, how to handle&gt;</span>
+
+<span class="line-section">### &#128256; Conditional Logic &amp; Dead Branches</span>
+<span class="line-finding">&lt;file&gt;:&lt;line&gt; — &lt;which branch is dead/always-taken, and why&gt;</span>
+
+<span class="line-section">### &#129529; Dead Code</span>
+<span class="line-finding">&lt;file&gt;:&lt;line&gt; — &lt;description&gt;</span>
+
+<span class="line-section">### &#128269; Debug Statements</span>
+<span class="line-finding">&lt;file&gt;:&lt;line&gt; — `&lt;the statement&gt;` — remove before merge</span>
+
+<span class="line-section">### &#127991; Naming Convention Violations</span>
+<span class="line-finding">&lt;file&gt; — &lt;what was found&gt; → &lt;what it should be&gt;</span>
+
+<span class="line-section">### &#9989; Summary</span>
+<span class="line-meta">2–3 sentence assessment: safe to merge? blockers vs suggestions?
+Sections with no findings are omitted entirely.</span></pre>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <code>/audit-pull-request</code> &mdash; .claude/commands/audit-pull-request.md &middot; OHFY-Split
+</div>
+
+</body>
+</html>

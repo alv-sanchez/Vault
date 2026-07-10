@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4936 — Launch Planning Coordination</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff;--ok:#3fb950;--warn:#d29922;--risk:#3fb950}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:960px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
+  h2{font-size:16px;margin:28px 0 10px;color:#c4cad8}
+  .sub{color:var(--dim);margin:0 0 20px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(63,185,80,.16);color:var(--ok)}
+  .badge.risk{background:rgba(63,185,80,.16);color:var(--ok)}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:660px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:14px 16px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
+  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
+  .box p{margin:0;color:#d7dce8}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  a{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:12.5px}
+  .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:12px;margin-right:4px}
+  .pill.done{background:rgba(63,185,80,.16);color:var(--ok)}
+  .pill.gap{background:rgba(210,153,34,.16);color:var(--warn)}
+  .pill.wip{background:rgba(88,166,255,.16);color:var(--accent)}
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+  @media(max-width:780px){.flow{grid-template-columns:1fr 1fr}}
+  .lane{background:var(--card2);border-radius:10px;padding:12px;border-top:3px solid var(--accent)}
+  .lane h4{margin:0 0 6px;font-size:13px}
+  .lane p{margin:0;font-size:12.5px;color:var(--dim)}
+  .lane.w{border-top-color:#f0883e}.lane.p{border-top-color:#3fb950}.lane.pos{border-top-color:#a371f7}.lane.s{border-top-color:#58a6ff}
+  ul{margin:6px 0;padding-left:20px}
+  li{margin:3px 0}
+  .callout{background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.3);border-radius:10px;padding:12px 16px;font-size:13.5px;margin:10px 0}
+  .fix{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.3);border-radius:10px;padding:12px 16px;font-size:13.5px;margin:10px 0}
+</style></head><body>
+  <h1><span class="key">BMS-4936</span> — Launch Planning Coordination</h1>
+  <p class="sub">Allocation & Launch Planning · <a href="https://ohanafy.atlassian.net/browse/BMS-4936">Epic (Jira)</a> · <a href="https://ohanafy.atlassian.net/browse/BMS-5592">BMS-5592 (Jira)</a> · <a href="https://github.com/Ohanafy/OHFY-Split/pull/488">PR #488</a></p>
+  <div class="meta">Branch <code>feat/launch-plan-checklist-bms-5592</code> · Org <code>ohfy-bms5592</code> · <span class="badge">DRAFT PR, ALL CI GREEN</span> <span class="badge risk">RISK: LOW</span> · updated 2026-07-08</div>
+
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>The Gulf launch coordinator who owns getting a new product to market — responsible for pulling purchasing, warehouse, marketing, and sales into one plan.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>New-product launches (~16+/yr at Gulf) run on scattered spreadsheets and memory today. No shared view means the first sign of trouble is the worst one: a promo fires with no product on shelf, or POS materials land weeks late.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>A <code>Product_Launch__c</code> record per product with an auto-generated 4-lane checklist, each step owned + due-dated backward from launch day, rolling up to per-lane ready flags and an overall readiness %. Tracking-only — no activation gating.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p>Two not-yet-groomed REQ-009 safeguards (supply-in-position gate, promo-timing guard) will read these readiness fields. Both explicitly out of scope here.</p></div>
+  </div>
+
+  <h2>The four lanes</h2>
+  <div class="flow">
+    <div class="lane p"><h4>Purchasing</h4><p>Confirm supplier & PO (–45d) → PO received into DC (–7d)</p></div>
+    <div class="lane w"><h4>Warehouse Readiness</h4><p>Slotting & location setup (–21d) → Inventory staged at DCs (–3d)</p></div>
+    <div class="lane pos"><h4>POS Material</h4><p>Design POS materials (–30d) → Delivered to accounts (–5d)</p></div>
+    <div class="lane s"><h4>Sales Activation</h4><p>Pricelist & promo configured (–14d) → Sales team briefed (–2d)</p></div>
+  </div>
+  <p style="color:var(--dim);font-size:13px">Offsets are days-before-launch, from the curated default template in <code>S_ProductLaunch.TEMPLATE</code> — not derived from allocation size or per-warehouse scoping (out of scope, see open questions).</p>
+
+  <h3>Where each lane's context signal comes from</h3>
+  <p style="color:var(--dim);font-size:13px">Three of the four lanes show a read-only, informational line above their steps (e.g. "Inventory staged at 6 location(s)", "No open purchase orders"). These are live queries in <code>ProductLaunchController.buildContextSignals(itemId)</code> against the launch's <code>Item__c</code> — they never drive the ready flags, which come only from step completion.</p>
+  <table>
+    <tr><th>Lane</th><th>Source object</th><th>Query</th></tr>
+    <tr><td>Purchasing</td><td><code>Purchase_Order_Item__c</code></td><td><code>Item__c = :itemId AND Outstanding_Case_Quantity__c &gt; 0</code> — count of open PO lines + sum of outstanding cases.</td></tr>
+    <tr><td>Warehouse Readiness</td><td><code>Inventory__c</code></td><td><code>Item__c = :itemId</code> — distinct count of <code>Location__c</code> the item has inventory staged at.</td></tr>
+    <tr><td>Sales Activation</td><td><code>Promotion__c</code></td><td><code>Item__c = :itemId</code>, ordered by <code>Start_Date__c</code> — count of scheduled promotions + earliest start date.</td></tr>
+    <tr><td>POS Material</td><td><em>none</em></td><td>No context signal wired — this lane shows only its steps, no summary line. Gap, not yet flagged as an open question.</td></tr>
+  </table>
+
+  <h2>What's actually built</h2>
+  <table>
+    <tr><th>Layer</th><th>Package</th><th>What shipped</th></tr>
+    <tr><td>Objects</td><td>OHFY-Data-Model <span class="pill done">Tier 0</span></td><td><code>Product_Launch__c</code> (master, autonumber <code>PL-########</code>) — <code>Item__c</code> lookup, <code>Launch_Date__c</code> (required), <code>Status__c</code> (overall progress: Not Started/In Progress/Complete — added in the polish follow-up), 4 per-lane ready flags (<code>Purchasing_Ready__c</code>/<code>Warehouse_Ready__c</code>/<code>POS_Ready__c</code>/<code>Sales_Activation_Ready__c</code>), <code>Readiness_Percent__c</code>, <code>At_Risk__c</code>.<br><code>Product_Launch_Step__c</code> (detail, master-detail) — <code>Lane__c</code>, <code>Step_Label__c</code>, <code>Owner__c</code> (required via validation rule, no lookup-level required so SetNull delete behavior is preserved), <code>Offset_Days__c</code>, <code>Due_Date__c</code>, <code>Status__c</code> (restricted picklist), <code>At_Risk__c</code>.</td></tr>
+    <tr><td>Service + triggers</td><td>OHFY-Platform <span class="pill done">Tier 2</span></td><td><code>S_ProductLaunch.cls</code> — <code>initiateLaunch(launches)</code> generates the 8-step template on insert; <code>handleLaunchDateChange(newList, oldById)</code> reflows every step's due date + at-risk when <code>Launch_Date__c</code> moves (never auto-extends); <code>recalculateReadiness(launchIds)</code> rolls step completion up to lane flags + percent + at-risk.<br><code>ProductLaunchTriggerService</code> + <code>ProductLaunchStepTriggerService</code>, 6 CMDT trigger-config records, <code>ProductLaunchController.cls</code> (<code>getLaunchPlan</code>/<code>updateStep</code> + read-only Inventory/PO/Promotion context signals).</td></tr>
+    <tr><td>UI</td><td>OHFY-PLTFM-UI <span class="pill done">Tier 4</span></td><td><code>productLaunchPlan</code> LWC — 4-lane readiness board, inline owner (record-picker) + status (native select) editing, skeleton loader, error state, desktop+mobile, <code>/ohfy-design</code> branded (hex-lint clean). <code>Launch_Planning_Access</code> permission set.</td></tr>
+  </table>
+  <div class="fix">
+    <strong>Correction vs. the epic's earlier "Platform" note:</strong> the LWC actually lives in <strong>OHFY-PLTFM-UI</strong>, not OHFY-Platform — Platform has no LWC/Tailwind infrastructure. Only the service/triggers/controller are in Platform. Fixed everywhere as of the 2026-07-08 thorough polish pass: Jira Technical field, <code>overview.md</code>, and <code>SESSION.md</code>'s package-placement section (which previously contradicted its own caveat note).
+  </div>
+
+  <div class="fix">
+    <strong>Polish follow-up closed a real AC gap, not just wording drift:</strong> Scenario 2 asserted a <code>Product_Launch__c.Status__c</code> reflecting overall progress ("In Progress") that never existed in the build. Built it — restricted picklist (Not Started/In Progress/Complete), derived in <code>S_ProductLaunch.recalculateReadiness</code> from step completion, surfaced via <code>ProductLaunchController.LaunchPlanView.launchStatus</code> and a header badge in the LWC. Verified live on <code>ohfy-bms5592</code>: 21/21 Apex methods, 7/7 Jest, coverage held (<code>S_ProductLaunch</code> 90.07%, <code>ProductLaunchController</code> 90.97%). Also fixed the AC text itself — <code>Due_Offset_Days__c</code> → <code>Offset_Days__c</code> — and un-mislabeled <code>Due_Date__c</code> as "(formula)" when it's an Apex-maintained plain Date field.
+  </div>
+
+  <h2>Validated behavior (live, on <code>ohfy-bms5592</code>)</h2>
+  <ul>
+    <li>Creating a launch with an <code>Item__c</code> + <code>Launch_Date__c</code> auto-generates 8 steps across 4 lanes; owner defaults to the creator (placeholder, reassignable); due date = launch − offset.</li>
+    <li>A step whose due date already fell in the past is flagged <code>At_Risk__c</code> immediately on creation.</li>
+    <li>Completing every step in a lane flips that lane's ready flag; <code>Readiness_Percent__c</code> climbs (Purchasing-only-complete → 25%).</li>
+    <li>Moving the launch date recalculates every step's due date and at-risk flag (3 steps flip at-risk when moved to 5 days out).</li>
+    <li>Inserting with no <code>Launch_Date__c</code> is blocked (<code>REQUIRED_FIELD_MISSING</code>) — no partial record created.</li>
+    <li>Status can only move between <code>Not Started / In Progress / Complete / Blocked</code> (restricted picklist).</li>
+  </ul>
+  <p style="color:var(--dim);font-size:13px">Apex <code>_T</code> ≥90% on every touched file (21 methods green) · Jest 7/7 green · dry-run deploy clean (183 components) · all PR #488 CI checks green.</p>
+
+  <h2>Gaps closed vs. still open</h2>
+  <p>
+    <span class="pill done">closed today</span> Record-page placement — the LWC was exposed to <code>lightning__RecordPage</code> but had no default FlexiPage, so nobody would see it without a manual App Builder drop. A <code>Product_Launch_Record_Page.flexipage</code> now exists in both <code>org-metadata/managed/</code> (<code>ohfy:productLaunchPlan</code>, <code>ohfy__Product_Launch__c</code>) and <code>org-metadata/scratch/</code> (<code>c:productLaunchPlan</code>, <code>Product_Launch__c</code>), plus a fix to <code>productLaunchPlan.js-meta.xml</code> that was hardcoding <code>ohfy__Product_Launch__c</code> in the target-config object reference (source metadata must stay unqualified — the namespace is prepended at package-build time, same rule as fields/Apex).
+  </p>
+  <div class="callout">
+    <strong>Committed, not yet pushed:</strong> both the FlexiPage placement (commit <code>86081f335</code>) and the <code>Status__c</code> build (commit <code>da970f60a</code>) are on <code>feat/launch-plan-checklist-bms-5592</code> in the <code>OHFY-Split-BMS-5592</code> worktree, validated end-to-end on <code>ohfy-bms5592</code> — but not yet pushed to origin / PR #488, pending explicit push go-ahead.
+  </div>
+  <ul>
+    <li><span class="pill gap">deferred</span> Playwright + <code>/document</code> — blocked on the FlexiPage landing so the LWC is reachable via a real record page URL.</li>
+    <li><span class="pill gap">open question</span> 4 engineering-judgment resolutions (owner default, POS-quantity scope, warehouse-readiness threshold, flag-only vs. auto-extend) — pending @Elliot Flores confirmation before the two REQ-009 follow-ons are groomed.</li>
+    <li><span class="pill gap">not built</span> Supply-in-position gate + promo-timing guard — explicitly out of scope for BMS-5592; both will read <code>Readiness_Percent__c</code>/the lane flags once groomed.</li>
+  </ul>
+
+  <h2>Demo script</h2>
+  <p>Add the <strong>Product Launch Plan</strong> LWC to a <code>Product_Launch__c</code> record page (or use the new default FlexiPage once committed). Create a launch with an Item + Launch Date → four lanes appear, each with a ready badge and a read-only context signal (Inventory/PO/Promotion). Flip a step to Complete → its lane badge + readiness % update live. Reassign an owner inline. Change the launch date → every due date and at-risk flag recalculates.</p>
+  <p style="color:var(--dim);font-size:13px"><strong>Don't say</strong> this gates anything — it's tracking-only. The Inventory/PO/Promotion strings are informational context; the ready flags come from step completion, not from those signals.</p>
+</body></html>

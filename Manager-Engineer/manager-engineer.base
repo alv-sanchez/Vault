@@ -1,0 +1,282 @@
+filters:
+  and:
+    - file.inFolder("Manager-Engineer")
+    - file.ext == "md"
+    - '!file.inFolder("Manager-Engineer/Templates")'
+    - file.name != "_dashboard"
+formulas:
+  open: file.asLink(file.name)
+  risk_rank: |
+    if(risk == "High", 0,
+      if(risk == "Med", 1,
+        if(risk == "Low", 2, 9)))
+  status_rank: |
+    if(status == "Building", 0,
+      if(status == "Awaiting-UI", 1,
+        if(status == "Handoff", 2,
+          if(status == "Blocked", 3,
+            if(status == "Queued", 4,
+              if(status == "Done", 5, 9))))))
+  verdict_rank: |
+    if(audit_verdict == "Build-Now", 0,
+      if(audit_verdict == "Slice", 1,
+        if(audit_verdict == "Not-Yet", 2,
+          if(audit_verdict == "Blocked", 3,
+            if(audit_verdict == "Not-Decomposed", 4, 9)))))
+  health: |
+    if(polish_verdict == "Confirmed", "🟢",
+      if(polish_verdict == "Contradicted", "🔴",
+        if(polish_verdict == "Incomplete", "🟡",
+          if(status == "Done", "✅",
+            if(status == "In Progress", "🔵", "⚪")))))
+  epic_status_rank: |
+    if(status == "In Review", 0,
+      if(status == "Review", 0,
+        if(status == "In Progress", 1,
+          if(status == "To Do", 2, 3))))
+properties:
+  formula.open:
+    displayName: 📄 Open
+  formula.health:
+    displayName: ●
+  ticket:
+    displayName: Ticket
+  epic:
+    displayName: Epic
+  status:
+    displayName: Status
+  polish_verdict:
+    displayName: Polish
+  risk:
+    displayName: Risk
+  stream:
+    displayName: Stream
+  packages_touched:
+    displayName: Packages
+  pr:
+    displayName: PR
+  dod_met:
+    displayName: DoD
+  ui:
+    displayName: UI
+  audit_verdict:
+    displayName: Verdict
+  score:
+    displayName: Score
+  blockers:
+    displayName: Blockers
+  domain:
+    displayName: Domain
+  user:
+    displayName: User
+  build_status:
+    displayName: Build
+  awaiting_ui_direction:
+    displayName: 🎨 UI?
+  org:
+    displayName: Dev Org
+  release_phase:
+    displayName: 🐢 Phase
+  demo_review:
+    displayName: 🎬 Demo?
+  demo_pitch:
+    displayName: Demo pitch
+views:
+  - type: table
+    name: 📥 Epics — audit board
+    filters:
+      and:
+        - tags.contains("epic")
+        - do_not_do != true
+        - status != "Done"
+    order:
+      - formula.health
+      - formula.open
+      - status
+      - demo_review
+      - release_phase
+      - build_status
+      - org
+      - awaiting_ui_direction
+      - audit_verdict
+      - polish_verdict
+      - domain
+      - user
+      - stream
+    sort:
+      - property: formula.epic_status_rank
+        direction: ASC
+      - property: formula.verdict_rank
+        direction: ASC
+    columnSize:
+      formula.health: 50
+      formula.open: 300
+      status: 110
+      demo_review: 80
+      release_phase: 90
+      audit_verdict: 110
+      polish_verdict: 110
+      build_status: 250
+      org: 140
+      awaiting_ui_direction: 80
+      domain: 190
+      user: 220
+      stream: 110
+  - type: table
+    name: 🎬 Demo Bucket (review direction)
+    filters:
+      and:
+        - tags.contains("epic")
+        - demo_review == true
+    order:
+      - formula.open
+      - status
+      - demo_pitch
+      - build_status
+      - org
+      - domain
+    columnSize:
+      formula.open: 260
+      status: 110
+      demo_pitch: 460
+      build_status: 240
+      org: 140
+      domain: 190
+  - type: table
+    name: 🚀 Build Order (Queued)
+    filters:
+      and:
+        - tags.contains("ticket")
+        - status == "Queued"
+        - executable == true
+    order:
+      - stream
+      - formula.risk_rank
+      - ticket
+    columnSize:
+      formula.open: 300
+      ticket: 100
+      stream: 130
+      risk: 60
+      polish_verdict: 110
+  - type: table
+    name: 🔨 Building
+    filters:
+      and:
+        - tags.contains("ticket")
+        - status == "Building"
+    order:
+      - stream
+      - ticket
+    columnSize:
+      formula.open: 300
+      stream: 130
+      branch: 200
+  - type: table
+    name: 🎨 UI/UX Approval
+    filters:
+      and:
+        - tags.contains("ticket")
+        - ui == "needed"
+        - status != "Done"
+    order:
+      - formula.status_rank
+      - stream
+      - ticket
+    columnSize:
+      formula.open: 300
+      status: 120
+      stream: 130
+      ui: 80
+  - type: table
+    name: 🤝 Needs You (Handoff)
+    filters:
+      and:
+        - tags.contains("ticket")
+        - status == "Handoff"
+    order:
+      - formula.risk_rank
+      - ticket
+    columnSize:
+      formula.open: 300
+      risk: 60
+      epic: 100
+  - type: table
+    name: 🖥️ Claimed Orgs (release after merge)
+    filters:
+      and:
+        - org != null
+        - status != "Done"
+    order:
+      - formula.open
+      - org
+      - branch
+      - status
+      - pr
+      - stream
+    sort:
+      - property: formula.status_rank
+        direction: ASC
+    columnSize:
+      formula.open: 300
+      org: 160
+      branch: 240
+      status: 120
+      pr: 200
+      stream: 110
+  - type: table
+    name: 🚧 Blocked / Open Questions
+    filters:
+      or:
+        - and:
+            - tags.contains("ticket")
+            - status == "Blocked"
+        - tags.contains("open-question")
+    order:
+      - formula.open
+      - ticket
+      - status
+      - question
+    columnSize:
+      formula.open: 300
+      ticket: 100
+      status: 130
+      question: 420
+  - type: table
+    name: ✅ Done (DoD met)
+    filters:
+      and:
+        - tags.contains("ticket")
+        - status == "Done"
+    order:
+      - stream
+      - ticket
+    columnSize:
+      formula.open: 300
+      pr: 220
+      dod_met: 60
+  - type: table
+    name: 💬 Feedback Docs (awaiting answers)
+    filters:
+      and:
+        - tags.contains("feedback-doc")
+        - status != "Answered"
+    order:
+      - status
+      - epic
+    columnSize:
+      formula.open: 320
+      status: 150
+      decisions_needed: 110
+      notion_url: 220
+  - type: table
+    name: 🚫 Do Not Do (your override)
+    filters:
+      and:
+        - tags.contains("epic")
+        - do_not_do == true
+    order:
+      - epic
+    columnSize:
+      formula.open: 320
+      do_not_do_reason: 320

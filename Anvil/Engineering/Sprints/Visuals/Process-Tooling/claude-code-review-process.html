@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Review — Process Visual</title>
+<style>
+  :root {
+    --bg: #2b2b2b;
+    --surface: #ffffff;
+    --surface-alt: #f5f5f0;
+    --accent: #f5c518;
+    --text: #1a1a1a;
+    --text-muted: #666666;
+    --text-light: #999999;
+    --border: #e0e0e0;
+    --phase-0: #6366f1;
+    --phase-1: #f59e0b;
+    --phase-2: #ef4444;
+    --phase-output: #10b981;
+    --agent-bg: #fef3c7;
+    --agent-border: #f59e0b;
+    --haiku-bg: #e0e7ff;
+    --haiku-border: #6366f1;
+    --sonnet-bg: #fef3c7;
+    --sonnet-border: #f59e0b;
+    --filter-bg: #fce7f3;
+    --filter-border: #ec4899;
+    --arrow: #94a3b8;
+    --confirmed: #10b981;
+    --plausible: #f59e0b;
+    --refuted: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0ede6;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: var(--bg);
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .header .subtitle {
+    color: #aaa;
+    font-size: 1rem;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  .version-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .version-tab {
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .version-tab.active {
+    background: var(--accent);
+    color: var(--text);
+  }
+  .version-tab:not(.active) {
+    background: transparent;
+    color: #888;
+    border-color: #555;
+  }
+  .version-tab:not(.active):hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Phase blocks */
+  .phase {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .phase-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .phase-badge.p0 { background: var(--phase-0); }
+  .phase-badge.p1 { background: var(--phase-1); }
+  .phase-badge.p2 { background: var(--phase-2); }
+  .phase-badge.pout { background: var(--phase-output); }
+  .phase-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .phase-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Agent cards */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .agent-card {
+    border-radius: 10px;
+    padding: 1rem;
+    border: 2px solid;
+    position: relative;
+  }
+  .agent-card.sonnet {
+    background: var(--sonnet-bg);
+    border-color: var(--sonnet-border);
+  }
+  .agent-card.haiku {
+    background: var(--haiku-bg);
+    border-color: var(--haiku-border);
+  }
+  .agent-model {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.4rem;
+  }
+  .agent-model.sonnet {
+    background: var(--sonnet-border);
+    color: #fff;
+  }
+  .agent-model.haiku {
+    background: var(--haiku-border);
+    color: #fff;
+  }
+  .agent-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .agent-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Flow arrows */
+  .flow-arrow {
+    text-align: center;
+    padding: 0.75rem 0;
+    color: var(--arrow);
+    font-size: 1.5rem;
+  }
+
+  /* Scoring bar */
+  .score-bar {
+    display: flex;
+    align-items: stretch;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 36px;
+    margin: 1rem 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .score-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+  .score-segment.low { background: #94a3b8; flex: 3; }
+  .score-segment.mid { background: #f59e0b; flex: 2; }
+  .score-segment.high { background: #ef4444; flex: 1.5; }
+  .score-segment.pass { background: #10b981; flex: 1.5; }
+
+  .threshold-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.85rem;
+  }
+  .threshold-line {
+    flex: 1;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, #ef4444 0, #ef4444 8px, transparent 8px, transparent 14px);
+  }
+  .threshold-label {
+    font-weight: 700;
+    color: #ef4444;
+    white-space: nowrap;
+  }
+
+  /* Verdict badges */
+  .verdict-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+  }
+  .verdict {
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .verdict.confirmed { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .verdict.plausible { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .verdict.refuted { background: #fecaca; color: #991b1b; border: 1px solid #fca5a5; }
+
+  /* Effort table */
+  .effort-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1rem 0;
+  }
+  .effort-table th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid var(--accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+  .effort-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .effort-table tr:last-child td { border-bottom: none; }
+  .effort-table .effort-name { font-weight: 700; }
+
+  /* Output section */
+  .output-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .output-mode {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .output-mode h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  .output-mode p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .output-mode .flag {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    background: var(--surface-alt);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+  }
+
+  /* Connector line */
+  .connector {
+    width: 3px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  /* False positive list */
+  .fp-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+  .fp-item {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .fp-item::before {
+    content: "\00d7";
+    position: absolute;
+    left: 0;
+    color: #ef4444;
+    font-weight: 700;
+  }
+
+  /* Parallel indicator */
+  .parallel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--phase-1);
+    margin-bottom: 0.5rem;
+  }
+  .parallel-badge svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Section header */
+  .section-header {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  /* Key differences */
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .diff-col {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .diff-col h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 2px solid;
+  }
+  .diff-col.plugin h4 { border-bottom-color: var(--haiku-border); }
+  .diff-col.custom h4 { border-bottom-color: var(--sonnet-border); }
+  .diff-col ul {
+    list-style: none;
+    font-size: 0.85rem;
+  }
+  .diff-col li {
+    padding: 0.25rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+  .diff-col li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .diff-col.plugin li::before { color: var(--haiku-border); }
+  .diff-col.custom li::before { color: var(--sonnet-border); }
+
+  .footnote {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    padding: 2rem 0;
+  }
+
+  /* Big flow diagram */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 1.5rem 0;
+  }
+  .flow-node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+  }
+  .flow-node.highlight {
+    border-color: var(--accent);
+    background: #fffbeb;
+  }
+  .flow-node.filter {
+    border-color: #ec4899;
+    background: #fdf2f8;
+  }
+  .flow-node.output {
+    border-color: var(--confirmed);
+    background: #ecfdf5;
+  }
+  .flow-split {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 700px;
+  }
+  .flow-split .flow-node {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .flow-arrow-sm {
+    color: var(--arrow);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.3rem 0;
+  }
+
+  @media (max-width: 700px) {
+    .agents-grid { grid-template-columns: 1fr; }
+    .output-modes { grid-template-columns: 1fr; }
+    .diff-grid { grid-template-columns: 1fr; }
+    .fp-list { grid-template-columns: 1fr; }
+    .flow-split { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>/code-review</h1>
+  <div class="subtitle">How Claude Code's automated code review works — from diff collection through multi-agent analysis to filtered findings</div>
+  <div class="version-tabs">
+    <div class="version-tab active" onclick="switchView('plugin')">Built-in Plugin</div>
+    <div class="version-tab" onclick="switchView('custom')">Custom Override</div>
+    <div class="version-tab" onclick="switchView('compare')">Compare</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ==================== PLUGIN VIEW ==================== -->
+<div class="view active" id="view-plugin">
+
+  <div class="card" style="margin-bottom:2rem; border-left:4px solid var(--haiku-border);">
+    <div style="font-size:0.85rem; color:var(--text-muted);">
+      <strong>Source:</strong> Official Claude Code plugin by Boris Cherny (Anthropic).
+      PR-focused. Uses Haiku for triage/scoring, Sonnet for deep review. 5 parallel review agents + per-issue confidence scoring.
+    </div>
+  </div>
+
+  <!-- Overview flow -->
+  <div class="flow-diagram">
+    <div class="flow-node">PR Eligibility Check <span style="font-size:0.75rem;color:var(--text-muted);">(Haiku)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node">Gather CLAUDE.md Guidelines <span style="font-size:0.75rem;color:var(--text-muted);">(Haiku)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node">Summarize PR Changes <span style="font-size:0.75rem;color:var(--text-muted);">(Haiku)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node highlight">5 Parallel Review Agents <span style="font-size:0.75rem;color:var(--text-muted);">(Sonnet)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node filter">Per-Issue Confidence Scoring <span style="font-size:0.75rem;color:var(--text-muted);">(Haiku, 0-100)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node filter">Filter: score &ge; 80 only</div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node">Re-check PR Eligibility <span style="font-size:0.75rem;color:var(--text-muted);">(Haiku)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node output">Post Comment via <code>gh</code></div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Step 1: Eligibility -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p0">1</div>
+      <div>
+        <div class="phase-title">Eligibility Gate</div>
+        <div class="phase-desc">Haiku agent checks if the PR should be reviewed at all</div>
+      </div>
+    </div>
+    <div class="card">
+      <p>Before any review work, a Haiku agent screens the PR. Review is <strong>skipped</strong> if the PR is:</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem;">
+        <span style="padding:0.3rem 0.8rem;border-radius:6px;background:#fee2e2;color:#991b1b;font-size:0.8rem;font-weight:600;">Closed</span>
+        <span style="padding:0.3rem 0.8rem;border-radius:6px;background:#fee2e2;color:#991b1b;font-size:0.8rem;font-weight:600;">Draft</span>
+        <span style="padding:0.3rem 0.8rem;border-radius:6px;background:#fee2e2;color:#991b1b;font-size:0.8rem;font-weight:600;">Trivial / Automated</span>
+        <span style="padding:0.3rem 0.8rem;border-radius:6px;background:#fee2e2;color:#991b1b;font-size:0.8rem;font-weight:600;">Already Reviewed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steps 2-3: Context -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p0">2-3</div>
+      <div>
+        <div class="phase-title">Context Gathering</div>
+        <div class="phase-desc">Two Haiku agents collect guidelines and summarize changes</div>
+      </div>
+    </div>
+    <div class="agents-grid">
+      <div class="agent-card haiku">
+        <span class="agent-model haiku">Haiku</span>
+        <h4>CLAUDE.md Scanner</h4>
+        <p>Lists paths to all relevant CLAUDE.md files — root + any in directories touched by the PR</p>
+      </div>
+      <div class="agent-card haiku">
+        <span class="agent-model haiku">Haiku</span>
+        <h4>PR Summarizer</h4>
+        <p>Views the PR via <code>gh</code> and returns a concise summary of the change</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Step 4: Review agents -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p1">4</div>
+      <div>
+        <div class="phase-title">Parallel Review Agents</div>
+        <div class="phase-desc">5 Sonnet agents review independently, each from a different angle</div>
+      </div>
+    </div>
+    <div class="parallel-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      ALL RUN IN PARALLEL
+    </div>
+    <div class="agents-grid">
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>#1 CLAUDE.md Compliance</h4>
+        <p>Audits changes against repo guidelines. Checks explicit rules, not general style.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>#2 Bug Scanner</h4>
+        <p>Shallow scan of changed lines only. Large bugs, not nitpicks. Ignores false positives.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>#3 History Analyzer</h4>
+        <p>Reads git blame + history of modified code. Finds bugs in light of historical context.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>#4 Prior PR Reviewer</h4>
+        <p>Reads previous PRs that touched these files. Surfaces recurring review comments.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>#5 Comment Compliance</h4>
+        <p>Reads code comments in modified files. Checks that changes comply with inline guidance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Step 5: Scoring -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p2">5</div>
+      <div>
+        <div class="phase-title">Confidence Scoring</div>
+        <div class="phase-desc">Each issue independently scored by a Haiku agent (0-100)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="parallel-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        ONE HAIKU AGENT PER ISSUE — ALL IN PARALLEL
+      </div>
+      <div class="score-bar">
+        <div class="score-segment low">0-25 — False Positive</div>
+        <div class="score-segment mid">50 — Minor / Nitpick</div>
+        <div class="score-segment high">75 — Real Issue</div>
+        <div class="score-segment pass">80-100 — Actionable</div>
+      </div>
+      <div class="threshold-marker">
+        <div class="threshold-line"></div>
+        <div class="threshold-label">Threshold: &ge; 80 to survive</div>
+        <div class="threshold-line"></div>
+      </div>
+      <div class="section-header" style="font-size:0.9rem;">Filtered Out (False Positives)</div>
+      <div class="fp-list">
+        <div class="fp-item">Pre-existing issues not in this PR</div>
+        <div class="fp-item">Linter / typecheck would catch it</div>
+        <div class="fp-item">Pedantic nitpicks</div>
+        <div class="fp-item">General quality (unless in CLAUDE.md)</div>
+        <div class="fp-item">Intentional behavior changes</div>
+        <div class="fp-item">Issues on unmodified lines</div>
+        <div class="fp-item">Silenced by lint-ignore comments</div>
+        <div class="fp-item">Looks like a bug but isn't</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Output -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge pout">6</div>
+      <div>
+        <div class="phase-title">Output</div>
+        <div class="phase-desc">Posts a PR comment via <code>gh</code> with linked code references</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="background:#1e293b;border-radius:8px;padding:1rem 1.25rem;font-family:'SF Mono','Fira Code',monospace;font-size:0.8rem;color:#e2e8f0;line-height:1.7;overflow-x:auto;">
+        <div style="color:#94a3b8;">### Code review</div>
+        <br>
+        <div>Found <span style="color:#f59e0b;">3</span> issues:</div>
+        <br>
+        <div><span style="color:#f59e0b;">1.</span> Missing error handling for OAuth callback <span style="color:#94a3b8;">(CLAUDE.md says "...")</span></div>
+        <div style="color:#60a5fa;">   https://github.com/.../src/auth.ts#L67-L72</div>
+        <br>
+        <div><span style="color:#f59e0b;">2.</span> Memory leak: state not cleaned up <span style="color:#94a3b8;">(bug due to missing finally)</span></div>
+        <div style="color:#60a5fa;">   https://github.com/.../src/auth.ts#L88-L95</div>
+        <br>
+        <div><span style="color:#f59e0b;">3.</span> Inconsistent naming <span style="color:#94a3b8;">(CLAUDE.md says "camelCase")</span></div>
+        <div style="color:#60a5fa;">   https://github.com/.../src/utils.ts#L23-L28</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== CUSTOM VIEW ==================== -->
+<div class="view" id="view-custom">
+
+  <div class="card" style="margin-bottom:2rem; border-left:4px solid var(--sonnet-border);">
+    <div style="font-size:0.85rem; color:var(--text-muted);">
+      <strong>Source:</strong> Custom override at <code>~/.claude/commands/code-review.md</code>.
+      Works locally with no PR required. Uses 7 finder angles + adversarial verification. All subagents pinned to Sonnet. Effort-scaled.
+    </div>
+  </div>
+
+  <!-- Effort table -->
+  <div class="card">
+    <div class="section-header">Effort Scaling</div>
+    <table class="effort-table">
+      <thead>
+        <tr>
+          <th>Effort</th>
+          <th>Correctness Angles</th>
+          <th>Cleanup Angles</th>
+          <th>Candidates/Angle</th>
+          <th>Verification</th>
+          <th>Max Findings</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="effort-name">low</td>
+          <td>2 (A, B)</td>
+          <td>1 (Simplification)</td>
+          <td>4</td>
+          <td>Warnings/Blockers only</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td class="effort-name">medium</td>
+          <td>3 (A, B, C)</td>
+          <td>3 + 1 altitude</td>
+          <td>6</td>
+          <td>1-vote (skip for suggestions)</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td class="effort-name">high</td>
+          <td>3</td>
+          <td>3 + 1 altitude</td>
+          <td>8</td>
+          <td>1-vote all</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td class="effort-name">max</td>
+          <td>3</td>
+          <td>3 + 1 altitude</td>
+          <td>8</td>
+          <td>2-vote on warnings/blockers</td>
+          <td>15</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Overview flow -->
+  <div class="flow-diagram">
+    <div class="flow-node">Gather Diff + Ticket Context <span style="font-size:0.75rem;color:var(--text-muted);">(Phase 0)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node highlight">Parallel Finder Agents <span style="font-size:0.75rem;color:var(--text-muted);">(Phase 1 — up to 7 angles)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node filter">Dedup by line/mechanism</div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node highlight">Adversarial Verifiers <span style="font-size:0.75rem;color:var(--text-muted);">(Phase 2 — try to REFUTE)</span></div>
+    <div class="flow-arrow-sm">&#x25BC;</div>
+    <div class="flow-node output">Report / --comment / --fix</div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Phase 0 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p0">0</div>
+      <div>
+        <div class="phase-title">Gather Diff + Ticket Context</div>
+        <div class="phase-desc">Orchestrator collects the review scope and Jira context</div>
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-size:0.9rem;">Runs <code>git diff @{upstream}...HEAD</code> (falls back to <code>main</code> or <code>HEAD~1</code>). If committed diff is empty, includes uncommitted working tree changes. Extracts ticket key from branch name and fetches Jira summary + acceptance criteria if an Atlassian MCP is available. Also checks for a <code>CODE-REVIEW.md</code> at repo root for repo-specific rules.</p>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Phase 1 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p1">1</div>
+      <div>
+        <div class="phase-title">Find Candidates</div>
+        <div class="phase-desc">Independent finder agents, each with a specific audit angle</div>
+      </div>
+    </div>
+    <div class="parallel-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      ALL RUN IN PARALLEL &mdash; PINNED TO SONNET
+    </div>
+
+    <div style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Correctness Angles</div>
+    <div class="agents-grid" style="margin-bottom:1rem;">
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>A: Line-by-Line Scan</h4>
+        <p>Reads every hunk + enclosing function. Hunts: wrong conditions, off-by-one, null deref, missing await, error swallowed, copy-paste bugs.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>B: Removed-Behavior Auditor</h4>
+        <p>For every deleted/replaced line, names the invariant it enforced. Searches new code for where that invariant is re-established.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>C: Cross-File Tracer</h4>
+        <p>Greps for callers of each changed function. Checks if the change breaks call sites, return shapes, preconditions, or ordering.</p>
+      </div>
+    </div>
+
+    <div style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Cleanup Angles</div>
+    <div class="agents-grid">
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>Reuse</h4>
+        <p>Flags new code that re-implements something the codebase already has. Names the existing helper.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>Simplification</h4>
+        <p>Redundant state, copy-paste variation, deep nesting, dead code. Names the simpler form.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>Efficiency</h4>
+        <p>Redundant I/O, sequential independent ops, blocking on startup, closures retaining large scopes.</p>
+      </div>
+      <div class="agent-card sonnet">
+        <span class="agent-model sonnet">Sonnet</span>
+        <h4>Altitude</h4>
+        <p>Is the fix at the right depth? Fragile bandaids on shared infra suggest the underlying mechanism should be generalized.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Phase 2 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge p2">2</div>
+      <div>
+        <div class="phase-title">Adversarial Verification</div>
+        <div class="phase-desc">Each candidate tested by an agent instructed to REFUTE it</div>
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-size:0.9rem;margin-bottom:0.75rem;">After deduplication (same line/mechanism → keep the best failure scenario), each surviving candidate faces a verifier given the diff, relevant files, and the candidate — told to <strong>try to prove it wrong</strong>.</p>
+      <div class="verdict-row">
+        <div class="verdict confirmed">CONFIRMED — names inputs + wrong output, quotes the line</div>
+      </div>
+      <div class="verdict-row">
+        <div class="verdict plausible">PLAUSIBLE — mechanism real, trigger uncertain (timing/env/config)</div>
+      </div>
+      <div class="verdict-row">
+        <div class="verdict refuted">REFUTED — factually wrong or guarded elsewhere, quotes proof</div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.75rem;">At low/medium effort, PLAUSIBLE findings are dropped unless nothing else survives. At high/max, they're kept.</p>
+    </div>
+  </div>
+
+  <div class="flow-arrow">&#x25BC;</div>
+
+  <!-- Output -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge pout">OUT</div>
+      <div>
+        <div class="phase-title">Output Modes</div>
+        <div class="phase-desc">Three ways to deliver findings</div>
+      </div>
+    </div>
+    <div class="output-modes">
+      <div class="output-mode">
+        <div class="flag">(default)</div>
+        <h4>Terminal Report</h4>
+        <p>Findings ranked most-severe first in the conversation. File, line, summary, failure scenario.</p>
+      </div>
+      <div class="output-mode">
+        <div class="flag">--comment</div>
+        <h4>PR Inline Comments</h4>
+        <p>Creates a single GitHub PR review with inline comments anchored to exact lines.</p>
+      </div>
+      <div class="output-mode">
+        <div class="flag">--fix</div>
+        <h4>Auto-Fix</h4>
+        <p>After reporting, applies confirmed findings directly to the working tree.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== COMPARE VIEW ==================== -->
+<div class="view" id="view-compare">
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="section-header">Built-in Plugin vs. Custom Override</div>
+    <p style="font-size:0.9rem;color:var(--text-muted);">Your <code>~/.claude/commands/code-review.md</code> overrides the built-in plugin when both are present. Here's how they differ.</p>
+  </div>
+
+  <div class="diff-grid">
+    <div class="diff-col plugin">
+      <h4>Built-in Plugin</h4>
+      <ul>
+        <li>PR-only (requires <code>gh</code> + open PR)</li>
+        <li>5 Sonnet review agents</li>
+        <li>Haiku for triage, summary, scoring</li>
+        <li>Confidence scoring (0-100 per issue)</li>
+        <li>Hard threshold: score &ge; 80</li>
+        <li>Checks CLAUDE.md compliance</li>
+        <li>Checks prior PR comments on same files</li>
+        <li>Checks inline code comments</li>
+        <li>Skips drafts, closed, trivial PRs</li>
+        <li>Output: PR comment only</li>
+        <li>No effort scaling — one mode</li>
+        <li>No adversarial verification step</li>
+      </ul>
+    </div>
+    <div class="diff-col custom">
+      <h4>Custom Override</h4>
+      <ul>
+        <li>Works locally — no PR required</li>
+        <li>7 finder angles (3 correctness + 4 cleanup)</li>
+        <li>All subagents pinned to Sonnet</li>
+        <li>Adversarial verification (try to REFUTE)</li>
+        <li>CONFIRMED / PLAUSIBLE / REFUTED verdicts</li>
+        <li>Effort scaling: low / medium / high / max</li>
+        <li>Jira ticket context via MCP</li>
+        <li>Checks CODE-REVIEW.md for repo rules</li>
+        <li>Falls back to uncommitted working tree</li>
+        <li>3 output modes: terminal / --comment / --fix</li>
+        <li>Cross-file call-site tracing (Angle C)</li>
+        <li>"Altitude" check — is fix at the right depth?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="section-header">Agent Count Comparison</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.75rem;">
+      <div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Built-in Plugin</div>
+        <div style="font-size:2rem;font-weight:800;">~12-20</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">3 Haiku (triage) + 5 Sonnet (review) + N Haiku (1 per issue scored)</div>
+      </div>
+      <div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Custom Override (medium)</div>
+        <div style="font-size:2rem;font-weight:800;">~14-22</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">7 Sonnet (finders) + up to 6-8 Sonnet (verifiers, 1 per surviving candidate) + orchestrator</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <div class="section-header">Key Architectural Difference</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin-top:0.5rem;">
+      <div style="text-align:center;padding:1rem;background:var(--haiku-bg);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.9rem;">Plugin: Score &amp; Filter</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.3rem;">Each issue gets a confidence score from 0-100. Issues below 80 are dropped. No attempt to disprove.</div>
+      </div>
+      <div style="font-size:1.5rem;color:var(--arrow);">vs</div>
+      <div style="text-align:center;padding:1rem;background:var(--sonnet-bg);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.9rem;">Custom: Adversarial Verify</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.3rem;">Each issue faces a verifier explicitly trying to REFUTE it. Only CONFIRMED and PLAUSIBLE survive.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<div class="footnote">
+  Generated 2026-06-11 &middot; Claude Code /code-review Process Visual
+</div>
+
+<script>
+function switchView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.version-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

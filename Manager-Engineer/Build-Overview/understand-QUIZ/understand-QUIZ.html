@@ -1,0 +1,163 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understand the Build — Quiz</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --blue:#58a6ff;--green:#3fb950;--red:#f85149;--amber:#d29922;--purp:#a371f7;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:760px;margin:0 auto}
+  h1{font-size:25px;margin:0 0 4px} .lede{color:var(--dim);margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:16px}
+  .bar{height:6px;background:var(--card2);border-radius:4px;overflow:hidden;margin-bottom:20px}
+  .bar>i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+  .dimtag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 10px;border-radius:20px;margin-bottom:12px}
+  .qtext{font-size:19px;font-weight:600;margin:0 0 18px}
+  .opt{display:block;width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:13px 16px;margin-bottom:10px;font-size:15px;cursor:pointer;transition:.15s;font-family:inherit}
+  .opt:hover{border-color:var(--blue);background:#1d2333}
+  .opt.correct{border-color:var(--green);background:rgba(63,185,80,.14)}
+  .opt.wrong{border-color:var(--red);background:rgba(248,81,73,.13)}
+  .opt:disabled{cursor:default}
+  .explain{background:var(--card2);border-left:3px solid var(--blue);border-radius:8px;padding:12px 15px;margin-top:6px;font-size:14px;color:#cdd3e2;display:none}
+  .explain.show{display:block}
+  .btn{background:var(--blue);color:#08131f;border:none;border-radius:9px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px}
+  .btn.ghost{background:transparent;color:var(--blue);border:1.5px solid var(--line)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .foot{color:var(--dim);font-size:13px;margin-top:8px}
+  /* results */
+  .score{font-size:52px;font-weight:800;line-height:1}
+  .score small{font-size:18px;color:var(--dim);font-weight:600}
+  .dimrow{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .dimrow .lbl{width:120px;font-size:13px;color:var(--dim)}
+  .dimrow .track{flex:1;height:10px;background:var(--card2);border-radius:5px;overflow:hidden}
+  .dimrow .track>i{display:block;height:100%;border-radius:5px}
+  .dimrow .num{width:44px;text-align:right;font-size:13px;color:var(--dim)}
+  .rec{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .rec h3{margin:0 0 6px;font-size:15px} .rec a{color:var(--blue)}
+  .style-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .style-btns button{flex:1;min-width:120px}
+  .hidden{display:none}
+  code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:13px}
+</style></head><body>
+
+<h1>🧠 Understand the Build — Quiz</h1>
+<p class="lede">14 questions across the four lenses (user · impact · solution · next) + the system model. Answer, get instant feedback, and at the end see where you're fuzzy and how you seem to learn best.</p>
+
+<div class="card" id="stage">
+  <div class="bar"><i id="prog"></i></div>
+  <div id="qbox"></div>
+</div>
+
+<p class="foot" id="foot">Reference: <a href="../understand-EPICS/understand-EPICS.html" style="color:var(--blue)">EPICS</a> · <a href="../understand-TICKETS/understand-TICKETS.html" style="color:var(--blue)">TICKETS</a> · <code>../build-map/build-map.excalidraw</code></p>
+
+<script>
+const DIM = { USER:"#58a6ff", IMPACT:"#f0883e", SOLUTION:"#3fb950", NEXT:"#a371f7", MODEL:"#d29922", PERSONA:"#db61a2" };
+const Q = [
+  {dim:"USER", q:"Who is the primary user of Safety Stock Controls (BMS-5068)?",
+   o:["Delivery drivers","Inventory / demand planners","Warehouse pickers","AR / finance"], a:1,
+   e:"Planners decide how much stock to hold per SKU/supplier — Safety Stock lets them flex those buffers."},
+  {dim:"IMPACT", q:"Why does Safety Stock matter to the business?",
+   o:["It speeds up checkout","It flexes buffers during disruptions WITHOUT changing system-wide defaults","It tracks driver payments","It splits supplier files"], a:1,
+   e:"Static reorder points can't flex for a single supplier/SKU — so you stock out or over-hold. This tunes buffers surgically."},
+  {dim:"SOLUTION", q:"How does a planner scope a safety-stock override?",
+   o:["Only globally","By supplier OR by SKU, with SKU winning over supplier over default","Only per warehouse","By calendar month"], a:1,
+   e:"Resolution hierarchy: SKU > supplier > default, with effective date ranges (temporary/permanent)."},
+  {dim:"NEXT", q:"What's the deliberately deferred next piece of Safety Stock?",
+   o:["The planning UI","Wiring supplier buffers into the pick-face path — gated on the Q4 product call","Audit reporting","Expiry notifications"], a:1,
+   e:"Config + resolution + UI + audit ship in #442; pick-face activation waits on the pick-face-vs-inbound-PO (Q4) decision."},
+  {dim:"MODEL", q:"How many open PRs carry the entire Safety Stock epic?",
+   o:["One per ticket (6)","One — PR #442 covers all six stories","None yet","Two"], a:1,
+   e:"One branch/PR (#442) lists BMS-4217/5636/5638/5639/5640/5641 — that's why they move together."},
+  {dim:"MODEL", q:"Which scratch org does PR #442 deploy to?",
+   o:["ohfy-val-5625","ohfy-val-4078","ohfy-val-4217","molsonCoors"], a:2,
+   e:"Orgs span tickets — the whole Safety Stock set deploys to ohfy-val-4217."},
+  {dim:"USER", q:"Short Pay Automation (BMS-4965) is built for…",
+   o:["Marketing","Delivery drivers + the AR/finance team","Warehouse managers","Suppliers"], a:1,
+   e:"Drivers collect at the stop; AR/finance reconciles the shortfalls."},
+  {dim:"SOLUTION", q:"Why is the Short Pay approval gate (5625) configurable rather than hard-coded?",
+   o:["To look modern","Because FL and AL compliance rules differ and change — CMDT-driven, no deploy needed","To save storage","Random choice"], a:1,
+   e:"State rules differ and evolve; thresholds live in CMDT so compliance moves without a release."},
+  {dim:"IMPACT", q:"What's the core pain behind Shift-End Workflow (BMS-5070)?",
+   o:["Slow checkout","Untracked breakage = invisible shrinkage, and no shift-attributed data for finance","Too many suppliers","Driver routing"], a:1,
+   e:"Informal closes lose breakage + pass-down context; finance can't attribute shrinkage to a shift."},
+  {dim:"NEXT", q:"What is the status of Red Bull Allocation Import (BMS-4935)?",
+   o:["Done","Pinned — held pending Matt's direction on downstream behavior","In review","Not created"], a:1,
+   e:"Ingestion/split/validation are buildable, but what allocations should DO downstream is a parked decision."},
+  {dim:"NEXT", q:"Inter-Warehouse Inventory Visibility (BMS-5062) is currently…",
+   o:["Merged","In review","Not started (To Do / Backlog) — a clean future pickup","Cancelled"], a:2,
+   e:"Both tickets sit in To Do/Backlog; disjoint from current work, so a safe solo start later."},
+  {dim:"MODEL", q:"What is the SOURCE OF TRUTH for ticket status in Mission Control?",
+   o:["The Tickets/*.md notes","Jira (pulled live) — the .md notes are only a partial papertrail","The Excalidraw","Slack"], a:1,
+   e:"3 .md notes exist but 30 tickets are tracked. Jira is authoritative; GitHub for PRs; sf for orgs."},
+  {dim:"PERSONA", q:"A CEO asks what Safety Stock saves. Best one-liner?",
+   o:["It's technically elegant","Fewer stockouts (protected sales) + less dead cash tied up in over-holding","It uses CMDT","It reuses an object"], a:1,
+   e:"Frame value in money: protected revenue + freed working capital, tuned surgically."},
+  {dim:"PERSONA", q:"BMS-5636 showed 'Needs Refinement' with a PR already open. What did that mean?",
+   o:["It genuinely needed refinement","A stale auto-created label/status — it was fully specced and built; clear it","It was blocked","It was a duplicate"], a:1,
+   e:"Status lagged reality. The ticket had 4 ACs and shipped in #442; the flag was leftover pipeline noise."},
+];
+
+let i=0, answered=false;
+const byDim={};
+const qbox=document.getElementById('qbox'), prog=document.getElementById('prog');
+
+function render(){
+  const q=Q[i]; answered=false;
+  prog.style.width=((i)/Q.length*100)+"%";
+  qbox.innerHTML =
+    `<span class="dimtag" style="background:${hex(DIM[q.dim],.16)};color:${DIM[q.dim]}">${q.dim}</span>`+
+    `<p class="qtext">${i+1}. ${q.q}</p>`+
+    q.o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join("")+
+    `<div class="explain" id="ex">${q.e}</div>`+
+    `<div class="row"><button class="btn hidden" id="next">${i===Q.length-1?"See results":"Next →"}</button></div>`;
+  qbox.querySelectorAll('.opt').forEach(b=>b.onclick=pick);
+  document.getElementById('next').onclick=()=>{i++; i<Q.length?render():results();};
+}
+function pick(e){
+  if(answered) return; answered=true;
+  const q=Q[i], k=+e.target.dataset.k, ok=k===q.a;
+  byDim[q.dim]=byDim[q.dim]||{c:0,t:0}; byDim[q.dim].t++; if(ok) byDim[q.dim].c++;
+  qbox.querySelectorAll('.opt').forEach((b,idx)=>{ b.disabled=true;
+    if(idx===q.a) b.classList.add('correct'); else if(idx===k) b.classList.add('wrong'); });
+  document.getElementById('ex').classList.add('show');
+  document.getElementById('next').classList.remove('hidden');
+}
+function results(){
+  prog.style.width="100%";
+  const total=Q.length, correct=Object.values(byDim).reduce((s,d)=>s+d.c,0);
+  const pct=Math.round(correct/total*100);
+  const dims=Object.entries(byDim).sort((a,b)=>(a[1].c/a[1].t)-(b[1].c/b[1].t));
+  const weak=dims.filter(([,d])=>d.c/d.t<0.7).map(([n])=>n);
+  const recMap={USER:"who each feature serves",IMPACT:"the business pain",SOLUTION:"how it's built",NEXT:"what ships next",
+    MODEL:"the system model (Jira=truth, PR↔ticket, orgs)",PERSONA:"the stakeholder Q&A"};
+  const docFor=d=>({MODEL:"the <code>build-map</code> diagram + CLAUDE.md",PERSONA:'the "The room" Q&A sections'}[d]
+    || 'the <a href="../understand-EPICS/understand-EPICS.html">EPICS</a> / <a href="../understand-TICKETS/understand-TICKETS.html">TICKETS</a> pages');
+  qbox.innerHTML =
+    `<div style="text-align:center;margin-bottom:8px"><div class="score">${pct}%<small> · ${correct}/${total}</small></div></div>`+
+    `<h3 style="margin:18px 0 6px;font-size:14px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em">By lens</h3>`+
+    dims.map(([n,d])=>{const p=Math.round(d.c/d.t*100);return `<div class="dimrow"><span class="lbl">${n}</span><span class="track"><i style="width:${p}%;background:${DIM[n]}"></i></span><span class="num">${d.c}/${d.t}</span></div>`;}).join("")+
+    `<div class="rec"><h3>📍 Where to focus</h3>`+
+    (weak.length? `You're fuzzy on <b>${weak.map(w=>recMap[w]).join("</b>, <b>")}</b>. Revisit ${[...new Set(weak.map(docFor))].join(" and ")}.`
+      : `Strong across the board — you can explain the <b>why</b>, the <b>what</b>, and the <b>system</b>. Teach it to someone to cement it.`)+`</div>`+
+    `<div class="rec"><h3>🧭 How do you learn best?</h3>Which mode made it click? (I'll suggest a study path.)`+
+    `<div class="style-btns">`+
+      `<button class="btn ghost" data-s="visual">The diagram</button>`+
+      `<button class="btn ghost" data-s="read">Reading the cards</button>`+
+      `<button class="btn ghost" data-s="test">Answering these Qs</button>`+
+      `<button class="btn ghost" data-s="teach">Explaining aloud</button>`+
+    `</div><div id="styleout" class="foot" style="margin-top:12px"></div></div>`+
+    `<div class="rec"><h3>🔌 Tune it to how you actually work</h3>Run <code>/insights</code> in Claude Code and paste it back — I'll map your real patterns (when you focus, what you revisit, session length) to a study plan and a spaced re-quiz cadence.</div>`+
+    `<div class="row"><button class="btn" onclick="i=0;for(const k in byDim)delete byDim[k];render()">↺ Retake</button></div>`;
+  const styleTips={
+    visual:"You're a <b>visual/spatial</b> learner — lead with <code>build-map.excalidraw</code>, then read to fill detail. Sketch the flow from memory to test recall.",
+    read:"You're a <b>read/write</b> learner — the EPICS/TICKETS cards are your home base. Summarize each epic in one sentence in your own words.",
+    test:"You're a <b>retrieval</b> learner — spacing wins. Retake this quiz tomorrow + in 3 days; accuracy on the second pass is what sticks.",
+    teach:"You're a <b>protégé-effect</b> learner — use the persona Q&A: explain each epic aloud as if to the CEO, then the engineer. Gaps show up instantly."};
+  qbox.querySelectorAll('.style-btns button').forEach(b=>b.onclick=()=>{
+    qbox.querySelectorAll('.style-btns button').forEach(x=>x.style.opacity=.5); b.style.opacity=1;
+    document.getElementById('styleout').innerHTML=styleTips[b.dataset.s];});
+}
+function hex(c,a){const n=parseInt(c.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+render();
+</script>
+</body></html>

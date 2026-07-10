@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shift-End Workflow — Explained Simply (BMS-5070)</title>
+<meta name="description" content="A friendly, jargon-free explanation of the BMS-5070 Shift-End Workflow epic — what it is, why it matters, and what's being built.">
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:34px 18px;}
+  .wrap{max-width:720px;margin:0 auto}
+  .tag{display:inline-block;background:var(--soft);color:var(--accent);font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:18px}
+  .story{background:linear-gradient(135deg,#fff,#f0f4ff);border:1px solid var(--line);
+    border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:0 0 14px;font-size:18px}
+  .story b{color:var(--accent)}
+  h2{font-size:21px;margin:30px 0 10px;display:flex;align-items:center;gap:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:10px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  ul{margin:6px 0;padding-left:22px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;margin:6px 0;font-size:16px}
+  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .when{font-weight:700;white-space:nowrap}
+  .now{color:var(--grn)} .before{color:var(--mut)} .future{color:var(--blu)}
+  .takeaway{background:#1f2733;color:#fff;border-radius:16px;padding:22px 24px;margin:26px 0 0;font-size:18px;line-height:1.6}
+  .takeaway b{color:#9db8ff}
+  .foot{color:var(--mut);font-size:14px;margin-top:24px;text-align:center}
+  .chip{display:inline-block;background:var(--soft);border-radius:8px;padding:1px 8px;font-size:14px;color:var(--ink)}
+  .warn{display:inline-block;background:#fff8ed;border:1px solid #f0d08a;border-radius:8px;padding:2px 10px;font-size:14px;color:#7a5a10}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Shift-End Workflow · BMS-5070 · explained simply</div>
+  <h1>What happens when a warehouse shift ends?</h1>
+  <p class="sub">One checklist that turns a messy handoff into a clean number — and keeps nothing hidden.</p>
+
+  <div class="story">
+    🏭 Imagine a school with <b>three lunch periods</b>. After each period the lunch crew is supposed to write down how many trays got broken. But nobody has a form, so most crews just <b>shout it to the next crew</b> or forget entirely. At the end of the day, the principal has <b>no idea</b> how many trays were lost — or which crew broke them.
+    <br><br>
+    A Gulf warehouse works the same way — except instead of trays, it's <b>beer, wine, and spirits</b>.
+  </div>
+
+  <h2>😖 Why it's a problem</h2>
+  <div class="card">
+    <ul>
+      <li>Gulf runs <b>day, night, and mid shifts</b> across <b>5 warehouses</b> (Milton FL even has a mid-shift). Each shift is a different crew.</li>
+      <li>During a shift, product gets dropped, spills, or arrives damaged. That's called <b>breakage</b>.</li>
+      <li>Today, breakage is either <b>typed in manually</b> at the end of a shift (and often skipped) or <b>lost completely</b> between crews.</li>
+      <li>When breakage isn't recorded, it turns into <b>invisible shrinkage</b> — product that vanished but nobody can explain where or when.</li>
+      <li>Finance closes the books on dirty numbers. Supervisors can't tell which shift (or picker) caused the loss.</li>
+    </ul>
+  </div>
+
+  <h2>🧍 Who it hurts</h2>
+  <div class="card">
+    <ul>
+      <li><b>Warehouse supervisors</b> — doing a handoff with no structured checklist; verbal context gets lost.</li>
+      <li><b>Incoming shift crews</b> — walking into a warehouse with no written record of what happened last shift.</li>
+      <li><b>Finance / ops reporting</b> — monthly shrinkage numbers are guesses, not facts.</li>
+      <li><b>The company</b> — can't tie a loss to a specific shift or person, so nothing improves.</li>
+    </ul>
+  </div>
+
+  <h2>💡 The solution — the Shift-End Checklist</h2>
+  <div class="card">
+    <b>One screen that a supervisor opens at the end of every shift.</b> It walks them through a short checklist:
+    <ul>
+      <li>📋 <b>Review breakage</b> — see every item reported broken during this shift, confirm the count.</li>
+      <li>🔢 <b>Bin counts</b> — spot-check key inventory positions so numbers stay honest.</li>
+      <li>📝 <b>Pass-down notes</b> — write a quick note for the crew coming in next (coming in Phase 2).</li>
+      <li>✅ <b>Submit</b> — one tap locks the shift record and rolls up a single <b>shrinkage number</b> tied to that shift (coming in Phase 3).</li>
+    </ul>
+    Think of it as <span class="chip">a pilot's pre-departure checklist, but for closing a warehouse shift</span>.
+  </div>
+
+  <h2>🧱 What's built — before, now, next</h2>
+  <div class="card">
+    <table>
+      <tr><th>When</th><th>What</th><th>In plain words</th></tr>
+      <tr>
+        <td class="when before">Before</td>
+        <td>Manual breakage entry by shift <span class="chip">old system</span></td>
+        <td>Supervisors typed breakage into a separate tool — when they remembered. No checklist, no structure, no shift tie-in. Losses quietly disappeared.</td>
+      </tr>
+      <tr>
+        <td class="when now">Now ✅</td>
+        <td>Ph1 shift-end checklist + breakage review <span class="chip">BMS-4078</span></td>
+        <td>
+          The checklist screen is <b>built and on the branch</b>. It gathers breakage reports and bin counts into one place at shift close.
+          <br><br>
+          <span class="warn">⚠ Heads-up:</span> the demo org is missing some required fields, so the screen can't fully load yet — it needs a fresh org rebuild before it can be shown end-to-end. The code is real; the environment just isn't caught up.
+          <br><br>
+          <span style="color:var(--mut);font-size:15px"><span class="chip">BMS-4077</span> was a planning spike — no screen; its job was to map the existing breakage/inventory data before building.</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="when future">Future</td>
+        <td>Ph2 cycle counts + pass-down notes <span class="chip">BMS-4079</span><br>Ph3 submission + finance roll-up <span class="chip">BMS-4080</span></td>
+        <td>Ph2 adds formal cycle counts tied to the shift and a written pass-down note for the incoming crew. Ph3 closes the loop — the supervisor submits the checklist and it feeds a clean shrinkage number straight into finance reporting.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="takeaway">
+    🎯 <b>Hold onto this one sentence:</b><br>
+    Breakage happens every shift, but today it disappears into thin air — no record, no owner, no number.
+    The Shift-End Checklist is the one screen that <b>catches every piece of broken product</b>,
+    ties it to a shift and crew, and rolls it up into a real shrinkage number finance can actually use.
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · updated 2026-06-30</p>
+
+</div>
+</body>
+</html>

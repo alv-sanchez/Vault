@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Review — Research Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2e3348;
+    --text: #e2e4eb;
+    --text-muted: #8b8fa3;
+    --accent: #7c6af6;
+    --accent-glow: rgba(124, 106, 246, 0.15);
+    --green: #34d399;
+    --green-bg: rgba(52, 211, 153, 0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251, 191, 36, 0.1);
+    --red: #f87171;
+    --red-bg: rgba(248, 113, 113, 0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96, 165, 250, 0.1);
+    --cyan: #22d3ee;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2.5rem 2rem;
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan), var(--green));
+  }
+  .header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .header .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .header .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .meta-pill strong { color: var(--text); }
+
+  /* Section titles */
+  .section-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title .num {
+    background: var(--accent);
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 2.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+  .full-width { margin-bottom: 2.5rem; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Stat cards */
+  .stat-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  .stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Gap analysis bars */
+  .gap-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .gap-item:last-child { border-bottom: none; }
+  .gap-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .gap-dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .gap-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .gap-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .gap-label { font-size: 0.85rem; flex: 1; }
+  .gap-tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .gap-tag.missing { background: var(--red-bg); color: var(--red); }
+  .gap-tag.partial { background: var(--amber-bg); color: var(--amber); }
+  .gap-tag.covered { background: var(--green-bg); color: var(--green); }
+
+  /* Options comparison */
+  .option-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .option-card.recommended {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .option-card .badge {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0 var(--radius) 0 var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .option-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .option-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .option-attrs {
+    list-style: none;
+  }
+  .option-attrs li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+  .option-attrs li:last-child { border-bottom: none; }
+  .option-attrs .attr-key { color: var(--text-muted); }
+  .option-attrs .attr-val { font-weight: 600; text-align: right; }
+
+  /* Cost table */
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .cost-table th {
+    text-align: left;
+    padding: 0.75rem 0.75rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+  .cost-table td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-table tr:hover td { background: var(--surface2); }
+  .cost-table .highlight-row td {
+    background: var(--accent-glow);
+    font-weight: 600;
+  }
+  .cost-range {
+    display: inline-block;
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Use cases */
+  .usecase {
+    padding: 1rem 1.25rem;
+    transition: transform 0.15s;
+  }
+  .usecase:hover { transform: translateY(-2px); }
+  .usecase-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+  .usecase-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .usecase-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .usecase-impact {
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+    font-weight: 600;
+  }
+  .impact-high { background: var(--red-bg); color: var(--red); }
+  .impact-med { background: var(--amber-bg); color: var(--amber); }
+
+  /* Horizontal bar chart */
+  .bar-chart { margin-top: 0.5rem; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+  .bar-label {
+    width: 120px;
+    font-size: 0.78rem;
+    text-align: right;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fff;
+    transition: width 0.6s ease;
+  }
+  .bar-fill.purple { background: linear-gradient(90deg, var(--accent), #9b87f5); }
+  .bar-fill.blue { background: linear-gradient(90deg, #3b82f6, var(--blue)); }
+  .bar-fill.cyan { background: linear-gradient(90deg, #0891b2, var(--cyan)); }
+  .bar-fill.green-bar { background: linear-gradient(90deg, #059669, var(--green)); }
+
+  /* Timeline / phases */
+  .phase-row {
+    display: flex;
+    align-items: stretch;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .phase-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .phase-circle {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .phase-line {
+    flex: 1;
+    width: 2px;
+    background: var(--border);
+    margin-top: 4px;
+  }
+  .phase-content {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .phase-content h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+  .phase-content .phase-timing {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .phase-content ul {
+    list-style: none;
+    padding: 0;
+  }
+  .phase-content li {
+    font-size: 0.8rem;
+    padding: 0.2rem 0;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .phase-content li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  /* Verdict callout */
+  .verdict {
+    background: linear-gradient(135deg, rgba(124,106,246,0.08), rgba(34,211,238,0.06));
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+  .verdict::before {
+    content: 'RECOMMENDATION';
+    position: absolute;
+    top: -10px;
+    left: 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+  .verdict h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .verdict p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Quality comparison matrix */
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  .matrix th {
+    padding: 0.6rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .matrix th:first-child { text-align: left; }
+  .matrix td {
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .matrix td:first-child {
+    text-align: left;
+    font-weight: 500;
+  }
+  .matrix tr:last-child td { border-bottom: none; }
+  .check { color: var(--green); font-weight: 700; }
+  .cross { color: var(--red); font-weight: 700; opacity: 0.6; }
+  .partial-mark { color: var(--amber); font-weight: 700; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>Claude Code Review &mdash; Research Dashboard</h1>
+  <div class="subtitle">Research, Consultation &amp; Proposal for OHFY-Split</div>
+  <div class="meta-row">
+    <span class="meta-pill"><strong>Repo:</strong>&nbsp; Ohanafy/OHFY-Split</span>
+    <span class="meta-pill"><strong>Packages:</strong>&nbsp; 11 2GP</span>
+    <span class="meta-pill"><strong>Date:</strong>&nbsp; 2026-06-04</span>
+    <span class="meta-pill"><strong>Author:</strong>&nbsp; Alvaro Sanchez</span>
+  </div>
+</div>
+
+<!-- Section 1: Current State Stats -->
+<div class="section-title"><span class="num">1</span> Current Quality Gates</div>
+<div class="grid-4">
+  <div class="card stat-card">
+    <div class="stat-value" style="color: var(--green);">6</div>
+    <div class="stat-label">CI Pipeline Jobs</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value" style="color: var(--accent);">4</div>
+    <div class="stat-label">Manual AI Skills</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value" style="color: var(--amber);">6</div>
+    <div class="stat-label">Audit Dimensions</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-value" style="color: var(--red);">0%</div>
+    <div class="stat-label">Automated AI Reviews</div>
+  </div>
+</div>
+
+<!-- Section 2: Gap Analysis -->
+<div class="section-title"><span class="num">2</span> Gap Analysis: /audit-pull-request vs Full Code Review</div>
+<div class="grid-2">
+  <div class="card">
+    <h3>Missing Capabilities</h3>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">Security analysis (SOQL injection, XSS, CRUD/FLS)</span><span class="gap-tag missing">Missing</span></div>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">Performance beyond governor limits</span><span class="gap-tag missing">Missing</span></div>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">CLAUDE.md convention compliance</span><span class="gap-tag missing">Missing</span></div>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">Test coverage assessment</span><span class="gap-tag missing">Missing</span></div>
+    <div class="gap-item"><span class="gap-dot amber"></span><span class="gap-label">Cross-file regression detection</span><span class="gap-tag partial">Partial</span></div>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">Multi-agent verification &amp; dedup</span><span class="gap-tag missing">Missing</span></div>
+    <div class="gap-item"><span class="gap-dot red"></span><span class="gap-label">Feedback loop (thumbs up/down)</span><span class="gap-tag missing">Missing</span></div>
+  </div>
+  <div class="card">
+    <h3>What It Covers Well</h3>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Governor limit violations (SOQL/DML in loops)</span><span class="gap-tag covered">Covered</span></div>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Async error handling gaps</span><span class="gap-tag covered">Covered</span></div>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Ohanafy-specific patterns</span><span class="gap-tag covered">Covered</span></div>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Naming convention enforcement</span><span class="gap-tag covered">Covered</span></div>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Dead code / debug statements</span><span class="gap-tag covered">Covered</span></div>
+    <div class="gap-item"><span class="gap-dot green"></span><span class="gap-label">Conditional logic / dead branches</span><span class="gap-tag covered">Covered</span></div>
+    <div style="padding: 0.75rem 0; font-size: 0.78rem; color: var(--text-muted); font-style: italic; border-top: 1px solid var(--border); margin-top: 0.5rem;">
+      Verdict: Good Salesforce linter, but surface-level &mdash; not a full code review.
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Implementation Options -->
+<div class="section-title"><span class="num">3</span> Implementation Options</div>
+<div class="grid-4">
+  <div class="card option-card">
+    <div class="option-name">A: Manual</div>
+    <div class="option-desc">Per-dev /code-review runs. Included in Max sub.</div>
+    <ul class="option-attrs">
+      <li><span class="attr-key">Trigger</span><span class="attr-val">Manual</span></li>
+      <li><span class="attr-key">Cost</span><span class="attr-val">$0 marginal</span></li>
+      <li><span class="attr-key">Coverage</span><span class="attr-val" style="color: var(--red);">Inconsistent</span></li>
+      <li><span class="attr-key">Quality</span><span class="attr-val" style="color: var(--amber);">Moderate</span></li>
+      <li><span class="attr-key">Blocks merge</span><span class="attr-val" style="color: var(--red);">No</span></li>
+    </ul>
+  </div>
+  <div class="card option-card">
+    <div class="option-name">B1: Ad-Hoc CI</div>
+    <div class="option-desc">GitHub Action with review-flavored prompt. Single agent pass.</div>
+    <ul class="option-attrs">
+      <li><span class="attr-key">Trigger</span><span class="attr-val">Automatic</span></li>
+      <li><span class="attr-key">Cost</span><span class="attr-val">~$2-4/review</span></li>
+      <li><span class="attr-key">Coverage</span><span class="attr-val" style="color: var(--green);">100%</span></li>
+      <li><span class="attr-key">Quality</span><span class="attr-val" style="color: var(--amber);">Moderate</span></li>
+      <li><span class="attr-key">Blocks merge</span><span class="attr-val" style="color: var(--red);">No</span></li>
+    </ul>
+  </div>
+  <div class="card option-card">
+    <div class="option-name">B2: Plugin CI</div>
+    <div class="option-desc">code-review plugin. Multi-agent finder/verifier/dedup.</div>
+    <ul class="option-attrs">
+      <li><span class="attr-key">Trigger</span><span class="attr-val">Automatic</span></li>
+      <li><span class="attr-key">Cost</span><span class="attr-val">~$10-20/review</span></li>
+      <li><span class="attr-key">Coverage</span><span class="attr-val" style="color: var(--green);">100%</span></li>
+      <li><span class="attr-key">Quality</span><span class="attr-val" style="color: var(--green);">High</span></li>
+      <li><span class="attr-key">Blocks merge</span><span class="attr-val" style="color: var(--green);">Yes*</span></li>
+    </ul>
+  </div>
+  <div class="card option-card">
+    <div class="option-name">C: Managed</div>
+    <div class="option-desc">Anthropic-hosted review. Zero-maintenance, Team plan required.</div>
+    <ul class="option-attrs">
+      <li><span class="attr-key">Trigger</span><span class="attr-val">Configurable</span></li>
+      <li><span class="attr-key">Cost</span><span class="attr-val">~$15-25/review</span></li>
+      <li><span class="attr-key">Coverage</span><span class="attr-val" style="color: var(--green);">100%</span></li>
+      <li><span class="attr-key">Quality</span><span class="attr-val" style="color: var(--green);">High</span></li>
+      <li><span class="attr-key">Blocks merge</span><span class="attr-val" style="color: var(--green);">Yes*</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Quality Matrix -->
+<div class="card full-width">
+  <h3>Feature Comparison Matrix</h3>
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th style="width:30%;">Capability</th>
+        <th>Manual (A)</th>
+        <th>Ad-Hoc (B1)</th>
+        <th>Plugin (B2)</th>
+        <th>Managed (C)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>CLAUDE.md awareness</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>REVIEW.md awareness</td><td class="cross">&#10005;</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Inline PR comments</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Multi-agent verification</td><td class="cross">&#10005;</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Feedback loop</td><td class="cross">&#10005;</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Cross-file regression</td><td class="partial-mark">~</td><td class="partial-mark">~</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>100% PR coverage</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Audit trail</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Merge blocking</td><td class="cross">&#10005;</td><td class="cross">&#10005;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 4: Cost -->
+<div class="section-title"><span class="num">4</span> Cost Comparison</div>
+
+<div class="card full-width">
+  <h3>Monthly Cost Projections (40 PRs/month)</h3>
+  <div class="bar-chart" style="margin-top: 1rem;">
+    <div class="bar-row">
+      <span class="bar-label">Manual (Max)</span>
+      <div class="bar-track"><div class="bar-fill green-bar" style="width: 55%;">$500-600/mo (subs)</div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">B1: Ad-Hoc</span>
+      <div class="bar-track"><div class="bar-fill blue" style="width: 12%;">$80-160/mo</div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">B2: Plugin</span>
+      <div class="bar-track"><div class="bar-fill purple" style="width: 55%;">$400-800/mo</div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">C: Managed</span>
+      <div class="bar-track"><div class="bar-fill cyan" style="width: 72%;">$600-1,000/mo</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card full-width">
+  <h3>Per-Review Cost by PR Size (Sonnet 4.6)</h3>
+  <table class="cost-table">
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>Small (1-3 files)</th>
+        <th>Medium (5-10 files)</th>
+        <th>Large (15+ files)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>B1: Ad-hoc agent</td>
+        <td><span class="cost-range">$0.50 - $1.50</span></td>
+        <td><span class="cost-range">$1.50 - $4.00</span></td>
+        <td><span class="cost-range">$3.00 - $8.00</span></td>
+      </tr>
+      <tr class="highlight-row">
+        <td>B2: Code-review plugin</td>
+        <td><span class="cost-range">$8 - $15</span></td>
+        <td><span class="cost-range">$10 - $20</span></td>
+        <td><span class="cost-range">$15 - $30</span></td>
+      </tr>
+      <tr>
+        <td>C: Managed Code Review</td>
+        <td><span class="cost-range">$10 - $15</span></td>
+        <td><span class="cost-range">$15 - $25</span></td>
+        <td><span class="cost-range">$20 - $35</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card full-width">
+  <h3>Cost Optimization Levers</h3>
+  <table class="cost-table">
+    <thead><tr><th>Lever</th><th>Savings</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td>--max-turns 5-10</td><td><span class="cost-range">30-50%</span></td><td>Cap iteration depth in GitHub Action</td></tr>
+      <tr><td>Trigger on ready_for_review only</td><td><span class="cost-range">50%+</span></td><td>Skip draft PR pushes</td></tr>
+      <tr><td>REVIEW.md skip rules</td><td><span class="cost-range">10-30%</span></td><td>Exclude generated files, lockfiles, boilerplate XML</td></tr>
+      <tr><td>Start B1, upgrade later</td><td><span class="cost-range">Variable</span></td><td>Get real cost data before committing to higher tier</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 5: SF Use Cases -->
+<div class="section-title"><span class="num">5</span> Salesforce-Specific Use Cases</div>
+<div class="grid-2">
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 1</div>
+    <div class="usecase-title">QueryService / DmlService Compliance</div>
+    <div class="usecase-desc">Catch raw SOQL/DML in non-test classes. CLAUDE.md mandate (BMS-3965) with no CI enforcement today.</div>
+    <div class="usecase-impact impact-high">Security &mdash; bypassed AccessLevelResolver</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 2</div>
+    <div class="usecase-title">Logger-in-Catch Compliance</div>
+    <div class="usecase-desc">Every catch must have Logger.getInstance().error() + flush(). Currently manual-only check.</div>
+    <div class="usecase-impact impact-high">Observability &mdash; silent production failures</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 3</div>
+    <div class="usecase-title">SYSTEM_MODE Audit</div>
+    <div class="usecase-desc">Explicit AccessLevel.SYSTEM_MODE needs inline comment citing rules 1/2/3/4/6. Rule 5 citations invalid.</div>
+    <div class="usecase-impact impact-high">Security &mdash; privilege escalation</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 4</div>
+    <div class="usecase-title">DTO Pattern (ADR-0007)</div>
+    <div class="usecase-desc">Cross-package DTOs must be global with { get; set; } accessors. Violations cause silent all-null at runtime.</div>
+    <div class="usecase-impact impact-high">Runtime &mdash; invisible in unit tests</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 5</div>
+    <div class="usecase-title">Org-Metadata Prefix Drift</div>
+    <div class="usecase-desc">managed/ uses ohfy__ prefix, scratch/ uses none. Stale reference breaks nightly snapshot build.</div>
+    <div class="usecase-impact impact-med">CI &mdash; broken snapshot builds</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 6</div>
+    <div class="usecase-title">Trigger Side-Effect Detection</div>
+    <div class="usecase-desc">TriggerHandler cascade: changes to trigger services can break tests/flows on any sObject that fires.</div>
+    <div class="usecase-impact impact-med">Regression &mdash; cascade bugs</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 7</div>
+    <div class="usecase-title">LWC Reactive Thrashing</div>
+    <div class="usecase-desc">Multiple @track/@api mutations in one method cause excessive re-renders. No linter catches this.</div>
+    <div class="usecase-impact impact-med">Performance &mdash; UI jank</div>
+  </div>
+  <div class="card usecase">
+    <div class="usecase-num">USE CASE 8</div>
+    <div class="usecase-title">ServiceLocator Contract Validation</div>
+    <div class="usecase-desc">Class renames break Service_Configuration__mdt wiring at runtime. No compile-time check exists.</div>
+    <div class="usecase-impact impact-high">Runtime &mdash; TypeException in prod</div>
+  </div>
+</div>
+
+<!-- Section 6: Recommendation -->
+<div class="section-title"><span class="num">6</span> Recommendation</div>
+<div class="verdict">
+  <h3>Hybrid: CI/CD Auto-Review + Manual Deep Dives (Option D)</h3>
+  <p>
+    Start with <strong>B1 (ad-hoc agent, Sonnet 4.6)</strong> on every non-draft PR to validate cost and noise (~$80-160/mo).
+    Upgrade to <strong>B2 (code-review plugin)</strong> if quality gap justifies the 5x cost increase.
+    Engineers keep using <strong>/audit-pull-request</strong> and <strong>/code-review</strong> for complex changes.
+    This gives 100% PR coverage, convention enforcement via CLAUDE.md, a full audit trail, and complements (not replaces) human review.
+  </p>
+</div>
+
+<!-- Section 7: Implementation Plan -->
+<div class="section-title"><span class="num">7</span> Implementation Plan</div>
+
+<div class="phase-row">
+  <div class="phase-marker">
+    <div class="phase-circle">1</div>
+    <div class="phase-line"></div>
+  </div>
+  <div class="phase-content">
+    <h4>Pilot with B1 Ad-Hoc Agent</h4>
+    <div class="phase-timing">Week 1</div>
+    <ul>
+      <li>Add ANTHROPIC_API_KEY to GitHub repo secrets</li>
+      <li>Create claude-review.yml using B1 ad-hoc agent YAML</li>
+      <li>Run on 10-15 real PRs</li>
+      <li>Check API dashboard for actual per-review costs</li>
+      <li>Assess signal-to-noise ratio</li>
+    </ul>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase-marker">
+    <div class="phase-circle">2</div>
+    <div class="phase-line"></div>
+  </div>
+  <div class="phase-content">
+    <h4>Tune or Upgrade</h4>
+    <div class="phase-timing">Week 2-3</div>
+    <ul>
+      <li>If B1 quality sufficient: tune prompt, add skip rules</li>
+      <li>If B1 too shallow: upgrade to B2 plugin, create REVIEW.md</li>
+      <li>Monitor cost delta over 10-15 more reviews</li>
+    </ul>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase-marker">
+    <div class="phase-circle">3</div>
+  </div>
+  <div class="phase-content">
+    <h4>Enforcement</h4>
+    <div class="phase-timing">Week 4+</div>
+    <ul>
+      <li>Add branch protection parsing severity JSON (B2/C only)</li>
+      <li>Block merges on "Important" findings</li>
+      <li>Evaluate Managed Code Review (C) vs B2 premium</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Claude Code Review Research &mdash; OHFY-Split &middot; Fact-checked against Anthropic docs, claude-code-action source, and API pricing &middot; June 2026
+</div>
+
+</body>
+</html>

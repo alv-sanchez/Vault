@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Code Review — Proposal</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-alt: #f5f3f0;
+    --border: #e7e5e0;
+    --border-strong: #d4d0ca;
+    --text: #1c1917;
+    --text-sec: #57534e;
+    --text-muted: #a8a29e;
+    --accent: #6d28d9;
+    --accent-light: #ede9fe;
+    --accent-mid: #a78bfa;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2.5rem 1.5rem;
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    text-align: center;
+    padding: 3rem 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-mid), var(--green));
+  }
+  .hero .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+  }
+  .hero .tagline {
+    color: var(--text-sec);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .hero .meta {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .hero .meta span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+  }
+
+  /* ---- Section headings ---- */
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    margin-top: 3rem;
+    text-align: center;
+  }
+  h2 .sub {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .divider {
+    width: 48px;
+    height: 3px;
+    background: var(--accent-mid);
+    border-radius: 2px;
+    margin: 0 auto 2rem;
+  }
+
+  /* ---- Before / After ---- */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+
+  .compare-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .compare-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .compare-card.before::before { background: var(--red); }
+  .compare-card.after::before { background: var(--green); }
+  .compare-card.before { border: 1px solid var(--red-border); }
+  .compare-card.after { border: 1px solid var(--green-border); }
+
+  .compare-card .card-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  .before .card-label { background: var(--red-bg); color: var(--red); }
+  .after .card-label { background: var(--green-bg); color: var(--green); }
+
+  .compare-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .compare-card li {
+    font-size: 0.85rem;
+    color: var(--text-sec);
+    padding: 0.45rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .compare-card li:last-child { border-bottom: none; }
+  .compare-card li::before {
+    position: absolute;
+    left: 0;
+    font-size: 0.9rem;
+  }
+  .before li::before { content: '\2717'; color: var(--red); }
+  .after li::before { content: '\2713'; color: var(--green); }
+
+  /* ---- Benefits ---- */
+  .benefits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 800px) { .benefits { grid-template-columns: 1fr; } }
+
+  .benefit {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .benefit:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .benefit .icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .benefit h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .benefit p {
+    font-size: 0.82rem;
+    color: var(--text-sec);
+    line-height: 1.55;
+  }
+
+  /* ---- Triple Guard Flow ---- */
+  .flow-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2.5rem;
+  }
+  .flow-title {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .flow-step {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .flow-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 44px;
+    flex-shrink: 0;
+  }
+  .flow-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .flow-dot.human { background: var(--surface-alt); border-color: var(--border-strong); }
+  .flow-dot.ai { background: var(--accent-light); border-color: var(--accent-mid); }
+  .flow-dot.ci { background: var(--green-bg); border-color: var(--green-border); }
+  .flow-dot.merge { background: var(--amber-bg); border-color: var(--amber-border); }
+  .flow-connector {
+    flex: 1;
+    width: 2px;
+    background: var(--border);
+    min-height: 8px;
+  }
+  .flow-body {
+    flex: 1;
+    padding: 0.5rem 0 1.25rem;
+  }
+  .flow-body h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+  }
+  .flow-body .guard-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 0.3rem;
+  }
+  .guard-tag.g1 { background: var(--accent-light); color: var(--accent); }
+  .guard-tag.g2 { background: var(--green-bg); color: var(--green); }
+  .guard-tag.g3 { background: var(--amber-bg); color: var(--amber); }
+  .flow-body p {
+    font-size: 0.8rem;
+    color: var(--text-sec);
+    line-height: 1.5;
+  }
+
+  /* ---- Time savings ---- */
+  .time-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 700px) { .time-compare { grid-template-columns: 1fr; } }
+
+  .time-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .time-card h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .time-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.84rem;
+  }
+  .time-item:last-child { border-bottom: none; }
+  .time-item .label { color: var(--text-sec); }
+  .time-item .val {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .time-item .val.old { color: var(--red); }
+  .time-item .val.new { color: var(--green); }
+
+  .time-bar-track {
+    height: 8px;
+    background: var(--surface-alt);
+    border-radius: 4px;
+    margin-top: 0.3rem;
+    overflow: hidden;
+  }
+  .time-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  /* ---- Implementation Steps ---- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .step {
+    display: flex;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s;
+  }
+  .step:hover { border-color: var(--accent-mid); }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-content h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .step-content p {
+    font-size: 0.82rem;
+    color: var(--text-sec);
+    line-height: 1.55;
+  }
+  .step-content .who {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.12rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.4rem;
+  }
+  .who.you { background: var(--accent-light); color: var(--accent); }
+  .who.admin { background: var(--amber-bg); color: var(--amber); }
+
+  /* ---- Callout ---- */
+  .callout {
+    background: var(--accent-light);
+    border: 1px solid var(--accent-mid);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+  .callout p {
+    font-size: 0.9rem;
+    color: var(--text-sec);
+    line-height: 1.6;
+  }
+  .callout strong { color: var(--accent); }
+
+  /* ---- Confidence Meter ---- */
+  .conf-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 700px) { .conf-section { grid-template-columns: 1fr; } }
+
+  .conf-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .conf-card .conf-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+  .meter {
+    width: 100%;
+    height: 28px;
+    background: var(--surface-alt);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .meter-fill {
+    height: 100%;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    transition: width 0.6s ease;
+  }
+  .meter-fill.low {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+  .meter-fill.high {
+    background: linear-gradient(90deg, var(--green), #4ade80);
+  }
+  .conf-card .conf-desc {
+    font-size: 0.78rem;
+    color: var(--text-sec);
+  }
+
+  /* ---- REVIEW.md preview ---- */
+  .file-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 2.5rem;
+  }
+  .file-header {
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-sec);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .file-header .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .file-body {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-sec);
+    line-height: 1.65;
+  }
+  .file-body .fh {
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .file-body .fh:first-child { margin-top: 0; }
+  .file-body ul {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .file-body li { padding: 0.1rem 0; }
+  .file-body code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.76rem;
+    background: var(--surface-alt);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="eyebrow">Proposal for OHFY-Split</div>
+  <h1>Three Guards Before Every Merge</h1>
+  <p class="tagline">60% of our review surface &mdash; security, conventions, cross-file regressions &mdash; ships unchecked today. Hybrid review closes that gap: local AI pre-push, CI/CD safety net on every PR, then human review focused on what actually requires human judgment.</p>
+  <div class="meta">
+    <span>Ohanafy/OHFY-Split</span>
+    <span>11 2GP Packages</span>
+    <span>Apex + LWC + Metadata</span>
+  </div>
+</div>
+
+<!-- Before vs After -->
+<h2>What Ships Unchecked Today <span class="sub">Real gaps in the current review process</span></h2>
+<div class="divider"></div>
+
+<div class="compare">
+  <div class="compare-card before">
+    <span class="card-label">Today &mdash; What We're Missing</span>
+    <ul>
+      <li>Raw DML bypassing QueryService goes unnoticed &mdash; no automated enforcement of BMS-3965</li>
+      <li>Catch blocks with <code style="font-size:0.78rem; background:var(--red-bg); padding:0.1em 0.3em; border-radius:3px;">System.debug()</code> instead of Logger &mdash; errors vanish before reaching Datadog</li>
+      <li>DTOs missing <code style="font-size:0.78rem; background:var(--red-bg); padding:0.1em 0.3em; border-radius:3px;">{ get; set; }</code> pass unit tests but deserialize as null in customer orgs</li>
+      <li>SYSTEM_MODE without rule citation &mdash; privilege escalation with no paper trail</li>
+      <li>Class renames break ServiceLocator CMDT wiring &mdash; invisible until runtime TypeException</li>
+      <li>Trigger service changes cascade to 10+ test paths with no coverage check</li>
+      <li style="font-weight:800; color:var(--red); background:linear-gradient(90deg, var(--red-bg), #fff0f6, var(--amber-bg)); padding:0.5rem 0.75rem 0.5rem 1.5rem; border-radius:6px; border-left:3px solid var(--red); margin:0.3rem 0;">Review depth varies by engineer workload &mdash; crunch weeks = shallow reviews = escaped bugs</li>
+      <li>No audit trail of what was reviewed, when, or whether conventions were checked</li>
+    </ul>
+  </div>
+  <div class="compare-card after">
+    <span class="card-label">With Hybrid Review &mdash; What Changes</span>
+    <ul>
+      <li>QueryService/DmlService, Logger-in-catch, SYSTEM_MODE rules auto-enforced via CLAUDE.md on every PR</li>
+      <li>DTO pattern (ADR-0007) checked automatically &mdash; catches the managed-package null bug before it ships</li>
+      <li>Cross-file analysis opens callers, services, CMDT records &mdash; catches ServiceLocator breaks at PR time</li>
+      <li>Security baseline: SOQL injection, XSS, CRUD/FLS, exposed @AuraEnabled flagged automatically</li>
+      <li>Test coverage gaps flagged &mdash; new methods without corresponding _T coverage get called out</li>
+      <li>Same REVIEW.md rules applied uniformly &mdash; quality doesn't dip during crunch weeks</li>
+      <li>Human reviewer skips the mechanical checklist &mdash; focuses on architecture, domain logic, UX</li>
+      <li>Full audit trail: every review is a GitHub check run with timestamped inline comments</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Benefits -->
+<h2>Why This Matters <span class="sub">For the team and the product</span></h2>
+<div class="divider"></div>
+
+<div class="benefits">
+  <div class="benefit">
+    <div class="icon">&#128737;</div>
+    <h3>Confidence on Every Merge</h3>
+    <p>Three independent layers reviewed the code before it hits main. Bugs that slip past one layer get caught by another. You merge knowing it's been through the gauntlet.</p>
+  </div>
+  <div class="benefit">
+    <div class="icon">&#9201;</div>
+    <h3>Faster Human Reviews</h3>
+    <p>The AI already flagged governor limits, missing Logger calls, raw DML, and naming issues. The human reviewer skips the mechanical checklist and focuses on what matters: does this design make sense?</p>
+  </div>
+  <div class="benefit">
+    <div class="icon">&#128202;</div>
+    <h3>100% Coverage</h3>
+    <p>No more "forgot to review" gaps. Every non-draft PR triggers an automated review. The safety net is always on, even during crunch weeks when human review bandwidth is thin.</p>
+  </div>
+  <div class="benefit">
+    <div class="icon">&#128272;</div>
+    <h3>Security Baseline</h3>
+    <p>SOQL injection, XSS in LWC, CRUD/FLS enforcement, SYSTEM_MODE without rule citations, exposed @AuraEnabled without permission checks. Checked automatically.</p>
+  </div>
+  <div class="benefit">
+    <div class="icon">&#128221;</div>
+    <h3>Single Source of Truth</h3>
+    <p>REVIEW.md defines the rules once. Local /code-review and CI/CD both follow the same standard. No drift between what different engineers check for.</p>
+  </div>
+  <div class="benefit">
+    <div class="icon">&#128200;</div>
+    <h3>Audit Trail</h3>
+    <p>Every automated review is a GitHub check run with timestamped inline comments. Know exactly what was reviewed, when, and what was flagged. Useful for compliance and post-mortems.</p>
+  </div>
+</div>
+
+<!-- Max Plan Upgrade -->
+<div style="background: linear-gradient(135deg, var(--accent-light), #f0e6ff, var(--blue-bg)); border: 2px solid var(--accent-mid); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--blue), var(--green));"></div>
+  <div style="display: flex; align-items: flex-start; gap: 1.25rem; flex-wrap: wrap;">
+    <div style="flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">&#128176;</div>
+    <div style="flex: 1; min-width: 280px;">
+      <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem;">Proposal: Upgrade to Max $200 Plan</h3>
+      <p style="font-size: 0.84rem; color: var(--text-sec); line-height: 1.6; margin-bottom: 0.75rem;">
+        Local <code style="font-family: 'SF Mono', monospace; font-size: 0.78rem; background: rgba(255,255,255,0.6); padding: 0.1em 0.3em; border-radius: 3px;">/code-review --comment</code> runs on each engineer's Max subscription &mdash; no API key, no per-review cost. Upgrading from the $100 to the <strong style="color: var(--accent);">$200 plan</strong> gives 5x the usage, meaning deeper reviews with more turns, larger context windows, and no throttling during crunch weeks.
+      </p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div style="background: rgba(255,255,255,0.7); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center;">
+          <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.25rem;">Max $100/mo</div>
+          <div style="font-size: 1.3rem; font-weight: 800; color: var(--amber);">Standard</div>
+          <div style="font-size: 0.75rem; color: var(--text-sec); margin-top: 0.2rem;">Base usage cap</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.7); border: 2px solid var(--accent-mid); border-radius: 8px; padding: 0.75rem; text-align: center;">
+          <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 0.25rem;">Max $200/mo</div>
+          <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">5x Usage</div>
+          <div style="font-size: 0.75rem; color: var(--text-sec); margin-top: 0.2rem;">Deeper local reviews, no throttle</div>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: 0.75rem; line-height: 1.55;">
+        <strong style="color: var(--text);">The math:</strong> At $200/seat, each engineer gets unlimited local <code style="font-family: 'SF Mono', monospace; font-size: 0.76rem; background: rgba(255,255,255,0.6); padding: 0.1em 0.3em; border-radius: 3px;">/code-review</code> runs with no turn limits. The CI/CD layer still uses the API key ($2-4/review). Combined, that's deep local reviews + automated safety net for ~$200/seat/mo + ~$80-160/mo API &mdash; less than the cost of one escaped bug hitting production.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Confidence Meters -->
+<h2>Merge Confidence <span class="sub">How much of the review surface is covered</span></h2>
+<div class="divider"></div>
+
+<div class="conf-section">
+  <div class="conf-card">
+    <div class="conf-label">Today: Human-Only Review</div>
+    <div class="meter"><div class="meter-fill low" style="width: 40%;">~40%</div></div>
+    <div class="conf-desc">Depends on reviewer bandwidth, familiarity, and whether they remember to check conventions</div>
+  </div>
+  <div class="conf-card">
+    <div class="conf-label">Hybrid: AI + Human Review</div>
+    <div class="meter"><div class="meter-fill high" style="width: 92%;">~92%</div></div>
+    <div class="conf-desc">Mechanical checks automated, conventions enforced, human focuses on architecture and domain logic</div>
+  </div>
+</div>
+
+<!-- Time Savings -->
+<h2>Review Time Impact <span class="sub">Where engineers spend their review time</span></h2>
+<div class="divider"></div>
+
+<div class="time-compare">
+  <div class="time-card">
+    <h3>Without Hybrid (per PR)</h3>
+    <div class="time-item">
+      <span class="label">Convention checks (manual)</span>
+      <span class="val old">10-15 min</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:65%; background: #f87171; border-radius:4px;"></div></div>
+    <div class="time-item">
+      <span class="label">Bug/security scanning (manual)</span>
+      <span class="val old">10-20 min</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:80%; background: #f87171; border-radius:4px;"></div></div>
+    <div class="time-item">
+      <span class="label">Architecture & domain review</span>
+      <span class="val old">10-15 min</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:60%; background: var(--amber); border-radius:4px;"></div></div>
+    <div class="time-item" style="border-top: 2px solid var(--border); margin-top: 0.25rem; padding-top: 0.65rem;">
+      <span class="label" style="font-weight:700; color: var(--text);">Total human time</span>
+      <span class="val old">30-50 min</span>
+    </div>
+  </div>
+  <div class="time-card">
+    <h3>With Hybrid (per PR)</h3>
+    <div class="time-item">
+      <span class="label">Convention checks</span>
+      <span class="val new">0 min (automated)</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:3%; background: var(--green); border-radius:4px;"></div></div>
+    <div class="time-item">
+      <span class="label">Bug/security scanning</span>
+      <span class="val new">0 min (automated)</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:3%; background: var(--green); border-radius:4px;"></div></div>
+    <div class="time-item">
+      <span class="label">Review AI findings + domain review</span>
+      <span class="val new">10-15 min</span>
+    </div>
+    <div class="time-bar-track"><div class="time-bar-fill" style="width:60%; background: var(--green); border-radius:4px;"></div></div>
+    <div class="time-item" style="border-top: 2px solid var(--border); margin-top: 0.25rem; padding-top: 0.65rem;">
+      <span class="label" style="font-weight:700; color: var(--text);">Total human time</span>
+      <span class="val new">10-15 min</span>
+    </div>
+  </div>
+</div>
+
+<!-- Triple Guard Flow -->
+<h2>The Triple Guard <span class="sub">Three layers of review before merge</span></h2>
+<div class="divider"></div>
+
+<div class="flow-wrapper">
+  <div class="flow-title">PR Lifecycle with Hybrid Review</div>
+  <div class="flow-steps">
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot human">&#128104;</div>
+        <div class="flow-connector"></div>
+      </div>
+      <div class="flow-body">
+        <h4>Engineer writes code</h4>
+        <p>Feature, bug fix, or refactor on a feature branch.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot ai">&#129302;</div>
+        <div class="flow-connector"></div>
+      </div>
+      <div class="flow-body">
+        <span class="guard-tag g1">Guard 1 &mdash; Local AI</span>
+        <h4>Engineer runs /code-review --comment</h4>
+        <p>Pre-push self-review. Catches issues before they ever reach the PR. Follows the same REVIEW.md rules. Costs $0 (included in Max subscription).</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot human">&#128104;</div>
+        <div class="flow-connector"></div>
+      </div>
+      <div class="flow-body">
+        <h4>Engineer fixes findings, pushes, opens PR</h4>
+        <p>Most mechanical issues already resolved before teammates see the code.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot ci">&#9889;</div>
+        <div class="flow-connector"></div>
+      </div>
+      <div class="flow-body">
+        <span class="guard-tag g2">Guard 2 &mdash; CI/CD Auto-Review</span>
+        <h4>GitHub Action runs claude-code-action</h4>
+        <p>Triggers on-demand via <code style="font-size:0.76rem; background:var(--green-bg); padding:0.1em 0.3em; border-radius:3px;">@claude</code> comment on the PR (or auto on ready_for_review). Posts inline comments on specific lines with severity labels. Same REVIEW.md rulebook. ~$2-4 per run, only when you ask for it. Cancellable mid-run from the Actions tab.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot human">&#128104;</div>
+        <div class="flow-connector"></div>
+      </div>
+      <div class="flow-body">
+        <span class="guard-tag g3">Guard 3 &mdash; Human Review</span>
+        <h4>Teammate reviews the PR</h4>
+        <p>Mechanical checks already done. Reviewer focuses on architecture, domain logic, UX, and whether the approach makes sense. Faster, higher-quality review.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-rail">
+        <div class="flow-dot merge">&#128640;</div>
+      </div>
+      <div class="flow-body">
+        <h4>Merge with confidence</h4>
+        <p>Three independent layers signed off. Full audit trail in GitHub.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- When NOT to review -->
+<h2>When to Skip the AI Review <span class="sub">Don't burn a $2-4 review on changes that don't need it</span></h2>
+<div class="divider"></div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  <div style="background: var(--surface); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--red);"></div>
+    <h3 style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--red);">Skip AI Review</h3>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Metadata-only PRs</strong> &mdash; field-meta.xml, permission sets, layouts, profiles. CI validates deploy; no logic to review.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Version bumps only</strong> &mdash; sfdx-project.json version increments, package.json dep bumps. Nothing to catch.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Documentation-only</strong> &mdash; README, CLAUDE.md updates, .md files. Prettier handles formatting.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Org-metadata snapshot sync</strong> &mdash; managed/scratch mirror updates. Prefix rules are the only concern, and those are in REVIEW.md skip list anyway.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Namespace removal (ohfy__)</strong> &mdash; stripping managed namespace prefixes from metadata. Mechanical find-and-replace, no logic to analyze.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">File reorganization</strong> &mdash; moving files between folders/packages. No code changed, just structure. Left to the discretion of the PR creator.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.82rem;">
+        <span style="color: var(--red); flex-shrink: 0;">&#10005;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Trivial one-liners</strong> &mdash; typo fixes, label changes, single-line config edits. Human glance is enough.</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green);"></div>
+    <h3 style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--green);">Always Run AI Review</h3>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--green); flex-shrink: 0;">&#10003;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Any Apex change</strong> &mdash; classes, triggers, trigger services. Governor limits, security, conventions, cross-file impact.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--green); flex-shrink: 0;">&#10003;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Any LWC change</strong> &mdash; JS, HTML, CSS. XSS, reactive thrashing, promise handling, @wire misuse.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--green); flex-shrink: 0;">&#10003;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Cross-package changes</strong> &mdash; anything touching DTOs, ServiceLocator wiring, or shared interfaces. High regression risk.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;">
+        <span style="color: var(--green); flex-shrink: 0;">&#10003;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Trigger service modifications</strong> &mdash; cascade risk across all sObject operations. Always needs cross-file check.</span>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.82rem;">
+        <span style="color: var(--green); flex-shrink: 0;">&#10003;</span>
+        <span style="color: var(--text-sec);"><strong style="color: var(--text);">Security-sensitive code</strong> &mdash; @AuraEnabled endpoints, SYSTEM_MODE usage, CRUD/FLS-adjacent changes.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trigger mechanisms -->
+<h2>How to Trigger the Review <span class="sub">Options for controlling when the CI/CD review fires</span></h2>
+<div class="divider"></div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+  <div style="background: var(--surface); border: 2px solid var(--accent-mid); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 8px; right: 8px; background: var(--accent); color: #fff; font-size: 0.58rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em;">Recommended</div>
+    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">@claude Comment</h4>
+    <p style="font-size: 0.78rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 0.6rem;">Comment <code style="font-size:0.74rem;">@claude</code> on the PR when you're ready for a review. Runs once, on demand. Cancellable mid-run.</p>
+    <div style="background: #1e1e2e; border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'SF Mono', monospace; font-size: 0.72rem; color: #cdd6f4; line-height: 1.5;">on:<br>&nbsp;&nbsp;issue_comment:<br>&nbsp;&nbsp;&nbsp;&nbsp;types: [created]<br>if: contains(comment.body, <span style="color: #a6e3a1;">'@claude'</span>)</div>
+    <div style="margin-top: 0.6rem; font-size: 0.72rem; color: var(--green); font-weight: 600;">~$2-4 per review, only when asked</div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">GitHub Label</h4>
+    <p style="font-size: 0.78rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 0.6rem;">Add a <code style="font-size:0.74rem; background: var(--accent-light); color: var(--accent);">claude-review</code> label to the PR. Workflow checks for the label before running.</p>
+    <div style="background: #1e1e2e; border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'SF Mono', monospace; font-size: 0.72rem; color: #cdd6f4; line-height: 1.5;">on:<br>&nbsp;&nbsp;pull_request:<br>&nbsp;&nbsp;&nbsp;&nbsp;types: [labeled]<br>if: contains(labels.*.name, <span style="color: #a6e3a1;">'claude-review'</span>)</div>
+    <div style="margin-top: 0.6rem; font-size: 0.72rem; color: var(--text-sec);">Visual indicator on the PR that review was requested</div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">PR Template Checkbox</h4>
+    <p style="font-size: 0.78rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 0.6rem;">Add a checkbox to the PR template. Workflow parses the body and only runs if checked.</p>
+    <div style="background: #1e1e2e; border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'SF Mono', monospace; font-size: 0.72rem; color: #cdd6f4; line-height: 1.5;"><span style="color: #6c7086;"># In PR template:</span><br>- [x] <span style="color: #a6e3a1;">Request Claude review</span><br><span style="color: #6c7086;"># Workflow checks body</span></div>
+    <div style="margin-top: 0.6rem; font-size: 0.72rem; color: var(--text-sec);">Opt-in at PR creation time, part of the PR flow</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2.5rem;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">Draft &rarr; Ready for Review</h4>
+    <p style="font-size: 0.78rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 0.6rem;">Review fires automatically when you mark a draft PR as "Ready for review." One review per PR, no accidental re-triggers on push.</p>
+    <div style="background: #1e1e2e; border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'SF Mono', monospace; font-size: 0.72rem; color: #cdd6f4; line-height: 1.5;">on:<br>&nbsp;&nbsp;pull_request:<br>&nbsp;&nbsp;&nbsp;&nbsp;types: [<span style="color: #a6e3a1;">ready_for_review</span>]</div>
+    <div style="margin-top: 0.6rem; font-size: 0.72rem; color: var(--text-sec);">Best if team already uses draft PR workflow</div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--red);">Avoid: On Every Push</h4>
+    <p style="font-size: 0.78rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 0.6rem;">Triggering on every <code style="font-size:0.74rem;">synchronize</code> event means every commit fires a full review. 5 pushes to a PR = 5 reviews = $10-20+. This is where the "$20/PR" horror stories come from.</p>
+    <div style="background: #1e1e2e; border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'SF Mono', monospace; font-size: 0.72rem; color: #cdd6f4; line-height: 1.5;">on:<br>&nbsp;&nbsp;pull_request:<br>&nbsp;&nbsp;&nbsp;&nbsp;types: [opened, <span style="color: #f38ba8;">synchronize</span>]<br><span style="color: #f38ba8;"># ^ DO NOT use synchronize</span></div>
+    <div style="margin-top: 0.6rem; font-size: 0.72rem; color: var(--red); font-weight: 600;">$2-4 per push &times; N pushes = cost blowout</div>
+  </div>
+</div>
+
+<!-- What REVIEW.md Looks Like -->
+<h2>Shared Rulebook <span class="sub">REVIEW.md governs both local and CI reviews</span></h2>
+<div class="divider"></div>
+
+<div class="file-preview">
+  <div class="file-header"><span class="dot"></span> REVIEW.md</div>
+  <div class="file-body">
+    <div class="fh">Severity Definitions</div>
+    <ul>
+      <li><strong>Important:</strong> Logic bugs, data loss, governor limits, security vulnerabilities, broken QueryService/DmlService/Logger patterns, SYSTEM_MODE without rule citation</li>
+      <li><strong>Nit:</strong> Style, naming, minor refactoring. Max 8 per review.</li>
+    </ul>
+    <div class="fh">Always Check (Salesforce-Specific)</div>
+    <ul>
+      <li>No raw SOQL/DML in non-<code>_T</code> classes (must use QueryService / DmlService)</li>
+      <li>Every catch block has <code>Logger.getInstance().error()</code> + <code>flush()</code></li>
+      <li>Explicit <code>AccessLevel.SYSTEM_MODE</code> has rule-citing comment (rules 1/2/3/4/6)</li>
+      <li>DTOs crossing package + @AuraEnabled boundary are <code>global</code> with <code>{ get; set; }</code></li>
+      <li>org-metadata/ changes mirror both managed/ and scratch/ with correct prefix</li>
+      <li>No <code>System.debug()</code> or <code>console.log()</code> in production code</li>
+    </ul>
+    <div class="fh">Skip (Already Enforced by CI)</div>
+    <ul>
+      <li>Prettier formatting, ESLint violations, hex colors, Jest pass/fail, Apex test pass/fail</li>
+    </ul>
+    <div class="fh">Do Not Report</div>
+    <ul>
+      <li>Generated metadata XML boilerplate, version-bump-only changes, test-only code (<code>_T.cls</code>)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Implementation Steps -->
+<h2>Implementation Steps <span class="sub">High-level path to get here</span></h2>
+<div class="divider"></div>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h4>Add the API key secret</h4>
+      <p>Store <code>ANTHROPIC_API_KEY</code> in the repo's GitHub Actions secrets. This is the only step that requires admin access.</p>
+      <span class="who admin">Needs Admin</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h4>Create REVIEW.md</h4>
+      <p>Add the shared rulebook to the repo root. Defines severity levels, Salesforce-specific checks, skip rules, and volume caps. Used by both local /code-review and CI.</p>
+      <span class="who you">You Can Do This</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h4>Create the GitHub Actions workflow</h4>
+      <p>Add <code>claude-review.yml</code> to <code>.github/workflows/</code>. Triggers on non-draft PRs, runs claude-code-action with Sonnet 4.6, posts inline comments.</p>
+      <span class="who you">You Can Do This</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h4>Pilot on 10-15 real PRs</h4>
+      <p>Run on real work, check API usage dashboard for per-review costs, assess signal-to-noise. Tune the prompt or REVIEW.md skip rules based on findings.</p>
+      <span class="who you">You Can Do This</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h4>Team adopts local /code-review --comment</h4>
+      <p>Engineers run the local review before pushing. Same REVIEW.md rules, catches issues before they reach the PR. No extra cost beyond existing Max subscriptions.</p>
+      <span class="who you">You Can Do This</span>
+    </div>
+  </div>
+</div>
+
+<!-- Cost Controls -->
+<h2>Cost Controls <span class="sub">Tunable knobs inside the workflow YAML</span></h2>
+<div class="divider"></div>
+
+<div class="file-preview">
+  <div class="file-header"><span class="dot"></span> .github/workflows/claude-review.yml</div>
+  <div class="file-body" style="font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.78rem; white-space: pre; line-height: 1.8; overflow-x: auto;">- uses: anthropics/claude-code-action@v1
+  with:
+    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    <span style="background: var(--accent-light); color: var(--accent); padding: 0.1em 0.3em; border-radius: 4px; font-weight: 700;">claude_args: "--max-turns 10 --model claude-sonnet-4-6"</span></div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem;">
+  <div class="card" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--accent);">--max-turns (Review Depth)</h4>
+    <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 0.75rem;">Controls how many back-and-forth iterations the agent takes &mdash; reading files, inspecting the diff, posting comments. More turns = deeper analysis = higher cost.</p>
+    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.35rem 0.6rem; background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 6px;">
+        <span><code style="font-size:0.76rem; background:var(--surface-alt); padding:0.1em 0.3em; border-radius:3px;">--max-turns 5</code></span>
+        <span style="color: var(--green); font-weight: 600;">~30-50% cheaper</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.35rem 0.6rem; background: var(--accent-light); border: 1px solid var(--accent-mid); border-radius: 6px;">
+        <span><code style="font-size:0.76rem; background:var(--surface-alt); padding:0.1em 0.3em; border-radius:3px;">--max-turns 10</code></span>
+        <span style="color: var(--accent); font-weight: 600;">Recommended balance</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.35rem 0.6rem; background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 6px;">
+        <span><code style="font-size:0.76rem; background:var(--surface-alt); padding:0.1em 0.3em; border-radius:3px;">--max-turns 15+</code></span>
+        <span style="color: var(--amber); font-weight: 600;">Deeper, diminishing returns</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow);">
+    <h4 style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--accent);">Other Levers</h4>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <div style="font-size: 0.8rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border);">
+        <strong style="color: var(--text);">Trigger: @claude comment only</strong>
+        <div style="color: var(--text-sec); font-size: 0.78rem;">Review runs only when someone comments <code style="font-size:0.74rem;">@claude</code> on the PR. You control exactly when it fires. Avoids the "$20/PR" trap of triggering on every push (5 pushes = 5 reviews). Cancellable mid-run from Actions tab.</div>
+      </div>
+      <div style="font-size: 0.8rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border);">
+        <strong style="color: var(--text);">REVIEW.md skip rules</strong>
+        <div style="color: var(--text-sec); font-size: 0.78rem;">Exclude generated files, lockfiles, metadata XML boilerplate. Saves 10-30%.</div>
+      </div>
+      <div style="font-size: 0.8rem; padding: 0.4rem 0;">
+        <strong style="color: var(--text);">Model selection</strong>
+        <div style="color: var(--text-sec); font-size: 0.78rem;">Sonnet 4.6 ($3/$15 per 1M tokens) is the recommended balance. Haiku is cheaper but shallower.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- What a turn actually looks like -->
+<h2 style="margin-top: 2rem;">What Happens Each Turn <span class="sub">--max-turns is sequential depth, not parallel agents</span></h2>
+<div class="divider"></div>
+
+<p style="font-size: 0.85rem; color: var(--text-sec); text-align: center; max-width: 680px; margin: 0 auto 1.5rem; line-height: 1.6;">
+  Each turn is one cycle: the agent <strong style="color: var(--text);">thinks</strong>, <strong style="color: var(--text);">reads a file</strong> from the PR diff or repo, <strong style="color: var(--text);">gets the result</strong>, then thinks again. It's one agent working sequentially &mdash; going back and forth between the PR diff (what changed) and the actual repo files (full context). Cost compounds because each turn re-sends everything read in prior turns.
+</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem;">
+
+  <!-- 5 turns -->
+  <div style="background: var(--surface); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green);"></div>
+    <div style="text-align: center; margin-bottom: 0.75rem;">
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--green);">5 turns</div>
+      <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Budget-friendly</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0;">1</span>
+        <span style="color: var(--text-sec);">Read PR diff</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0;">2</span>
+        <span style="color: var(--text-sec);">Read CLAUDE.md + REVIEW.md</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0;">3</span>
+        <span style="color: var(--text-sec);">Open 1-2 changed files</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0;">4</span>
+        <span style="color: var(--text-sec);">Analyze &amp; form findings</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0;">5</span>
+        <span style="color: var(--text-sec);">Post comments</span>
+      </div>
+    </div>
+    <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+      Diff-level review only.<br>May miss cross-file issues.
+    </div>
+  </div>
+
+  <!-- 10 turns -->
+  <div style="background: var(--surface); border: 2px solid var(--accent-mid); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-mid));"></div>
+    <div style="position: absolute; top: 8px; right: 8px; background: var(--accent); color: #fff; font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Recommended</div>
+    <div style="text-align: center; margin-bottom: 0.75rem;">
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">10 turns</div>
+      <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Best balance</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">1</span>
+        <span style="color: var(--text-sec);">Read PR diff</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">2</span>
+        <span style="color: var(--text-sec);">Read CLAUDE.md + REVIEW.md</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">3</span>
+        <span style="color: var(--text-sec);">Open changed Apex class (full context)</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">4</span>
+        <span style="color: var(--text-sec);">Open related service/caller</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">5</span>
+        <span style="color: var(--text-sec);">Open test file for coverage check</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">6</span>
+        <span style="color: var(--text-sec);">Open metadata (ServiceLocator / DTOs)</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">7</span>
+        <span style="color: var(--text-sec);">Open additional changed files</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">8</span>
+        <span style="color: var(--text-sec);">Analyze all context, form findings</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">9</span>
+        <span style="color: var(--text-sec);">Post inline PR comments</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--accent); flex-shrink: 0;">10</span>
+        <span style="color: var(--text-sec);">Post summary comment</span>
+      </div>
+    </div>
+    <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--accent); text-align: center; font-weight: 600;">
+      Cross-file analysis, test coverage,<br>convention checks, full findings.
+    </div>
+  </div>
+
+  <!-- 15 turns -->
+  <div style="background: var(--surface); border: 1px solid var(--amber-border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--amber);"></div>
+    <div style="text-align: center; margin-bottom: 0.75rem;">
+      <div style="font-size: 1.5rem; font-weight: 800; color: var(--amber);">15+ turns</div>
+      <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Deep analysis</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--amber-bg); border: 1px solid var(--amber-border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--amber); flex-shrink: 0;">1</span>
+        <span style="color: var(--text-sec);">Everything in 10 turns</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--amber-bg); border: 1px solid var(--amber-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--amber); flex-shrink: 0;">+</span>
+        <span style="color: var(--text-sec);">Deeper call-chain tracing</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--amber-bg); border: 1px solid var(--amber-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--amber); flex-shrink: 0;">+</span>
+        <span style="color: var(--text-sec);">More related files inspected</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--amber-bg); border: 1px solid var(--amber-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--amber); flex-shrink: 0;">+</span>
+        <span style="color: var(--text-sec);">Second-pass verification</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; font-size: 0.78rem;">
+        <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--amber-bg); border: 1px solid var(--amber-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--amber); flex-shrink: 0;">+</span>
+        <span style="color: var(--text-sec);">Edge-case exploration</span>
+      </div>
+    </div>
+    <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+      Diminishing returns past 10.<br>Cost scales with context size.
+    </div>
+  </div>
+
+</div>
+
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2.5rem; box-shadow: var(--shadow);">
+  <p style="font-size: 0.82rem; color: var(--text-sec); text-align: center; line-height: 1.6;">
+    <strong style="color: var(--text);">Why cost compounds:</strong> By turn 8, the agent's conversation includes everything it read in turns 1&ndash;7 &mdash; the full diff, CLAUDE.md, every file it opened. Each subsequent turn re-sends that growing context. A large CLAUDE.md or many changed files means more tokens accumulating per turn.
+  </p>
+</div>
+
+<div style="background: var(--green-bg); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2.5rem; font-size: 0.84rem; color: var(--text-sec); text-align: center;">
+  All of these are configured in the <strong style="color: var(--text);">workflow YAML file</strong> &mdash; a file you have write access to change anytime. No admin needed to tune costs.
+</div>
+
+<!-- Bottom callout -->
+<div class="callout">
+  <p><strong>One admin action. Everything else is ready to go.</strong><br>Ask an admin to add the <code style="font-size:0.78rem; background:rgba(255,255,255,0.5); padding:0.1em 0.3em; border-radius:3px;">ANTHROPIC_API_KEY</code> secret. The REVIEW.md, the workflow YAML, the cost controls, and the team rollout are all within existing write access. We can pilot on real PRs this week.</p>
+</div>
+
+<!-- What this doesn't replace -->
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow);">
+  <h3 style="font-size: 0.82rem; font-weight: 700; margin-bottom: 0.6rem;">What hybrid review does NOT replace</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+    <div style="font-size: 0.8rem; color: var(--text-sec); line-height: 1.5;">
+      <strong style="color: var(--text);">Human judgment</strong><br>Architecture decisions, UX feedback, domain logic, "should we even build this?" &mdash; still needs a human.
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-sec); line-height: 1.5;">
+      <strong style="color: var(--text);">CI pipeline</strong><br>Compile errors, test failures, Prettier formatting, deploy validation &mdash; still runs as-is. AI review is additive, not a replacement.
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-sec); line-height: 1.5;">
+      <strong style="color: var(--text);">Pre-refinement</strong><br><code style="font-size:0.76rem;">/polish</code> and ticket validation happen at a different phase entirely. Hybrid review is merge-time, not planning-time.
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Hybrid Code Review Proposal &middot; Ohanafy / OHFY-Split &middot; June 2026
+</div>
+
+</body>
+</html>

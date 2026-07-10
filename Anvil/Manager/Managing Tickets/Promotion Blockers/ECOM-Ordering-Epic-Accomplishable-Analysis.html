@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4995 — What's Accomplishable in the Not-Done Pool</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#ffffff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --yellow:#e4f223; --green:#0f6e56;
+    --green-soft:#e7f4ef; --amber:#92400e; --amber-soft:#fdf4e3; --crimson:#a32d2d;
+    --crimson-soft:#fbeaea; --slate:#5b6678; --slate-soft:#eceef2; --code:#0e1726; --code-ink:#e7ecf5; --code-dim:#8794ad;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 28px 90px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:var(--yellow);color:var(--ink);margin-left:6px;}
+  h1{font-size:27px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:820px;}
+  h2{font-size:20px;margin:46px 0 6px;padding-top:16px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+    background:var(--denim);color:#fff;border-radius:50%;font-size:13px;margin-right:9px;vertical-align:2px;}
+  p{margin:10px 0;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;white-space:nowrap;}
+  .tldr{background:var(--ink);color:#eef1f6;border-radius:14px;padding:22px 26px;margin:20px 0;box-shadow:0 8px 26px rgba(22,35,58,.16);}
+  .tldr h3{margin:0 0 8px;color:var(--yellow);font-size:13px;letter-spacing:.06em;text-transform:uppercase;}
+  .tldr p{margin:8px 0;font-size:15px;line-height:1.6;} .tldr b{color:#fff;}
+  .tldr .big{font-size:18px;font-weight:700;color:#fff;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:var(--card);border-radius:10px;
+    overflow:hidden;box-shadow:0 2px 10px rgba(22,35,58,.05);font-size:13px;}
+  th{background:var(--ink);color:#fff;text-align:left;padding:9px 11px;font-size:11.5px;letter-spacing:.03em;}
+  td{padding:9px 11px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf9f8;}
+  .k{font:700 12px ui-monospace,Menlo,monospace;white-space:nowrap;}
+  .st{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap;}
+  .st.prog{background:var(--amber-soft);color:var(--amber);}
+  .st.todo{background:var(--denim-soft);color:var(--denim);}
+  .st.backlog{background:var(--slate-soft);color:var(--slate);}
+  .st.review{background:var(--green-soft);color:var(--green);}
+  .st.test{background:#e8f0fb;color:#2c5cc5;}
+  .st.nr{background:#f3eafc;color:#7a3ca8;}
+  /* tier sections */
+  .tier{border-radius:13px;padding:16px 20px;margin:14px 0;border-left:6px solid;background:var(--card);box-shadow:0 2px 10px rgba(22,35,58,.05);}
+  .tier h4{margin:0 0 2px;font-size:15px;}
+  .tier .meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .tier.go{border-color:var(--green);} .tier.go h4{color:var(--green);}
+  .tier.close{border-color:var(--slate);} .tier.close h4{color:var(--slate);}
+  .tier.scope{border-color:var(--amber);} .tier.scope h4{color:var(--amber);}
+  .tier.feature{border-color:var(--denim);} .tier.feature h4{color:var(--denim);}
+  .tier.defer{border-color:var(--crimson);} .tier.defer h4{color:var(--crimson);}
+  .row{display:flex;gap:10px;padding:7px 0;border-bottom:1px dotted var(--line);font-size:13px;}
+  .row:last-child{border:none;}
+  .row .kk{flex:0 0 88px;font:700 11.5px ui-monospace,Menlo,monospace;}
+  .row .tt{flex:1;} .row .tt .why{display:block;color:var(--muted);font-size:11.5px;margin-top:2px;}
+  .row .sp{flex:0 0 30px;text-align:right;font:700 12px ui-monospace,Menlo,monospace;color:var(--muted);}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;} .note b{color:var(--denim);}
+  .crit{background:var(--crimson-soft);border-left:5px solid var(--crimson);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13.5px;} .crit b{color:var(--crimson);}
+  pre{background:var(--code);color:var(--code-ink);border-radius:10px;padding:16px 18px;overflow-x:auto;
+    font:11.5px/1.55 "SF Mono",ui-monospace,Menlo,monospace;margin:12px 0;}
+  .cmt{color:#7f8db0;} .y{color:#e4f223;}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+  .cnt{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;text-align:center;min-width:120px;flex:1;}
+  .cnt .num{font:800 24px ui-monospace,Menlo,monospace;line-height:1;}
+  .cnt .lbl{font-size:11px;color:var(--muted);margin-top:4px;}
+  .cnt.go .num{color:var(--green);} .cnt.close .num{color:var(--slate);} .cnt.feature .num{color:var(--denim);} .cnt.defer .num{color:var(--crimson);}
+  .foot{margin-top:54px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4995</span><span class="tag y">Retailer Online Ordering</span>
+  <h1>What Can Actually Be Finished in the Not-Done Pool</h1>
+  <p class="sub">Accomplishability analysis for <b>[REQ-068] Retailer Online Ordering Experience</b> — the e-commerce/ordering epic (where the product-card work lives). Grounded in the live repo + every description / AC / comment on the open cart &amp; account tickets. 2026-06-22.</p>
+</header>
+
+<div class="tldr">
+  <h3>Bottom line</h3>
+  <p class="big">The pool looks like ~13 open tickets. It's really 1 real feature + finish-line work + duplicates.</p>
+  <p>Most of the not-Done pool is <b>finish-line UI</b>, <b>redundant umbrella stories</b>, and <b>work already shipped under other tickets</b>. The only genuinely meaty net-new lift is <b>Checkout + Tax + Order (BMS-4052)</b>, gated on an FL/AL tax decision. Close the in-flight tickets, close the duplicates, land 4052 — the epic is largely done.</p>
+</div>
+
+<div class="pillrow">
+  <div class="cnt go"><div class="num">4</div><div class="lbl">finish line (in flight)</div></div>
+  <div class="cnt go"><div class="num">2</div><div class="lbl">small refined builds</div></div>
+  <div class="cnt close"><div class="num">5</div><div class="lbl">close: duplicate / shipped</div></div>
+  <div class="cnt feature"><div class="num">1</div><div class="lbl">real net-new feature</div></div>
+  <div class="cnt defer"><div class="num">4</div><div class="lbl">deferred</div></div>
+</div>
+
+<!-- provenance -->
+<h2><span class="n">1</span>How this backlog was built — the context behind the tickets</h2>
+<p>Reading the not-Done pool correctly requires knowing where it came from. This epic's tickets were <b>not hand-authored one by one</b> — they were generated and enriched from workshop notes + codebase analysis, then decomposed from umbrella stories. That origin is exactly why the pool carries duplicate umbrellas and auto-generated "Needs Refinement" stubs on top of the real phased build.</p>
+
+<table>
+  <tr><th>Stage</th><th>What happened</th><th>Evidence in the tickets</th></tr>
+  <tr><td><b>1 · Source — Gulf Blueprint Workshops</b></td><td>Customer discovery sessions (Pricing FL vs AL; "Pricing, Promotions &amp; Billbacks" — Michael, Emily, Cam) captured pain points that seeded the epic.</td><td>Every story carries a <code class="inl">Gulf Context — From Gulf Blueprint Workshops</code> block + "Gulf Workshop References" with named pain points.</td></tr>
+  <tr><td><b>2 · Epic tracker created</b></td><td>BMS-4995 <code class="inl">[REQ-068]</code> stood up as a roadmap tracker, phased <code class="inl">crawl → walk → wave-1</code>.</td><td>Labels: <code class="inl">sf-tracker</code>, <code class="inl">roadmap-v2-baseline</code>, <code class="inl">walk</code>, <code class="inl">wave-1</code>, <code class="inl">gulf</code>, <code class="inl">pre-existing-product</code>.</td></tr>
+  <tr><td><b>3 · Tickets auto-generated + enriched</b></td><td>Stories were machine-generated from <b>codebase + discovery analysis</b> and auto-enriched with a Story Statement, Gulf Context, an "Approach," and a <b>Readiness</b> verdict scored on codebase match.</td><td>Footer on the pricing siblings: <i>"Auto-generated from codebase + discovery analysis. Verify before implementation."</i> · <i>"Auto-enriched 2026-04-09 | Data completeness 80–85%."</i> · Readiness e.g. <i>Fast-Trackable (PromotionsService match 0.38)</i> vs <i>Refinement Needed (no strong code match 0.00)</i>.</td></tr>
+  <tr><td><b>4 · Umbrellas decomposed</b></td><td>Two near-identical umbrella stories restating the whole epic were split into real children; the dupes were later closed/narrowed.</td><td>BMS-3857 + BMS-3920 created <b>9 minutes apart</b> on 2026-03-25, both titled "Retailer Online Ordering Experience." Decomposed into 3923–3932, 4049–4054, sprint-0 batch. 3857 → closed duplicate; 3920 → narrowed to allocation-only; remainder → BMS-5321.</td></tr>
+  <tr><td><b>5 · Refinement flow</b></td><td>Auto-generated stubs enter as <code class="inl">Needs Refinement</code> and are promoted via <code class="inl">/polish → To Do</code>, where the generated scope is verified against code.</td><td>ACs read <i>"TBD at refinement — standard flow: Needs Refinement → /polish → To Do."</i> Several auto-generated ACs over-described scope (e.g., stacking/floor/BOGO on pricing tickets).</td></tr>
+</table>
+
+<div class="note"><b>Why this matters for the count.</b> The raw "~13 open" overstates real work because the backlog still carries (a) <b>auto-generated umbrella stories</b> that duplicate the phased children (3924/3925/3928), and (b) <b>enrichment scaffolding</b> — generated Approaches/ACs marked "verify before implementation." Strip those and the genuine remaining build is small. The classification in §2 is the result of verifying each generated ticket against what's actually in the repo.</div>
+
+<div class="note"><b>Trust level on the source data.</b> Workshop context and pain points are high-signal (real customer sessions). The <b>auto-generated Approach / AC / Readiness fields are advisory</b> — they're a starting point from a codebase-similarity pass, not a verified design, and the tickets say so explicitly. This analysis leans on the workshop context + live-repo verification, and treats the generated approach text as a hint only.</div>
+
+<!-- tiers -->
+<h2><span class="n">2</span>The not-Done pool, by what you can actually do with it</h2>
+
+<div class="tier go">
+  <h4>🟢 Finish line — in flight, nearly done</h4>
+  <div class="meta">Drive to Done</div>
+  <div class="row"><span class="kk">BMS-4053</span><span class="tt">Product Card Ph1 <span class="st prog">In Progress</span> <span class="why">Your current ticket — finish &amp; merge</span></span><span class="sp">5</span></div>
+  <div class="row"><span class="kk">BMS-4054</span><span class="tt">Product Card Ph2 — grid + reuse <span class="st prog">In Progress</span> <span class="why">Card is built; grid reuse is the natural next step</span></span><span class="sp">2</span></div>
+  <div class="row"><span class="kk">BMS-5344</span><span class="tt">Reorder banner blue-on-blue <span class="st review">Review</span> <span class="why">Basically done — push to close</span></span><span class="sp">1</span></div>
+  <div class="row"><span class="kk">BMS-3926</span><span class="tt">Passwordless login + registration <span class="st test">Testing</span> <span class="why">In testing — verify &amp; close</span></span><span class="sp">5</span></div>
+</div>
+
+<div class="tier go">
+  <h4>🟢 Accomplishable now — clear scope</h4>
+  <div class="meta">Small builds; refine then go</div>
+  <div class="row"><span class="kk">BMS-3932</span><span class="tt">Self-service account mgmt (address, contacts) <span class="st todo">To Do</span> <span class="why"><b>v1 only</b> — direct-write on existing <code class="inl">ecomProfilePage</code> + <code class="inl">Ecom_UI_Wrappers</code> + <code class="inl">UpdateContactController</code>. No approval process in v1 (blocked on Gulf sign-off), no external address validation. Needs fresh /polish for ACs. Coordinate w/ BMS-4258 (Done).</span></span><span class="sp">3</span></div>
+  <div class="row"><span class="kk">BMS-5321</span><span class="tt">Segmented promo banners at login <span class="st nr">Needs Refinement</span> <span class="why">Small, clear; refine → build</span></span><span class="sp">2</span></div>
+</div>
+
+<div class="tier close">
+  <h4>🧹 Close, don't build — redundant umbrellas</h4>
+  <div class="meta">Already decomposed into real children — administrative closure</div>
+  <div class="row"><span class="kk">BMS-3924</span><span class="tt">Product card &amp; grid components <span class="st nr">Needs Refinement</span> <span class="why">→ covered by BMS-4053 + 4054</span></span></div>
+  <div class="row"><span class="kk">BMS-3925</span><span class="tt">Product Catalog &amp; Availability <span class="st nr">Needs Refinement</span> <span class="why">→ covered by BMS-3927 (Done, search/filter) + the card; real-time availability already struck through</span></span></div>
+  <div class="row"><span class="kk">BMS-3928</span><span class="tt">Cart &amp; checkout (umbrella) <span class="st nr">Needs Refinement</span> <span class="why">→ covered by BMS-4049 (Done spike) + 4050/4051/4052</span></span></div>
+</div>
+
+<div class="tier scope">
+  <h4>🟡 Already shipped elsewhere — re-scope or close</h4>
+  <div class="meta">Don't rebuild</div>
+  <div class="row"><span class="kk">BMS-4050</span><span class="tt">Cart + basic pricing <span class="st nr">Needs Refinement</span> <span class="why"><b>Largely exists</b> — storefront cart resolves FLP + promo live via <code class="inl">Ecom_UI_Wrappers</code> (the one production <code class="inl">S_PriceResolver</code> consumer). Refine to confirm the gap; likely thin.</span></span></div>
+  <div class="row"><span class="kk">BMS-4051</span><span class="tt">Volume tiers + promos in cart <span class="st nr">Needs Refinement</span> <span class="why"><b>Substantially shipped</b> by your BMS-4053 cart-reactive volume pricing + BMS-4076 (Done — Promotions v2 Shop/PDP/Cart). Re-scope to "what's left" or close.</span></span></div>
+</div>
+
+<div class="tier feature">
+  <h4>🟡 The ONE real remaining feature</h4>
+  <div class="meta">Where to focus refinement energy</div>
+  <div class="row"><span class="kk">BMS-4052</span><span class="tt">Checkout + Tax + Order <span class="st nr">Needs Refinement</span> <span class="why"><b>The genuine remaining engineering lift.</b> Entity-aware <b>FL/AL tax</b>, order creation with full pricing lineage, minimum-order enforcement. The <b>tax piece is the open unknown</b> — entity-aware, not just ZIP-based. Decide the tax approach before sprinting.</span></span></div>
+</div>
+
+<div class="tier defer">
+  <h4>🔴 Defer — real dependency or v2</h4>
+  <div class="meta">Move to a follow-up bucket so they don't hold the epic open</div>
+  <div class="row"><span class="kk">BMS-4525</span><span class="tt">Credit terms Ph2 — AR sync, invoice list, payment history <span class="st todo">To Do</span> <span class="why"><b>Integration dependency</b> — buildable only if an AR data source/sync exists. Heaviest real ticket; confirm the AR feed first.</span></span><span class="sp">8</span></div>
+  <div class="row"><span class="kk">BMS-5322</span><span class="tt">Self-service acct mgmt v2 (zone model, address validation, approval) <span class="st backlog">Backlog</span> <span class="why">Needs Named Credential + external API + Gulf sign-off on approval. Explicitly deferred from BMS-3932.</span></span></div>
+  <div class="row"><span class="kk">BMS-3920</span><span class="tt">Supplier allocation constraints &amp; case-pack rounding <span class="st nr">Needs Refinement</span> <span class="why">No data model exists for allocation rules; needs customer input on where they live + enforcement point.</span></span></div>
+  <div class="row"><span class="kk">BMS-4494/95</span><span class="tt">Reporting spike + build <span class="st backlog">Backlog</span> <span class="why">Downstream of feature completion; reporting track.</span></span></div>
+</div>
+
+<!-- why -->
+<h2><span class="n">3</span>Why it's accomplishable — the platform is already there</h2>
+<div class="note">Confirmed in the repo this session:
+<ul>
+  <li><b>Storefront already prices through the full waterfall</b> — <code class="inl">Ecom_UI_Wrappers</code> is the <em>only</em> production consumer of <code class="inl">S_PriceResolver.resolve()</code>; the e-commerce surface gets FLP + promotions live (invoices/trucks are still FLP-only, tracked separately under BMS-3874).</li>
+  <li><b>Cart-reactive volume pricing + promo display already built</b> (your BMS-4053) and <b>promotions integrated across Shop/PDP/Cart</b> (BMS-4076, Done). That's why 4050/4051 are effectively done.</li>
+  <li><b>Profile/account surface exists</b> (<code class="inl">ecomProfilePage</code>, <code class="inl">Ecom_UI_Wrappers</code>, <code class="inl">UpdateContactController</code>, multi-account BMS-4258 Done) — so 3932 v1 is incremental, not scaffolding.</li>
+</ul>
+The gaps are: <b>checkout→order→tax (4052)</b>, <b>AR integration (4525)</b>, and <b>external/v2 concerns (5322, 3920)</b>.</div>
+
+<!-- actions -->
+<h2><span class="n">4</span>Recommended actions</h2>
+<pre><span class="cmt">DRIVE TO DONE (in flight):</span>
+  ├─ BMS-4053  Product Card Ph1 .......... finish
+  ├─ BMS-4054  Product Card Ph2 (grid) ... finish
+  ├─ BMS-5344  Banner fix ................ Review → Done
+  └─ BMS-3926  Passwordless login ........ Testing → Done
+
+<span class="cmt">BUILD (small, clear):</span>
+  ├─ BMS-3932  Self-service acct mgmt v1 . /polish then build (no approval in v1)
+  └─ BMS-5321  Promo banners at login .... refine → build
+
+<span class="cmt">CLOSE AS DUPLICATE / DONE-ELSEWHERE:</span>
+  ├─ BMS-3924  card/grid umbrella ........ → 4053/4054
+  ├─ BMS-3925  catalog/availability ...... → 3927 + card
+  ├─ BMS-3928  cart/checkout umbrella .... → 4049/4050/4051/4052
+  ├─ BMS-4050  cart + basic pricing ...... re-scope; mostly live
+  └─ BMS-4051  volume + promos ........... re-scope; shipped via 4053/4076
+
+<span class="cmt">THE ONE REAL FEATURE (refine, then build):</span>
+  └─ BMS-4052  Checkout + Tax + Order .... <span class="y">⚠ decide FL/AL tax approach first</span>
+
+<span class="cmt">DEFER (dependency / v2):</span>
+  ├─ BMS-4525  Credit terms AR sync ...... confirm AR data source first
+  ├─ BMS-5322  Self-service v2 ........... Named Credential + approval sign-off
+  ├─ BMS-3920  Supplier allocation ....... no data model; needs customer input
+  └─ BMS-4494/4495  Reporting ............ downstream of feature completion</pre>
+<div class="note"><b>Epic exit:</b> BMS-4995 reaches Done by finishing the 4 in-flight tickets, building 3932 v1 + 5321, closing the 5 duplicate/shipped-elsewhere tickets, and landing 4052. The 4 deferred tickets move to their own follow-up bucket (AR integration, self-service v2, allocation, reporting) so they don't hold the epic open.</div>
+
+<div class="foot">
+  BMS-4995 accomplishability analysis · 2026-06-22.<br/>
+  Basis: live repo <span class="kvs">OHFY-Split-BMS-4053</span> (Ecom_UI_Wrappers, userDataService, ecomProfilePage, product-card LWCs) + Jira descriptions/ACs/comments for the open cart &amp; account tickets + status/SP for all 37 epic children.<br/>
+  Companion: <span class="kvs">ECOM-Ordering-Epic-Accomplishable-Analysis.md</span> (same folder).
+</div>
+
+</div>
+</body>
+</html>

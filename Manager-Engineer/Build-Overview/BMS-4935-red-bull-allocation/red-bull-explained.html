@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Bull Allocation Import — Explained Simply (BMS-4935)</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:34px 18px;}
+  .wrap{max-width:720px;margin:0 auto}
+  .tag{display:inline-block;background:var(--soft);color:var(--accent);font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:18px}
+  .story{background:linear-gradient(135deg,#fff,#f0f4ff);border:1px solid var(--line);
+    border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:0 0 14px;font-size:18px}
+  .story b{color:var(--accent)}
+  h2{font-size:21px;margin:30px 0 10px;display:flex;align-items:center;gap:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:10px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  ul{margin:6px 0;padding-left:22px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;margin:6px 0;font-size:16px}
+  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .when{font-weight:700;white-space:nowrap}
+  .now{color:var(--grn)} .before{color:var(--mut)} .future{color:var(--blu)}
+  .takeaway{background:#1f2733;color:#fff;border-radius:16px;padding:22px 24px;margin:26px 0 0;font-size:18px;line-height:1.6}
+  .takeaway b{color:#9db8ff}
+  .foot{color:var(--mut);font-size:14px;margin-top:24px;text-align:center}
+  .chip{display:inline-block;background:var(--soft);border-radius:8px;padding:1px 8px;font-size:14px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Red Bull Allocation · BMS-4935 · explained simply</div>
+  <h1>Stocking Red Bull — without the guesswork</h1>
+  <p class="sub">How a weekly spreadsheet became an import screen that does the hard math automatically.</p>
+
+  <div class="story">
+    🥤 Imagine a teacher hands out <b>100 cookies</b> to five classrooms. Instead of counting them out herself every week, she writes each classroom's fair share on a note — but someone still has to read the note and <b>hand-carry the cookies</b> to each room. Now imagine doing that wrong and three classrooms get nothing. The <b>"allocation import"</b> is the system that reads the note and <b>delivers the right amount, automatically</b>.
+  </div>
+
+  <h2>😖 Why it's a problem</h2>
+  <div class="card">
+    <ul>
+      <li>Every week, Red Bull emails Gulf a spreadsheet that says <b>how many cases of each product Gulf is allowed to buy</b>. That number is called an <b>allocation</b>.</li>
+      <li>Gulf has <b>5 warehouses</b> across Florida and Alabama. Someone had to open that spreadsheet and manually type each number into the system — <b>five times, for every product, every week</b>.</li>
+      <li>Manual = mistakes. A typo means one warehouse gets too much, another gets too little, and drivers show up with the wrong stock.</li>
+      <li>There was no check for bad data either — a misspelled product code or a negative number just went in quietly.</li>
+    </ul>
+  </div>
+
+  <h2>🧍 Who it hurts</h2>
+  <div class="card">
+    <ul>
+      <li><b>Purchasing analysts</b> — spending hours each week on tedious, error-prone data entry.</li>
+      <li><b>Warehouse teams</b> — getting the wrong quantities because a number was keyed in wrong.</li>
+      <li><b>Drivers &amp; customers</b> — running out of Red Bull because a warehouse was under-stocked by mistake.</li>
+    </ul>
+  </div>
+
+  <h2>💡 The solution — an import screen that does the work</h2>
+  <div class="card">
+    <b>Upload the file. The system does the rest.</b> The purchasing analyst uploads Red Bull's spreadsheet, and the import screen:
+    <ul>
+      <li>🔍 <b>Checks every row for problems</b> before saving anything — unknown product codes, bad quantities, duplicates are all caught and shown on screen. Clean rows go in; bad rows are listed with a reason and skipped.</li>
+      <li>🏭 <b>Splits each product automatically</b> across the 5 warehouses using configured percentages: Milton FL gets 30%, Montgomery AL 25%, Mobile AL 20%, Huntsville AL 15%, McCalla AL 10%. The math is guaranteed to add up — no rounding errors.</li>
+      <li>📅 <b>A week picker</b> lets the analyst pick which week the file is for, preventing accidental date mistakes.</li>
+      <li>♻️ <b>Re-importing the same week is safe</b> — it just updates, never duplicates.</li>
+    </ul>
+    Think of it as <span class="chip">one upload button that replaces a day of spreadsheet work</span>.
+  </div>
+
+  <h2>🧱 What's built — before, now, next</h2>
+  <div class="card">
+    <table>
+      <tr><th>When</th><th>What</th><th>In plain words</th></tr>
+      <tr>
+        <td class="when before">Before</td>
+        <td>Manual spreadsheet entry</td>
+        <td>Someone opened Red Bull's file and typed each number into the system by hand — once per warehouse, every week. Easy to get wrong, no error checking.</td>
+      </tr>
+      <tr>
+        <td class="when now">Now ✅</td>
+        <td>Import screen <span class="chip">BMS-4120</span> (Ph 1)</td>
+        <td>Upload the CSV → the system validates every row, rejects bad data with a clear reason, and auto-splits accepted quantities across all 5 warehouses. A week picker prevents date mistakes. <span class="chip">BMS-4119</span> was the planning spike that made this possible.</td>
+      </tr>
+      <tr>
+        <td class="when future">Future</td>
+        <td>Phase 2 <span class="chip">BMS-4121</span> + enforcement</td>
+        <td>Link allocations to the Red Bull supplier account, handle seasonal item changes, add a full audit log. Beyond that: today the imported records are a <b>landing/reporting dataset</b> — nothing downstream enforces them yet. That enforcement piece (so an order over the allocation actually gets blocked) is still unbuilt.</td>
+      </tr>
+    </table>
+    <p style="color:var(--mut);font-size:15px;margin:6px 0 0">Honest note: the import creates the records just fine today — but the rest of the system doesn't read them yet to stop over-ordering. That's the next big piece.</p>
+  </div>
+
+  <div class="takeaway">
+    🎯 <b>Hold onto this one sentence:</b><br>
+    Red Bull tells Gulf how much to stock each week — the import screen reads that file, catches bad data, and splits the numbers across 5 warehouses automatically, replacing hours of manual typing with a single upload.
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · updated 2026-06-30</p>
+
+</div>
+</body>
+</html>

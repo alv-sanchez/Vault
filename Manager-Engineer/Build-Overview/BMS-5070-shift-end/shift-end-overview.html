@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shift-End Workflow — Demo Overview (BMS-5070)</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#171a23; --line:#262b38; --ink:#e7eaf0; --mut:#9aa3b2;
+    --grn:#3fb950; --amb:#d2a32a; --red:#e5534b; --blu:#4c8dff; --accent:#7c5cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:32px 18px;}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:var(--mut);margin:0 0 28px}
+  .calm{background:linear-gradient(135deg,#1b2030,#171a23);border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;margin:0 0 26px}
+  .calm b{color:var(--accent)}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);
+    margin:30px 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:10px 0}
+  .pipe{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:8px 0}
+  .step{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .step .k{font-size:12px;color:var(--mut)}
+  .step .t{font-weight:600;margin:3px 0 6px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .b-built{background:rgba(63,185,80,.15);color:var(--grn);border:1px solid rgba(63,185,80,.4)}
+  .b-skip{background:rgba(154,163,178,.12);color:var(--mut);border:1px solid var(--line)}
+  .b-future{background:rgba(76,141,255,.12);color:var(--blu);border:1px solid rgba(76,141,255,.4)}
+  code,kbd{background:#0c0e14;border:1px solid var(--line);border-radius:6px;padding:2px 7px;
+    font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#cdd6f4}
+  .cmd{display:block;background:#0c0e14;border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin:10px 0;overflow-x:auto;white-space:pre;color:#9ce0a0;font:13px/1.6 ui-monospace,Menlo,monospace}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14.5px}
+  th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  .arc li{margin:6px 0}
+  .pill{display:inline-block;background:#0c0e14;border:1px solid var(--line);border-radius:20px;
+    padding:3px 11px;margin:3px 4px 3px 0;font-size:13px}
+  .pill .n{color:var(--blu);font-weight:700}
+  .foot{color:var(--mut);font-size:13px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+  .em{color:var(--accent);font-weight:600}
+  .warn-inline{background:rgba(210,163,42,.10);border:1px solid rgba(210,163,42,.3);border-radius:8px;
+    padding:10px 14px;margin:10px 0;font-size:14px;color:#e6c46a}
+  .warn-inline b{color:var(--amb)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Shift-End Workflow — what you're actually demoing</h1>
+  <p class="sub">BMS-5070 · org <code>ohfy-val-4078</code> · breathe — it's <b>one screen, one shift, one story.</b></p>
+
+  <div class="calm">
+    Don't think of this as four tickets. You built the <b>supervisor's shift-close screen</b>: a single checklist that turns a messy verbal handoff into a structured record.
+    Everything below is that one screen. The cycle-count and finance-rollup phases are future work you can mention, not show.
+  </div>
+
+  <h2>1 · What you see</h2>
+  <div class="card">
+    The <b>Shift-End Checklist</b> — the screen that replaces Gulf's verbal end-of-shift process (where supervisors shouted breakage numbers at each other or skipped them entirely). One screen for the outgoing supervisor showing:
+    <p>
+      <span class="pill">warehouse + shift</span><span class="pill">breakage events</span><span class="pill">total cases</span>
+      <span class="pill">checklist items</span><span class="pill">pass-down notes</span>
+    </p>
+    Seeded with <span style="color:var(--blu);font-weight:700">1 checklist</span> (SEC-00000002, <b>Milton FL · Mid shift · In Progress</b>), <b>4 checklist items</b> (Safety ✓, Equipment ✓, Replenishment ✗, Other ✗), <b>9 breakage events / 34 total cases</b>, and <b>2 pass-down notes</b>.
+  </div>
+
+  <div class="warn-inline">
+    <b>⚠ Ph1 known gap — mention this before the screen loads:</b> The checklist header field <code>Total_Breakage_Cases__c</code> reads <b>0</b>. The rollup that writes to it is BMS-4080 (Phase 3, not yet built). The screen shows the correct 34-case total by summing the events list at render time — the number you see is real. Tell your audience: "The Phase 3 build will persist that total to the record header; in Ph1 we read it from the live events."
+  </div>
+
+  <h2>2 · How you get here</h2>
+  <div class="card">
+    One command logs you straight onto the screen:
+    <span class="cmd">sf org open -o ohfy-val-4078 -p /lightning/n/ohfy__Shift_End_Checklist</span>
+    Or in the org: <b>App Launcher</b> (⠿) → search <kbd>Shift End Checklist</kbd>.
+    <span style="color:var(--mut);font-size:13.5px">(Tab visibility + data access already granted via <code>Demo_Shift_End_Tab</code> permission set.)</span>
+  </div>
+
+  <h2>3 · What gets resolved</h2>
+  <div class="card">
+    <table>
+      <tr><th>The pain</th><th>What the screen does</th></tr>
+      <tr><td>Breakage disappears into invisible shrinkage between shifts</td><td><b>Every damaged pick event is surfaced in one consolidated view</b> at shift close — no breakage slips through</td></tr>
+      <tr><td>No shift-level accountability — can't tie a loss to a crew</td><td><b>Checklist is keyed by (warehouse, shift, date)</b> — each shift owns its own record and its own breakage total</td></tr>
+      <tr><td>Verbal handoffs lose safety and replenishment context</td><td><b>Structured pass-down notes</b> with categories and a "flag for next shift" marker</td></tr>
+      <tr><td>Finance closes the books on guesswork</td><td>Ph3 will write <code>Total_Breakage_Cases__c</code> as a real field — Ph1 proves the data is captured and accurate</td></tr>
+    </table>
+  </div>
+
+  <h2>4 · The pipeline — what's covered per ticket, and why</h2>
+  <div class="pipe">
+    <div class="step"><div class="k">BMS-4077</div><div class="t">Spike: Data Mapping</div><span class="badge b-skip">not a build</span></div>
+    <div class="step"><div class="k">BMS-4078</div><div class="t">Ph 1: Checklist + Breakage Review</div><span class="badge b-built">built ✓</span></div>
+    <div class="step"><div class="k">BMS-4079</div><div class="t">Ph 2: Cycle Counts + Pass-Down</div><span class="badge b-future">future</span></div>
+    <div class="step"><div class="k">BMS-4080</div><div class="t">Ph 3: Submission + Finance Roll-Up</div><span class="badge b-future">future</span></div>
+  </div>
+  <table>
+    <tr><th>Ticket</th><th>What it is</th><th>Built?</th><th>Why</th></tr>
+    <tr>
+      <td><b>4077</b></td>
+      <td>Spike — map existing breakage &amp; inventory data before building</td>
+      <td><span class="badge b-skip">No</span></td>
+      <td>A <em>research / decide</em> ticket, not a deliverable. Its output (the <code>Pick_Event__c</code> damaged-event structure, the GMT day window, the object model) got <b>baked into the 4078 build</b> — a spike has nothing to ship.</td>
+    </tr>
+    <tr>
+      <td><b>4078</b></td>
+      <td>Ph 1 — supervisor checklist screen + breakage review</td>
+      <td><span class="badge b-built">Yes</span></td>
+      <td>The core supervisor screen: load breakage from <code>Pick_Event__c</code>, walk through checklist items, leave pass-down notes. <b>This is the demo.</b> Known Ph1 gap: <code>Total_Breakage_Cases__c</code> = 0 (rollup is Ph3).</td>
+    </tr>
+    <tr>
+      <td><b>4079</b></td>
+      <td>Ph 2 — formal cycle counts + structured pass-down UI</td>
+      <td><span class="badge b-future">No</span></td>
+      <td>Bin-position cycle counts tied to the shift, and a richer pass-down entry experience (category filter, flagged-for-next-shift UI). Depends on Gulf confirming which positions require spot-counts. <b>Deferred, not dropped.</b></td>
+    </tr>
+    <tr>
+      <td><b>4080</b></td>
+      <td>Ph 3 — checklist submission + <code>Total_Breakage_Cases__c</code> rollup + finance reporting</td>
+      <td><span class="badge b-future">No</span></td>
+      <td>Submit action, the rollup that writes a persistent shrinkage total to the checklist header, and finance-facing reporting. This is what makes the number real in the data model — Ph1 proves the data is captured correctly so Ph3 has something to roll up.</td>
+    </tr>
+  </table>
+  <div class="card" style="border-color:rgba(124,92,255,.4)">
+    <b class="em">The mental model:</b> 4077 = planning · <b>4078 = this one screen</b> · 4079 = richer pass-down + cycle counts (other surface) · 4080 = the rollup + finance close.
+    The checklist screen (4078) and the rollup (4080) aren't two separate things — they're two phases of the same thing.
+  </div>
+
+  <h2>5 · Your 4-minute demo arc</h2>
+  <div class="card">
+    <ol class="arc">
+      <li>Open the checklist — Milton FL, Mid shift, today. One record, one shift.</li>
+      <li>Show the <b>breakage events</b> — 9 events, 34 total damaged cases.</li>
+      <li>Walk the <b>checklist items</b> — Safety and Equipment complete; Replenishment and Other still open.</li>
+      <li>Show the <b>pass-down notes</b> — cracked floor tile in bay 7 (flagged), Modelo restock delayed.</li>
+      <li>Name the <b>Ph1 gap</b> proactively: "Header shows 0 cases — the rollup is Phase 3. The real number is 34, right there in the events list."</li>
+    </ol>
+  </div>
+
+  <div class="foot">
+    Verified live in <code>ohfy-val-4078</code> · 1 checklist (SEC-00000002) · 4 items · 9 breakage events / 34 cases · 2 pass-down notes · tab + FLS assigned via <code>Demo_Shift_End_Tab</code>.
+    Cycle counts (4079) and finance roll-up (4080) are mentionable but not shown. · Updated 2026-06-30.
+  </div>
+
+</div>
+</body>
+</html>

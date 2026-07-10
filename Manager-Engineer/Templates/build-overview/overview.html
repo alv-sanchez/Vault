@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{KEY}} — {{TITLE}}</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:920px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
+  .sub{color:var(--dim);margin:0 0 20px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(210,153,34,.16);color:#d29922}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:660px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:14px 16px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
+  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
+  .box p{margin:0;color:#d7dce8}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  a{color:var(--accent)}
+</style></head><body>
+  <h1><span class="key">{{KEY}}</span> — {{TITLE}}</h1>
+  <p class="sub">{{DOMAIN}} · <a href="{{JIRA}}">Jira</a> · <span class="badge">BUILD IN PROGRESS</span></p>
+  <div class="meta">Branch <code>{{BRANCH}}</code> · Org <code>{{ORG}}</code> · updated {{DATE}}. Fill this in as the build lands — it's the shareable one-pager.</div>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>who it's for</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>the pain / the money</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>how it's built</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p>what ships next / what's deferred</p></div>
+  </div>
+  <h2>What it is</h2><p>Plain-language description.</p>
+  <h2>Demo</h2><p>Click-path + the "don't say" caveats.</p>
+</body></html>

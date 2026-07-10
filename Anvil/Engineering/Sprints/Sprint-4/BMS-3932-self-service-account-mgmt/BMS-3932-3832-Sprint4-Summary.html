@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprint 4 WIP — BMS-3932 & BMS-3832</title>
+    <style>
+        :root {
+            --cork: #2D2A26;
+            --cork-light: #3D3A36;
+            --surface: #FAFAF8;
+            --surface-alt: #F2F1ED;
+            --yellow: #FFD600;
+            --yellow-muted: #FFF3B0;
+            --red: #E53935;
+            --red-bg: #FFF0F0;
+            --green: #2E7D32;
+            --green-bg: #F0FFF0;
+            --blue: #1565C0;
+            --blue-bg: #F0F4FF;
+            --orange: #E65100;
+            --orange-bg: #FFF3E0;
+            --text: #1A1A1A;
+            --text-secondary: #5A5A5A;
+            --border: #E0DED8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .page-header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .page-header .date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Ticket header */
+        .header {
+            background: var(--cork);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+
+        .header .ticket-id {
+            color: var(--yellow);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .header .meta {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-status { background: var(--yellow); color: var(--cork); }
+        .badge-type { background: rgba(255,255,255,0.15); color: white; }
+        .badge-warn { background: var(--orange); color: white; }
+        .badge-ok { background: var(--green); color: white; }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid var(--yellow);
+            display: inline-block;
+        }
+
+        .card p { margin-bottom: 0.6rem; font-size: 0.92rem; }
+        .card p:last-child { margin-bottom: 0; }
+
+        /* Impact grid */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+        }
+
+        .impact-item {
+            background: var(--surface-alt);
+            border-radius: 8px;
+            padding: 0.85rem;
+        }
+
+        .impact-item .label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+
+        .impact-item .value {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        /* Solution steps */
+        .solution-steps {
+            list-style: none;
+            counter-reset: steps;
+        }
+
+        .solution-steps li {
+            counter-increment: steps;
+            padding: 0.6rem 0 0.6rem 2.5rem;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .solution-steps li:last-child { border-bottom: none; }
+
+        .solution-steps li::before {
+            content: counter(steps);
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 1.6rem;
+            height: 1.6rem;
+            background: var(--yellow);
+            color: var(--cork);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .solution-steps li strong { display: block; margin-bottom: 0.1rem; }
+        .solution-steps li span { color: var(--text-secondary); font-size: 0.85rem; }
+
+        /* Readiness box */
+        .readiness {
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .readiness-warn {
+            background: var(--orange-bg);
+            border: 2px solid var(--orange);
+        }
+
+        .readiness-warn h3 { color: var(--orange); }
+
+        .readiness-block {
+            background: var(--red-bg);
+            border: 2px solid var(--red);
+        }
+
+        .readiness-block h3 { color: var(--red); }
+
+        .readiness h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            border: none;
+            padding: 0;
+        }
+
+        .finding-item {
+            background: white;
+            border-radius: 8px;
+            padding: 0.85rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.88rem;
+        }
+
+        .finding-item:last-child { margin-bottom: 0; }
+
+        .finding-item.blocker { border-left: 4px solid var(--red); }
+        .finding-item.question { border-left: 4px solid var(--blue); }
+        .finding-item.warn { border-left: 4px solid var(--orange); }
+
+        .finding-item .source {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+
+        .finding-item p { margin: 0; }
+
+        /* Comments */
+        .comment {
+            background: var(--surface-alt);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.88rem;
+        }
+
+        .comment .author {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--cork);
+            margin-bottom: 0.25rem;
+        }
+
+        .comment .date {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .comment blockquote {
+            margin: 0;
+            padding-left: 0.75rem;
+            border-left: 3px solid var(--border);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Comparison table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .comparison-table th {
+            background: var(--cork);
+            color: white;
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .comparison-table th:first-child { border-radius: 8px 0 0 0; }
+        .comparison-table th:last-child { border-radius: 0 8px 0 0; }
+
+        .comparison-table td {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table tr:nth-child(even) td { background: var(--surface-alt); }
+
+        .comparison-table td:first-child {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        /* Divider */
+        .section-divider {
+            border: none;
+            border-top: 3px solid var(--yellow);
+            margin: 2.5rem 0;
+        }
+
+        /* Connection box */
+        .connection-box {
+            background: var(--blue-bg);
+            border: 1px solid #C5D5F0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .connection-box h3 {
+            color: var(--blue);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            border: none;
+            padding: 0;
+        }
+
+        .connection-box p { font-size: 0.9rem; margin-bottom: 0.6rem; }
+
+        .connection-box ul {
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .connection-box li {
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h1>Sprint 4 WIP Summary</h1>
+        <div class="date">Generated 2026-06-08 | Sprint 4 (Jun 1 - Jun 15) | Alvaro Sanchez</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- BMS-3932                                                      -->
+    <!-- ============================================================ -->
+
+    <div class="header">
+        <div class="ticket-id">BMS-3932</div>
+        <h2>Self-Service Account Management (Address, Contacts)</h2>
+        <div class="meta">
+            <span class="badge badge-status">Backlog</span>
+            <span class="badge badge-type">Story</span>
+            <span class="badge badge-type">eCommerce</span>
+            <span class="badge badge-type">Gulf</span>
+            <span class="badge badge-warn">Needs Refinement</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Impact</h3>
+        <p>Gulf retailers currently rely on phone/email to ops for every address or contact change. With hundreds of on-premise accounts across FL and AL, this creates bottlenecks, delays deliveries, and introduces transcription errors into Route and Account data.</p>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <div class="label">Accounts Affected</div>
+                <div class="value">Hundreds (FL + AL)</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Current Process</div>
+                <div class="value">Phone/email to Gulf ops</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Risk</div>
+                <div class="value">Transcription errors, delivery delays</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Downstream</div>
+                <div class="value">Route, pricing, zone reassignment</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Solution</h3>
+        <ol class="solution-steps">
+            <li>
+                <strong>Self-service portal UI</strong>
+                <span>LWC components in Experience Cloud for address editing and contact management</span>
+            </li>
+            <li>
+                <strong>Pending change workflow</strong>
+                <span>New <code>Account_Change_Request__c</code> object with Status picklist (Pending/Approved/Rejected). Must be created from scratch.</span>
+            </li>
+            <li>
+                <strong>Address validation</strong>
+                <span>USPS or Google Address Validation API callout. Net-new integration &mdash; no existing address validation service in codebase.</span>
+            </li>
+            <li>
+                <strong>Zone impact detection</strong>
+                <span>Flag changes crossing delivery zone boundaries for escalated approval. No zone model exists &mdash; zones are implicit through Account_Route &rarr; Route &rarr; Warehouse.</span>
+            </li>
+            <li>
+                <strong>Contact management + portal access</strong>
+                <span>Direct Contact writes with community user provisioning/deactivation via Platform Event.</span>
+            </li>
+            <li>
+                <strong>Approval queue + change history</strong>
+                <span>Gulf ops review queue with auto-escalation. Chronological audit trail filterable by type and date.</span>
+            </li>
+        </ol>
+    </div>
+
+    <div class="readiness readiness-warn">
+        <h3>Readiness: Needs Refinement</h3>
+
+        <div class="finding-item blocker">
+            <div class="source">Polish review (Alvaro, 2026-06-08)</div>
+            <p><strong>Wrong dependency link.</strong> BMS-3930 (credit terms display) does not deliver auth, portal infrastructure, or account management. It was bulk-applied to 13 ecom tickets. Real dependencies: BMS-3926 (portal login) + BMS-3923 (Experience Cloud setup).</p>
+        </div>
+
+        <div class="finding-item warn">
+            <div class="source">Polish review (Alvaro, 2026-06-08)</div>
+            <p><strong>Infrastructure underestimated.</strong> Auto-generated tech approach reads as if <code>Account_Change_Request__c</code>, address validation API, delivery zone model, and portal access management already exist. None do.</p>
+        </div>
+
+        <div class="finding-item warn">
+            <div class="source">Polish review (Alvaro, 2026-06-08)</div>
+            <p><strong>No delivery zone data model.</strong> ACs reference ZIP-based zone detection, but no zone object or mapping exists. Must decide: build a zone model, or reframe around existing Route/Warehouse linkage.</p>
+        </div>
+
+        <div class="finding-item question">
+            <div class="source">Open questions for PO (Elliot Flores)</div>
+            <p>Remove BMS-3930 blocker? Address validation must-have or deferrable? Zone detection model needed or manual flag? Rejection notification flow?</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Comments</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem;">No prior comments. Polish review comment posted 2026-06-08 with full validation findings.</p>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ============================================================ -->
+    <!-- BMS-3832                                                      -->
+    <!-- ============================================================ -->
+
+    <div class="header">
+        <div class="ticket-id">BMS-3832</div>
+        <h2>CTC Suggestion Engine</h2>
+        <div class="meta">
+            <span class="badge badge-status">Backlog</span>
+            <span class="badge badge-type">Story</span>
+            <span class="badge badge-type">Inventory</span>
+            <span class="badge badge-type">Gulf</span>
+            <span class="badge badge-warn">Needs Spike</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Impact</h3>
+        <p>Gulf distributes perishable beverages across 5 warehouses. Close-to-code inventory that isn't moved quickly becomes a direct P&amp;L hit through spoilage write-offs, supplier claim rejections, and customer returns.</p>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <div class="label">Warehouses</div>
+                <div class="value">5 locations (FL + AL)</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">SKU Complexity</div>
+                <div class="value">Thousands, varying shelf-life</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Pricing Codes</div>
+                <div class="value">154+ (promotional levers)</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">P&amp;L Risk</div>
+                <div class="value">Spoilage, failed claims, returns</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Solution</h3>
+        <ol class="solution-steps">
+            <li>
+                <strong>Scan aging inventory</strong>
+                <span>Scheduled batch queries <code>Lot__c.Expiration_Date__c</code> against configurable CTC thresholds per brand/warehouse. Lot tracking infrastructure already exists.</span>
+            </li>
+            <li>
+                <strong>Calculate route velocity</strong>
+                <span>Uses existing <code>Placement__c.Weekly_Sales__c</code> (rate-of-sale at Account+Item level) and <code>Invoice_Item__c</code> history to match aging inventory to high-velocity routes.</span>
+            </li>
+            <li>
+                <strong>Generate CTC suggestions</strong>
+                <span>New <code>CTC_Suggestion__c</code> records with warehouse, SKU, quantity, days-until-code, priority, and suggested action (Route Push / Discount / Transfer / Supplier Return).</span>
+            </li>
+            <li>
+                <strong>Interwarehouse transfer recommendations</strong>
+                <span>Leverages existing <code>Transfer__c</code> + <code>Transfer_Group__c</code> objects. Accounts for transit time between warehouses.</span>
+            </li>
+            <li>
+                <strong>Pricing-aware suggestions</strong>
+                <span>References promotional <code>Price_Record__c</code> pricing. Calculates margin impact vs. spoilage write-off cost.</span>
+            </li>
+            <li>
+                <strong>Manager dashboard</strong>
+                <span>LWC for warehouse managers to Accept/Reject suggestions with audit trail and configurable reason codes (CMDT).</span>
+            </li>
+        </ol>
+    </div>
+
+    <div class="readiness readiness-block">
+        <h3>Readiness: Needs Spike + Team Consensus</h3>
+
+        <div class="finding-item warn">
+            <div class="source">Ticket enrichment</div>
+            <p><strong>Spike recommended before implementation.</strong> Already decomposed into: BMS-4081 (Spike: Algorithm &amp; Data Model), BMS-4082 (Ph 1: Suggestion Generation), BMS-4083 (Ph 2: Manager Review &amp; Action).</p>
+        </div>
+
+        <div class="finding-item warn">
+            <div class="source">Ticket enrichment</div>
+            <p><strong>Blocked by unresolved discovery item:</strong> "DOH-Driven Transfer Suggestion Engine &mdash; Automated Transfer Need Identification." Needs Gulf clarification before sprint planning.</p>
+        </div>
+
+        <div class="finding-item question">
+            <div class="source">Emily Shull (2026-04-15)</div>
+            <p><strong>Rate-of-sale threshold undefined.</strong> Gulf hasn't defined what "high velocity" means at account or SKU level. Flexibility must be built in so the engine can be configured where that threshold lives.</p>
+        </div>
+
+        <div class="finding-item question">
+            <div class="source">Open questions</div>
+            <p>CTC thresholds per brand/warehouse? Velocity data source? Transit cost in transfer suggestions? Execution cadence (nightly/real-time/on-demand)?</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Comments</h3>
+
+        <div class="comment">
+            <div class="author">Emily Shull <span class="date">2026-04-15</span></div>
+            <blockquote>There needs to be a rate of sale calculation value stored at the Placement (Account Item) level. We need to determine how often that is calculated/re-calculated. An account may be "high velocity" for one SKU but not another. We do not have the threshold for what is considered "high velocity" by Gulf &mdash; that should not block the ticket, but flexibility needs to be built in.</blockquote>
+        </div>
+
+        <div class="comment">
+            <div class="author">Bryson Carroll <span class="date">2026-04-22</span></div>
+            <blockquote>I would assume this can just end up being a dashboard once the rate of sales calculation is done.</blockquote>
+        </div>
+
+        <div class="comment">
+            <div class="author">Auston Main <span class="date">2026-04-27</span></div>
+            <blockquote>Blocked by BMS-4196 once it's made into a story. <em>(Note: BMS-4196 "Picking Lifecycle Tracking" is now Done.)</em></blockquote>
+        </div>
+
+        <div class="comment">
+            <div class="author">Thomas Spangler <span class="date">2026-04-30</span></div>
+            <blockquote>Handing off to Leah Schneidereit in Sprint 3.</blockquote>
+        </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ============================================================ -->
+    <!-- Connection to Inventory Reconciliation                        -->
+    <!-- ============================================================ -->
+
+    <div class="connection-box">
+        <h3>Connection to Real-Time Inventory Reconciliation (BMS-3825)</h3>
+        <p>Both BMS-3832 (CTC Engine) and BMS-3825 (Inventory Reconciliation) operate on the same inventory data layer but address different problems. The CTC engine reads lot-level expiration data and sell-through velocity; reconciliation ensures the underlying quantities are accurate.</p>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Dimension</th>
+                    <th>BMS-3825 (Reconciliation)</th>
+                    <th>BMS-3832 (CTC Engine)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Problem</td>
+                    <td>Counted quantities don't match system during concurrent operations</td>
+                    <td>Aging inventory sits in warehouses until it expires</td>
+                </tr>
+                <tr>
+                    <td>Data layer</td>
+                    <td><code>Inventory__c.Quantity_On_Hand__c</code> + Inventory_Adjustment__c + snapshots</td>
+                    <td><code>Lot__c.Expiration_Date__c</code> + Lot_Inventory__c + Placement velocity</td>
+                </tr>
+                <tr>
+                    <td>Reads from</td>
+                    <td>Current inventory state (point-in-time freeze)</td>
+                    <td>Lot expiration dates + historical sell-through velocity</td>
+                </tr>
+                <tr>
+                    <td>Writes to</td>
+                    <td>Inventory adjustments (after variance approval)</td>
+                    <td>CTC suggestions &rarr; Draft orders/transfers</td>
+                </tr>
+                <tr>
+                    <td>Trigger</td>
+                    <td>Manual (warehouse manager initiates count)</td>
+                    <td>Scheduled batch (configurable cadence)</td>
+                </tr>
+                <tr>
+                    <td>Shared infra</td>
+                    <td colspan="2"><code>Inventory__c</code>, <code>Location__c</code> hierarchy, <code>Inventory_Adjustment__c</code>, <code>Lot__c</code>, <code>Lot_Inventory__c</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top: 1rem;"><strong>Key dependency:</strong> BMS-3832 requires reliable lot-level quantities. If reconciliation (BMS-3825) reveals that <code>Lot_Inventory__c.Quantity_On_Hand__c</code> is inaccurate, CTC suggestions will inherit that inaccuracy. Not a formal blocker, but accurate inventory is a quality prerequisite.</p>
+
+        <p><strong>Shared building blocks already in the codebase:</strong></p>
+        <ul>
+            <li><code>Inventory_Threshold__c</code> + <code>SKU_Override__c</code> with Min/Target/Max DOH and Lead Time &mdash; resolved by <code>S_InventoryThresholds.resolve()</code></li>
+            <li><code>Configuration_Preference.Use_Lot_Tracking</code> and <code>Close_to_Date_Expiration</code> CMDT knobs</li>
+            <li><code>B_Inventory_HistoryTracker</code> &mdash; daily inventory snapshot batch</li>
+            <li><code>B_AccountItem_HistoryTracker</code> &mdash; weekly rate-of-sale calculation (populates <code>Placement__c.Weekly_Sales__c</code>)</li>
+            <li>Pick lifecycle tracking (BMS-4196, Done) &mdash; <code>Pick_Event__c</code> + <code>Pick_Performance_Summary__c</code></li>
+        </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Cross-ticket summary                                          -->
+    <!-- ============================================================ -->
+
+    <div class="card">
+        <h3>Cross-Ticket Comparison</h3>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Dimension</th>
+                    <th>BMS-3932 (Account Mgmt)</th>
+                    <th>BMS-3832 (CTC Engine)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Domain</td>
+                    <td>eCommerce / Portal (L3 UI)</td>
+                    <td>Inventory / WMS (L2 Business Logic)</td>
+                </tr>
+                <tr>
+                    <td>Package</td>
+                    <td>OHFY-eCommerce-UI + OHFY-PLTFM</td>
+                    <td>OHFY-WMS + OHFY-PLTFM</td>
+                </tr>
+                <tr>
+                    <td>New metadata</td>
+                    <td><code>Account_Change_Request__c</code>, portal fields</td>
+                    <td><code>CTC_Suggestion__c</code>, threshold CMDTs</td>
+                </tr>
+                <tr>
+                    <td>External deps</td>
+                    <td>USPS/Google Address API</td>
+                    <td>None (all internal data)</td>
+                </tr>
+                <tr>
+                    <td>Ready?</td>
+                    <td>Needs dependency fix + zone model decision</td>
+                    <td>Needs spike (BMS-4081) + Gulf thresholds</td>
+                </tr>
+                <tr>
+                    <td>Risk</td>
+                    <td>Medium &mdash; net-new infra underestimated</td>
+                    <td>High &mdash; algorithm design, undefined thresholds</td>
+                </tr>
+                <tr>
+                    <td>Sprint 4 action</td>
+                    <td>Polish posted; awaiting PO decisions</td>
+                    <td>Spike recommended before implementation</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        BMS-3932 &middot; BMS-3832 &middot; Generated 2026-06-08 &middot; Source: Jira + ticket comments + codebase validation
+    </div>
+
+</body>
+</html>

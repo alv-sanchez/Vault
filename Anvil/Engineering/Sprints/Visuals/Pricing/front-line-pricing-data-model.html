@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Front-Line Pricing — Data Model &amp; Resolution (ADR-0009)</title>
+<style>
+  :root {
+    --ink: #1f2733;
+    --muted: #5b6677;
+    --line: #e3e8ef;
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --cork: #2e4639;          /* dominant brand green */
+    --cork-soft: #ecf2ee;
+    --yellow: #f5c518;        /* mellow yellow accent */
+    --yellow-soft: #fdf6dd;
+    --blue: #2a5d8f;
+    --blue-soft: #e9f1f8;
+    --red: #b3422f;
+    --red-soft: #faeae6;
+    --purple: #5c4a8f;
+    --purple-soft: #efecf8;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 15px/1.55 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 80px; }
+
+  /* ── header ─────────────────────────────────────────── */
+  header {
+    background: var(--cork); color: #fff; padding: 40px 28px 34px;
+    border-bottom: 6px solid var(--yellow);
+  }
+  header .wrap { padding-bottom: 0; }
+  header h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.5px; }
+  header p  { margin: 0; color: #c8d6cd; max-width: 70ch; }
+  header .meta { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: #9fb5a7; }
+  header .meta b { color: var(--yellow); font-weight: 600; }
+
+  h2 {
+    font-size: 21px; margin: 56px 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  h2 .no {
+    font-family: var(--mono); font-size: 13px; color: var(--yellow);
+    background: var(--cork); border-radius: 4px; padding: 2px 8px;
+  }
+  .lede { color: var(--muted); margin: 0 0 22px; max-width: 84ch; }
+
+  /* ── ER diagram ─────────────────────────────────────── */
+  .diagram {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 26px; overflow-x: auto;
+  }
+  .cols { display: grid; grid-template-columns: 1fr 56px 1.25fr 56px 1fr; gap: 0; min-width: 980px; }
+  .col  { display: flex; flex-direction: column; gap: 18px; }
+  .col-label {
+    text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+  }
+  .obj {
+    border: 1.5px solid var(--line); border-radius: 10px; background: #fff;
+    box-shadow: 0 1px 3px rgba(31,39,51,.06);
+  }
+  .obj h3 {
+    margin: 0; padding: 9px 14px; font-size: 13.5px; font-family: var(--mono);
+    border-bottom: 1px solid var(--line); border-radius: 9px 9px 0 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .obj h3 .tag { font: 600 10px/1 var(--mono); padding: 3px 7px; border-radius: 999px; white-space: nowrap; }
+  .obj ul { list-style: none; margin: 0; padding: 8px 14px 10px; }
+  .obj li { font-family: var(--mono); font-size: 12px; padding: 2.5px 0; color: var(--ink); }
+  .obj li .ftype { color: var(--muted); }
+  .obj li.hl { background: var(--yellow-soft); margin: 0 -8px; padding: 2.5px 8px; border-radius: 4px; }
+  .obj li .lk { color: var(--blue); font-weight: 600; }
+  .obj .note { font-family: inherit; font-size: 11.5px; color: var(--muted); padding: 0 14px 10px; }
+
+  .obj.catalog  h3 { background: var(--cork-soft); }  .obj.catalog  h3 .tag { background: var(--cork);  color: #fff; }
+  .obj.price    h3 { background: var(--yellow-soft);} .obj.price    h3 .tag { background: var(--yellow); color: var(--cork); }
+  .obj.account  h3 { background: var(--blue-soft); }  .obj.account  h3 .tag { background: var(--blue);  color: #fff; }
+  .obj.price    { border-color: #e8d590; }
+
+  .edges { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
+  .edge  { font-family: var(--mono); font-size: 16px; color: var(--muted); text-align: center; }
+  .edge small { display: block; font-size: 9.5px; letter-spacing: .5px; }
+
+  .legend { display: flex; gap: 18px; margin-top: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  /* ── waterfall ──────────────────────────────────────── */
+  .tiers { display: flex; flex-direction: column; gap: 10px; }
+  .tier {
+    display: grid; grid-template-columns: 76px 170px 1fr 220px; gap: 16px; align-items: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 13px 18px;
+  }
+  .tier .score {
+    font-family: var(--mono); font-weight: 700; font-size: 15px; text-align: center;
+    border-radius: 8px; padding: 8px 0; color: #fff;
+  }
+  .tier .lvl   { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .tier .match { font-size: 13.5px; color: var(--muted); }
+  .tier .match code, .inline-code { font-family: var(--mono); font-size: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  .tier .ex    { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink); }
+  .tier .ex b  { color: var(--cork); }
+  .t3 .score { background: var(--cork); }
+  .t2 .score { background: #4a7a5e; }
+  .t1 .score { background: #7fa68e; }
+  .t0 .score { background: #9aa6b5; }
+  .tn .score { background: var(--red); }
+  .tier.t3 { border-left: 5px solid var(--cork); }
+  .tier.t2 { border-left: 5px solid #4a7a5e; }
+  .tier.t1 { border-left: 5px solid #7fa68e; }
+  .tier.t0 { border-left: 5px solid #9aa6b5; }
+  .tier.tn { border-left: 5px solid var(--red); }
+  .gates {
+    margin-top: 16px; background: var(--cork-soft); border: 1px solid #cfe0d5; border-radius: 10px;
+    padding: 14px 18px; font-size: 13.5px;
+  }
+  .gates b { color: var(--cork); }
+
+  /* ── tables ─────────────────────────────────────────── */
+  table { border-collapse: collapse; width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13px; }
+  thead th { background: var(--cork); color: #fff; text-align: left; padding: 9px 13px; font-weight: 600; font-size: 12.5px; }
+  tbody td { padding: 8px 13px; border-top: 1px solid var(--line); }
+  tbody tr:nth-child(even) { background: #fbfcfd; }
+  td.mono, th.mono { font-family: var(--mono); font-size: 12px; }
+  .pill { display: inline-block; font: 600 10.5px/1 var(--mono); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+  .p-item { background: var(--cork); color: #fff; }
+  .p-type { background: #4a7a5e; color: #fff; }
+  .p-line { background: #7fa68e; color: #fff; }
+  .p-def  { background: #e3e8ef; color: var(--muted); }
+  .up   { color: var(--cork); font-weight: 700; }
+  .down { color: var(--red); font-weight: 700; }
+  .tbl-note { font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
+
+  /* ── storefront flow ────────────────────────────────── */
+  .flow { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+  .step {
+    flex: 1 1 200px; background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; position: relative; margin-right: 34px;
+  }
+  .step:last-child { margin-right: 0; }
+  .step::after {
+    content: "→"; position: absolute; right: -27px; top: 50%; transform: translateY(-50%);
+    font-size: 20px; color: var(--muted);
+  }
+  .step:last-child::after { content: ""; }
+  .step h4 { margin: 0 0 5px; font-size: 13px; font-family: var(--mono); color: var(--cork); }
+  .step p  { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .callout {
+    margin-top: 18px; border-left: 5px solid var(--yellow); background: var(--yellow-soft);
+    border-radius: 0 10px 10px 0; padding: 14px 18px; font-size: 13.5px;
+  }
+  .strike { text-decoration: line-through; color: var(--muted); }
+
+  /* ── queries ────────────────────────────────────────── */
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+  .q .qh {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--cork-soft);
+  }
+  .q .qh b { font-size: 13.5px; color: var(--cork); }
+  .q .qh button {
+    font: 600 11px var(--mono); padding: 5px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--cork); background: #fff; color: var(--cork);
+  }
+  .q .qh button:hover { background: var(--cork); color: #fff; }
+  .q pre {
+    margin: 0; padding: 14px 16px; overflow-x: auto;
+    font: 12px/1.6 var(--mono); background: #20302a; color: #d8e6dd;
+  }
+  .q pre .kw { color: var(--yellow); }
+  footer { margin-top: 64px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Front-Line Pricing — Data Model &amp; Resolution</h1>
+    <p>How account-specific pricing flows from <span style="font-family:var(--mono)">Item__c</span> through the
+       FLP cascade to the e-commerce storefront. Single sanctioned resolver:
+       <span style="font-family:var(--mono)">S_FrontLinePricing.resolve()</span> (OHFY-OMS).</p>
+    <div class="meta">ADR-0009 · BMS-3929 · org snapshot: <b>jun9Ecom-Split</b> · seeded by <b>orgScripts/e-commerce/seed-flp-demo.apex</b> · 2026-06-10</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="callout" style="margin-top: 28px">
+    <b>What this is:</b> a visual guide to the front-line-pricing data model and the exact records that exist
+    <b>after running</b> <code class="inline-code">orgScripts/e-commerce/seed-flp-demo.apex</code>. The seed builds
+    every cascade scenario (ITEM, ITEM_TYPE_PKG, ITEM_LINE_PKG, and ITEM_DEFAULT-by-absence/structure) over the
+    seeded beverage catalog. All records are idempotent and tagged <code class="inline-code">External_Id__c = 'flpdemo:…'</code>,
+    so <code class="inline-code">revert-flp-demo.apex</code> sweeps them cleanly. The sections below show the object
+    model, the resolution waterfall, and the resulting prices the seed produces.
+  </div>
+
+  <!-- ════════════════════ 1. ER DIAGRAM ════════════════════ -->
+  <h2><span class="no">1</span> Object model — everything radiates from Item__c</h2>
+  <p class="lede">Three sides meet on a price row: the <b>catalog side</b> describes <i>what</i> is being priced
+     (the item and its classification attributes), the <b>account side</b> describes <i>who</i> sees the price
+     (group membership + warehouse), and <code class="inline-code">Front_Line_Price__c</code> is the row in the middle that joins them.</p>
+
+  <div class="diagram">
+    <div class="cols">
+      <!-- CATALOG SIDE -->
+      <div class="col">
+        <div class="col-label">Catalog — what is priced</div>
+        <div class="obj catalog">
+          <h3>ohfy__Item__c <span class="tag">PRODUCT</span></h3>
+          <ul>
+            <li class="hl"><span class="lk">Item_Type__c</span> <span class="ftype">→ brand (Wave Splitter…)</span></li>
+            <li class="hl"><span class="lk">Item_Line__c</span> <span class="ftype">→ portfolio (Beverage)</span></li>
+            <li class="hl"><span class="lk">Packaging_Style__c</span> <span class="ftype">→ pkg format</span></li>
+            <li>Default_Case_Price__c <span class="ftype">— tier-4 fallback</span></li>
+            <li>Units_Per_Case__c</li>
+          </ul>
+          <div class="note">The three highlighted lookups are the cascade match keys. No
+            Packaging_Style__c ⇒ tiers 2/3 structurally unreachable (Sticker Pack).</div>
+        </div>
+        <div class="obj catalog">
+          <h3>ohfy__Item_Type__c <span class="tag">BRAND</span></h3>
+          <ul><li>Name <span class="ftype">(Wave Splitter, Sharks Fin, Boats Float)</span></li></ul>
+        </div>
+        <div class="obj catalog">
+          <h3>ohfy__Item_Line__c <span class="tag">PORTFOLIO</span></h3>
+          <ul><li>Name <span class="ftype">(Beverage)</span></li></ul>
+        </div>
+        <div class="obj catalog">
+          <h3>ohfy__Packaging_Style__c <span class="tag">FORMAT</span></h3>
+          <ul>
+            <li>Packaging_Type__c <span class="ftype">Keg | Can | Bottle | Other</span></li>
+            <li>Keg_Size__c <span class="ftype">1/2 · 1/4 · 1/6 BBL (Keg only)</span></li>
+            <li>Packs/Units/Size/Category <span class="ftype">(Can/Bottle)</span></li>
+          </ul>
+          <div class="note">Name is auto-composed from attributes by trigger
+            (“1/6 BBL Keg”, “4/6/12oz Can”). Validation enforces type-specific fields.</div>
+        </div>
+      </div>
+
+      <div class="edges">
+        <div class="edge">⟶<small>scope<br/>lookups</small></div>
+      </div>
+
+      <!-- PRICE ROW -->
+      <div class="col">
+        <div class="col-label">The price row — joins both sides</div>
+        <div class="obj price">
+          <h3>ohfy__Front_Line_Price__c <span class="tag">PRICE</span></h3>
+          <ul>
+            <li>Item_Scope_Level__c <span class="ftype">ITEM | ITEM_TYPE_PKG | ITEM_LINE_PKG</span></li>
+            <li>Specificity_Score__c <span class="ftype">formula: 3 / 2 / 1 (never set by hand)</span></li>
+            <li class="hl"><span class="lk">Item__c</span> <span class="ftype">— filled when level = ITEM</span></li>
+            <li class="hl"><span class="lk">Item_Type__c</span> + <span class="lk">Packaging_Style__c</span> <span class="ftype">— level = ITEM_TYPE_PKG</span></li>
+            <li class="hl"><span class="lk">Item_Line__c</span> + <span class="lk">Packaging_Style__c</span> <span class="ftype">— level = ITEM_LINE_PKG</span></li>
+            <li><span class="lk">Front_Line_Pricing_Group__c</span> <span class="ftype">— who</span></li>
+            <li><span class="lk">Fulfillment_Location__c</span> <span class="ftype">— which warehouse</span></li>
+            <li>Case_Price__c · Unit_Price__c <span class="ftype">— the money (unit ≠ derived)</span></li>
+            <li>Start_Date__c · End_Date__c <span class="ftype">— the real gate</span></li>
+            <li>Status__c <span class="ftype">Draft/Cancelled excluded; rest date-gated</span></li>
+          </ul>
+          <div class="note">Status is system-maintained: insert as <b>Upcoming</b>; the nightly
+            schedulable promotes to Active on Start_Date. The resolver admits Upcoming /
+            Superseded / Expired rows and lets the dates decide — only Draft and Cancelled are out.</div>
+        </div>
+
+        <div class="obj price">
+          <h3>S_FrontLinePricing.resolve() <span class="tag">RESOLVER</span></h3>
+          <ul>
+            <li>in: itemId + accountId + fulfillmentLocationId + asOfDate</li>
+            <li>out: resolutionPath + casePrice + unitPrice + flpId</li>
+          </ul>
+          <div class="note">Max 3 SOQL queries per bulk call regardless of request count.
+            Every consumer (storefront, invoicing, credits, integrations) goes through here —
+            nobody computes their own waterfall.</div>
+        </div>
+      </div>
+
+      <div class="edges">
+        <div class="edge">⟵<small>group +<br/>warehouse</small></div>
+      </div>
+
+      <!-- ACCOUNT SIDE -->
+      <div class="col">
+        <div class="col-label">Account — who sees the price</div>
+        <div class="obj account">
+          <h3>Account <span class="tag">RETAILER</span></h3>
+          <ul>
+            <li class="hl"><span class="lk">Fulfillment_Location__c</span> <span class="ftype">→ warehouse gate</span></li>
+          </ul>
+          <div class="note">No fulfillment location ⇒ no FLP row can ever match.</div>
+        </div>
+        <div class="obj account">
+          <h3>ohfy__Account_Pricing_Group__c <span class="tag">JUNCTION</span></h3>
+          <ul>
+            <li class="hl"><span class="lk">Account__c</span> ↔ <span class="lk">Front_Line_Pricing_Group__c</span></li>
+            <li>Effective_Date__c · End_Date__c <span class="ftype">— resolver reads these</span></li>
+            <li>Is_Active__c <span class="ftype">— cosmetic; nightly job sets it</span></li>
+          </ul>
+          <div class="note">Validation: Effective_Date can’t be retroactive at insert; at most
+            one membership window per account. Date window — not the checkbox — decides.</div>
+        </div>
+        <div class="obj account">
+          <h3>ohfy__Front_Line_Pricing_Group__c <span class="tag">PRICING CODE</span></h3>
+          <ul><li>Name <span class="ftype">(“Retail Tier 1”)</span></li></ul>
+          <div class="note">This is the “pricing code” — Gulf has 150+ of these. FLP rows hang
+            off a group; accounts join via the junction.</div>
+        </div>
+        <div class="obj account">
+          <h3>ohfy__Location__c <span class="tag">WAREHOUSE</span></h3>
+          <ul><li>Name <span class="ftype">(Warehouse 1)</span></li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="sw" style="background:var(--cork)"></span>Catalog side</span>
+      <span><span class="sw" style="background:var(--yellow)"></span>Price row + resolver</span>
+      <span><span class="sw" style="background:var(--blue)"></span>Account side</span>
+      <span><span class="sw" style="background:var(--yellow-soft);border:1px solid #e8d590"></span>Highlighted = cascade match keys</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ 2. WATERFALL ════════════════════ -->
+  <h2><span class="no">2</span> The resolution waterfall — most specific wins</h2>
+  <p class="lede">Among rows that pass the eligibility gates, the highest <code class="inline-code">Specificity_Score__c</code> wins.
+     Ties break on newest Start_Date, then highest Id. Tiers 4 and “NONE” live in resolver code, not in the score.</p>
+
+  <div class="tiers">
+    <div class="tier t3">
+      <div class="score">3</div><div class="lvl">ITEM</div>
+      <div class="match">FLP row’s <code>Item__c</code> == the item — one exact product</div>
+      <div class="ex">Wave Splitter: 1/6 BBL → <b>$69</b></div>
+    </div>
+    <div class="tier t2">
+      <div class="score">2</div><div class="lvl">ITEM_TYPE_PKG</div>
+      <div class="match">row’s <code>Item_Type__c</code> + <code>Packaging_Style__c</code> == item’s brand + format</div>
+      <div class="ex">Sharks Fin + Can Case → <b>$17</b></div>
+    </div>
+    <div class="tier t1">
+      <div class="score">1</div><div class="lvl">ITEM_LINE_PKG</div>
+      <div class="match">row’s <code>Item_Line__c</code> + <code>Packaging_Style__c</code> == item’s portfolio + format</div>
+      <div class="ex">Beverage + 1/2 BBL Keg → <b>$160</b> (all brands)</div>
+    </div>
+    <div class="tier t0">
+      <div class="score">—</div><div class="lvl">ITEM_DEFAULT</div>
+      <div class="match">no FLP row matched → fall back to <code>Item__c.Default_Case_Price__c</code> (unit price = null)</div>
+      <div class="ex">all 1/4 BBLs, Sticker Pack</div>
+    </div>
+    <div class="tier tn">
+      <div class="score">∅</div><div class="lvl">NONE</div>
+      <div class="match">no match and no default → null prices; storefront renders <b>“Call for pricing”</b></div>
+      <div class="ex">never silently $0</div>
+    </div>
+  </div>
+
+  <div class="gates">
+    <b>Eligibility gates (checked before any score comparison):</b> same
+    <b>Fulfillment_Location__c</b> as the account &nbsp;·&nbsp; FLP row belongs to the account’s
+    <b>active pricing group</b> (junction date window covers asOfDate) &nbsp;·&nbsp;
+    <b>Start/End dates</b> cover asOfDate &nbsp;·&nbsp; <b>Status</b> ∉ {Draft, Cancelled} &nbsp;·&nbsp;
+    scope lookups actually match the item’s attributes. A score-3 row failing any gate is simply invisible.
+  </div>
+
+  <!-- ════════════════════ 3. LIVE DATA ════════════════════ -->
+  <h2><span class="no">3</span> What exists in jun9Ecom-Split today</h2>
+  <p class="lede">All pricing records were created by <code class="inline-code">seed-flp-demo.apex</code> (the org had zero before)
+     and carry <code class="inline-code">External_Id__c = 'flpdemo:…'</code>, so
+     <code class="inline-code">revert-flp-demo.apex</code> can sweep them cleanly.</p>
+
+  <h3 style="margin:26px 0 8px">Front_Line_Price__c — 5 rows (group: Retail Tier 1 · warehouse: Warehouse 1 · start 2026-06-10, open-ended, Upcoming)</h3>
+  <table>
+    <thead><tr><th>Row</th><th>Level</th><th class="mono">Score</th><th>Scope</th><th class="mono">Case $</th><th class="mono">Unit $</th><th>Demonstrates</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">FLP-00000000</td><td><span class="pill p-item">ITEM</span></td><td class="mono">3</td><td>Wave Splitter: 1/6 BBL</td><td class="mono">69</td><td class="mono">69</td><td>Exact-item override — beats the $60 line row below</td></tr>
+      <tr><td class="mono">FLP-00000001</td><td><span class="pill p-type">ITEM_TYPE_PKG</span></td><td class="mono">2</td><td>Sharks Fin + 4/6/12oz Can</td><td class="mono">17</td><td class="mono">0.71</td><td>Brand carve-out — beats the $22 line-level can row</td></tr>
+      <tr><td class="mono">FLP-00000002</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">1</td><td>Beverage + 1/6 BBL Keg</td><td class="mono">60</td><td class="mono">60</td><td>One row prices every brand’s sixtel</td></tr>
+      <tr><td class="mono">FLP-00000003</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">1</td><td>Beverage + 4/6/12oz Can</td><td class="mono">22</td><td class="mono">0.92</td><td>Portfolio can pricing (Sharks Fin escapes via tier 2)</td></tr>
+      <tr><td class="mono">FLP-00000004</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">1</td><td>Beverage + 1/2 BBL Keg</td><td class="mono">160</td><td class="mono">160</td><td>Portfolio half-barrel pricing, all brands</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin:26px 0 8px">Supporting records</h3>
+  <table>
+    <thead><tr><th>Object</th><th class="mono">#</th><th>Records</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Front_Line_Pricing_Group__c</td><td class="mono">1</td><td>“Retail Tier 1” <span class="pill p-def">flpdemo:grp-retail-tier-1</span></td></tr>
+      <tr><td class="mono">Account_Pricing_Group__c</td><td class="mono">1</td><td>Customer Account 0 ↔ Retail Tier 1, effective 2026-06-10 → open</td></tr>
+      <tr><td class="mono">Packaging_Style__c</td><td class="mono">4</td><td>1/2 BBL Keg · 1/4 BBL Keg · 1/6 BBL Keg · 4/6/12oz Can (Beer)</td></tr>
+      <tr><td class="mono">Item__c (updated)</td><td class="mono">12 / 13</td><td>Packaging_Style__c assigned by name pattern; <b>Sticker Pack intentionally left blank</b></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin:26px 0 8px">Live resolve() result per item (verified against the org)</h3>
+  <table>
+    <thead><tr><th>Item</th><th class="mono">Default</th><th>Winning tier</th><th class="mono">Resolved</th><th class="mono">Δ</th></tr></thead>
+    <tbody>
+      <tr><td>Wave Splitter: 1/6 BBL</td><td class="mono">65</td><td><span class="pill p-item">ITEM</span></td><td class="mono">69</td><td class="mono up">+4</td></tr>
+      <tr><td>Shark Fin: Case (4x6-12oz Can)</td><td class="mono">15</td><td><span class="pill p-type">ITEM_TYPE_PKG</span></td><td class="mono">17</td><td class="mono up">+2</td></tr>
+      <tr><td>Boats Float: 1/6 BBL</td><td class="mono">75</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">60</td><td class="mono down">−15</td></tr>
+      <tr><td>Shark Fin: 1/6 BBL</td><td class="mono">55</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">60</td><td class="mono up">+5</td></tr>
+      <tr><td>Boats Float: 1/2 BBL</td><td class="mono">170</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">160</td><td class="mono down">−10</td></tr>
+      <tr><td>Shark Fin: 1/2 BBL</td><td class="mono">150</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">160</td><td class="mono up">+10</td></tr>
+      <tr><td>Wave Splitter: 1/2 BBL</td><td class="mono">150</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">160</td><td class="mono up">+10</td></tr>
+      <tr><td>Boats Float: Case</td><td class="mono">25</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">22</td><td class="mono down">−3</td></tr>
+      <tr><td>Wave Splitter: Case</td><td class="mono">20</td><td><span class="pill p-line">ITEM_LINE_PKG</span></td><td class="mono">22</td><td class="mono up">+2</td></tr>
+      <tr><td>Boats Float: 1/4 BBL</td><td class="mono">90</td><td><span class="pill p-def">ITEM_DEFAULT</span></td><td class="mono">90</td><td class="mono">—</td></tr>
+      <tr><td>Shark Fin: 1/4 BBL</td><td class="mono">70</td><td><span class="pill p-def">ITEM_DEFAULT</span></td><td class="mono">70</td><td class="mono">—</td></tr>
+      <tr><td>Wave Splitter: 1/4 BBL</td><td class="mono">80</td><td><span class="pill p-def">ITEM_DEFAULT</span></td><td class="mono">80</td><td class="mono">—</td></tr>
+      <tr><td>Wave Splitter: Sticker Pack</td><td class="mono">12</td><td><span class="pill p-def">ITEM_DEFAULT</span></td><td class="mono">12</td><td class="mono">—</td></tr>
+    </tbody>
+  </table>
+  <p class="tbl-note">Path counts: ITEM 1 · ITEM_TYPE_PKG 1 · ITEM_LINE_PKG 7 · ITEM_DEFAULT 4 · NONE 0.
+     1/4 BBL kegs have packaging styles but no FLP rows (default by absence); Sticker Pack has no packaging style (default by structure).</p>
+
+  <!-- ════════════════════ 4. STOREFRONT ════════════════════ -->
+  <h2><span class="no">4</span> How the storefront consumes it</h2>
+  <div class="flow">
+    <div class="step"><h4>userDataService (LWC)</h4><p>On login: fetch catalog, seed <code class="inline-code">itemToUnitPriceMap</code> from Default_Case_Price__c. 5-min cache.</p></div>
+    <div class="step"><h4>resolveCatalogPricing (Apex)</h4><p>Calls <code class="inline-code">S_FrontLinePricing.resolve()</code> for every catalog item with the account + warehouse, asOfDate = today.</p></div>
+    <div class="step"><h4>itemToUnitPriceMap</h4><p>Resolved case prices overwrite the defaults. <code class="inline-code">NONE</code> flags the item <code class="inline-code">_callForPricing</code>.</p></div>
+    <div class="step"><h4>ecomShop / reorderModal</h4><p>Shop tiles show the resolved price. Reorder compares it against the invoice line’s stored historical price.</p></div>
+  </div>
+  <div class="callout">
+    <b>Reorder strikethrough (BMS-3929):</b> original = invoice line’s stored
+    <code class="inline-code">Case_Price__c || Unit_Price__c</code> (immutable history) · current = resolver output.
+    Differ by ≥ $0.01 ⇒ <span class="strike">$65.00</span>&nbsp;<b>$69.00</b> + amber “updated pricing” banner.
+    Item dropped from the pricelist ⇒ red “No longer on pricelist” and the line can’t be reordered.
+    To simulate a price change, change the <i>catalog side</i> (FLP row / default) — never the invoice line.
+  </div>
+  <div class="callout" style="border-left-color: var(--red); background: var(--red-soft)">
+    <b>The two-price trap on Invoice_Item__c:</b> every invoice line stores BOTH
+    <code class="inline-code">Case_Price__c</code> (per case — what subtotals are computed from) and
+    <code class="inline-code">Unit_Price__c</code> (per <i>individual unit</i>: Case_Price ÷ Units_Per_Case,
+    e.g. $15 case ⇒ $0.625/can). All catalog-side prices (<code class="inline-code">itemToUnitPriceMap</code>,
+    FLP <code class="inline-code">Case_Price__c</code>, Default_Case_Price) are <b>per case</b> — always compare
+    case-to-case. A “$0.63 vs $17.00” comparison means someone grabbed the per-can field; for kegs
+    (Units_Per_Case = 1) the two fields coincide, which hides the mistake. Fixed 2026-06-10 in
+    <code class="inline-code">ecomOrderHistory.js</code> (case price preferred) and
+    <code class="inline-code">reorderModal.js</code> (footer total repriced on open).
+  </div>
+
+  <!-- ════════════════════ 5. QUERIES ════════════════════ -->
+  <h2><span class="no">5</span> Tracking queries</h2>
+  <p class="lede">Copy-paste ready for <code class="inline-code">sf data query -o jun9Ecom-Split -q "…"</code>. The last one runs the real resolver.</p>
+
+  <div class="q">
+    <div class="qh"><b>All FLP rows — full scope, most specific first</b><button onclick="cp(this)">copy</button></div>
+    <pre><code><span class="kw">SELECT</span> Name, ohfy__Item_Scope_Level__c, ohfy__Specificity_Score__c,
+       ohfy__Item__r.Name, ohfy__Item_Type__r.Name, ohfy__Item_Line__r.Name,
+       ohfy__Packaging_Style__r.Name, ohfy__Case_Price__c, ohfy__Unit_Price__c,
+       ohfy__Status__c, ohfy__Start_Date__c, ohfy__End_Date__c,
+       ohfy__Fulfillment_Location__r.Name, ohfy__Front_Line_Pricing_Group__r.Name
+<span class="kw">FROM</span> ohfy__Front_Line_Price__c
+<span class="kw">ORDER BY</span> ohfy__Specificity_Score__c <span class="kw">DESC</span></code></pre>
+  </div>
+
+  <div class="q">
+    <div class="qh"><b>Account memberships — who is in which pricing code</b><button onclick="cp(this)">copy</button></div>
+    <pre><code><span class="kw">SELECT</span> ohfy__Account__r.Name, ohfy__Front_Line_Pricing_Group__r.Name,
+       ohfy__Effective_Date__c, ohfy__End_Date__c, ohfy__Is_Active__c
+<span class="kw">FROM</span> ohfy__Account_Pricing_Group__c
+<span class="kw">ORDER BY</span> ohfy__Account__r.Name</code></pre>
+  </div>
+
+  <div class="q">
+    <div class="qh"><b>Item match-readiness — which tiers each item can hit</b><button onclick="cp(this)">copy</button></div>
+    <pre><code><span class="kw">SELECT</span> Name, ohfy__Item_Type__r.Name, ohfy__Item_Line__r.Name,
+       ohfy__Packaging_Style__r.Name, ohfy__Default_Case_Price__c
+<span class="kw">FROM</span> ohfy__Item__c
+<span class="kw">ORDER BY</span> ohfy__Packaging_Style__r.Name <span class="kw">NULLS LAST</span>, Name</code></pre>
+  </div>
+
+  <div class="q">
+    <div class="qh"><b>Items that can never match tiers 2/3 (no packaging style)</b><button onclick="cp(this)">copy</button></div>
+    <pre><code><span class="kw">SELECT</span> Name <span class="kw">FROM</span> ohfy__Item__c <span class="kw">WHERE</span> ohfy__Packaging_Style__c = <span class="kw">null</span></code></pre>
+  </div>
+
+  <div class="q">
+    <div class="qh"><b>Everything the demo seed created (same sweep the revert uses)</b><button onclick="cp(this)">copy</button></div>
+    <pre><code><span class="kw">SELECT</span> Name, ohfy__External_Id__c <span class="kw">FROM</span> ohfy__Front_Line_Price__c <span class="kw">WHERE</span> ohfy__External_Id__c <span class="kw">LIKE</span> 'flpdemo:%'
+<span class="kw">SELECT</span> Name, ohfy__External_Id__c <span class="kw">FROM</span> ohfy__Front_Line_Pricing_Group__c <span class="kw">WHERE</span> ohfy__External_Id__c <span class="kw">LIKE</span> 'flpdemo:%'
+<span class="kw">SELECT</span> ohfy__External_Id__c <span class="kw">FROM</span> ohfy__Account_Pricing_Group__c <span class="kw">WHERE</span> ohfy__External_Id__c <span class="kw">LIKE</span> 'flpdemo:%'
+<span class="kw">SELECT</span> Name, ohfy__External_Id__c <span class="kw">FROM</span> ohfy__Packaging_Style__c <span class="kw">WHERE</span> ohfy__External_Id__c <span class="kw">LIKE</span> 'flpdemo:%'</code></pre>
+  </div>
+
+  <div class="q">
+    <div class="qh"><b>One-stop diagnostic — runs the real resolver across the catalog</b><button onclick="cp(this)">copy</button></div>
+    <pre><code>sf apex run --file orgScripts/e-commerce/check-front-line-pricing.apex -o jun9Ecom-Split
+
+<span class="kw"># seed / tear down the demo data (idempotent, flpdemo:-tagged)</span>
+sf apex run --file orgScripts/e-commerce/seed-flp-demo.apex -o jun9Ecom-Split
+sf apex run --file orgScripts/e-commerce/revert-flp-demo.apex -o jun9Ecom-Split</code></pre>
+  </div>
+
+  <footer>
+    Sources: <code class="inline-code">S_FrontLinePricing.cls</code> (OHFY-OMS) · ADR-0009 §3.x/§17.x ·
+    <code class="inline-code">userDataService.js</code> (OHFY-eCommerce-UI) · seeded + verified live on jun9Ecom-Split, 2026-06-10.
+  </footer>
+</div>
+
+<script>
+function cp(btn) {
+  const txt = btn.closest('.q').querySelector('pre').innerText;
+  navigator.clipboard.writeText(txt).then(() => {
+    const old = btn.textContent; btn.textContent = 'copied ✓';
+    setTimeout(() => (btn.textContent = old), 1400);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Supplier Item (SKU),Description,Pack Config,Allocation Qty,Week,UPC
+RB-25316,Red Bull Energy Drink 8.4oz 24pk,24/8.4oz,1000,2026-W29,9002490100070
+RB-25318,Red Bull Sugarfree 8.4oz 24pk,24/8.4oz,640,2026-W29,9002490205316
+RB-99999,Bogus SKU not in catalog,24/8.4oz,500,2026-W29,9009999999999
+RB-25320,Red Bull Zero 8.4oz 24pk,24/8.4oz,ABC,2026-W29,9002490216336
+RB-25469,Red Bull Energy Drink 12oz 24pk,24/12oz,-250,2026-W29,9002490229473
+RB-25316,Red Bull Energy Drink 8.4oz 24pk (DUPLICATE),24/8.4oz,1000,2026-W29,9002490100070
+RB-25622,Red Bull Blue Edition Blueberry 12oz 24pk,24/12oz,420,2026-W29,9002490249987

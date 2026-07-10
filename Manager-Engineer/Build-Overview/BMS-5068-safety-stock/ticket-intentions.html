@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5068 Safety Stock Controls — What Every Ticket Is For</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:34px 18px;}
+  .wrap{max-width:820px;margin:0 auto}
+  .tag{display:inline-block;background:var(--soft);color:var(--accent);font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:17px}
+  h2{font-size:20px;margin:0 0 2px}
+  .ticket{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  .ticket-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .key{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700;color:var(--accent);font-size:15px}
+  .key a{color:inherit;text-decoration:none}
+  .key a:hover{text-decoration:underline}
+  .pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .pill.built{background:#e8f7ee;color:var(--grn)}
+  .pill.dep{background:#fff2e0;color:var(--amb)}
+  .why{background:var(--soft);border-radius:10px;padding:10px 14px;margin:8px 0 12px;font-size:15.5px}
+  .why b{color:var(--accent)}
+  ul{margin:6px 0 0;padding-left:22px}
+  li{margin:6px 0}
+  .chip{display:inline-block;background:var(--soft);border-radius:8px;padding:1px 8px;font-size:13.5px;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .flow{background:#1f2733;color:#fff;border-radius:16px;padding:20px 22px;margin:26px 0;font-size:16px;line-height:1.7}
+  .flow b{color:#9db8ff}
+  .flow ol{margin:8px 0 0;padding-left:22px}
+  .foot{color:var(--mut);font-size:14px;margin-top:24px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">BMS-5068 · Safety Stock Controls · epic walkthrough</div>
+  <h1>What every ticket in this epic is actually for</h1>
+  <p class="sub">Six tickets, one branch, one PR (#442) — here's the intention behind each one, in plain language, and how they connect.</p>
+
+  <div class="flow">
+    🧭 <b>The throughline:</b> BMS-4217 makes the system actually <i>use</i> a target buffer when sizing orders. BMS-5636 lets planners raise that buffer for a whole supplier, not just one SKU, with a real lifecycle. BMS-5638 + BMS-5639 make sure every generated order remembers <i>which</i> buffer decided its size, and warns planners before a buffer lapses. BMS-5640 gives planners a screen to do all of this instead of raw record pages. BMS-5641 gives managers a report to review it after the fact.
+    <ol>
+      <li>Planner raises a buffer (5636) →</li>
+      <li>Replenishment sizing reacts to it (4217) →</li>
+      <li>Generated tasks freeze what target/source they used (5638/5639) →</li>
+      <li>Planner manages it all from one screen (5640) →</li>
+      <li>Managers audit the history (5641)</li>
+    </ol>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-4217">BMS-4217</a></span> — DOH-driven replenishment order sizing</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> before this ticket, a SKU's "Target DOH" (days of inventory it should carry) was just a number sitting on a record — nothing downstream actually read it when deciding how much to order. Raising a buffer had zero effect on real replenishment quantities.</div>
+    <ul>
+      <li>Wires the resolved Target DOH into the actual order-quantity math: <span class="chip">targetCases = targetDOH × daily velocity ÷ units-per-case</span>, rounded to layer/pallet.</li>
+      <li>Flag-guarded — existing behavior is unchanged for SKUs that aren't configured, so nothing breaks for products without a target set.</li>
+      <li>This is the ticket that makes every other ticket in this epic <i>matter</i> — without it, an override is just a note; with it, an override changes what actually gets ordered.</li>
+    </ul>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5636">BMS-5636</a></span> — Supplier-scope overrides + Scheduled/Manually-Closed lifecycle</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> the original override could only target one Item × Warehouse pair. But real disruptions (a supplier's shipping delay, a seasonal ramp) affect <i>every</i> product from that supplier — planners had no way to raise a buffer supplier-wide without touching every SKU one at a time.</div>
+    <ul>
+      <li>New <span class="chip">Scope</span> field: <span class="chip">SKU</span> (as before) or <span class="chip">Supplier</span> (new) — a supplier-scope override raises the target for every SKU from that supplier at once.</li>
+      <li>Precedence when both exist for the same item: SKU-scope wins (more specific signal beats the broader one).</li>
+      <li>New lifecycle: <span class="chip">Scheduled</span> (future-dated, activates automatically) → <span class="chip">Active</span> → <span class="chip">Expired</span> (auto, End Date passes) or <span class="chip">Manually Closed</span> (planner ends it early with a reason).</li>
+      <li>New <span class="chip">Adjustment Type</span>: Temporary (must have an End Date) vs Permanent (may not have one — enforced by a new validation rule, added during QA on this epic).</li>
+    </ul>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5638">BMS-5638</a></span> — Freeze effective target/source on tasks + expiry notifications</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> two separate but related audit gaps. (1) Once BMS-4217 makes Target DOH drive real order sizes, if a planner later changes or closes the override, a task generated last week would silently look like it used today's numbers — there'd be no record of what was actually in effect when the order was sized. (2) Overrides expire silently; a planner could be caught off guard when a buffer they were relying on lapses.</div>
+    <ul>
+      <li><span class="chip">Replenishment_Task__c</span> gains <span class="chip">Effective_Target_DOH__c</span> + <span class="chip">Resolution_Source__c</span> — stamped once, at generation time, so a task is a permanent record of what target and which override tier (SKU / Supplier / Standard) actually drove it.</li>
+      <li>Configurable expiry notice (<span class="chip">WMS_Safety_Stock_Expiry_Notice_Days</span> CMDT, default 4 days) — the planner who created an override gets a Salesforce notification before it lapses, instead of finding out after the fact.</li>
+    </ul>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5639">BMS-5639</a></span> — Resolution-source labeling on the bulk path</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> the audit trail from BMS-5638 is only trustworthy if <i>every</i> code path that generates tasks stamps it correctly. Task generation actually runs through two different routes — a single-record resolver and a bulk resolver used for larger batches — and they're separate pieces of code.</div>
+    <ul>
+      <li>Ensures <span class="chip">S_InventoryThresholds.resolveAll()</span> (the bulk path) labels <span class="chip">resolutionSource</span> exactly like the single-record <span class="chip">resolve()</span> path does.</li>
+      <li>This was caught as a real regression during this epic's QA pass — the bulk path was originally missed, so tasks generated in bulk were freezing "System Default" instead of the correct source. Fixed and re-verified (48/48 Apex tests green) before merge.</li>
+    </ul>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5640">BMS-5640</a></span> — Safety Stock Manager planning screen</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> everything above (5636/5638/5639) lives on standard Salesforce record pages and CMDT — usable, but not something a planner would want to manage day-to-day, and there was no way to see the <i>cost</i> of a proposed buffer before committing to it.</div>
+    <ul>
+      <li>A dedicated <span class="chip">Safety Stock Manager</span> tab: grid of all overrides, filterable by status, with Scope/SKU/Supplier/Target DOH/Type/Status/dates/reason columns.</li>
+      <li><b>Impact preview</b> — pick a SKU + Location, propose a Target DOH, and see the additional cases and estimated dollar value <i>before</i> saving anything, computed from that SKU's real velocity and case cost.</li>
+      <li><b>Close early</b> — a standard SLDS confirm modal with a mandatory reason (replaced an initial <span class="chip">window.prompt</span> implementation with this modal per repo convention, mid-epic).</li>
+      <li>Live-verified end-to-end in a claimed dev org via Chrome DevTools, and covered by a 3-scenario Playwright spec (grid render/filter, impact preview round-trip, close-early) — both headless and headed runs pass.</li>
+    </ul>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">
+      <h2><span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5641">BMS-5641</a></span> — Safety Stock Overrides report type</h2>
+      <span class="pill built">✅ Built</span>
+    </div>
+    <div class="why"><b>Why it exists:</b> the planning screen (5640) is built for someone actively managing overrides right now. Ops managers reviewing history — what was raised, why, by whom, for how long — need a standard reporting surface they can slice, export, and share, not a live app screen.</div>
+    <ul>
+      <li>New custom report type surfacing override history for audit and review outside the planning screen.</li>
+      <li><b>Known gap</b> (documented, not silently missed): the report doesn't yet show the estimated dollar cost of active overrides — the planning screen's impact preview has that number, but only per-proposal, not as a standing report column.</li>
+    </ul>
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · BMS-5068 · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> · generated 2026-07-02</p>
+
+</div>
+</body>
+</html>

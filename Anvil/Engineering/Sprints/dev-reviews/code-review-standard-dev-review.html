@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Review — Repo Code-Review Standard</title>
+<style>
+:root {
+  --bg: #2b2b2b; --surface: #ffffff; --surface-alt: #f5f5f0; --accent: #f5c518;
+  --text: #1a1a1a; --text-muted: #666666; --border: #e0e0e0;
+  --diff-add-bg: #e6ffec; --diff-add-text: #1a7f37;
+  --diff-del-bg: #ffebe9; --diff-del-text: #cf222e;
+  --diff-hunk-bg: #ddf4ff; --diff-hunk-text: #0969da;
+  --diff-line-bg: #f6f8fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.55; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 24px 20px 60px; }
+header.main { padding: 28px 28px 22px; }
+header.main .key { color: var(--accent); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.5px; }
+header.main h1 { color: #fff; font-size: 1.25rem; font-weight: 600; margin-top: 6px; }
+.badges { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 99px; background: #3d3d3d; color: #ddd; }
+.badge.yellow { background: var(--accent); color: #1a1a1a; }
+nav.sticky { position: sticky; top: 0; z-index: 10; background: #1f1f1f; border-bottom: 2px solid var(--accent); display: flex; gap: 4px; padding: 0 28px; }
+nav.sticky a { color: #ccc; text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 12px 16px; }
+nav.sticky a:hover { color: var(--accent); }
+.panel { background: var(--surface); border-radius: 10px; margin-top: 24px; padding: 26px 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+.panel h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 5px; margin-bottom: 16px; }
+.panel h3 { font-size: 0.95rem; margin: 22px 0 10px; }
+.panel p { margin-bottom: 12px; }
+.muted { color: var(--text-muted); }
+.mono { font-family: 'SF Mono','Fira Code','Cascadia Code',monospace; font-size: 0.85em; background: var(--surface-alt); padding: 1px 5px; border-radius: 4px; }
+.note { background: var(--surface-alt); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.9rem; }
+details.group { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+details.group > summary { cursor: pointer; background: var(--surface-alt); padding: 10px 16px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+.count { background: var(--accent); color: #1a1a1a; font-size: 0.72rem; font-weight: 800; border-radius: 99px; padding: 1px 9px; }
+.filerow { display: flex; gap: 14px; padding: 12px 16px; border-top: 1px solid var(--border); align-items: baseline; flex-wrap: wrap; }
+.filerow .fname { font-family: 'SF Mono','Fira Code',monospace; font-size: 0.82rem; font-weight: 600; color: #0a4ea3; cursor: pointer; text-decoration: underline dotted; }
+.filerow .stats { font-family: monospace; font-size: 0.8rem; white-space: nowrap; }
+.plus { color: var(--diff-add-text); font-weight: 700; }
+.minus { color: var(--diff-del-text); font-weight: 700; }
+.filerow .why { flex: 1 1 100%; font-size: 0.88rem; color: #333; }
+.card { border-left: 4px solid var(--accent); background: var(--surface-alt); border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 14px; }
+.card.orange { border-left-color: #e8923a; }
+.card ol, .card ul { margin-left: 18px; }
+.card li { margin-bottom: 9px; font-size: 0.92rem; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+.dot.red { background: #cf222e; } .dot.orange { background: #e8923a; } .dot.blue { background: #0969da; }
+.statsbar { display: flex; gap: 18px; align-items: center; font-size: 0.88rem; margin-bottom: 16px; flex-wrap: wrap; }
+button.toggle { background: var(--accent); border: none; border-radius: 6px; font-weight: 700; font-size: 0.8rem; padding: 7px 14px; cursor: pointer; }
+details.filediff { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+details.filediff > summary { cursor: pointer; padding: 10px 16px; background: var(--surface-alt); display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.fpath { font-family: 'SF Mono','Fira Code','Cascadia Code',monospace; font-size: 0.84rem; font-weight: 700; }
+.fpath em { color: var(--text-muted); font-weight: 500; }
+.fstats { font-family: monospace; font-size: 0.8rem; }
+.diffbody { overflow-x: auto; background: var(--diff-line-bg); }
+.dl { display: flex; font-family: 'SF Mono','Fira Code','Cascadia Code',monospace; font-size: 0.85rem; line-height: 1.5; }
+.dl .ln { flex: 0 0 46px; text-align: right; padding-right: 10px; color: #999; user-select: none; font-size: 0.75rem; line-height: 1.7; border-right: 1px solid var(--border); background: rgba(0,0,0,0.02); }
+.dl .lc { white-space: pre; padding: 0 12px; flex: 1; }
+.dl.add { background: var(--diff-add-bg); } .dl.add .lc { color: var(--diff-add-text); }
+.dl.del { background: var(--diff-del-bg); } .dl.del .lc { color: var(--diff-del-text); }
+.dl.hunk { background: var(--diff-hunk-bg); } .dl.hunk .lc { color: var(--diff-hunk-text); }
+.dl.ctx { background: var(--diff-line-bg); }
+footer { text-align: center; color: #999; font-size: 0.8rem; margin-top: 36px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<header class="main">
+  <div class="wrap" style="padding:0;">
+    <div class="key">REPO CODE-REVIEW STANDARD</div>
+    <h1>CODE-REVIEW.md — review instructions for /code-review &amp; ad-hoc PR reviews</h1>
+    <div class="badges">
+      <span class="badge yellow">Chore</span>
+      <span class="badge">No Jira Ticket</span>
+      <span class="badge">Uncommitted Work</span>
+      <span class="badge">chore/claude-code-review</span>
+    </div>
+  </div>
+</header>
+<nav class="sticky"><a href="#context">Context</a><a href="#narrative">Narrative</a><a href="#diffs">Diffs</a></nav>
+<div class="wrap">
+
+<section class="panel" id="context">
+  <h2>Context</h2>
+  <p>Ad-hoc chore with <strong>no linked BMS ticket</strong> — this dashboard was generated from git data only. The goal: give Claude Code's local <span class="mono">/code-review</span> a repo-specific review standard, so reviews enforce Ohanafy's hard rules (data-access, logging, DTO, metadata mirroring) instead of generic taste, and produce a consistent, engineer-friendly write-up.</p>
+  <div class="note">Discovery constraint that shaped the design: the <span class="mono">/code-review</span> skill only auto-loads <span class="mono">CLAUDE.md</span> files (root + changed directories). A standalone guideline file is invisible to it unless root <span class="mono">CLAUDE.md</span> points at it — hence the two-file change.</div>
+</section>
+
+<section class="panel" id="narrative">
+  <h2>What Was Built</h2>
+  <p>A 203-line <span class="mono">CODE-REVIEW.md</span> at the repo root that merges the existing <span class="mono">/audit-pull-request</span> audit criteria (bugs, silent failures, dead branches, dead code, debug statements, naming) with the repo's hard rules from CLAUDE.md, then layers on new review behaviors: a Review Flow, an "Ask, Don't Assume" policy with a dedicated Questions section, a mandatory High-Impact / Cost-of-Change Decisions summary, a Kudos section, and a labeled "Beyond the Diff" outlet for adjacent findings. Root <span class="mono">CLAUDE.md</span> gained a four-line pointer section so the <span class="mono">/code-review</span> skill (and any ad-hoc review) actually loads the standard.</p>
+
+  <h3>File Changelog</h3>
+  <details class="group" open>
+    <summary>Docs / Agent Instructions <span class="count">2 files</span></summary>
+    <div class="filerow">
+      <span class="fname" data-target="diff-code-review-md">CODE-REVIEW.md</span>
+      <span class="stats"><span class="plus">+203</span> <span class="minus">&minus;0</span></span>
+      <span class="why">New review standard: Review Flow → Scope &amp; Guardrails → Ask Don't Assume → High-Impact Decisions → Kudos → Repo-Specific Checks (9 blockers) → Audit Criteria (6 areas) → Severity → Output Format template with 11 sections.</span>
+    </div>
+    <div class="filerow">
+      <span class="fname" data-target="diff-claude-md">CLAUDE.md</span>
+      <span class="stats"><span class="plus">+4</span> <span class="minus">&minus;0</span></span>
+      <span class="why">Added a "Code Review" section directing any reviewer to read CODE-REVIEW.md in full — the discovery hook, since /code-review only auto-loads CLAUDE.md.</span>
+    </div>
+  </details>
+
+  <h3>Key Decisions</h3>
+  <div class="card">
+    <ol>
+      <li><strong>Pointer over magic filename.</strong> Discovery happens via a CLAUDE.md section, not a specially-named file — verified against the actual /code-review skill definition, which only collects CLAUDE.md paths.</li>
+      <li><strong>Standalone file, not inlined into CLAUDE.md.</strong> Keeps ~200 lines of review-only content out of every coding session's context; it loads only when a review runs.</li>
+      <li><strong>Scope loosened deliberately.</strong> "The diff is the subject of the review, not the boundary of attention" — noise control moved from scope restriction to the severity bar plus a labeled 🔭 Beyond the Diff section, so adjacent issues surface without masquerading as blockers.</li>
+      <li><strong>Questions over guesses.</strong> Findings that hinge on unknown business/data context are downgraded to ❓ Questions (after checking ticket/ADRs/history first) instead of low-confidence blockers.</li>
+      <li><strong>Repo-Specific Checks duplicate the CLAUDE.md Pre-PR gate</strong> as reviewer-side hard rules — accepted drift risk in exchange for a self-contained review standard.</li>
+      <li><strong>/audit-pull-request left untouched.</strong> Its criteria were copied (not moved) into CODE-REVIEW.md; the command keeps its own standalone definition.</li>
+      <li><strong>OHFY-eCommerce-UI excluded from the /ohfy-design quality bar</strong> — Experience Cloud (LWR) site, outside the internal Tier-4 LWC design system.</li>
+    </ol>
+  </div>
+
+  <h3>Open Items</h3>
+  <div class="card orange">
+    <ul style="list-style:none; margin-left:0;">
+      <li><span class="dot orange"></span><strong>Nothing committed yet.</strong> Both files are uncommitted; the repo's commit convention requires a BMS key or an explicit ticketless confirmation before committing.</li>
+      <li><span class="dot blue"></span><strong>Drift risk between the two rule lists.</strong> Repo-Specific Checks mirrors CLAUDE.md's Pre-PR gate — a rule change must be applied in both places; no sync note exists yet in either file.</li>
+      <li><span class="dot blue"></span><strong>"Never approve/merge" guardrail was removed</strong> in a later edit of Scope &amp; Guardrails — confirm that's intentional, since it was one of the original safety rails for agent-driven reviews.</li>
+      <li><span class="dot blue"></span><strong>Criteria now live in two places.</strong> /audit-pull-request and CODE-REVIEW.md carry near-identical audit criteria that will evolve independently unless one eventually defers to the other.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel" id="diffs">
+  <h2>Code Changes</h2>
+  <div class="statsbar">
+    <span><strong>2 files</strong></span>
+    <span class="plus">+207</span>
+    <span class="minus">&minus;0</span>
+    <span class="muted">uncommitted working tree vs HEAD</span>
+    <button class="toggle" id="toggleAll">Expand all</button>
+  </div>
+  
+<details class="filediff" id="diff-claude-md" open>
+  <summary><span class="fpath">CLAUDE.md</span><span class="fstats"><span class="plus">+4</span> <span class="minus">&minus;0</span></span></summary>
+  <div class="diffbody"><div class="dl hunk"><span class="ln"></span><span class="lc">@@ -24,6 +24,10 @@ Keep this managed block so 'openspec update' can refresh the instructions.</span></div>
+<div class="dl ctx"><span class="ln">24</span><span class="lc"> </span></div>
+<div class="dl ctx"><span class="ln">25</span><span class="lc"> This file provides guidance to Claude Code when working in the Ohanafy mono-repo.</span></div>
+<div class="dl ctx"><span class="ln">26</span><span class="lc"> </span></div>
+<div class="dl add"><span class="ln">27</span><span class="lc">+## Code Review</span></div>
+<div class="dl add"><span class="ln">28</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">29</span><span class="lc">+When reviewing a diff or pull request (via `/code-review`, `/audit-pull-request`, or any ad-hoc review request), read [CODE-REVIEW.md](./CODE-REVIEW.md) at the repo root in full and apply it — it defines the review scope, guardrails, repo-specific checks, audit criteria, severity labels, and output format (including the High-Impact Decisions, Questions for the Author, and Kudos sections).</span></div>
+<div class="dl add"><span class="ln">30</span><span class="lc">+</span></div>
+<div class="dl ctx"><span class="ln">31</span><span class="lc"> ## Project Overview</span></div>
+<div class="dl ctx"><span class="ln">32</span><span class="lc"> </span></div>
+<div class="dl ctx"><span class="ln">33</span><span class="lc"> OHFY-Split is a Salesforce DX mono-repo containing 11 second-generation managed packages (namespace: `ohfy`, API v65.0) for Ohanafy, a beverage distribution management platform. All packages share a single `sfdx-project.json` at the repo root.</span></div></div>
+</details>
+<details class="filediff" id="diff-code-review-md" >
+  <summary><span class="fpath">CODE-REVIEW.md <em>(new file)</em></span><span class="fstats"><span class="plus">+203</span> <span class="minus">&minus;0</span></span></summary>
+  <div class="diffbody"><div class="dl add"><span class="ln">1</span><span class="lc">+# Code Review Instructions</span></div>
+<div class="dl add"><span class="ln">2</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">3</span><span class="lc">+Instructions and guardrails for Claude when reviewing pull requests in this repo — whether via `/code-review`, or an ad-hoc review request. Read this file in full before producing any review output.</span></div>
+<div class="dl add"><span class="ln">4</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">5</span><span class="lc">+## Review Flow</span></div>
+<div class="dl add"><span class="ln">6</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">7</span><span class="lc">+1. **Understand intent first.** Read the PR description and the linked BMS ticket — especially its acceptance criteria — before reading any code. The diff is judged against what it claims to do, not what the reviewer imagines it should do.</span></div>
+<div class="dl add"><span class="ln">8</span><span class="lc">+2. **Scan the shape of the diff.** Which packages/tiers are touched, which file types (Apex, LWC, metadata), how big it is. This determines which Repo-Specific Checks apply and how deep the Audit Criteria pass needs to go.</span></div>
+<div class="dl add"><span class="ln">9</span><span class="lc">+3. **Review the diff** — Repo-Specific Checks first (hard rules, all blockers), then Audit Criteria (judgment areas). Collect findings, questions, high-impact decisions, and kudos as you encounter them rather than reconstructing them at the end.</span></div>
+<div class="dl add"><span class="ln">10</span><span class="lc">+4. **Write up** using the Output Format below.</span></div>
+<div class="dl add"><span class="ln">11</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">12</span><span class="lc">+## Scope &amp; Guardrails</span></div>
+<div class="dl add"><span class="ln">13</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">14</span><span class="lc">+- The diff is the subject of the review, not the boundary of attention. Read whatever surrounding code, callers, tests, or git history is needed to judge the diff correctly.</span></div>
+<div class="dl add"><span class="ln">15</span><span class="lc">+- Pre-existing or adjacent issues outside the diff are fair game when the diff touches, worsens, or builds on them — report them under **🔭 Beyond the Diff** so the author can tell them apart from blockers on their own changes. Don't turn this into a general audit of untouched files.</span></div>
+<div class="dl add"><span class="ln">16</span><span class="lc">+- Noise control comes from the severity bar, not a finding count: report everything that genuinely earns its severity label, and skip nits that wouldn't change the merge decision.</span></div>
+<div class="dl add"><span class="ln">17</span><span class="lc">+- Do not make code changes, commits, or pushes during a review — output findings only.</span></div>
+<div class="dl add"><span class="ln">18</span><span class="lc">+- If a check can't be evaluated from the diff alone (e.g., whether tests pass), say so explicitly instead of guessing.</span></div>
+<div class="dl add"><span class="ln">19</span><span class="lc">+- Frontend visual quality in the internal Tier-4 UI packages (`OHFY-PLTFM-UI/`, `OHFY-OMS-UI/`, `OHFY-WMS-UI/`, `OHFY-REX-UI/`) is judged against `.claude/skills/ohfy-design/SKILL.md`, not generic taste. `OHFY-eCommerce-UI/` is excluded — it's an Experience Cloud (LWR) site outside the internal LWC design system.</span></div>
+<div class="dl add"><span class="ln">20</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">21</span><span class="lc">+## Ask, Don't Assume</span></div>
+<div class="dl add"><span class="ln">22</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">23</span><span class="lc">+The goal is a review the author can act on with full confidence — which means the reviewer must not paper over gaps in its own understanding.</span></div>
+<div class="dl add"><span class="ln">24</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">25</span><span class="lc">+**Never assume business or architecture intent that isn't visible in the diff, the linked ticket, or repo docs.** Concretely, do NOT:</span></div>
+<div class="dl add"><span class="ln">26</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">27</span><span class="lc">+- Assume a branch, flag, or threshold is wrong because it differs from a generic industry pattern — this repo's conventions (CLAUDE.md, `docs/engineering/adrs/`, `docs/security/mode-selection.md`, per-package CLAUDE.md) are the standard, and domain rules (beverage distribution: territories, allocations, compliance holds) often look unusual by design.</span></div>
+<div class="dl add"><span class="ln">28</span><span class="lc">+- Assume what production data looks like (e.g., "this lookup is always populated", "quantities can't be negative") — data-shape claims need a schema default, validation rule, or trigger in evidence.</span></div>
+<div class="dl add"><span class="ln">29</span><span class="lc">+- Assume why an existing pattern was chosen, or that deviating from it in this PR is accidental — it may be a deliberate migration step.</span></div>
+<div class="dl add"><span class="ln">30</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">31</span><span class="lc">+**When a finding depends on missing context, downgrade it to a question instead of guessing in either direction.** But do the homework first: check the linked ticket, `docs/engineering/adrs/`, git history, and the existing tests — ask only what those can't settle. Put surviving questions in a dedicated **❓ Questions for the Author** section, each phrased so the author can answer in one or two sentences, e.g.:</span></div>
+<div class="dl add"><span class="ln">32</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">33</span><span class="lc">+&gt; ❓ `S_CreditAllocation.cls:142` — the new guard skips allocation when `Territory__c` is null. Is a null territory a real state in production data, or should this throw? If it's real, the silent skip needs a Logger call.</span></div>
+<div class="dl add"><span class="ln">34</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">35</span><span class="lc">+A review with two precise questions beats one with two confident-but-wrong blockers.</span></div>
+<div class="dl add"><span class="ln">36</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">37</span><span class="lc">+## High-Impact / Cost-of-Change Decisions</span></div>
+<div class="dl add"><span class="ln">38</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">39</span><span class="lc">+Every review comment must include a **🧭 High-Impact Decisions** section (omit only if the PR is genuinely trivial) summarizing decisions in this PR that are expensive or impossible to reverse later — even when they're not problems. The author and future readers should be able to see at a glance what this PR commits the codebase to. In a managed-package repo, look especially for:</span></div>
+<div class="dl add"><span class="ln">40</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">41</span><span class="lc">+- **Permanent package API surface**: new/changed `global` classes, methods, or DTO properties; `@AuraEnabled` method signatures; `@namespaceAccessible` members. Once released in the `ohfy` managed package these can never be removed or re-typed.</span></div>
+<div class="dl add"><span class="ln">42</span><span class="lc">+- **Schema**: new objects, fields, picklist values, or relationship changes — fields on released managed objects are effectively forever.</span></div>
+<div class="dl add"><span class="ln">43</span><span class="lc">+- **Cross-package dependencies**: a Tier-3 package newly calling into another package, new `Service_Configuration__mdt` / ServiceLocator wiring, or anything that changes the dependency tiers.</span></div>
+<div class="dl add"><span class="ln">44</span><span class="lc">+- **Integration &amp; data contracts**: External ID formats, webhook/callout payload shapes, CMDT-driven configuration shapes that customer orgs will populate.</span></div>
+<div class="dl add"><span class="ln">45</span><span class="lc">+- **Behavioral defaults**: changes to trigger behavior, sharing/access mode, or allOrNone semantics that all downstream features inherit.</span></div>
+<div class="dl add"><span class="ln">46</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">47</span><span class="lc">+For each, give one sentence: what was decided and what it locks in.</span></div>
+<div class="dl add"><span class="ln">48</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">49</span><span class="lc">+Litmus test: if reversing the decision later would take a managed-package major release, a data migration, or customer coordination, it belongs in this section.</span></div>
+<div class="dl add"><span class="ln">50</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">51</span><span class="lc">+## Kudos</span></div>
+<div class="dl add"><span class="ln">52</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">53</span><span class="lc">+Include a **👏 Kudos** section calling out genuinely good work in the diff — positive reinforcement is part of the review, not filler. Be specific and cite lines, e.g., a bulk-safe rewrite, an edge case covered in tests that would have been easy to miss, a well-placed Logger call, complexity removed, or a naming/doc improvement. One to three items; skip generic praise ("nice clean code") — if you can't point at a line and say why it's good, leave it out.</span></div>
+<div class="dl add"><span class="ln">54</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">55</span><span class="lc">+## Repo-Specific Checks</span></div>
+<div class="dl add"><span class="ln">56</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">57</span><span class="lc">+Every item here is a hard rule — a violation is a **[BLOCKER]** no matter how small the diff. The linked docs are authoritative when a case looks ambiguous.</span></div>
+<div class="dl add"><span class="ln">58</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">59</span><span class="lc">+- **No raw SOQL/DML** in non-test `.cls` files — all reads go through `QueryService`, all writes through `DmlService`. Flag any added `[SELECT`, raw `insert/update/delete/upsert/undelete`, or `Database.*` call.</span></div>
+<div class="dl add"><span class="ln">60</span><span class="lc">+- **Explicit `AccessLevel.SYSTEM_MODE`** must have an inline comment on the line above citing rule 1, 2, 3, 4, or 6 from `docs/security/mode-selection.md`. A rule-5 citation is a block.</span></div>
+<div class="dl add"><span class="ln">61</span><span class="lc">+- **No explicit `AccessLevel.USER_MODE`** in non-test classes — it defeats the bypass-permission default (ADR-0011). Use `AccessLevelResolver.getDefaultAccessLevel()` or omit the argument entirely.</span></div>
+<div class="dl add"><span class="ln">62</span><span class="lc">+- **Logger in every catch block**: `Logger.getInstance().error('&lt;Class&gt;.&lt;method&gt; ...', e)` followed by `flush()`, including "ignored" catches. Test classes exempt.</span></div>
+<div class="dl add"><span class="ln">63</span><span class="lc">+- **DTO pattern (ADR-0007)**: any custom Apex type crossing an `@AuraEnabled` boundary between packages must be a `global` DTO with `{ get; set; }` properties and a single parameterless constructor.</span></div>
+<div class="dl add"><span class="ln">64</span><span class="lc">+- **Apex test coverage**: every added/modified Apex method must be exercised with assertions by a `_T` class.</span></div>
+<div class="dl add"><span class="ln">65</span><span class="lc">+- **org-metadata mirroring**: FlexiPage/layout/tab/quickAction changes must appear in both `org-metadata/managed/` (with `ohfy` prefix) and `org-metadata/scratch/` (unprefixed).</span></div>
+<div class="dl add"><span class="ln">66</span><span class="lc">+- **Field/object standards**: any new or changed field, object, or relationship follows `docs/engineering/standards/naming-conventions.md` and `quantity-conventions.md` (base-unit source of truth, `Quantity_{State}__c` / `Units_{Verb}__c` patterns).</span></div>
+<div class="dl add"><span class="ln">67</span><span class="lc">+- **Conventional commits** with a `BMS-XXXX` ticket key on every commit.</span></div>
+<div class="dl add"><span class="ln">68</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">69</span><span class="lc">+## Audit Criteria</span></div>
+<div class="dl add"><span class="ln">70</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">71</span><span class="lc">+Judgment areas that apply to any diff, on top of the hard rules above. Findings here carry whatever severity the evidence supports.</span></div>
+<div class="dl add"><span class="ln">72</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">73</span><span class="lc">+### Bugs &amp; Runtime Errors</span></div>
+<div class="dl add"><span class="ln">74</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">75</span><span class="lc">+Flag any code that will or is likely to cause a runtime error:</span></div>
+<div class="dl add"><span class="ln">76</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">77</span><span class="lc">+- Divide by zero (literal or unchecked denominator)</span></div>
+<div class="dl add"><span class="ln">78</span><span class="lc">+- Null dereference — accessing a property or method on a value that could be null/undefined without a prior null check</span></div>
+<div class="dl add"><span class="ln">79</span><span class="lc">+- Reading an undefined variable or uninitialized value</span></div>
+<div class="dl add"><span class="ln">80</span><span class="lc">+- Index out of bounds — array/list access without a size check</span></div>
+<div class="dl add"><span class="ln">81</span><span class="lc">+- SOQL queries inside loops (Apex governor limit violation)</span></div>
+<div class="dl add"><span class="ln">82</span><span class="lc">+- DML statements inside loops (Apex governor limit violation)</span></div>
+<div class="dl add"><span class="ln">83</span><span class="lc">+- Synchronous callouts inside async contexts or vice versa in LWC/Aura (e.g., calling an `@wire` adapter result directly as if it's a Promise, mixing `async/await` with raw `.then()` chains in ways that lose error handling)</span></div>
+<div class="dl add"><span class="ln">84</span><span class="lc">+- Race conditions in LWC — e.g., mutating shared reactive properties from multiple concurrent `async` methods without coordination</span></div>
+<div class="dl add"><span class="ln">85</span><span class="lc">+- Maps or Sets that can silently overwrite keys — flag any `Map.put()` or object spread where the key is not guaranteed unique and the overwrite is likely unintentional</span></div>
+<div class="dl add"><span class="ln">86</span><span class="lc">+- Missing `break` in switch statements where fall-through is not intentional</span></div>
+<div class="dl add"><span class="ln">87</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">88</span><span class="lc">+### Silent Failures &amp; Swallowed Errors</span></div>
+<div class="dl add"><span class="ln">89</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">90</span><span class="lc">+Flag code paths where an error can occur but will be hidden from the user, logs, or monitoring — especially asynchronous contexts where exceptions never surface to the original transaction. Do **not** just flag the presence of a Queueable/Batch/Future; flag any operation inside one that could realistically fail and isn't caught and recorded:</span></div>
+<div class="dl add"><span class="ln">91</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">92</span><span class="lc">+- **Async Apex that can throw but has no error handling** — any Queueable (`execute`), Batchable (`start`/`execute`/`finish`), Future (`@future`), or Schedulable that performs DML, a callout, SOQL, or other failable work without a `try/catch`. An unhandled exception here is invisible to the calling user and is only discoverable in async job logs.</span></div>
+<div class="dl add"><span class="ln">93</span><span class="lc">+- **Empty or swallowing catch blocks** — a `catch` that does nothing, only calls `System.debug()`/`console.error()`, or otherwise discards the exception without rethrowing, logging via `Logger` + `flush()`, or surfacing it to the user.</span></div>
+<div class="dl add"><span class="ln">94</span><span class="lc">+- **Over-broad catch that continues** — catching `Exception` (or bare `catch (e)`) and proceeding as if nothing happened, masking real failures.</span></div>
+<div class="dl add"><span class="ln">95</span><span class="lc">+- **Partial-success DML not inspected** — `DmlService.doInsert(records, false)` / `Database.*(records, false)` (allOrNone=false) or any `SaveResult[]`/`UpsertResult[]`/`DeleteResult[]` where the results are never checked for `isSuccess()`/`getErrors()`, so failed rows vanish silently.</span></div>
+<div class="dl add"><span class="ln">96</span><span class="lc">+- **Queueable without a Finalizer** — when a Queueable does failable work (especially callouts), flag the absence of `System.attachFinalizer()` / a `Finalizer` to catch and record unhandled exceptions and, where appropriate, retry.</span></div>
+<div class="dl add"><span class="ln">97</span><span class="lc">+- **LWC/JavaScript promises with no rejection handling** — an imperative Apex call, `fetch`, or other Promise with no `.catch()` (or no `try/catch` around `await`); a rejected promise leaves the UI inconsistent with no user feedback.</span></div>
+<div class="dl add"><span class="ln">98</span><span class="lc">+- **Failure logged but not surfaced** — work that fails and writes only a `System.debug`/`console.error` with no toast, no Logger record, and no rethrow, so the user believes the action succeeded.</span></div>
+<div class="dl add"><span class="ln">99</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">100</span><span class="lc">+For each finding, state *what* can fail and *how* it should be handled (caught + logged durably, surfaced to the user, retried, etc.).</span></div>
+<div class="dl add"><span class="ln">101</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">102</span><span class="lc">+### Conditional Logic &amp; Dead Branches</span></div>
+<div class="dl add"><span class="ln">103</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">104</span><span class="lc">+Flag conditionals that don't actually branch the way they appear to, or that silently skip work:</span></div>
+<div class="dl add"><span class="ln">105</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">106</span><span class="lc">+- **Effectively constant conditions** — an `if`/ternary/`while` whose outcome is fixed given how its variables are assigned (e.g., a flag hardcoded `true` just above the check, `if (x != null)` immediately after `x = new Account()`, `if (list.size() &gt;= 0)`). The "other" branch is unreachable.</span></div>
+<div class="dl add"><span class="ln">107</span><span class="lc">+- **Conditions that almost always take one route** — a check driven by a parameter, custom setting/metadata, or feature flag that in practice is (almost) always the same value, so the alternate path rarely or never runs. Call out the assumption — and per **Ask, Don't Assume**, if you can't determine the real-world value, raise it as a question rather than a verdict.</span></div>
+<div class="dl add"><span class="ln">108</span><span class="lc">+- **Silent conditional skips** — a guard clause (`if (cond) return;`, `continue`, early `break`) that bypasses the method's core work under a condition that is common rather than a true edge case, so the operation silently does nothing without logging or signaling. Distinguish legitimate early-exits (empty input) from skips that quietly drop real work.</span></div>
+<div class="dl add"><span class="ln">109</span><span class="lc">+- **Identical branches** — `if`/`else` arms, both ternary results, or multiple `switch`/`case` branches that execute the same logic, making the condition pointless.</span></div>
+<div class="dl add"><span class="ln">110</span><span class="lc">+- **Unreachable branches** — `else`/`case`/`default` paths that can never be hit given prior `return`/`throw` statements or mutually exclusive earlier conditions.</span></div>
+<div class="dl add"><span class="ln">111</span><span class="lc">+- **Redundant nested conditions** — an inner condition already guaranteed (or already excluded) by an outer one, leaving a dead branch.</span></div>
+<div class="dl add"><span class="ln">112</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">113</span><span class="lc">+For each finding, state which branch is effectively dead or always-taken, and why, based on the actual parameter/variable values visible in the diff.</span></div>
+<div class="dl add"><span class="ln">114</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">115</span><span class="lc">+### Dead Code</span></div>
+<div class="dl add"><span class="ln">116</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">117</span><span class="lc">+- Commented-out blocks of code (more than a single explanatory line)</span></div>
+<div class="dl add"><span class="ln">118</span><span class="lc">+- Unreachable code paths (e.g., code after an unconditional `return`/`throw`)</span></div>
+<div class="dl add"><span class="ln">119</span><span class="lc">+- Unused variables, parameters, or imports</span></div>
+<div class="dl add"><span class="ln">120</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">121</span><span class="lc">+### Debug &amp; Logging Statements</span></div>
+<div class="dl add"><span class="ln">122</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">123</span><span class="lc">+- `System.debug()` calls left in Apex production code</span></div>
+<div class="dl add"><span class="ln">124</span><span class="lc">+- `console.log()`, `console.warn()`, `console.error()` left in LWC/JavaScript production code</span></div>
+<div class="dl add"><span class="ln">125</span><span class="lc">+- Test-runner escape hatches: `.only(`, `.skip(`, `fdescribe(`, `xit(`</span></div>
+<div class="dl add"><span class="ln">126</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">127</span><span class="lc">+### Naming Conventions</span></div>
+<div class="dl add"><span class="ln">128</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">129</span><span class="lc">+Apply these rules to all changed files (full conventions: `docs/engineering/standards/naming-conventions.md`):</span></div>
+<div class="dl add"><span class="ln">130</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">131</span><span class="lc">+**Salesforce Object &amp; Field Metadata** (`.object-meta.xml`, `.field-meta.xml`):</span></div>
+<div class="dl add"><span class="ln">132</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">133</span><span class="lc">+- The `&lt;label&gt;` value and the API name (filename prefix or `&lt;fullName&gt;`) should match, with the only difference being that the API name uses underscores where the label has spaces (e.g., label `Invoice Line Item` → API name `Invoice_Line_Item__c`). Flag mismatches.</span></div>
+<div class="dl add"><span class="ln">134</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">135</span><span class="lc">+**Apex Classes &amp; Triggers** (`.cls`, `.trigger`):</span></div>
+<div class="dl add"><span class="ln">136</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">137</span><span class="lc">+- Class names must be PascalCase and follow the role prefixes in CLAUDE.md (`E_`, `S_`, `B_`/`BA_`, `Q_`, `_T` suffix for tests)</span></div>
+<div class="dl add"><span class="ln">138</span><span class="lc">+- Method names must be camelCase (e.g., `calculateTotal`, not `CalculateTotal` or `calculate_total`)</span></div>
+<div class="dl add"><span class="ln">139</span><span class="lc">+- Constants should be `UPPER_SNAKE_CASE`</span></div>
+<div class="dl add"><span class="ln">140</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">141</span><span class="lc">+**LWC &amp; JavaScript** (`.js`):</span></div>
+<div class="dl add"><span class="ln">142</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">143</span><span class="lc">+- Component folder names must be camelCase (the framework enforces this, but flag any mismatch between folder name and class/export name)</span></div>
+<div class="dl add"><span class="ln">144</span><span class="lc">+- Method and function names must be camelCase; class names PascalCase</span></div>
+<div class="dl add"><span class="ln">145</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">146</span><span class="lc">+**Custom Metadata &amp; Other Metadata**:</span></div>
+<div class="dl add"><span class="ln">147</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">148</span><span class="lc">+- Record API names should follow the same label-to-API-name pattern as objects/fields above</span></div>
+<div class="dl add"><span class="ln">149</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">150</span><span class="lc">+## Severity &amp; Reporting</span></div>
+<div class="dl add"><span class="ln">151</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">152</span><span class="lc">+- Classify each finding inline:</span></div>
+<div class="dl add"><span class="ln">153</span><span class="lc">+    - **[BLOCKER]** — violates a Repo-Specific Check, or will cause a runtime error, data loss, security issue, or governor limit exception in production</span></div>
+<div class="dl add"><span class="ln">154</span><span class="lc">+    - **[WARNING]** — likely problem or bad practice that should be fixed before merge</span></div>
+<div class="dl add"><span class="ln">155</span><span class="lc">+    - **[SUGGESTION]** — minor style or hygiene issue; fix is optional but recommended</span></div>
+<div class="dl add"><span class="ln">156</span><span class="lc">+- If a finding's severity hinges on context you don't have, it isn't a low-confidence [BLOCKER] — it's a ❓ Question (see Ask, Don't Assume).</span></div>
+<div class="dl add"><span class="ln">157</span><span class="lc">+- Cite findings as `file_path:line_number` against the PR diff.</span></div>
+<div class="dl add"><span class="ln">158</span><span class="lc">+- Do not flag formatting Prettier already enforces, or style preferences not documented in this repo.</span></div>
+<div class="dl add"><span class="ln">159</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">160</span><span class="lc">+## Output Format</span></div>
+<div class="dl add"><span class="ln">161</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">162</span><span class="lc">+When leaving a summary comment on the PR (e.g., `/code-review --comment` summary), use this structure. Line-anchored findings may additionally be posted as inline comments on the flagged lines — the summary still lists them all in one place. Omit any findings section with no findings; never omit High-Impact Decisions unless the PR is trivial.</span></div>
+<div class="dl add"><span class="ln">163</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">164</span><span class="lc">+```</span></div>
+<div class="dl add"><span class="ln">165</span><span class="lc">+## PR Review</span></div>
+<div class="dl add"><span class="ln">166</span><span class="lc">+**PR:** &lt;title and URL&gt;</span></div>
+<div class="dl add"><span class="ln">167</span><span class="lc">+**Files changed:** &lt;count&gt; | **Lines added:** &lt;+n&gt; | **Lines removed:** &lt;-n&gt;</span></div>
+<div class="dl add"><span class="ln">168</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">169</span><span class="lc">+### 🧭 High-Impact Decisions</span></div>
+<div class="dl add"><span class="ln">170</span><span class="lc">+- &lt;decision&gt; — &lt;what it locks in&gt;</span></div>
+<div class="dl add"><span class="ln">171</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">172</span><span class="lc">+### 🐛 Bugs &amp; Runtime Errors</span></div>
+<div class="dl add"><span class="ln">173</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — [SEVERITY] &lt;issue and why it will cause a problem&gt;</span></div>
+<div class="dl add"><span class="ln">174</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">175</span><span class="lc">+### 🔇 Silent Failures &amp; Swallowed Errors</span></div>
+<div class="dl add"><span class="ln">176</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — [SEVERITY] &lt;what can fail, why it's hidden, how to handle it&gt;</span></div>
+<div class="dl add"><span class="ln">177</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">178</span><span class="lc">+### 🔀 Conditional Logic &amp; Dead Branches</span></div>
+<div class="dl add"><span class="ln">179</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — [SEVERITY] &lt;which branch is dead/always-taken and why&gt;</span></div>
+<div class="dl add"><span class="ln">180</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">181</span><span class="lc">+### 🧹 Dead Code</span></div>
+<div class="dl add"><span class="ln">182</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — [SEVERITY] &lt;description&gt;</span></div>
+<div class="dl add"><span class="ln">183</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">184</span><span class="lc">+### 🔍 Debug Statements</span></div>
+<div class="dl add"><span class="ln">185</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — `&lt;the statement&gt;` — remove before merge</span></div>
+<div class="dl add"><span class="ln">186</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">187</span><span class="lc">+### 🏷️ Naming Convention Violations</span></div>
+<div class="dl add"><span class="ln">188</span><span class="lc">+&lt;file&gt; — &lt;what was found&gt; → &lt;what it should be&gt;</span></div>
+<div class="dl add"><span class="ln">189</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">190</span><span class="lc">+### ❓ Questions for the Author</span></div>
+<div class="dl add"><span class="ln">191</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — &lt;specific question, and what the answer changes&gt;</span></div>
+<div class="dl add"><span class="ln">192</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">193</span><span class="lc">+### 🔭 Beyond the Diff</span></div>
+<div class="dl add"><span class="ln">194</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — &lt;pre-existing or adjacent issue the diff interacts with — not a blocker for this PR, worth a follow-up ticket&gt;</span></div>
+<div class="dl add"><span class="ln">195</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">196</span><span class="lc">+### 👏 Kudos</span></div>
+<div class="dl add"><span class="ln">197</span><span class="lc">+&lt;file&gt;:&lt;line&gt; — &lt;what was done well and why it matters&gt;</span></div>
+<div class="dl add"><span class="ln">198</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">199</span><span class="lc">+### ✅ Summary</span></div>
+<div class="dl add"><span class="ln">200</span><span class="lc">+&lt;2–3 sentences: is this PR safe to merge, blockers vs. suggestions, patterns worth calling out&gt;</span></div>
+<div class="dl add"><span class="ln">201</span><span class="lc">+```</span></div>
+<div class="dl add"><span class="ln">202</span><span class="lc">+</span></div>
+<div class="dl add"><span class="ln">203</span><span class="lc">+If the PR is clean, say so clearly in the Summary — and still fill in High-Impact Decisions and Kudos where they apply.</span></div></div>
+</details>
+</section>
+
+<footer>
+  Branch <span style="color:#ccc;">chore/claude-code-review</span> &middot; base <span style="color:#ccc;">origin/main</span> (891b97ca) &middot; 0 commits — review covers <strong>uncommitted work</strong><br>
+  Generated June 10, 2026 &middot; no Jira ticket linked
+</footer>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('toggleAll');
+  var expanded = false;
+  btn.addEventListener('click', function () {
+    expanded = !expanded;
+    document.querySelectorAll('#diffs details.filediff').forEach(function (d) { d.open = expanded; });
+    btn.textContent = expanded ? 'Collapse all' : 'Expand all';
+  });
+  document.querySelectorAll('.fname[data-target]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var t = document.getElementById(el.getAttribute('data-target'));
+      if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

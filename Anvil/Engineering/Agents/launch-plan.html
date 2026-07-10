@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4995 Orchestration — Launch Plan</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1d2130; --ink:#e8eaf2; --muted:#9aa1b5;
+    --line:#2a2f40; --green:#3ecf8e; --amber:#f5b83d; --red:#f06a6a; --blue:#6aa3f0;
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,"Segoe UI",Inter,sans-serif;padding:48px 24px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:30px;letter-spacing:-.02em;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 32px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:40px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .stat b{display:block;font-size:24px}
+  .stat span{color:var(--muted);font-size:12.5px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 12px}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .card .why{margin-top:8px;font-size:13.5px;color:var(--ink);background:var(--panel2);border-left:3px solid var(--blue);padding:8px 12px;border-radius:0 8px 8px 0}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:5px;padding:2px 8px;margin-right:8px;vertical-align:2px}
+  .t-block{background:rgba(240,106,106,.15);color:var(--red)}
+  .t-you{background:rgba(245,184,61,.15);color:var(--amber)}
+  .t-me{background:rgba(106,163,240,.15);color:var(--blue)}
+  .t-done{background:rgba(62,207,142,.15);color:var(--green)}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .ok{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--red)}
+  ol.seq{counter-reset:n;list-style:none;padding:0;margin:0}
+  ol.seq li{counter-increment:n;position:relative;padding:0 0 18px 46px}
+  ol.seq li::before{content:counter(n);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--blue)}
+  ol.seq li::after{content:"";position:absolute;left:15px;top:34px;bottom:2px;width:1px;background:var(--line)}
+  ol.seq li:last-child::after{display:none}
+  ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:13.5px}
+  ul li{margin:3px 0}
+  .foot{margin-top:40px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>BMS-4995 — Epic Orchestration Launch Plan</h1>
+<p class="sub">Retailer Online Ordering Experience (Gulf) · Sprint 4 · 7 orchestrated tickets · 2 manual (Alvaro) · CRED deferred · updated 2026-06-12 (rev 7 — ON HOLD: spend limit; 2/7 PRs shipped)</p>
+
+<div class="grid">
+  <div class="stat"><b class="ok">8</b><span>foundations ready</span></div>
+  <div class="stat"><b class="bad">2</b><span>launch blockers</span></div>
+  <div class="stat"><b class="warn">4</b><span>decisions for Alvaro</span></div>
+  <div class="stat"><b>0 / 7</b><span>build-eligible — ALL 7 in polish queue</span></div>
+</div>
+
+<div class="card" style="border-color:rgba(245,184,61,.4)">
+  <h3>Selection rule + state machine (Alvaro, 2026-06-11)</h3>
+  <p>Workable items = Sprint 4 children in <b>To Do</b> or <b>Needs Refinement</b>. Lifecycle: <b>Needs Refinement → <code>/polish</code> (+ label, move to To Do) → To Do (build-eligible) → build → Done</b>. Goal is develop-with-discernment: agents drive tickets to <b>Done</b>, escalate only when the confidence bar can't be met, and every escalation carries its worker ID (e.g. <code>CAT-4054</code>). IDs: lanes <code>CART / CAT / ACCT / CRED</code>, workers <code>&lt;LANE&gt;-&lt;n&gt;</code> in execution order.</p>
+</div>
+
+<div class="card" style="border-color:rgba(240,106,106,.5)">
+  <h3><span class="tag t-block">ON HOLD</span>Fleet paused 2026-06-12 — org monthly spend limit (reset pending)</h3>
+  <p><b>Shipped before the halt</b>: 3 lane orgs claimed + storefront-ready · <a href="https://github.com/Ohanafy/OHFY-Split/pull/294" style="color:var(--blue)">PR #294</a> CART-4050 (CI green) · <a href="https://github.com/Ohanafy/OHFY-Split/pull/293" style="color:var(--blue)">PR #293</a> CAT-4053 (CI deploy job failed — babysit on resume). <b>Remaining</b>: CART-4051, CART-4052, CAT-4054, CAT-3925, ACCT-3932 (died at launch, no partial work). <b>Awaiting Alvaro</b>: approve the community sharing-rule fix (blocks CART write-path testing), brand-accent decision (CAT-4053), PR #293 CI. Resume instructions: ORCHESTRATION_HANDOFF.md → "Hold state &amp; resume".</p>
+</div>
+
+<h2>What's blocking launch — in order</h2>
+
+<div class="card">
+  <h3><span class="tag t-block">Blocker 1</span><span class="tag t-you">Alvaro</span>Polish gate: 7 tickets in Needs Refinement</h3>
+  <p>Queue (each: <code>/polish</code> → <code>polished</code> label → transition to To Do): <b>CART-4050, CART-4051, CART-4052, CAT-4053, CAT-4054, CAT-3925, ACCT-3932</b>. 4050 and 3932 were content-updated by Alvaro while staying in Needs Refinement, so their old <code>polished</code> labels are treated as stale — fresh pass required.</p>
+  <div class="why">Recommended order: <b>CAT-4053 first</b> (the CAT lane leads with it), then CART-4050 (leads CART), ACCT-3932, then the rest. Claude can run these passes with Jira writes + transitions if you give the word — or you run them yourself.</div>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-done">resolved</span>PR base branch decided: branches cut from <code>main</code>, PRs target <code>main</code></h3>
+  <p>Decided by Alvaro 2026-06-11. Recorded in the handoff, QUEST_NOTES, and the <code>/ecom-done</code> ship gate (sync check + <code>gh pr create</code> now use <code>main</code>).</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-block">Blocker 2</span><span class="tag t-me">Claude</span>Dry-run <code>/ecom-setup</code> on one real claimed org</h3>
+  <p>Claim one org, run the full recipe (<code>claim-dev.sh</code> → ecom package check/top-up → <code>setup-site.sh</code> → smoke specs), and prove the storefront comes up green before four lanes depend on it.</p>
+  <div class="why">Also answers the open question of whether pool snapshots carry the ecom packages. ~30–60 min, can run while polishing happens. Say "run the dry-run" and it starts.</div>
+</div>
+
+<h2>Decisions queued for you (non-blocking but needed before their phase)</h2>
+
+<table>
+  <tr><th>Decision</th><th>Needed by</th><th>Default if you don't care</th></tr>
+  <tr><td>PR conventions — template, labels, reviewers, draft vs ready</td><td>First PR opens</td><td>Repo defaults; ticket key in title; draft PRs</td></tr>
+  <tr><td>Should agents transition Jira tickets + comment with PR links?</td><td>Report phase</td><td>Comment yes, transition no</td></tr>
+  <tr><td>Days-saved estimate for the arena challenge entry</td><td>Whenever</td><td>—</td></tr>
+</table>
+
+<h2>Pre-launch work Claude still owes (no input needed)</h2>
+
+<div class="card">
+  <h3><span class="tag t-done">done</span>Validation Run 0 (8 agents, 2026-06-11) — lanes confirmed, duplicate work found</h3>
+  <p>All 8 lane assignments correct. <b>5 of 7 orchestrated tickets largely describe already-shipped work</b> (draft-invoice cart, S_FrontLinePricing engine, warehouse filtering, responsive grid + pagination, promo surfacing — landed via BMS-3929/4076/4171). Verdicts: shrink-scope ×5 (4050, 4051, 4053, 4054, 3925) · needs-human ×2 (4052: undefined tax/lineage rules; 3932: PO decisions, likely split) · build-as-planned ×1 (5321). Per-ticket "Validation Run 0" sections with already-shipped inventories and residual-scope lists are in each bucket report. <b>Consequence: the polish passes must REWRITE tickets down to residual scope, not just add ACs.</b></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-me">Claude</span>Commit orchestration assets to the branch, then write the Build workflow</h3>
+  <p>Skills (<code>ecom-setup</code>, <code>ecom-done</code>) and docs are untracked — per-ticket worktrees branch from this branch and must inherit them. Then the Build-phase Workflow script gets written and reviewed against the handoff. <i>(Commits happen only on your go — per your standing rule.)</i></p>
+</div>
+
+<h2>Launch sequence once unblocked</h2>
+
+<ol class="seq">
+  <li><b>Gate clearing (you + me in parallel).</b> You: polish passes + PR-base call. Me: dry-run org, conflict rescan, comment re-grade.</li>
+  <li><b>Plan freeze.</b> Final per-lane ticket order + conflict matrix presented for your sign-off; lane files updated in this folder.</li>
+  <li><b>Build fan-out.</b> One Workflow run: 4 lanes in parallel, each claims its org (<code>ecom-cart / ecom-catalog / ecom-account / ecom-credit</code>), tickets sequential within a lane — worktree → implement → Apex + Playwright green → <code>/ecom-done</code> (incl. CI babysit + <code>/document</code>) → PR. Ambiguity policy: build what's clear, self-answer with evidence, escalate coin-flips to <code>_shared/blockers.md</code>.</li>
+  <li><b>Report.</b> Summary table ticket → PR → tests in this folder; arena evidence log finalized in <code>QUEST_NOTES.md</code>; org release only after asking you.</li>
+</ol>
+
+<h2>Already in place</h2>
+
+<table>
+  <tr><th>Foundation</th><th>Where</th></tr>
+  <tr><td><span class="tag t-done">done</span>Epic scoped — 10 tickets, AC grades, footprints, dependencies (10-agent fleet)</td><td>per-ticket reports in this folder</td></tr>
+  <tr><td><span class="tag t-done">done</span><code>origin/main</code> merged — full ecom stack present in the orchestration branch</td><td><code>fable-project-as</code> @ a395fe49</td></tr>
+  <tr><td><span class="tag t-done">done</span>Org setup recipe found &amp; skill-wrapped (claim → setup-site.sh → smoke)</td><td><code>/ecom-setup</code></td></tr>
+  <tr><td><span class="tag t-done">done</span>Definition-of-done gate: AC walk → checks → tests → visual → evidence → PR → CI babysit → <code>/document</code></td><td><code>/ecom-done</code></td></tr>
+  <tr><td><span class="tag t-done">done</span>Context bucket: domain lanes, contracts, blockers, org-issues troubleshooting log</td><td>this folder</td></tr>
+  <tr><td><span class="tag t-done">done</span>Credentials: local run on Alvaro's auth; <code>OHFY_API_TOKEN</code> exported (AWS CLI broken but unneeded)</td><td>handoff + skills</td></tr>
+  <tr><td><span class="tag t-done">done</span>Policies: polish gate · ambiguity (build/self-answer/escalate) · username+password logins · org-per-domain</td><td><code>ORCHESTRATION_HANDOFF.md</code></td></tr>
+</table>
+
+<h2>Lanes</h2>
+
+<table>
+  <tr><th>Lane</th><th>Org</th><th>Order (worker IDs)</th><th>Status / gate</th></tr>
+  <tr><td><code>CART</code> Cart &amp; Checkout</td><td><code>ecom-cart</code></td><td>CART-4050 → CART-4051 → CART-4052</td><td class="warn">ACTIVE · all 3 in polish queue (4050 labels stale)</td></tr>
+  <tr><td><code>CAT</code> Catalog &amp; Discovery</td><td><code>ecom-catalog</code></td><td>CAT-4053 → CAT-4054 → CAT-3925</td><td class="warn">ACTIVE · all 3 in polish queue · 3927 MANUAL (Alvaro, In Progress — conflict watch on ecomShop)</td></tr>
+  <tr><td><code>ACCT</code> Account &amp; Registration</td><td><code>ecom-account</code></td><td>ACCT-3932</td><td class="warn">ACTIVE · 3932 in polish queue (label stale) · 4258 MANUAL (Alvaro, In Progress)</td></tr>
+  <tr><td><code>CRED</code> Credit / AR</td><td>—</td><td>CRED-4525</td><td class="bad">DEFERRED — off-sprint + unresolved AR spike</td></tr>
+</table>
+
+<p class="foot">Sources: ORCHESTRATION_HANDOFF.md · QUEST_NOTES.md · scope workflow wf_f740a486-d9a (10 agents, 559k tokens) · per-ticket reports in this folder. Personal planning artifact — not referenced in PRs/commits/repo docs.</p>
+
+</div></body>
+</html>

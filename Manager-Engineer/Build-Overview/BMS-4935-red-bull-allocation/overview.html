@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4935 — Red Bull Allocation Import</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --card2:#161922; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --alloc:#e8853a; --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e; --danger:#f0616d; --blue:#4d9bff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px;text-wrap:balance}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--alloc)}
+  .card h2{margin:0 0 2px;font-size:19px}
+  .meta{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .done{background:rgba(63,185,80,.16);color:var(--inv)}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:84px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .qs{margin:12px 0 0;border-top:1px solid var(--line);padding-top:12px}
+  .qs ul{margin:6px 0 0;padding-left:18px} .qs li{margin:5px 0;font-size:14.5px}
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)} .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:22px}
+  .box h2{margin:0 0 10px;font-size:17px}
+  .box li{margin:7px 0;font-size:14.5px}
+  .banner{background:rgba(63,185,80,.10);border:1px solid rgba(63,185,80,.35);border-left:4px solid var(--inv);border-radius:10px;padding:14px 18px;margin:14px 0 4px;font-size:14.5px}
+  .banner b{color:var(--inv)}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+
+  /* --- newcomer enrichments --- */
+  .primer{background:linear-gradient(180deg,rgba(77,155,255,.10),rgba(77,155,255,.03));border:1px solid rgba(77,155,255,.30);border-left:4px solid var(--blue);border-radius:12px;padding:20px 22px;margin:22px 0}
+  .primer h2{margin:0 0 4px;font-size:18px;color:var(--ink)}
+  .primer .kicker{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:8px}
+  .primer p{margin:10px 0;font-size:14.5px}
+  .primer b{color:var(--ink)}
+  .arrowline{color:var(--muted);font-size:14px;margin:12px 0;padding:10px 14px;background:var(--card2);border:1px solid var(--line);border-radius:8px;line-height:1.7}
+  .arrowline b{color:var(--ink)}
+  .sep{color:var(--alloc);font-weight:700;padding:0 4px}
+
+  table.legend-tbl{width:100%;border-collapse:collapse;margin:6px 0 0;font-size:13.5px}
+  table.legend-tbl th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--line)}
+  table.legend-tbl td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.legend-tbl td:first-child{white-space:nowrap;color:var(--ink);font-weight:600;width:1%}
+  table.legend-tbl tr:last-child td{border-bottom:none}
+  .scroll{overflow-x:auto}
+
+  details.deep{background:var(--card2);border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow:hidden}
+  details.deep>summary{cursor:pointer;list-style:none;padding:12px 16px;font-weight:600;font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:10px;user-select:none}
+  details.deep>summary::-webkit-details-marker{display:none}
+  details.deep>summary::before{content:"▸";color:var(--ar);font-size:13px;transition:transform .15s ease}
+  details.deep[open]>summary::before{transform:rotate(90deg)}
+  details.deep>summary:hover{background:rgba(163,113,247,.07)}
+  details.deep .body{padding:4px 18px 16px;font-size:14px;color:var(--ink);border-top:1px solid var(--line)}
+  details.deep .body p{margin:10px 0}
+  details.deep .tagsm{font-size:10.5px;font-weight:700;color:var(--ar);background:rgba(163,113,247,.14);border-radius:4px;padding:1px 6px;margin-left:auto}
+
+  .worked{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .worked th,.worked td{padding:7px 12px;border-bottom:1px solid var(--line);text-align:right}
+  .worked th:first-child,.worked td:first-child{text-align:left}
+  .worked th{color:var(--muted);font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+  .worked tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;color:var(--inv)}
+  .callout{background:rgba(240,97,109,.08);border:1px solid rgba(240,97,109,.30);border-left:4px solid var(--danger);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px}
+  .callout b{color:var(--danger)}
+  pre{background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.5;margin:10px 0}
+  pre code{background:none;border:none;padding:0}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-4935 — Red Bull Allocation Import</h1>
+  <div class="sub">Allocation &amp; Launch Planning · OMS / Data-Model · single-epic build overview</div>
+  <div class="legend">
+    <span><b class="tag ok">✓</b> confirmed</span>
+    <span><b class="tag ai">🧠</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">🟠</b> open (Gulf/PO)</span>
+    <span><span class="chip done">✅ DONE · on main</span></span>
+  </div>
+
+  <!-- ===================== NEW HERE? DOMAIN PRIMER ===================== -->
+  <div class="primer">
+    <div class="kicker">New here? Start with this</div>
+    <h2>Domain primer — what this ticket is actually about</h2>
+    <p><b>Gulf Distributing</b> is a <b>beverage distributor</b>: it buys drinks from suppliers (Red Bull, beer brands, etc.) and trucks them to bars, gas stations and grocery stores. That trucks-to-store model is called <b>DSD</b> — <i>Direct Store Delivery</i>: the distributor's own drivers stock the store shelf directly, instead of shipping to a retailer's warehouse. Gulf runs <b>5 warehouses</b> across Florida and Alabama (Milton FL; Montgomery, Mobile, Huntsville, McCalla AL), and each warehouse supplies the trucks for its own region.</p>
+    <p>Sometimes a supplier can't make enough product for everyone who wants it. When that happens the supplier <b>allocates</b> — it rations the scarce product, telling each distributor "you get exactly this many cases this week, no more." <b>Red Bull does this weekly.</b> They email Gulf <b>one single number per product</b> (e.g. "1,000 cases of Red Bull 12oz this week"). That one number is for <i>all of Gulf</i> — but Gulf has 5 warehouses, so a purchasing analyst has to <b>split that 1,000 across the 5 warehouses by hand</b> every week.</p>
+    <p>Two flavors of "allocation" matter here and they point in opposite directions:</p>
+    <div class="arrowline">
+      <b>Supplier allocation (inbound)</b> = what Gulf is <i>allowed to receive</i> from a supplier. <span class="sep">vs.</span> <b>Customer allocation (sell-side)</b> = the most a <i>customer is allowed to buy</i> from Gulf.<br>
+      This ticket is about the <b>inbound</b> kind. The existing Salesforce object happens to be the <b>sell-side</b> kind — that mismatch is the whole reason we build something new (see below).
+    </div>
+    <p style="margin-bottom:0;color:var(--muted);font-size:13.5px">A quick word on Salesforce naming you'll see throughout: anything ending in <code>__c</code> is a <b>custom object or field</b> ("c" = custom, built for this app); anything ending in <code>__mdt</code> is a <b>Custom Metadata Type</b> — configuration that ships <i>inside</i> the installed package (think "settings rows an admin can edit without a developer touching code"). The jargon legend below decodes the rest.</p>
+  </div>
+
+  <!-- ===================== JARGON LEGEND ===================== -->
+  <div class="box">
+    <h2>📖 Jargon legend — term → plain English</h2>
+    <div class="scroll">
+    <table class="legend-tbl">
+      <thead><tr><th>Term</th><th>Plain English</th></tr></thead>
+      <tbody>
+        <tr><td>Distributor</td><td>A middleman that buys product from suppliers in bulk and resells/delivers it to retail stores. Gulf is one.</td></tr>
+        <tr><td>DSD</td><td>Direct Store Delivery — the distributor's own drivers restock the store shelf directly, rather than shipping to a retailer's depot.</td></tr>
+        <tr><td>Supplier / producer</td><td>The company that makes the product (Red Bull). In Salesforce a supplier is an <code>Account</code> record.</td></tr>
+        <tr><td>Allocation</td><td>Rationing of scarce product. A supplier says "you may receive only X cases this period."</td></tr>
+        <tr><td>Supplier (inbound) allocation</td><td>The cap on what Gulf can <i>receive</i>. This ticket.</td></tr>
+        <tr><td>Customer (sell-side) allocation</td><td>The cap on what a customer can <i>buy</i> from Gulf — enforced at order entry. The <i>existing</i> <code>Allocation__c</code> object.</td></tr>
+        <tr><td>SKU</td><td>Stock Keeping Unit — a single uniquely-identified product (e.g. "Red Bull 12oz 24-pack"). One <code>Item__c</code> record per SKU.</td></tr>
+        <tr><td>Case</td><td>The unit allocations are counted in — a box of N sellable units (<code>Item__c.Units_Per_Case__c</code> says how many).</td></tr>
+        <tr><td>Warehouse split</td><td>Dividing one company-wide quantity into per-warehouse amounts that must add back up to the original.</td></tr>
+        <tr><td>Warehouse</td><td>A physical building, stored as a <code>Location__c</code> with <code>Type__c = "Warehouse"</code>.</td></tr>
+        <tr><td>Stockout</td><td>A warehouse runs out — trucks can't fill orders → lost sales.</td></tr>
+        <tr><td>Overstock</td><td>A warehouse has too much — energy drinks expire → waste/markdowns.</td></tr>
+        <tr><td><code>__c</code></td><td>Suffix marking a <b>custom</b> Salesforce object or field (built for this app, not standard).</td></tr>
+        <tr><td><code>__mdt</code> / CMDT</td><td>Custom Metadata Type — configuration rows that ship inside the installed package; an admin can edit them without a code deploy.</td></tr>
+        <tr><td>Aggregate vs per-warehouse</td><td>"Aggregate" = the single company-wide total; "per-warehouse" = the 5 split rows it explodes into.</td></tr>
+        <tr><td>External Id</td><td>A unique text key on a record used to match an incoming row to the right existing record (so re-imports update, not duplicate).</td></tr>
+        <tr><td>Idempotent upsert</td><td>"Upsert" = insert-or-update. "Idempotent" = running it twice changes nothing the second time — so re-importing the same week makes no duplicates.</td></tr>
+        <tr><td>Order entry / invoice line</td><td>When a rep books an order, each product is an <code>Invoice_Item__c</code> line. Code can block a line by calling <code>addError()</code>.</td></tr>
+        <tr><td><code>DmlService</code> / <code>QueryService</code></td><td>The only sanctioned way to write/read data in this repo (raw SQL/DML is a PR blocker).</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="banner">
+    <b>Build status — DONE, on main (<code>a00a3fe5</code>).</b>
+    Branch <code>feat/redbull-allocation-import-bms-4120</code>.
+    Built: <code>Supplier_Allocation__c</code> + <code>Allocation_Import_Mapping__mdt</code> + <code>Warehouse_Allocation_Split__mdt</code> + Apex importer
+    (<code>S_AllocationImportConfig</code>, <code>S_AllocationCsvParser</code>, <code>S_WarehouseAllocationSplit</code>, <code>E_SupplierAllocationImport</code>) + <code>_T</code> tests.
+    <b>Needs an org:</b> <code>sf project deploy validate</code>, run Apex tests, FLS/permset.
+    <b>Placeholder:</b> warehouse codes + split %s pending the Gulf sample.
+  </div>
+
+  <div class="card">
+    <h2>Red Bull Allocation Import <span class="chip done">✅ BMS-4935</span></h2>
+    <div class="meta">Domain: Allocation &amp; Launch Planning (OMS / Data-Model)</div>
+    <div class="row"><span class="lbl">User</span> Purchasing analysts (who do the weekly split) · warehouse teams · (downstream) drivers &amp; customers</div>
+    <div class="row"><span class="lbl">Issue</span> Red Bull's weekly aggregate allocation sheet — one total per product — is split across 5 warehouses (Milton FL; Montgomery/Mobile/Huntsville/McCalla AL) <b>by hand</b> — slow, error-prone, no audit trail.</div>
+    <div class="row"><span class="lbl">Impact</span> Wasted analyst time; <b>bad splits → wrong stock</b> → a warehouse stocks out (lost sales) or overstocks (waste); no idempotent re-import.</div>
+    <div class="row"><span class="lbl">Solution</span> A new <code>Supplier_Allocation__c</code> object (kept <b>separate</b> from the order-blocking <code>Allocation__c</code>) — an aggregate parent + 5 warehouse children. A config-driven CSV importer maps rows to <code>Item__c</code> by SKU → validates → splits the aggregate by configurable % → idempotently upserts each week on <code>External_Id__c</code> via <code>DmlService</code>. Inbound/planning only (v1).</div>
+    <div class="qs"><b>Closed questions</b>
+      <ul>
+        <li><span class="tag ok">✓</span> New object, <b>not</b> extend — <code>Allocation__c</code> is a live order-blocking cap (<code>S_AllocationEnforcement</code> would block real invoice lines). <i>(why this matters → see "Why a new object" below)</i></li>
+        <li><span class="tag ai">🧠</span> Aggregate parent + per-warehouse children (Gulf sends one aggregate, owns the split; children sum to parent).</li>
+        <li><span class="tag ok">✓</span> SKU code as the file key (maps to <code>Item__c</code>; switch to UPC later, no rework).</li>
+        <li><span class="tag ai">🧠</span> Inbound/planning only for v1 (sell-side cap = possible v2).</li>
+        <li><span class="tag ok">✓</span> Configurable parsing = build now (config-driven, like <code>Lot_Identifier_Format__mdt</code>) — not blocked on the real file.</li>
+      </ul>
+    </div>
+    <div class="qs"><b>Still open</b>
+      <ul>
+        <li><span class="tag op">🟠</span> Real Gulf sample file — <b>config only, not a blocker</b>. Locks header labels/order, the SKU→Item id field (<code>External_ID__c</code> vs <code>VIP_External_ID__c</code> vs <code>GPA_External_ID__c</code>), week encoding, CSV-vs-XLSX, qty unit, warehouse codes + split %s.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== GO DEEPER DROPDOWNS ===================== -->
+  <div class="box">
+    <h2>🔍 Go deeper</h2>
+
+    <details class="deep">
+      <summary>Why a new object, not extend <code>Allocation__c</code>? (code-level) <span class="tagsm">load-bearing</span></summary>
+      <div class="body">
+        <p><code>Allocation__c</code> is <b>not</b> a neutral "list of allocations" table — it is a <b>live order-blocking cap</b> on the <i>sell</i> side. The class <code>S_AllocationEnforcement</code> (<code>OHFY-OMS/.../services/allocation/S_AllocationEnforcement.cls</code>) runs in the <code>Invoice_Item__c</code> before-insert / before-update trigger via <code>enforceOnInsert()</code> / <code>enforceOnUpdate()</code>. Its <code>evaluate()</code> method queries every <code>Is_Active__c = TRUE</code>, in-date-window <code>Allocation__c</code> matching the order's <code>Customer__c</code>, <code>Sales_Rep__c</code>, or <code>Location__c</code>, and if a line exceeds <code>Allocated_Cases_Remaining__c</code> it calls <code>addError()</code> — which <b>hard-blocks the order line</b>.</p>
+        <p>So if we loaded Red Bull's supplier (inbound) numbers into <code>Allocation__c</code> and put a warehouse in its <code>Location__c</code> field, the enforcement service's location tier would treat that supplier number as a <b>sell cap</b> and start <b>rejecting real customer orders shipping from that warehouse</b> — a production-breaking side effect. The "benefit" of reusing the object (shared automation) <i>is</i> exactly the automation that must never fire for inbound data.</p>
+        <p>→ Build a separate <code>Supplier_Allocation__c</code>. <code>S_AllocationEnforcement</code> never queries it, so the weekly import physically cannot trip an invoice-line block. (Note also: <code>Item_Line__c.Supplier__c</code> already models the supplier as a lookup to <code>Account</code> — so "supplier = an Account" is an established convention we reuse, not invent.)</p>
+      </div>
+    </details>
+
+    <details class="deep">
+      <summary>Worked example — why a bad split causes a stockout or overstock</summary>
+      <div class="body">
+        <p>Red Bull emails Gulf <b>one number: 1,000 cases</b> of Red Bull 12oz for the week. That number covers all of Gulf. The 5 warehouses don't sell evenly — each region's real demand differs. Suppose true weekly demand looks like this, and the configured split %s match it:</p>
+        <div class="scroll">
+        <table class="worked">
+          <thead><tr><th>Warehouse</th><th>Split %</th><th>Allocated (1,000 × %)</th><th>Real demand</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Mobile, AL</td><td>30%</td><td>300</td><td>300</td><td style="color:var(--inv)">balanced</td></tr>
+            <tr><td>Montgomery, AL</td><td>25%</td><td>250</td><td>250</td><td style="color:var(--inv)">balanced</td></tr>
+            <tr><td>Huntsville, AL</td><td>20%</td><td>200</td><td>200</td><td style="color:var(--inv)">balanced</td></tr>
+            <tr><td>McCalla, AL</td><td>15%</td><td>150</td><td>150</td><td style="color:var(--inv)">balanced</td></tr>
+            <tr><td>Milton, FL</td><td>10%</td><td>100</td><td>100</td><td style="color:var(--inv)">balanced</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total</td><td>100%</td><td>1,000</td><td>1,000</td><td>Σ children = aggregate ✓</td></tr></tfoot>
+        </table>
+        </div>
+        <p>Now the same 1,000 split <b>wrong by hand</b> — the analyst fat-fingers Mobile to 150 and pushes the missing 150 onto Milton:</p>
+        <div class="scroll">
+        <table class="worked">
+          <thead><tr><th>Warehouse</th><th>Got</th><th>Demand</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Mobile, AL</td><td>150</td><td>300</td><td style="color:var(--danger)"><b>STOCKOUT</b> — 150 cases short → trucks run dry → lost sales, angry retailers</td></tr>
+            <tr><td>Milton, FL</td><td>250</td><td>100</td><td style="color:var(--warn)"><b>OVERSTOCK</b> — 150 too many → energy drinks sit, near expiry → markdown/waste</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Same correct grand total (still 1,000), but the <i>distribution</i> is wrong — and that's what hits the shelf. The importer removes the human step: split %s live in config, the math is automatic, and the children are validated to sum back to the aggregate.</p>
+        <div class="callout"><b>Rounding guard:</b> 1,000 × 33.3% isn't a whole case. The splitter rounds each child and assigns the leftover remainder to the largest-% warehouse, so <b>Σ(children) = aggregate exactly</b> — no case is invented or lost in rounding.</div>
+      </div>
+    </details>
+
+    <details class="deep">
+      <summary>How the weekly re-import stays clean — idempotent upsert &amp; External Id</summary>
+      <div class="body">
+        <p>The import runs <b>every week</b>, and an analyst might re-run it (corrected file, accidental double-send). If each run blindly inserted rows, week 2 would create a second full set of duplicates. Instead each row carries a deterministic <b>composite External Id</b>:</p>
+        <pre><code>redbull:{week}:{itemExtId}:{warehouseCode}
+e.g.  redbull:2026-W26:RB12OZ:MOBILE-AL</code></pre>
+        <p>Because that key is built from stable inputs, the <i>same</i> supplier/SKU/week/warehouse always produces the <i>same</i> key. The write goes through <code>DmlService.doUpsert(rows, Supplier_Allocation__c.External_Id__c)</code> — Salesforce matches on the External Id and <b>updates the existing row instead of inserting a new one</b>. Re-running the same week is therefore a no-op on row count: <b>idempotent</b>. (Raw DML is a repo PR blocker — everything goes through <code>DmlService</code>.)</p>
+      </div>
+    </details>
+
+    <details class="deep">
+      <summary>Why "config-driven" means we could build before the real file arrived</summary>
+      <div class="body">
+        <p>Red Bull's exact file format (column labels, order, week encoding, CSV vs XLSX) is partner-gated and wasn't in hand. Rather than hard-code one guess and rebuild later, the parser reads its instructions from <b>Custom Metadata</b> — the same proven pattern the repo already uses for <code>LotIdentifierParser</code> + <code>Lot_Identifier_Format__mdt</code> ("parse-spec-in-CMDT").</p>
+        <p><b><code>Allocation_Import_Mapping__mdt</code></b> — one row per source column: source label/index → target field, data type, required?, transform (Trim / Upper / StripNonNumeric / ParseWeek), feed ("RedBull"). Change a column name? Edit a metadata row, no deploy.</p>
+        <p><b><code>Warehouse_Allocation_Split__mdt</code></b> — one row per warehouse: <code>Warehouse_Code__c</code>, <code>Percent__c</code>, optional <code>Item_Key__c</code> (blank = the default split set; set = a per-SKU override), <code>Is_Active__c</code>. The active default set must sum to 100, and each override set must sum to 100 — else the file is rejected. When Gulf's real warehouse codes and percentages land, they're <b>config edits, not code</b>.</p>
+      </div>
+    </details>
+
+  </div>
+
+  <div class="box">
+    <h2>🧱 What was built</h2>
+    <ul>
+      <li><b><code>Supplier_Allocation__c</code></b> (new custom object) — <code>Supplier__c</code> (lookup → <code>Account</code>), <code>Item__c</code> (the SKU), <code>Location__c</code> (the warehouse, <code>Type__c = "Warehouse"</code>), <code>Allocated_Case_Amount__c</code>, <code>Allocation_Week__c</code>, unique <code>External_Id__c</code>, <code>Is_Active__c</code>, <code>Parent_Supplier_Allocation__c</code> (self-lookup: parent = supplier total, children = the 5 warehouse rows).</li>
+      <li><b><code>Allocation_Import_Mapping__mdt</code></b> (CMDT) — one row per source column → target field / data type / required / transform / feed.</li>
+      <li><b><code>Warehouse_Allocation_Split__mdt</code></b> (CMDT) — <code>Warehouse_Code__c</code>, <code>Percent__c</code>, <code>Item_Key__c</code> (default set / per-SKU override), <code>Is_Active__c</code>; active set must sum to 100.</li>
+      <li><b>Apex importer</b> — <code>S_AllocationImportConfig</code> (loads the CMDT config), <code>S_AllocationCsvParser</code> (parses + validates rows), <code>S_WarehouseAllocationSplit</code> (explodes aggregate → 5 children with remainder guard), <code>E_SupplierAllocationImport</code> (the orchestrating entry point) + <code>_T</code> tests.</li>
+    </ul>
+  </div>
+
+  <div class="box" style="border-left:4px solid var(--danger)">
+    <h2>⚠️ Risk / guardrail</h2>
+    <ul>
+      <li>The biggest risk is <b>contaminating invoice-item enforcement</b>: any active, in-window <code>Allocation__c</code> row that references a warehouse becomes a live order-blocking cap via <code>S_AllocationEnforcement</code>. Keeping supplier data in the separate <code>Supplier_Allocation__c</code> object <b>guarantees the import can never trip an invoice-line block</b>.</li>
+    </ul>
+  </div>
+
+  <div class="foot">Generated 2026-06-29 from <code>Open-Questions/BMS-4935-supplier-allocation-data-model.md</code> (code-grounded SME + owner input). Code cited from <code>OHFY-Split @ main</code>. Diagram: <code>diagram.excalidraw.md</code>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>

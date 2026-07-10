@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orientation — BMS-4936 Launch Planning Coordination</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --why:#f0883e;--exist:#58a6ff;--delta:#3fb950;--warn:#d29922;--accent:#58a6ff;--infer:#d29922}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:920px;background:var(--bg);color:var(--txt);padding:32px 22px;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:22px;margin:0 0 4px}.key{color:var(--accent)}.key a{color:var(--accent);text-decoration:none}
+  .stamp{color:var(--dim);font-size:12px;margin:0 0 8px}.stamp code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 6px}
+  .pkgs{margin:0 0 4px}.pkgs code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 7px;font-size:12px;margin-right:5px}
+  .thesis{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:12px;padding:15px 18px;margin:12px 0 18px;font-size:17px;line-height:1.5}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin:22px 0 9px}
+  h2.why{color:var(--why)}h2.exist{color:var(--exist)}h2.delta{color:var(--delta)}h2.shape{color:var(--accent)}h2.warn{color:var(--warn)}h2.kids{color:var(--txt)}
+  h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+  h4.why{color:var(--why)}h4.exist{color:var(--exist)}h4.delta{color:var(--delta)}h4.shape{color:var(--accent)}h4.warn{color:var(--warn)}
+  ul{margin:6px 0;padding-left:2px;list-style:none}
+  li{margin:6px 0;padding-left:15px;position:relative}
+  li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+  .exist-block li{color:#aab2c6}.exist-block li::before{background:var(--exist)}
+  .cite{background:#141a24;color:#7fb0e6;border-radius:4px;padding:1px 6px;font-size:11.5px;font-family:ui-monospace,Menlo,monospace}
+  .uncited{background:rgba(248,81,73,.14);color:#f8968f;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600}
+  .tk{color:var(--dim);text-decoration:none;font-size:12px}
+  .delta-block li{color:#e7e9f0}.delta-block li::before{background:var(--delta);width:6px;height:6px;top:8px}
+  .delta-block b{color:#fff}
+  .vd{display:inline-block;border-radius:5px;padding:0 7px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-right:6px}
+  .vd-build{background:rgba(63,185,80,.18);color:#6fe08a}.vd-extend{background:rgba(88,166,255,.16);color:#89bcff}.vd-reuse{background:rgba(136,145,165,.16);color:#aab2c6}
+  .srctag{display:inline-block;border-radius:5px;padding:0 6px;font-size:10.5px;font-weight:600;margin-left:5px}
+  .src-jira{background:rgba(88,166,255,.14);color:#89bcff}.src-commit{background:rgba(163,113,247,.16);color:#c4a5f5}
+  .src-code{background:rgba(63,185,80,.14);color:#6fe08a}.src-infer{background:rgba(210,153,34,.16);color:#e3b95f}
+  .shape{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-family:ui-monospace,Menlo,monospace;font-size:13.5px;color:#9ecbff;overflow-x:auto}
+  .ledger{background:rgba(88,166,255,.05);border:1px dashed #2c3346;border-radius:9px;padding:8px 14px;margin-top:8px}
+  .ledger .lh{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .nav{position:sticky;top:0;background:rgba(13,16,23,.92);backdrop-filter:blur(6px);padding:9px 0;margin:6px 0 4px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);z-index:5}
+  .nav a{font-size:11.5px;color:var(--dim);text-decoration:none;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+  .nav a:hover{color:var(--accent);border-color:#3b4a6b}
+  section.child{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .chead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .cnum{width:22px;height:22px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);flex-shrink:0}
+  .ckey{color:var(--accent);text-decoration:none;font-weight:700;font-variant-numeric:tabular-nums}
+  .ctitle{font-weight:600}
+  .cthesis{background:#12151d;border-left:3px solid var(--accent);border-radius:7px;padding:8px 12px;margin:2px 0 11px;font-size:14.5px;color:#dbe2f0}
+  .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.cgrid{grid-template-columns:1fr}}
+  .cbox{margin-top:10px}.cgrid .cbox{margin-top:0}
+  .stt{display:inline-block;padding:1px 8px;border-radius:11px;font-size:11px;font-weight:600}
+  .st-inprogress{background:rgba(210,153,34,.18);color:var(--warn)}.st-review{background:rgba(163,113,247,.18);color:#c4a5f5}
+  .st-done{background:rgba(63,185,80,.18);color:var(--delta)}.st-backlog,.st-todo,.st-needsrefinement{background:rgba(136,145,165,.14);color:var(--dim)}
+  .honesty{margin-top:22px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:12px;line-height:1.5}
+  .honesty code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 5px}
+</style></head><body>
+  <h1>🪨 Orientation · epic — <span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-4936">BMS-4936</a></span> Launch Planning Coordination</h1>
+  <p class="stamp">Code-verified against <code>OHFY-Split</code> @ <code>6c07cdeff</code> · 2026-07-08 16:50 · 1 children</p>
+  <p class="pkgs"><code>OHFY-Data-Model</code><code>OHFY-WMS</code><code>OHFY-WMS-UI</code><code>OHFY-OMS</code><code>OHFY-PLTFM</code><code>OHFY-Utilities</code></p>
+
+  <div class="thesis">BMS-4936 adds a cross-functional new-product Launch Plan (record + 4-track readiness checklist) to Allocation &amp; Launch Planning because Gulf coordinates ~16 launches/year informally today and promotions fire before product lands.</div>
+
+  <h2 class="why">🎯 Why now</h2>
+  <ul><li>Gulf onboards new products at high volume (~16 in one recent batch) with no single view of whether a launch is on track — work lives in scattered spreadsheets and people's heads. <span class="srctag src-jira">jira</span></li><li>Suppliers (Red Bull especially) change launch details up to launch day, so the plan must tolerate a moving launch date and surface what is now at-risk. <span class="srctag src-jira">jira</span></li><li>POS/marketing materials are ordered 'shooting from the hip' on a separate track and arrive after product — so POS deployment needs its own tracked lane. <span class="srctag src-jira">jira</span></li><li>5592 is intentionally the foundation: the two REQ-009 follow-on safeguards (supply-in-position gate, promo-timing guard) both read the readiness this plan tracks — so it is staged, not the whole epic. <span class="srctag src-infer">inferred · not in code</span></li></ul>
+
+  <h2 class="exist">🏛️ Bedrock — what already exists (shared across the epic)</h2>
+  <ul class="exist-block"><li><b style="color:#c9d4e8">Shift-End Checklist: parent Shift_End_Checklist__c + master-detail child _Item__c, with S_ShiftEndChecklist service + ShiftEndChecklistController add/update/getItems — the exact parent-initiate + child-item shape a Launch Plan needs</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4078" class="tk">BMS-4078</a> <span class="cite">OHFY-WMS/.../classes/services/shiftEnd/S_ShiftEndChecklist.cls:9</span></li><li><b style="color:#c9d4e8">Master-detail child pattern for checklist items (drives free rollup summaries on the parent)</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4078" class="tk">BMS-4078</a> <span class="cite">OHFY-Data-Model/.../objects/Shift_End_Checklist_Item__c/Shift_End_Checklist_Item__c.object-meta.xml:6</span></li><li><b style="color:#c9d4e8">Percent-complete rollup + formula: Display_Run__c counts children (Total_Displays__c COUNT rollup) and derives Display_Compliance__c = active/total — copy-ready shape for a percent-ready field</b> <span class="cite">OHFY-Data-Model/.../objects/Display_Run__c/fields/Display_Compliance__c.field-meta.xml:7</span></li><li><b style="color:#c9d4e8">Template to children save orchestration: E_HolidayTemplate loads template children in batch and persists transactionally — the pattern for spawning one task per track from config</b> <span class="cite">OHFY-OMS/.../classes/executables/holidayTemplate/E_HolidayTemplate.cls:64</span></li><li><b style="color:#c9d4e8">At-risk decoupled from persistence: ReplenishmentTaskDTO carries atRisk (bool) + riskBand (text) computed in the service, not stored raw — good shape for launch-task at-risk in the LWC render path</b> <span class="cite">OHFY-WMS/.../classes/DTOs/replenishment/ReplenishmentTaskDTO.cls:59</span></li><li><b style="color:#c9d4e8">Transactional DML with AccessLevel + allOrNone — every service inserts/updates children through this, not raw DML</b> <span class="cite">OHFY-Utilities/.../classes/dml/DmlService.cls:22</span></li><li><b style="color:#c9d4e8">Record-page LWC pattern: shiftEndChecklist renders collapsible sections with per-row add/edit gated on status — mirror it for the 4-track layout with progress bars</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4078" class="tk">BMS-4078</a> <span class="cite">OHFY-WMS-UI/.../lwc/shiftEndChecklist/shiftEndChecklist.html:1</span></li><li><b style="color:#c9d4e8">Location hierarchy traversal (walk to Warehouse ancestor) if per-warehouse readiness is needed across the 5 sites</b> <span class="cite">OHFY-PLTFM/.../classes/executables/locations/E_LocationHierarchy.cls:41</span></li></ul>
+  <div class="ledger"><div class="lh">↩ prior art pushed from the capability ledger</div><ul><li>OHFY-Data-Model · Current DOI stamped nightly by B_InventoryDOI (BMS-3779) — not launch-plan; no launch-plan capability in the ledger yet</li><li>OHFY-WMS · Days of Inventory report type (BMS-3779) — reporting-surface precedent only</li></ul></div>
+
+  <h2 class="shape">🧭 Shape</h2><div class="shape">record-page LWC -&gt; Apex controller -&gt; S_LaunchPlan (template-gen + due-date + rollup) -&gt; Launch_Plan__c -&gt;&gt; Launch_Plan_Task__c (m-d) &lt;- Launch_Track_Config__mdt</div>
+
+  <h2 class="kids">🧱 The children — understood one by one</h2><div class="nav"><a href="#c-BMS-5592">1·BMS-5592</a></div><section class="child" id="c-BMS-5592">
+    <div class="chead"><span class="cnum">1</span>
+      <a class="ckey" href="https://ohanafy.atlassian.net/browse/BMS-5592">BMS-5592</a>
+      <b class="ctitle">New-Product Launch Plan record + cross-functional readiness checklist</b><span class="stt st-review">Review</span></div>
+    <div class="cthesis">Adds Launch_Plan__c + a generated 4-track task checklist (owners + back-counted due dates + percent-ready + at-risk) — the foundation the two REQ-009 safeguards read.</div>
+    <div class="cgrid">
+      <div class="cbox"><h4 class="delta">🔨 Delta — what this child adds</h4><ul class="delta-block"><li><span class="vd vd-build">build</span><b>New data model: Launch_Plan__c (parent, Launch_Date__c + readiness %) + Launch_Plan_Task__c (master-detail child: Track, Owner, Lead_Time_Days, Due_Date, Is_Complete, Is_At_Risk) + Launch_Track_Config__mdt for the 4-track template</b> — The spine. Object shape reuses the Shift-End checklist parent/child pattern; the CMDT track template is new.</li><li><span class="vd vd-extend">extend</span><b>Template-driven generation + rollups: on create, spawn one seeded task set per track from the CMDT with Due_Date = Launch_Date - lead-time; percent-ready + per-track ready flip via rollup/formula</b> — Core automation. Extends E_HolidayTemplate's batch child-save and Display_Run's count-rollup/percent-formula patterns.</li><li><span class="vd vd-build">build</span><b>Cascade recalc + at-risk: trigger/service recomputes all task Due_Dates when Launch_Date__c moves, and flags Is_At_Risk when Due_Date &lt; TODAY &amp; not complete</b> — Keeps the plan honest under late supplier changes. At-risk reuses the ReplenishmentTaskDTO shape; the cascade itself is unbuilt anywhere — bulkify.</li></ul></div>
+      <div class="cbox"><h4 class="why">🎯 Why</h4><ul><li>Setting a launch date should auto-build the full to-do list across Purchasing / Warehouse / POS-Marketing / Sales, each task pre-owned and due-dated back from launch. <span class="srctag src-jira">jira</span></li><li>If launch day moves, every due date shifts and at-risk flags recalculate — because supplier launch details change late. <span class="srctag src-jira">jira</span></li><li>Turning the plan on must not change how today's pricing/promos/allocations behave (isolation AC). <span class="srctag src-jira">jira</span></li></ul></div>
+    </div>
+    
+    <div class="cbox"><h4 class="shape">🧭 Shape</h4><div class="shape">launchPlan LWC (record page) -&gt; LaunchPlanController -&gt; S_LaunchPlan (gen/recalc/rollup) -&gt; Launch_Plan__c -&gt;&gt; Launch_Plan_Task__c</div></div>
+    <div class="cbox"><h4 class="warn">⚠️ Watch out</h4><ul><li>AC #7 (isolation): the plan must not perturb pricing/promo/allocation — keep it a standalone object graph with no writes into those paths.</li><li>AC #3/#5: block launch with no date (half-built plan) and flag at-risk immediately when set up inside a task's lead time — validation + compute must run on insert, not just on date-change.</li></ul></div>
+  </section>
+
+  <h2 class="warn">⚠️ Watch out (epic-level)</h2>
+  <ul><li>Cascade recalc on a moved Launch_Date__c has NO packaged precedent — it is build-fresh (query children -&gt; recompute Due_Date = launch - lead-time -&gt; DmlService.doUpdate). Bulkify: tasks x warehouses can be large; keep it off per-row triggers.</li><li>Percent-ready: a master-detail rollup summary is the cheapest overall %, but per-track readiness ('Purchasing 3/5') needs extra rollup fields or a service-computed breakdown — decide before the schema freezes.</li><li>5592 is the ONLY groomed child of 4936; the two follow-on safeguards are unbuilt and depend on this readiness — leave readiness queryable, don't pre-build their hooks.</li><li>This baseline is vs origin/main (6c07cdeff). The actual 5592 build lives on feat/launch-plan-checklist-bms-5592 / org ohfy-bms5592 and is NOT merged — regenerate strata after merge before trusting it as ground.</li></ul>
+
+  <div class="honesty">
+    <b>Honesty contract.</b> Reports only what was searched — <b>packages:</b> OHFY-WMS, OHFY-PLTFM, OHFY-Data-Model, OHFY-Utilities, OHFY-OMS, OHFY-WMS-UI · <b>terms:</b> checklist, generate, template, insert new, addDays, Lead_Time, at_risk, overdue, percent, Complete, readiness, rollup, AggregateResult, Location__c, Warehouse__c, DmlService, Trigger.new/old.
+    Absence = <b>not searched</b>, not <b>doesn't exist</b>. Every prior-art claim is cited to <code>file:line</code>/SHA or flagged <span class="uncited">⚠ uncited</span>. "Why" is tagged by source; <span class="srctag src-infer">inferred</span> = not confirmed in code.
+    Pinned to <code>6c07cdeff</code> — <b>regenerate, don't trust stale.</b>
+  </div>
+</body></html>

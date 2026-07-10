@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safety Stock / Days of Inventory — Explained Simply (BMS-5068)</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:34px 18px;}
+  .wrap{max-width:720px;margin:0 auto}
+  .tag{display:inline-block;background:var(--soft);color:var(--accent);font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:18px}
+  .story{background:linear-gradient(135deg,#fff,#f0f4ff);border:1px solid var(--line);
+    border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:0 0 14px;font-size:18px}
+  .story b{color:var(--accent)}
+  h2{font-size:21px;margin:30px 0 10px;display:flex;align-items:center;gap:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:10px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  ul{margin:6px 0;padding-left:22px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;margin:6px 0;font-size:16px}
+  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .when{font-weight:700;white-space:nowrap}
+  .now{color:var(--grn)} .before{color:var(--mut)} .future{color:var(--blu)}
+  .takeaway{background:#1f2733;color:#fff;border-radius:16px;padding:22px 24px;margin:26px 0 0;font-size:18px;line-height:1.6}
+  .takeaway b{color:#9db8ff}
+  .foot{color:var(--mut);font-size:14px;margin-top:24px;text-align:center}
+  .chip{display:inline-block;background:var(--soft);border-radius:8px;padding:1px 8px;font-size:14px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Safety Stock · BMS-5068 · explained simply</div>
+  <h1>Keeping a smart cushion of stock</h1>
+  <p class="sub">How a single setting change can make sure shelves never run dry.</p>
+
+  <div class="story">
+    🧃 Imagine you sell juice boxes at a lemonade stand. Your supplier sometimes shows up late, and big events spike your sales. So you decide to keep <b>5 extra days</b> of juice boxes stashed in the back — just in case. That stash is your <b>"safety stock."</b> The number of days it covers is your <b>Days of Inventory (DOI).</b>
+  </div>
+
+  <h2>😖 Why it's a problem</h2>
+  <div class="card">
+    <ul>
+      <li>Planners at Gulf carry a buffer in their heads — there's <b>no place to write it down</b> in the system. When someone goes on vacation, that knowledge walks out the door.</li>
+      <li>If the supplier is slow or a big promotion hits, <b>the system doesn't know to order more</b> — it just keeps filling orders the same way until shelves go empty.</li>
+      <li>By the time anyone notices a stockout, it's already too late. Planners are always <b>reacting after the fact</b>, not staying ahead of the problem.</li>
+    </ul>
+  </div>
+
+  <h2>🧍 Who benefits</h2>
+  <div class="card">
+    <ul>
+      <li><b>Inventory / demand planners</b> — get a safe, self-service way to say "give this SKU (or everything from this supplier) extra buffer right now," with a required reason on record — instead of guessing and carrying it in their head.</li>
+      <li><b>Warehouse / ops</b> — replenishment automatically orders more to match the new buffer, so the extra stock actually shows up instead of the setting sitting inert.</li>
+      <li><b>Ops managers</b> — get a real audit trail (who raised what, why, and when it expired) instead of tribal knowledge that walks out the door with the planner.</li>
+      <li><b>Sales &amp; service teams</b> — fewer "we're out" conversations when a promotion or supplier delay was actually anticipated.</li>
+    </ul>
+  </div>
+
+  <h2>💡 The solution, in one line</h2>
+  <div class="card">
+    <b>A temporary or permanent "safety stock override" that raises a product's or supplier's target Days-of-Inventory — and that raised target automatically flows into how much gets reordered.</b> It comes with a full lifecycle (schedule it for later, let it auto-expire, get reminded before it lapses) and a screen to manage it and preview the cost <i>before</i> committing:
+    <ul>
+      <li>📈 <b>Raise the target → the system recommends ordering more</b>, so you always have enough days of stock to cover the risk.</li>
+      <li>🔧 <b>Configurable, no code change</b> — a planner creates an override with a reason; the math takes care of itself.</li>
+      <li>🗓️ <b>It runs itself</b> — scheduled overrides activate automatically, temporary ones expire automatically, and the planner gets a heads-up notification before it lapses so nothing silently drops.</li>
+      <li>👁️ <b>See the cost before you commit</b> — an impact preview shows the extra cases and estimated dollars of inventory a proposed buffer would add, before it's saved.</li>
+      <li>🛡️ <b>Graceful fallback</b> — products that aren't configured yet continue to order the same way they always did. Nothing breaks.</li>
+    </ul>
+    Think of it as <span class="chip">a dial the planner can turn</span> that tells the system "stay at least X days ahead for this product" — with an off-switch that flips itself.
+  </div>
+
+  <h2>🧱 What's built — before, now, next</h2>
+  <div class="card">
+    <table>
+      <tr><th>When</th><th>What</th><th>In plain words</th></tr>
+      <tr>
+        <td class="when before">Before</td>
+        <td>Gut-feel buffers <span class="chip">BMS-4025 demo</span></td>
+        <td>Planners carry undocumented mental buffers. The system fills bins from capacity alone, reacts to stockouts after the fact. A demo was built in April 2025, but nothing landed on the live system.</td>
+      </tr>
+      <tr>
+        <td class="when now">Now ✅</td>
+        <td>Full override + order-sizing build <span class="chip">6/6 stories, PR #442</span></td>
+        <td>The override engine (<code>SKU_Override__c</code> + <code>S_InventoryThresholds</code>) shipped earlier. This epic wired the resolved target into the order-quantity calculation (<code>targetCases = targetDOH × daily velocity ÷ units-per-case</code>, rounded to layer/pallet), added <b>supplier-wide overrides</b>, a full <b>lifecycle</b> (Scheduled → Active → Expired, manual early-close), <b>expiry notifications</b>, a <b>planning screen</b> with an impact preview, and an <b>audit report</b>. All CI-green, live-verified.</td>
+      </tr>
+      <tr>
+        <td class="when future">Still open</td>
+        <td>A couple of real gaps</td>
+        <td>Whether the supplier-wide buffer should also drive <i>pick-face</i> replenishment sizing, or whether "supplier lead-time" really means sizing <i>inbound purchase orders</i> instead (a product call, not built either way yet); the reporting screen doesn't yet show the estimated dollar cost of active buffers; and the override-reason field isn't technically required at the database level.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="takeaway">
+    🎯 <b>Hold onto this one sentence:</b><br>
+    Days of Inventory (DOI) = how many days of stock you have before you run out. This build makes that buffer a real, auditable setting — raise it for a risky supplier or a seasonal spike, with a reason on record, and the system automatically orders more to match, reminds the planner before it lapses, and reverts on its own. No guessing, no scrambling after a stockout, no forgotten buffers.
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · updated 2026-07-02 · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a></p>
+
+</div>
+</body>
+</html>

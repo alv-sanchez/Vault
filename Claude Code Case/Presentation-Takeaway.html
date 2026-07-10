@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Review — Presentation Takeaway</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-alt: #f5f3f0;
+    --border: #e7e5e0;
+    --text: #1c1917;
+    --text-sec: #57534e;
+    --text-muted: #a8a29e;
+    --accent: #6d28d9;
+    --accent-light: #ede9fe;
+    --accent-mid: #a78bfa;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.07);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2.5rem 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    background: var(--surface-alt);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h2 .slide-num {
+    background: var(--accent);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .talk-note {
+    font-size: 0.84rem;
+    color: var(--text-sec);
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+  }
+  .callout {
+    border-radius: var(--radius);
+    padding: 0.85rem 1.15rem;
+    margin: 0.75rem 0;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .callout.red { background: var(--red-bg); border: 1px solid var(--red-border); color: #991b1b; }
+  .callout.green { background: var(--green-bg); border: 1px solid var(--green-border); color: #166534; }
+  .callout.amber { background: var(--amber-bg); border: 1px solid var(--amber-border); color: #92400e; }
+  .callout.blue { background: var(--blue-bg); border: 1px solid #bfdbfe; color: #1e40af; }
+  .callout.purple { background: var(--accent-light); border: 1px solid var(--accent-mid); color: #4c1d95; }
+  .callout strong { color: inherit; }
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+  }
+  .bullet-list li {
+    font-size: 0.82rem;
+    color: var(--text-sec);
+    padding: 0.3rem 0;
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.55;
+  }
+  .bullet-list li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .time-est {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.45rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--accent), var(--green));
+  }
+  .hero .eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+  .hero .tagline {
+    font-size: 0.92rem;
+    color: var(--text-sec);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Order overview */
+  .order-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+  }
+  .order-card h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .order-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .order-step:last-child { border-bottom: none; }
+  .order-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .order-text {
+    font-size: 0.84rem;
+    color: var(--text-sec);
+    line-height: 1.5;
+    flex: 1;
+  }
+  .order-text strong { color: var(--text); }
+  .order-time {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .separator {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 2rem 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="eyebrow">Presentation Guide</div>
+  <h1>Claude Code Review — Takeaway</h1>
+  <p class="tagline">Walk-through order, talking points, and key callouts for presenting the hybrid code review proposal to the team.</p>
+</div>
+
+<!-- Presentation Order Overview -->
+<div class="order-card">
+  <h3>Presentation Order — 10 Sections</h3>
+
+  <div class="order-step">
+    <span class="order-num">1</span>
+    <span class="order-text"><strong>The Problem</strong> &mdash; 60% of our review surface ships unchecked. Set the stakes.</span>
+    <span class="order-time">2 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">2</span>
+    <span class="order-text"><strong>What We Have Today</strong> &mdash; 6 CI jobs, 4 manual AI skills, /audit-pull-request. Acknowledge the foundation.</span>
+    <span class="order-time">2 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">3</span>
+    <span class="order-text"><strong>Where /audit-pull-request Falls Short</strong> &mdash; 40% coverage, diff-only, no conventions. Real code scenarios.</span>
+    <span class="order-time">4 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">4</span>
+    <span class="order-text"><strong>What /code-review Adds</strong> &mdash; 88% coverage, reads full repo + CLAUDE.md, inline comments, cross-file analysis.</span>
+    <span class="order-time">3 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">5</span>
+    <span class="order-text"><strong>The Hybrid Approach</strong> &mdash; Triple Guard: local AI + CI/CD safety net + human review. The core proposal.</span>
+    <span class="order-time">3 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">6</span>
+    <span class="order-text"><strong>Time Savings</strong> &mdash; 30-50 min down to 10-15 min per PR. Human reviewer focuses on architecture, not checklists.</span>
+    <span class="order-time">2 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">7</span>
+    <span class="order-text"><strong>Cost &amp; Controls</strong> &mdash; $2-4 per CI review (on-demand), $0 for local. --max-turns, trigger options, cancel mid-run.</span>
+    <span class="order-time">3 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">8</span>
+    <span class="order-text"><strong>When to Skip / When to Always Run</strong> &mdash; Metadata-only = skip. Apex/LWC/cross-package = always.</span>
+    <span class="order-time">2 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">9</span>
+    <span class="order-text"><strong>The Ask</strong> &mdash; One admin action (API key), $200 plan upgrade, pilot on 10-15 real PRs this week.</span>
+    <span class="order-time">2 min</span>
+  </div>
+  <div class="order-step">
+    <span class="order-num">10</span>
+    <span class="order-text"><strong>What This Doesn't Replace</strong> &mdash; Human judgment, CI pipeline, /polish. AI is additive, not a replacement.</span>
+    <span class="order-time">1 min</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 1 -->
+<!-- ============================================ -->
+<h2><span class="slide-num">1</span> The Problem <span class="time-est">~2 min</span></h2>
+
+<p class="talk-note">Open with the gap. Don't start with the solution — start with what's at risk.</p>
+
+<div class="callout red">
+  <strong>Key stat:</strong> 60% of our review surface — security, project conventions, cross-file regressions, test coverage — has no automated enforcement today. It's checked only if the human reviewer remembers, has bandwidth, and is familiar with that part of the codebase.
+</div>
+
+<p class="talk-note">Ground it in specifics they'll recognize:</p>
+<ul class="bullet-list">
+  <li>QueryService/DmlService mandate (BMS-3965) — enforced by memory, not automation</li>
+  <li>Logger-in-catch (BMS-4298) — a <code>System.debug()</code> in a catch block means the error never reaches Datadog</li>
+  <li>DTO <code>{ get; set; }</code> (ADR-0007) — passes unit tests, deserializes as all-null in customer org installs</li>
+  <li>SYSTEM_MODE without rule citation — privilege escalation with no paper trail</li>
+  <li><strong>Review depth varies by workload</strong> — crunch weeks = shallow reviews = escaped bugs</li>
+</ul>
+
+<div class="callout amber">
+  <strong>Don't say:</strong> "Our reviews are bad." <strong>Do say:</strong> "We have solid CI and smart engineers, but the mechanical parts of review don't scale with workload. The conventions we've documented aren't automatically enforced."
+</div>
+
+<hr class="separator">
+
+<!-- SECTION 2 -->
+<h2><span class="slide-num">2</span> What We Have Today <span class="time-est">~2 min</span></h2>
+
+<p class="talk-note">Acknowledge the existing quality gates. This isn't starting from zero — we already have strong CI. The gap is in the review layer, not the build layer.</p>
+
+<ul class="bullet-list">
+  <li><strong>Pre-commit hooks</strong> — Husky + lint-staged: Prettier, ESLint, Jest on changed LWC</li>
+  <li><strong>CI pipeline</strong> — 6 jobs: Prettier verify, Jest, hex-lint, sfdx-git-delta deploy, Apex tests (smart selection), Playwright E2E</li>
+  <li><strong>/audit-pull-request</strong> (PR #243) — 126-line custom skill, 6 dimensions, posts structured PR comment</li>
+  <li><strong>/code-review</strong> — Claude Code built-in, inline PR comments with severity (manual trigger)</li>
+  <li><strong>/set-risk, /polish</strong> — risk assessment and pre-refinement validation</li>
+</ul>
+
+<div class="callout blue">
+  <strong>Call out:</strong> All 4 AI skills are manually triggered. None run automatically. Coverage depends on whether an engineer remembers to run them.
+</div>
+
+<hr class="separator">
+
+<!-- SECTION 3 -->
+<h2><span class="slide-num">3</span> Where /audit-pull-request Falls Short <span class="time-est">~4 min</span></h2>
+
+<p class="talk-note">This is the core of the argument. Show the 40% vs 88% coverage meters, then walk through 2-3 real code scenarios. Don't show all 6 — pick the ones that resonate with recent bugs or near-misses.</p>
+
+<div class="callout red">
+  <strong>Coverage: 40%.</strong> The audit skill reads the PR diff and nothing else. It doesn't know CLAUDE.md exists. It can't open a related file. It can't tell you a catch block is missing Logger because it doesn't know Logger is required.
+</div>
+
+<p class="talk-note"><strong>Pick 2-3 scenarios to walk through live</strong> (from the Audit-vs-CodeReview.html file). Recommended:</p>
+
+<ul class="bullet-list">
+  <li><strong>Scenario 1: Raw DML bypassing QueryService</strong> — <code>Database.insert(records, SYSTEM_MODE)</code> without AccessLevelResolver. Audit sees nothing wrong. Code-review reads CLAUDE.md, flags BMS-3965 + missing SYSTEM_MODE citation. <em>Impact: security regression.</em></li>
+  <li><strong>Scenario 2: DTO missing { get; set; }</strong> — The managed-package null bug. Passes every unit test. Breaks silently in customer orgs. Audit doesn't know ADR-0007 exists. <em>Impact: invisible runtime failure.</em></li>
+  <li><strong>Scenario 3: Class rename breaks ServiceLocator</strong> — CMDT still points to old class name. No compile-time check. Audit only reads the diff, can't see CMDT records. Code-review opens them. <em>Impact: TypeException in production.</em></li>
+</ul>
+
+<div class="callout amber">
+  <strong>Anticipated question:</strong> "Can't we just improve the audit skill?" Yes, but it's structurally diff-only. You can add more checks to the diff, but you can't make it read CLAUDE.md, open related files, or do cross-file analysis. That's a different architecture — which is what /code-review already provides.
+</div>
+
+<hr class="separator">
+
+<!-- SECTION 4 -->
+<h2><span class="slide-num">4</span> What /code-review Adds <span class="time-est">~3 min</span></h2>
+
+<p class="talk-note">Now show the 88% side. Emphasize what's fundamentally different — not "more checks" but "reads the full repo."</p>
+
+<div class="callout green">
+  <strong>Coverage: 88%.</strong> /code-review is a multi-turn agent that reads the diff, CLAUDE.md, REVIEW.md, then opens related files — callers, services, tests, CMDT records — to build full context before posting findings.
+</div>
+
+<p class="talk-note">Key differences to emphasize:</p>
+<ul class="bullet-list">
+  <li><strong>Reads CLAUDE.md</strong> — knows our conventions: QueryService, DmlService, Logger-in-catch, DTO pattern, SYSTEM_MODE rules</li>
+  <li><strong>Reads REVIEW.md</strong> — shared rulebook that governs severity, volume caps, skip rules, Salesforce-specific "always check" list</li>
+  <li><strong>Cross-file analysis</strong> — opens callers, services, test files, metadata beyond the diff. Catches regressions invisible in changed lines alone</li>
+  <li><strong>Inline comments</strong> — findings posted on the exact PR line, not a wall-of-text comment. Reviewer sees what was flagged and where.</li>
+  <li><strong>Security</strong> — SOQL injection, XSS, CRUD/FLS, exposed @AuraEnabled, SYSTEM_MODE citations. Entire category missing from audit.</li>
+</ul>
+
+<hr class="separator">
+
+<!-- SECTION 5 -->
+<h2><span class="slide-num">5</span> The Hybrid Approach — Triple Guard <span class="time-est">~3 min</span></h2>
+
+<p class="talk-note">This is the proposal. Walk through the Triple Guard flow. Emphasize: three independent layers, one shared rulebook.</p>
+
+<div class="callout purple">
+  <strong>Guard 1 — Local AI:</strong> Engineer runs <code>/code-review --comment</code> before pushing. Pre-push self-review. Same REVIEW.md rules. $0 (included in Max subscription). No turn limit.<br><br>
+  <strong>Guard 2 — CI/CD Safety Net:</strong> GitHub Action fires on-demand via <code>@claude</code> comment (or auto on ready_for_review). Posts inline comments. ~$2-4 per run. Cancellable mid-run.<br><br>
+  <strong>Guard 3 — Human Review:</strong> Teammate reviews the PR. Mechanical checks already done. Focuses on architecture, domain logic, UX. Faster, higher-quality review.
+</div>
+
+<p class="talk-note"><strong>Key callout:</strong> Both AI layers follow the same REVIEW.md rulebook. Same rules, same severity definitions, same skip list. No drift between what different engineers or the CI checks for.</p>
+
+<hr class="separator">
+
+<!-- SECTION 6 -->
+<h2><span class="slide-num">6</span> Time Savings <span class="time-est">~2 min</span></h2>
+
+<p class="talk-note">Show the time comparison cards. This is the "what's in it for me" for every engineer in the room.</p>
+
+<div class="callout green">
+  <strong>Without hybrid:</strong> 30-50 min per PR (convention checks 10-15 min + bug/security scanning 10-20 min + architecture review 10-15 min).<br><br>
+  <strong>With hybrid:</strong> 10-15 min per PR. Convention checks and bug scanning automated. Human time focused on architecture + reviewing AI findings.
+</div>
+
+<p class="talk-note"><strong>Frame it as:</strong> "This doesn't take review away from engineers. It takes the mechanical checklist off their plate so they can focus on the parts that actually require human judgment."</p>
+
+<hr class="separator">
+
+<!-- SECTION 7 -->
+<h2><span class="slide-num">7</span> Cost &amp; Controls <span class="time-est">~3 min</span></h2>
+
+<p class="talk-note">Address the "$20 per PR" fear head-on. Explain how trigger configuration controls cost, not the tool itself.</p>
+
+<div class="callout amber">
+  <strong>The "$20/PR" myth:</strong> That happens when you trigger on every <code>synchronize</code> event — every commit fires a full review. 5 pushes = 5 reviews = $10-20+. With comment-only trigger (<code>@claude</code>), you pay ~$2-4 only when you explicitly ask for it.
+</div>
+
+<ul class="bullet-list">
+  <li><strong>Local /code-review</strong> — $0 per review (Max subscription). No turn limit. Unlimited runs.</li>
+  <li><strong>CI/CD review</strong> — ~$2-4 per run (Sonnet 4.6). On-demand via @claude comment. Cancellable from Actions tab.</li>
+  <li><strong>--max-turns 10</strong> — recommended balance. Sequential depth, not parallel agents. Each turn reads one file. Cost compounds because each turn re-sends all prior context.</li>
+  <li><strong>Monthly estimate:</strong> ~40 PRs/month × ~$3 avg = ~$120/mo for CI layer. Plus existing Max subscriptions for local.</li>
+</ul>
+
+<p class="talk-note"><strong>Trigger options to mention</strong> (from the Hybrid Proposal):</p>
+<ul class="bullet-list">
+  <li><strong>@claude comment</strong> (recommended) — on-demand, controlled by the engineer</li>
+  <li><strong>GitHub label</strong> — add <code>claude-review</code> label to the PR</li>
+  <li><strong>PR template checkbox</strong> — opt-in at PR creation time</li>
+  <li><strong>Draft → Ready for Review</strong> — auto once when PR leaves draft</li>
+  <li style="color: var(--red);"><strong>Avoid: on every push (synchronize)</strong> — this is the cost blowout trigger</li>
+</ul>
+
+<hr class="separator">
+
+<!-- SECTION 8 -->
+<h2><span class="slide-num">8</span> When to Skip / When to Always Run <span class="time-est">~2 min</span></h2>
+
+<p class="talk-note">Show you've thought about when NOT to spend money. This builds trust that the proposal is cost-conscious.</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.75rem 0;">
+  <div class="callout red" style="margin: 0;">
+    <strong>Skip AI Review:</strong><br>
+    &bull; Metadata-only PRs (field-meta.xml, perms, layouts)<br>
+    &bull; Version bumps only<br>
+    &bull; Documentation-only (.md files)<br>
+    &bull; Org-metadata snapshot sync<br>
+    &bull; Namespace removal (ohfy__)<br>
+    &bull; File reorganization (folder moves)<br>
+    &bull; Trivial one-liners
+  </div>
+  <div class="callout green" style="margin: 0;">
+    <strong>Always Run AI Review:</strong><br>
+    &bull; Any Apex change (classes, triggers)<br>
+    &bull; Any LWC change (JS, HTML, CSS)<br>
+    &bull; Cross-package changes (DTOs, ServiceLocator)<br>
+    &bull; Trigger service modifications<br>
+    &bull; Security-sensitive code (@AuraEnabled, SYSTEM_MODE)
+  </div>
+</div>
+
+<div class="callout blue">
+  <strong>The discretion principle:</strong> The PR creator decides whether to trigger a review. The @claude comment trigger and GitHub label both put this in the engineer's hands — not automated for every push, not skipped by default.
+</div>
+
+<hr class="separator">
+
+<!-- SECTION 9 -->
+<h2><span class="slide-num">9</span> The Ask <span class="time-est">~2 min</span></h2>
+
+<p class="talk-note">Be specific. One admin action, everything else is ready.</p>
+
+<div class="callout purple">
+  <strong>What we need:</strong>
+</div>
+
+<ul class="bullet-list">
+  <li><strong>One admin action:</strong> Add <code>ANTHROPIC_API_KEY</code> to GitHub repo secrets (Settings → Secrets → Actions). This is the only step that requires admin access. I have write access for everything else.</li>
+  <li><strong>Upgrade proposal:</strong> Move from Max $100 to <strong>$200/seat/month</strong> — 5x usage for local /code-review runs. $0 per review, no turn limit, no throttling during crunch weeks. Less than the cost of one escaped DTO bug hitting a customer org.</li>
+  <li><strong>Pilot plan:</strong> Run on 10-15 real PRs this week. Check API usage dashboard for actual costs. Assess signal-to-noise. Tune REVIEW.md skip rules based on findings. If quality isn't there, iterate before committing.</li>
+</ul>
+
+<div class="callout green">
+  <strong>Confidence boost:</strong> Coverage goes from ~40% (human-only, inconsistent) to ~92% (AI + human, uniform). Review time drops from 30-50 min to 10-15 min per PR. Conventions enforced on every PR, not just when someone remembers.
+</div>
+
+<hr class="separator">
+
+<!-- SECTION 10 -->
+<h2><span class="slide-num">10</span> What This Doesn't Replace <span class="time-est">~1 min</span></h2>
+
+<p class="talk-note">Close by acknowledging limits. This builds credibility and prevents the "are you trying to replace code review?" pushback.</p>
+
+<ul class="bullet-list">
+  <li><strong>Human judgment</strong> — Architecture decisions, UX feedback, domain logic, "should we even build this?" Still needs a human.</li>
+  <li><strong>CI pipeline</strong> — Compile errors, test failures, Prettier, deploy validation. All still runs as-is. AI review is additive.</li>
+  <li><strong>Pre-refinement</strong> — /polish and ticket validation are a different phase entirely. Hybrid review is merge-time, not planning-time.</li>
+  <li><strong>/audit-pull-request</strong> — Keep it for quick Salesforce-specific sanity checks. It's complementary, not replaced.</li>
+</ul>
+
+<div class="callout blue">
+  <strong>Final line:</strong> "This isn't AI replacing reviewers. It's AI doing the mechanical checklist so reviewers can focus on what actually requires their expertise."
+</div>
+
+<hr class="separator">
+
+<!-- Key callouts cheat sheet -->
+<div style="background: var(--surface); border: 2px solid var(--accent-mid); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow-md); margin-top: 2rem; position: relative;">
+  <div style="position: absolute; top: -10px; left: 1rem; background: var(--accent); color: #fff; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.08em;">Cheat Sheet — Don't Miss These</div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+    <div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: var(--red); margin-bottom: 0.3rem;">NUMBERS TO CITE</div>
+      <ul class="bullet-list" style="margin: 0;">
+        <li>40% coverage today → 88-92% with hybrid</li>
+        <li>30-50 min review → 10-15 min with hybrid</li>
+        <li>$2-4 per CI review (on-demand, cancellable)</li>
+        <li>$0 per local /code-review run (Max sub)</li>
+        <li>~$120/mo CI cost estimate (40 PRs × $3)</li>
+        <li>$200/seat for 5x usage (vs $100 standard)</li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size: 0.75rem; font-weight: 700; color: var(--green); margin-bottom: 0.3rem;">OBJECTION HANDLERS</div>
+      <ul class="bullet-list" style="margin: 0;">
+        <li>"$20/PR" → that's on-every-push; @claude trigger = $2-4 on-demand</li>
+        <li>"Just improve the audit skill" → structurally diff-only; can't read CLAUDE.md or related files</li>
+        <li>"Will it replace reviewers?" → no; removes mechanical checklist, human focuses on judgment</li>
+        <li>"What about false positives?" → REVIEW.md tunes it; nit cap of 8; pilot validates signal-to-noise</li>
+        <li>"Do I need admin access?" → only for one secret; everything else = write access</li>
+        <li>"What if I don't need it on this PR?" → @claude comment = opt-in; label = visual; checkbox = PR-level</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Supporting docs -->
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-top: 1.5rem;">
+  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Supporting Documents to Reference</div>
+  <ul class="bullet-list" style="margin: 0;">
+    <li><strong>Research-Dashboard.html</strong> — Full data dashboard: current state, gap analysis, options, costs, Salesforce use cases</li>
+    <li><strong>Audit-vs-CodeReview.html</strong> — Deep dive: coverage meters, 6 real code scenarios, category bars, feature matrix</li>
+    <li><strong>Hybrid-Review-Proposal.html</strong> — The proposal: before/after, triple guard flow, time savings, trigger options, cost controls, implementation steps</li>
+    <li><strong>Research.md</strong> — Full written research: 8 sections, fact-checked against Anthropic docs, YAML configs, source links</li>
+  </ul>
+</div>
+
+<div class="footer">
+  Claude Code Review Presentation Guide &middot; Ohanafy / OHFY-Split &middot; June 2026
+</div>
+
+</body>
+</html>

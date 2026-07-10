@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS-3825 — Real-Time Inventory Reconciliation</title>
+    <style>
+        :root {
+            --cork: #2D2A26;
+            --cork-light: #3D3A36;
+            --surface: #FAFAF8;
+            --surface-alt: #F2F1ED;
+            --yellow: #FFD600;
+            --yellow-muted: #FFF3B0;
+            --red: #E53935;
+            --red-bg: #FFF0F0;
+            --green: #2E7D32;
+            --green-bg: #F0FFF0;
+            --blue: #1565C0;
+            --blue-bg: #F0F4FF;
+            --text: #1A1A1A;
+            --text-secondary: #5A5A5A;
+            --border: #E0DED8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--cork);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header .ticket-id {
+            color: var(--yellow);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .header .meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-status {
+            background: var(--yellow);
+            color: var(--cork);
+        }
+
+        .badge-type {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .badge-blocker {
+            background: var(--red);
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.35rem 1rem;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--yellow);
+            display: inline-block;
+        }
+
+        .card p {
+            color: var(--text);
+            margin-bottom: 0.75rem;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .impact-item {
+            background: var(--surface-alt);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .impact-item .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .impact-item .value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .warehouse-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .warehouse-tag {
+            background: var(--cork);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .solution-steps {
+            list-style: none;
+            counter-reset: steps;
+        }
+
+        .solution-steps li {
+            counter-increment: steps;
+            padding: 0.75rem 0;
+            padding-left: 2.5rem;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .solution-steps li:last-child { border-bottom: none; }
+
+        .solution-steps li::before {
+            content: counter(steps);
+            position: absolute;
+            left: 0;
+            top: 0.75rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--yellow);
+            color: var(--cork);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .solution-steps li strong {
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        .solution-steps li span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .readiness {
+            background: var(--red-bg);
+            border: 2px solid var(--red);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .readiness h2 {
+            color: var(--red);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .blocker-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--red);
+        }
+
+        .blocker-item:last-child { margin-bottom: 0; }
+
+        .blocker-item .source {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .blocker-item p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .question-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--blue);
+        }
+
+        .question-item .source {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .prereqs {
+            background: var(--blue-bg);
+            border: 1px solid #C5D5F0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prereqs h2 {
+            color: var(--blue);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            border: none;
+            padding: 0;
+        }
+
+        .prereqs ol {
+            padding-left: 1.25rem;
+        }
+
+        .prereqs li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="ticket-id">BMS-3825</div>
+        <h1>Real-Time Inventory Reconciliation</h1>
+        <div class="meta">
+            <span class="badge badge-status">In Progress</span>
+            <span class="badge badge-type">Story</span>
+            <span class="badge badge-type">Gulf</span>
+            <span class="badge badge-blocker">Not Ready to Pick Up</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Summary</h2>
+        <p>Gulf's warehouses run continuous operations — drivers loading, receiving putting away, transfers in-flight. When they do a cycle count or full physical inventory, live quantities keep changing underneath the count, making results unreliable the moment counting starts.</p>
+        <p>Gulf currently relies on <strong>Vermont Information Processing</strong> for manual keying of discrepancies — painful and error-prone. They need a <strong>point-in-time snapshot mechanism</strong> so counting doesn't require freezing warehouse operations, and Finance can reconcile snapshot-vs-actual variances after counting completes.</p>
+        <p>GL/chart-of-accounts adjustments must <strong>not auto-trigger</strong> until variances are formally reviewed and approved.</p>
+    </div>
+
+    <div class="card">
+        <h2>Impact</h2>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <div class="label">Warehouses Affected</div>
+                <div class="value">5 locations</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Current Process</div>
+                <div class="value">Manual keying via Vermont Info Processing</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Pain Level</div>
+                <div class="value">GL discrepancy headaches, unreliable counts</div>
+            </div>
+            <div class="impact-item">
+                <div class="label">Downstream</div>
+                <div class="value">Blocks reporting work</div>
+            </div>
+        </div>
+        <div class="warehouse-list">
+            <span class="warehouse-tag">Milton, FL</span>
+            <span class="warehouse-tag">Montgomery, AL</span>
+            <span class="warehouse-tag">Mobile, AL</span>
+            <span class="warehouse-tag">Huntsville, AL</span>
+            <span class="warehouse-tag">McCalla, AL</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Affected Customer</h2>
+        <p><strong>Gulf Distributing</strong> — all 5 warehouse locations.</p>
+        <p>Personas: Inventory Analyst, Warehouse Managers, Finance.</p>
+        <p>From Gulf Blueprint Workshops: Gulf recently completed a physical inventory count (end of Feb) and described the Vermont Information Processing reconciliation process as painful and error-prone.</p>
+    </div>
+
+    <div class="card">
+        <h2>Proposed Solution</h2>
+        <ol class="solution-steps">
+            <li>
+                <strong>Point-in-time snapshot</strong>
+                <span>Warehouse manager initiates a cycle count or full physical inventory. System freezes a snapshot of current quantities at that moment.</span>
+            </li>
+            <li>
+                <strong>Operations continue uninterrupted</strong>
+                <span>Receiving, picking, loading, and transfers keep running. Operational deltas are tracked against the snapshot baseline.</span>
+            </li>
+            <li>
+                <strong>Count entry</strong>
+                <span>Warehouse staff enters actual counted quantities against the snapshot baseline.</span>
+            </li>
+            <li>
+                <strong>Variance reconciliation</strong>
+                <span>Finance reviews snapshot-vs-actual variances. GL adjustments only apply after formal approval — never auto-triggered.</span>
+            </li>
+        </ol>
+    </div>
+
+    <div class="readiness">
+        <h2>Readiness: Not Ready to Pick Up</h2>
+
+        <div class="blocker-item">
+            <div class="source">Josh Kraszeski (polish pass, 2026-06-01)</div>
+            <p><strong>A cycle-count subsystem already exists and covers ~70% of the acceptance criteria.</strong> The ticket proposes three net-new objects (<code>Inventory_Snapshot__c</code>, <code>Snapshot_Line__c</code>, <code>Operational_Delta__c</code>) that don't exist — but a full inventory-count / cycle-count / adjustment subsystem is already built in the codebase. The ticket needs re-scoping against the existing subsystem before work starts.</p>
+        </div>
+
+        <div class="question-item">
+            <div class="source">Thomas Spangler (unanswered, 2026-04-16)</div>
+            <p>What exactly is the output of an inventory snapshot — single record or CSV? How is snapshot data used in GL adjustments? Would users import snapshot info into an experience with pre-populated GL adjustments?</p>
+        </div>
+
+        <div class="question-item">
+            <div class="source">Leah Schneidereit (2026-04-20)</div>
+            <p>This will be different from historical snapshotting and needs a real-time visibility solution. Might have implications on accounting that aren't addressed.</p>
+        </div>
+
+        <div class="blocker-item">
+            <div class="source">Big Kahuna automation (2026-06-01)</div>
+            <p>Automated agent attempted the ticket, hit a runtime error after 409s, and bailed. Branch <code>bk/bms-3825-20260601-140941</code> saved but no PR opened.</p>
+        </div>
+    </div>
+
+    <div class="prereqs">
+        <h2>Before This Can Be Picked Up</h2>
+        <ol>
+            <li><strong>Re-scope against existing cycle-count subsystem</strong> — identify the ~30% gap (snapshot mechanism, delta tracking, Finance reconciliation) vs. what's already built</li>
+            <li><strong>Get Thomas's questions answered</strong> — snapshot output format and GL adjustment flow need product input</li>
+            <li><strong>Clarify accounting implications</strong> — per Leah's note, the accounting side needs explicit scoping</li>
+        </ol>
+    </div>
+
+    <div class="footer">
+        BMS-3825 &middot; Generated 2026-06-08 &middot; Source: Jira + ticket comments
+    </div>
+
+</body>
+</html>

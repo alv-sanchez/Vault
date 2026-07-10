@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5070 — Shift-End Workflow</title>
+<meta name="description" content="Newcomer-friendly build overview of the shift-end workflow epic for Gulf Distributing: warehouse ops primer, jargon legend, lifecycle and phase breakdown.">
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --alloc:#e8853a; --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e;
+    --teach:#4fb0e8; --teach-bg:rgba(79,176,232,.10); --teach-line:rgba(79,176,232,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px;text-wrap:balance}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--ar)}
+  .card h2{margin:0 0 2px;font-size:19px}
+  .meta{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .build{background:rgba(214,163,46,.16);color:var(--warn)}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:84px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .qs{margin:12px 0 0;border-top:1px solid var(--line);padding-top:12px}
+  .qs ul{margin:6px 0 0;padding-left:18px} .qs li{margin:5px 0;font-size:14.5px}
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)} .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:22px}
+  .box h2{margin:0 0 10px;font-size:17px}
+  .box li{margin:7px 0;font-size:14.5px}
+  .banner{background:rgba(214,163,46,.10);border:1px solid rgba(214,163,46,.35);border-left:4px solid var(--warn);border-radius:10px;padding:14px 18px;margin:14px 0 4px;font-size:14.5px}
+  .banner b{color:var(--warn)}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+
+  /* --- Newcomer teaching layer --- */
+  .primer{background:var(--teach-bg);border:1px solid var(--teach-line);border-left:4px solid var(--teach);border-radius:12px;padding:20px 22px;margin:18px 0}
+  .primer h2{margin:0 0 4px;font-size:19px;color:var(--ink)}
+  .primer .lede{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}
+  @media(max-width:680px){.defs{grid-template-columns:1fr}}
+  .def{font-size:14.5px}
+  .def .term{font-weight:700;color:var(--teach)}
+  .def p{margin:3px 0 0;color:var(--ink)}
+  .story{margin:16px 0 0;border-top:1px solid var(--teach-line);padding-top:14px}
+  .story .eyebrow{color:var(--teach)}
+  .math{font-variant-numeric:tabular-nums;background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:8px 0 0;font-size:14px;line-height:1.7}
+  .math .hl{color:var(--warn);font-weight:700}
+
+  table.jargon{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+  table.jargon th,table.jargon td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.jargon th{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+  table.jargon td:first-child{white-space:nowrap;font-weight:700;color:var(--teach)}
+  .jwrap{overflow-x:auto}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden}
+  details[open]{border-color:var(--teach-line)}
+  summary{cursor:pointer;padding:14px 20px;font-weight:700;font-size:15px;list-style:none;display:flex;align-items:center;gap:8px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸";color:var(--teach);font-size:13px;transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details .body{padding:0 20px 18px;font-size:14.5px;color:var(--ink)}
+  details .body p{margin:8px 0}
+  details .body ol,details .body ul{margin:8px 0;padding-left:20px}
+  details .body li{margin:6px 0}
+  .lifecycle{list-style:none;padding:0;margin:10px 0;counter-reset:step}
+  .lifecycle li{position:relative;padding:10px 0 10px 46px;border-bottom:1px solid var(--line)}
+  .lifecycle li:last-child{border-bottom:none}
+  .lifecycle li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;background:var(--teach-bg);border:1px solid var(--teach-line);color:var(--teach);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .lifecycle li.shipped::before{background:rgba(63,185,80,.16);border-color:rgba(63,185,80,.4);color:var(--inv)}
+  .lifecycle .stage{font-weight:700}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+  .pill.shipped{background:rgba(63,185,80,.16);color:var(--inv)}
+  a.x{color:var(--teach);text-decoration:none}
+  a.x:hover{text-decoration:underline}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-5070 — Shift-End Workflow</h1>
+  <div class="sub">WMS / Warehouse Ops · Ph1 checklist + breakage review · single-epic build overview</div>
+
+  <!-- ====================== NEW HERE? PRIMER ====================== -->
+  <div class="primer">
+    <p class="eyebrow">Start here</p>
+    <h2>New here? Shift-end / warehouse ops primer</h2>
+    <p class="lede">New to warehouse operations <em>and</em> to Salesforce? Read this first. It explains, in plain language, every idea this epic touches. Everything below assumes you have read it.</p>
+
+    <div class="defs">
+      <div class="def">
+        <span class="term">What is a "shift"?</span>
+        <p>A defined working period in the warehouse — Day, Night, or Mid. Gulf runs day/night shifts across all 5 warehouses; Milton FL also has a mid-shift. Each shift is a different crew supervised by a different person. At shift end, the outgoing supervisor <b>must hand off the warehouse</b> to the incoming crew.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is "breakage"?</span>
+        <p>Product damaged during a shift — dropped cases, spills, damaged-on-arrival product discovered during picking. In beverage distribution, breakage is routine and must be counted so it can be subtracted from inventory and reported to finance as <b>shrinkage</b>.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is "shrinkage"?</span>
+        <p>The total unexplained loss of inventory. Breakage is the most common source. Without a formal checklist, breakage quietly becomes <b>invisible shrinkage</b> — product that vanished but nobody can explain when, who, or which shift caused it.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is a pick event?</span>
+        <p>A warehouse scan event (<code>Pick_Event__c</code>) recorded when a picker completes a pick or short-picks. Breakage events have <code>Reason__c = DAMAGED</code> and accumulate throughout the shift — they are the raw data source for the shift-end breakage review.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is a "pass-down note"?</span>
+        <p>A written note from the outgoing supervisor to the incoming crew — "Bay 7 has a cracked floor tile," "Modelo restock delayed until 6AM." Today these are verbal or skipped. The shift-end checklist provides a structured place to record them (<code>Shift_Pass_Down__c</code>).</p>
+      </div>
+      <div class="def">
+        <span class="term">Why "back-office is Phase 3"?</span>
+        <p>Phase 1 (this build) focuses on the supervisor's <b>screen</b>: see breakage, work through checklist items, leave notes. The finance-facing pieces — a single <code>Total_Breakage_Cases__c</code> rollup on the checklist header and the submission flow that triggers it — are <b>Phase 3 (BMS-4080)</b>, not yet built. The rollup field reads 0 in Phase 1.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is the checklist screen?</span>
+        <p>A single Salesforce LWC screen the supervisor opens at shift close. It loads from <code>ShiftEndChecklistController.loadChecklist(warehouseId, shift, shiftDate)</code> and returns a bundle: the checklist record, checklist items, damaged events (breakage), and pass-down notes — everything the supervisor needs to close the shift.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is the <code>Total_Breakage_Cases__c</code> gap?</span>
+        <p>The header field <code>Shift_End_Checklist__c.Total_Breakage_Cases__c</code> reads <b>0</b> in Phase 1 — the rollup that populates it is BMS-4080 (not yet built). The screen shows the correct total by summing <code>Pick_Event__c.Breakage_Quantity__c</code> at runtime. This is a <b>known Phase-1 gap</b>, not a bug. Mention it proactively when demoing.</p>
+      </div>
+    </div>
+
+    <div class="story">
+      <p class="eyebrow">A worked example</p>
+      <p>A Milton FL mid-shift runs 11 PM–7 AM. Three pickers each damage some cases during picks. Those events land in <code>Pick_Event__c</code> as the shift runs. At 6:45 AM the supervisor opens the checklist:</p>
+      <div class="math">
+        <b>Breakage review</b>: <span style="color:var(--inv)">9 events</span> &nbsp; → &nbsp; <span class="hl">34 total damaged cases</span><br>
+        → supervisor reviews checklist items (Safety ✓, Equipment ✓, Replenishment ✗, Other ✗) → leaves 2 pass-down notes → saves. Incoming day-shift supervisor opens the record and sees exactly what happened.
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== JARGON LEGEND ====================== -->
+  <div class="box">
+    <h2>Jargon legend</h2>
+    <div class="jwrap">
+    <table class="jargon">
+      <thead><tr><th>Term</th><th>Plain meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Shift</td><td>A defined working period (Day / Night / Mid). Gulf has 5 warehouses; Milton FL has all three shifts.</td></tr>
+        <tr><td>Breakage</td><td>Damaged product found or caused during a shift. Source: <code>Pick_Event__c</code> records with <code>Reason__c = DAMAGED</code>.</td></tr>
+        <tr><td>Shrinkage</td><td>Total unexplained inventory loss. Breakage is the main component. Without a checklist, breakage quietly becomes invisible shrinkage.</td></tr>
+        <tr><td>Pass-down note</td><td>A written note from the outgoing supervisor to the incoming crew (<code>Shift_Pass_Down__c</code>).</td></tr>
+        <tr><td>Checklist item</td><td>A category checkpoint on the checklist: Safety / Equipment / Replenishment / Other (<code>Shift_End_Checklist_Item__c</code>).</td></tr>
+        <tr><td>Pick event</td><td><code>Pick_Event__c</code> — a warehouse scan event. Breakage events have <code>Reason__c = DAMAGED</code> and <code>Breakage_Quantity__c</code> set.</td></tr>
+        <tr><td><code>__c</code></td><td>Salesforce suffix for a custom object or field.</td></tr>
+        <tr><td>Phase 1 (BMS-4078)</td><td>Built: the checklist screen, breakage review, checklist items, pass-down notes.</td></tr>
+        <tr><td>Phase 2 (BMS-4079)</td><td>Future: formal cycle counts tied to the shift, structured pass-down entry UI.</td></tr>
+        <tr><td>Phase 3 (BMS-4080)</td><td>Future: checklist submission + <code>Total_Breakage_Cases__c</code> rollup + finance reporting.</td></tr>
+        <tr><td>Rollup</td><td>A field summing/counting child records onto a parent. <code>Total_Breakage_Cases__c</code> is a Phase-3 rollup — reads 0 in Phase 1.</td></tr>
+        <tr><td><code>B_</code> batch</td><td>Scheduled background bulk job (Ohanafy naming for Batchable Apex). Not in Ph1; Ph3 may use one for rollup aggregation.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><b class="tag ok">✓</b> confirmed</span>
+    <span><b class="tag ai">🧠</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">🟠</b> open (Gulf/PO)</span>
+    <span><span class="chip build">🔨 BUILD IN PROGRESS</span></span>
+  </div>
+
+  <div class="banner">
+    <b>Build status — BUILD IN PROGRESS.</b>
+    Branch <code>feat/shift-end-workflow-bms-4078</code>.
+    Building: <code>Shift_End_Checklist__c</code> / <code>Shift_End_Checklist_Item__c</code> / <code>Shift_Pass_Down__c</code>,
+    <code>ShiftEndChecklistController</code> + <code>S_ShiftEndChecklist</code> + <code>S_BreakageReview</code>, LWC <code>shiftEndChecklist</code>, permission set <code>Demo_Shift_End_Tab</code>.
+    <b>Known Ph1 gap:</b> <code>Total_Breakage_Cases__c</code> reads 0 (rollup is BMS-4080, not yet built).
+  </div>
+
+  <div class="card">
+    <h2>Shift-End Workflow <span class="chip build">🔨 BMS-5070</span></h2>
+    <div class="meta">Domain: WMS / Warehouse Ops · Customer: Gulf Distributing (beverage DSD)</div>
+    <div class="row"><span class="lbl">User</span> Warehouse supervisors (shift-end checklist) · Incoming crew (pass-down notes) · Finance / ops (shrinkage reporting, Phase 3)</div>
+    <div class="row"><span class="lbl">Issue</span> At shift end, supervisors have no structured checklist or breakage-review screen. Breakage events accumulate in <code>Pick_Event__c</code> throughout the shift but are never consolidated. Crew handoffs are verbal. The outgoing shift leaves and the incoming crew walks in blind.</div>
+    <div class="row"><span class="lbl">Impact</span> Breakage becomes invisible shrinkage. Finance closes the books on guesswork. No shift-level accountability — losses can't be tied to a crew or a shift. Repeat patterns invisible.</div>
+    <div class="row"><span class="lbl">Solution</span> Single supervisor screen at shift close: aggregate breakage from <code>Pick_Event__c</code> damaged events, walk through a four-category checklist (Safety / Equipment / Replenishment / Other), leave pass-down notes. Phase 3 closes the loop with <code>Total_Breakage_Cases__c</code> rollup + finance reporting.</div>
+    <div class="qs"><b>Closed questions</b>
+      <ul>
+        <li><span class="tag ok">✓</span> <b>New dedicated objects</b> — <code>Shift_End_Checklist__c</code> / <code>Shift_End_Checklist_Item__c</code> / <code>Shift_Pass_Down__c</code> sourced from <code>Pick_Event__c</code> damaged events.</li>
+        <li><span class="tag ai">🧠</span> <b>Shift identification</b> — checklist keyed by <code>(Warehouse__c, Shift__c, Shift_Date__c)</code>; <code>S_ShiftEndChecklist.initiate()</code> creates or retrieves.</li>
+        <li><span class="tag ai">🧠</span> <b>Breakage sourcing</b> — <code>S_BreakageReview.getDamagedEvents()</code> windows by GMT day; events are read-only from the checklist screen.</li>
+        <li><span class="tag ai">🧠</span> <b>Tab access</b> — granted via <code>Demo_Shift_End_Tab</code> permission set. Screen: <code>/lightning/n/ohfy__Shift_End_Checklist</code>.</li>
+      </ul>
+    </div>
+    <div class="qs"><b>Still open</b>
+      <ul>
+        <li><span class="tag op">🟠</span> <b>Cycle-count config</b> — which bin positions require a spot-count at shift end, and how often? <b>Gulf, via Elliot.</b> Phase 2 deliverable; not a Ph1 blocker.</li>
+        <li><span class="tag op">🟠</span> <b>Submission rules</b> — must all items be complete before submission, or just a signature? <b>Phase 3 (BMS-4080).</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====================== GO DEEPER: LIFECYCLE ====================== -->
+  <details>
+    <summary>Go deeper — the shift-end checklist lifecycle (Phase 1 → 3)</summary>
+    <div class="body">
+      <p>One shift travels through these stages. Stages 1–2 are what Phase 1 builds; stages 3–4 are future phases.</p>
+      <ol class="lifecycle">
+        <li class="shipped"><span class="stage">Breakage accumulates during the shift</span> <span class="pill shipped">data already exists</span><br><code>Pick_Event__c</code> records with <code>Reason__c = DAMAGED</code> and <code>Breakage_Quantity__c</code> set accumulate throughout the shift. These are created by the picking flow (already shipped). The checklist reads them — it does not write them.</li>
+        <li class="shipped"><span class="stage">Supervisor opens the checklist (Phase 1 — this build)</span> <span class="pill shipped">built · BMS-4078</span><br><code>ShiftEndChecklistController.loadChecklist(warehouseId, shift, shiftDate)</code> returns a bundle: the checklist record (created on first open via <code>S_ShiftEndChecklist.initiate()</code>), checklist items (Safety/Equipment/Replenishment/Other), damaged events, and pass-down notes. Supervisor reviews breakage, checks off items, adds notes. <b>Known gap: <code>Total_Breakage_Cases__c</code> reads 0 — rollup is Phase 3.</b></li>
+        <li><span class="stage">Cycle counts + structured pass-down (Phase 2 — BMS-4079)</span><br>Formal cycle counts tied to the shift. A structured pass-down entry UI so incoming supervisors can filter by category or flag. Still seeded as free-text <code>Shift_Pass_Down__c</code> in Phase 1.</li>
+        <li><span class="stage">Submit + finance reporting (Phase 3 — BMS-4080)</span><br>Supervisor submits the checklist. The <code>Total_Breakage_Cases__c</code> rollup fires, producing a single shrinkage number tied to the shift for finance reporting. The checklist status transitions from In Progress → Submitted.</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ====================== GO DEEPER: THE TOTAL_BREAKAGE GAP ====================== -->
+  <details>
+    <summary>Go deeper — the <code>Total_Breakage_Cases__c</code> = 0 gap (Phase 1 known limitation)</summary>
+    <div class="body">
+      <p><code>Shift_End_Checklist__c.Total_Breakage_Cases__c</code> is the headline shrinkage field on the checklist record. In Phase 1 it reads <b>0</b>. Here is why, and what to say when demoing:</p>
+      <ul>
+        <li><b>Why it reads 0:</b> The rollup that populates it (summing <code>Breakage_Quantity__c</code> across the shift's damaged <code>Pick_Event__c</code> records onto the checklist header) is ticket <b>BMS-4080 — Phase 3</b>. It is not yet built. Without the rollup trigger, the field sits at its default (0).</li>
+        <li><b>What the screen actually shows:</b> <code>S_BreakageReview.getDamagedEvents()</code> returns all damaged events for the GMT day window. The LWC sums <code>Breakage_Quantity__c</code> across those events at render time, showing the correct total (34 cases in the demo). The real number is correct on screen — it just doesn't live in a Salesforce field yet.</li>
+        <li><b>What to say when demoing:</b> "The screen pulls the breakage total from the live events list — you can see 34 cases here. The rollup to the checklist record header is Phase 3; in the demo that field shows 0, which is expected. The full Phase 3 build will write that total to the record so finance reporting can use it directly."</li>
+        <li><b>This is not a bug:</b> Phase 1 scope is the checklist screen and breakage review. The rollup is deliberately deferred to Phase 3 to keep Phase 1 focused and shippable.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ====================== GO DEEPER: WHY NEW OBJECTS ====================== -->
+  <details>
+    <summary>Go deeper — why new objects instead of reusing existing WMS records</summary>
+    <div class="body">
+      <p>The shift-end checklist is a new, distinct concept that doesn't map cleanly onto any existing WMS object:</p>
+      <ul>
+        <li><b>Shift-level, not pick-level.</b> A checklist is a supervisor-level record for a whole shift. <code>Pick_Event__c</code> records are individual scan events — too granular to carry checklist state or pass-down notes.</li>
+        <li><b>Checklist items are independent.</b> Safety / Equipment / Replenishment / Other are not pick-event categories — they're supervisor judgment checks. A separate <code>Shift_End_Checklist_Item__c</code> child lets them be added, removed, and checked off independently.</li>
+        <li><b>Pass-down notes have their own lifecycle.</b> <code>Shift_Pass_Down__c</code> is authored by one supervisor and consumed by the next. It needs its own fields (<code>Category__c</code>, <code>Flagged_For_Next_Shift__c</code>, <code>Author__c</code>) that don't exist on any current object.</li>
+        <li><b>The breakage data already exists.</b> Rather than duplicating breakage counts, the checklist reads <code>Pick_Event__c</code> damaged events live. Zero duplication of pick-layer data.</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="box">
+    <h2>🧱 What's being built</h2>
+    <ul>
+      <li><b><code>Shift_End_Checklist__c</code></b> — (Warehouse__c, Shift__c, Shift_Date__c, Status__c, Total_Breakage_Cases__c). Status: In Progress → Submitted (Ph3). Keyed by (warehouse, shift, date).</li>
+      <li><b><code>Shift_End_Checklist_Item__c</code></b> — child checklist items (Item_Type__c: Safety / Equipment / Replenishment / Other; Notes__c; Is_Complete__c).</li>
+      <li><b><code>Shift_Pass_Down__c</code></b> — pass-down notes from outgoing to incoming crew (Category__c, Note__c, Flagged_For_Next_Shift__c, Author__c).</li>
+      <li><b><code>ShiftEndChecklistController</code></b> — LWC Apex controller: <code>loadChecklist(warehouseId, shift, shiftDate)</code> returns the full bundle.</li>
+      <li><b><code>S_ShiftEndChecklist</code></b> — checklist service: <code>initiate()</code> creates or retrieves the checklist record for a given (warehouse, shift, date).</li>
+      <li><b><code>S_BreakageReview</code></b> — breakage service: <code>getDamagedEvents()</code> returns damaged <code>Pick_Event__c</code> records for the GMT day window.</li>
+      <li><b>LWC <code>shiftEndChecklist</code></b> — the single-page supervisor screen in OHFY-WMS-UI.</li>
+      <li><b><code>Demo_Shift_End_Tab</code> permission set</b> — grants tab visibility for the demo org.</li>
+    </ul>
+  </div>
+
+  <div class="foot">Generated 2026-06-30 from branch <code>feat/shift-end-workflow-bms-4078</code>, verified org <code>ohfy-val-4078</code>, and seed script <code>seedShiftEndChecklistDemo.apex</code>. Diagram: <code>diagram.excalidraw.md</code>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>

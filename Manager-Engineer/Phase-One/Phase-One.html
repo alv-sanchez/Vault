@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase One — Locked Down (due EOD 2026-06-30)</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --green:#3fb950; --yellow:#d6a32e; --orange:#e8853a; --red:#e5534b; --blue:#4a8df0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:30px;margin:0 0 4px}
+  .due{color:var(--muted);font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+  .headline{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:16px 20px;margin:22px 0 30px}
+  .headline b{color:#fff}
+  table{width:100%;border-collapse:collapse;margin:0 0 36px;font-size:14.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+  .p-green{background:rgba(63,185,80,.16);color:var(--green)}
+  .p-yellow{background:rgba(214,163,46,.16);color:var(--yellow)}
+  .p-orange{background:rgba(232,133,58,.16);color:var(--orange)}
+  .p-red{background:rgba(229,83,75,.16);color:var(--red)}
+  .grid{display:grid;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .card.g{border-top:3px solid var(--green)} .card.y{border-top:3px solid var(--yellow)}
+  .card.o{border-top:3px solid var(--orange)} .card.r{border-top:3px solid var(--red)}
+  .card h3{margin:0 0 2px;font-size:18px}
+  .key{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .row{margin:7px 0}
+  .lbl{display:inline-block;min-width:118px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 24px;margin-top:34px}
+  .plan ol{margin:8px 0 0;padding-left:22px} .plan li{margin:8px 0}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:34px;border-top:1px solid var(--line);padding-top:14px}
+  .sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:30px 0 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Phase One — Locked Down</h1>
+  <div class="due">Due EOD · 2026-06-30 · polished against OHFY-Split @ main</div>
+
+  <div class="headline">
+    <b>The honest headline:</b> four crawl epics locked in — but after polishing each against <code>main</code>,
+    <b>only BMS-5083 is realistically finishable by EOD.</b> The other three are gated on
+    <b>refinement/direction, not coding</b>: two specs contradict the codebase, one is blocked on a Gulf file.
+    The bottleneck is direction, not capacity.
+  </div>
+
+  <table>
+    <thead><tr><th>Epic</th><th>Domain</th><th>Polish</th><th>What's really going on</th><th>EOD?</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>BMS-5083</b><br>Pick Location Capacity</td><td>Master Data / WMS</td>
+        <td><span class="pill p-green">Confirmed</span></td>
+        <td>Core (3785) <b>Done</b> in code. Only reporting + design left. No build risk.</td>
+        <td><span class="pill p-green">Yes</span></td>
+      </tr>
+      <tr>
+        <td><b>BMS-5070</b><br>Shift-End Workflow</td><td>Inventory / WMS-picking</td>
+        <td><span class="pill p-yellow">Incomplete</span></td>
+        <td>All 4 children <b>lack AC</b>; spike must reconcile existing breakage/cycle-count primitives, not greenfield.</td>
+        <td><span class="pill p-yellow">Spike only</span></td>
+      </tr>
+      <tr>
+        <td><b>BMS-5068</b><br>Safety Stock Controls</td><td>Inventory</td>
+        <td><span class="pill p-orange">Contradicted</span></td>
+        <td>Spec wants a new object + supplier-tier DOI; main has a location-based DOH framework + no supplier link. Re-scope.</td>
+        <td><span class="pill p-orange">No — re-scope</span></td>
+      </tr>
+      <tr>
+        <td><b>BMS-4935</b><br>Red Bull Allocation</td><td>Allocation</td>
+        <td><span class="pill p-red">Contradicted</span></td>
+        <td>No supplier <code>Allocation__c</code>, no importer on main. Needs Gulf sample file + data model first.</td>
+        <td><span class="pill p-red">No — blocked</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="key">Swapped out: <b>BMS-4936</b> Launch Planning (walk, undecomposed) → replaced by BMS-5083.</div>
+
+  <div class="sec">The four, in detail</div>
+  <div class="grid">
+
+    <div class="card g">
+      <h3>BMS-5083 — Pick Location Capacity <span class="pill p-green">the finishable one</span></h3>
+      <div class="key">Master Data / WMS · core already shipped</div>
+      <div class="row"><span class="lbl">Issue</span> Pick locations need min/max stocking levels driven by SKU physical data (case dims, weight), not informal knowledge.</div>
+      <div class="row"><span class="lbl">Gulf impact</span> Slotting / replenishment teams, pickers, warehouse-layout planning.</div>
+      <div class="row"><span class="lbl">Solution</span> SKU-attribute-driven capacity rules + compliance reporting.</div>
+      <div class="row"><span class="lbl">Polish reality</span> <code>Pick_Location_Assignment__c</code> + full Apex (<code>E_PickLocationAssignment.cls</code>) already ship. BMS-4245 does <b>not</b> gate it.</div>
+      <div class="row"><span class="lbl">Close by EOD</span> Collapse the 4466 spike into 4467 — define a few capacity-compliance dashboards on <code>Pick_Location_Assignment__c</code>, build in one pass; treat 4465 as a demo writeup.</div>
+    </div>
+
+    <div class="card y">
+      <h3>BMS-5070 — Shift-End Workflow <span class="pill p-yellow">start, don't finish</span></h3>
+      <div class="key">Inventory / WMS-picking</div>
+      <div class="row"><span class="lbl">Issue</span> No standardized shift handoff — breakage informal, cycle counts not tied to shifts, pass-down context lost.</div>
+      <div class="row"><span class="lbl">Gulf impact</span> Warehouse managers + incoming crews; finance/ops reporting quality.</div>
+      <div class="row"><span class="lbl">Solution</span> Checklist → breakage review → cycle counts → pass-down → submission.</div>
+      <div class="row"><span class="lbl">Polish reality</span> Breakage (<code>Pick_Event__c.Breakage_Quantity__c</code>) + cycle-count flag (<code>Inventory_Log_Group__c.Is_Cycle_Count__c</code>) exist; <code>Checklist__c</code>, pass-down, and a Shift object don't. <b>No child has AC.</b></div>
+      <div class="row"><span class="lbl">By EOD</span> Start the 4077 spike re-scoped around existing primitives; write AC. Build lands later.</div>
+    </div>
+
+    <div class="card o">
+      <h3>BMS-5068 — Safety Stock Controls <span class="pill p-orange">re-scope</span></h3>
+      <div class="key">Inventory · INV-LOCK</div>
+      <div class="row"><span class="lbl">Issue</span> Static reorder points can't flex for supplier/seasonal disruptions.</div>
+      <div class="row"><span class="lbl">Gulf impact</span> Inventory/demand planners; service levels (stockout risk).</div>
+      <div class="row"><span class="lbl">Solution</span> Per-supplier / per-SKU buffer elevation without changing system defaults.</div>
+      <div class="row"><span class="lbl">Polish reality</span> <code>polished</code> label misleading. Main has <code>SKU_Override__c</code> + <code>Inventory_Threshold__c</code> (DOH, location-based); the ticket's <code>Safety_Stock_Override__c</code> + supplier-tier DOI doesn't exist and there's <b>no item→supplier link</b>.</div>
+      <div class="row"><span class="lbl">By EOD</span> Decide the re-scope (extend DOH; is supplier-tier feasible?). A direction call, not code.</div>
+    </div>
+
+    <div class="card r">
+      <h3>BMS-4935 — Red Bull Allocation Import <span class="pill p-red">blocked on Gulf</span></h3>
+      <div class="key">Allocation · OMS</div>
+      <div class="row"><span class="lbl">Issue</span> Weekly Red Bull spreadsheet split across 5 warehouses by hand — slow, error-prone, no audit.</div>
+      <div class="row"><span class="lbl">Gulf impact</span> Purchasing analysts; warehouse split accuracy; downstream drivers/customers.</div>
+      <div class="row"><span class="lbl">Solution</span> Typed supplier <code>Allocation__c</code> → import → validate → auto-split → audit.</div>
+      <div class="row"><span class="lbl">Polish reality</span> <code>Allocation__c</code> is customer/retail (<code>Customer__c → Account</code>, type {Launch, Ongoing}), <b>no <code>Supplier__c</code></b>, no import framework.</div>
+      <div class="row"><span class="lbl">By EOD</span> Waiting on the Gulf sample file (requested on BMS-4119) + a data-model decision. Don't burn EOD time here.</div>
+    </div>
+
+  </div>
+
+  <div class="plan">
+    <div class="sec" style="margin-top:0">Recommended EOD plan</div>
+    <ol>
+      <li><b>Ship BMS-5083</b> — your one real win. Scope + build the capacity dashboards; demo it.</li>
+      <li><b>Start BMS-5070's spike</b> (4077), re-scoped + AC written — visible progress.</li>
+      <li><b>Decide BMS-5068's re-scope</b> — a direction call, not code.</li>
+      <li><b>BMS-4935 stays blocked</b> until Gulf returns the sample file.</li>
+    </ol>
+  </div>
+
+  <div class="foot">Generated 2026-06-29 from <code>/polish-epic</code> runs against OHFY-Split @ main (a00a3fe5), read-only. Per-epic detail in <code>Epics/</code>. Visual aid: <code>Phase-One.excalidraw.md</code>.</div>
+</div>
+</body>
+</html>

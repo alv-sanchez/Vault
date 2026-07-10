@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMS-5302 — Ticket Summary</title>
+<style>
+  :root {
+    --bg: #2b2b2b;
+    --surface: #ffffff;
+    --surface-alt: #f5f5f0;
+    --accent: #f5c518;
+    --text: #1a1a1a;
+    --text-muted: #666666;
+    --border: #e0e0e0;
+    --blocker: #dc3545;
+    --warning: #fd7e14;
+    --question: #0d6efd;
+    --ready: #198754;
+    --needs-refinement: #fd7e14;
+    --not-ready: #dc3545;
+    --connection: #0d6efd;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0ede6;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: var(--bg);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .header .ticket-key {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .header .ticket-title {
+    color: #ccc;
+    font-size: 1.1rem;
+    font-weight: 400;
+    max-width: 700px;
+    margin: 0 auto 1rem;
+  }
+  .badges {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .badge-status { background: #5a6977; color: #fff; }
+  .badge-type { background: #3b7dd8; color: #fff; }
+  .badge-priority { background: var(--blocker); color: #fff; }
+  .badge-label { background: var(--accent); color: var(--text); }
+
+  .container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-header {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .meta-row strong { color: var(--text); }
+
+  /* Impact grid */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .impact-box {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .impact-box .impact-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .impact-box .impact-value {
+    font-size: 0.95rem;
+  }
+
+  /* Solution steps */
+  .solution-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .step-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; margin-bottom: 0.15rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+  }
+  .tag-existing { background: #e9ecef; color: #495057; }
+  .tag-new { background: var(--accent); color: var(--text); }
+
+  /* Readiness */
+  .readiness {
+    border-left: 5px solid var(--needs-refinement);
+    padding: 1rem 1.5rem;
+    background: #fff8e1;
+    border-radius: 0 8px 8px 0;
+  }
+  .readiness-verdict {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--needs-refinement);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Open questions */
+  .question-item {
+    border-left: 4px solid var(--question);
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 0 6px 6px 0;
+  }
+  .question-item.blocker {
+    border-left-color: var(--blocker);
+    background: #fff5f5;
+  }
+  .question-item .author {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .blocker-tag {
+    display: inline-block;
+    background: var(--blocker);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  /* Comments */
+  .comment-card {
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .comment-meta {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+  .comment-meta .comment-author { font-weight: 700; color: var(--text); }
+  .comment-meta .comment-date { color: var(--text-muted); margin-left: 0.5rem; }
+  .comment-body { font-size: 0.95rem; }
+
+  /* Dependencies */
+  .deps-card {
+    border: 2px solid var(--connection);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    background: #f0f6ff;
+  }
+  .deps-card .section-header {
+    border-bottom-color: var(--connection);
+  }
+  .deps-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .deps-table th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid var(--connection);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+  .deps-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .status-todo { background: #e9ecef; color: #495057; }
+  .status-progress { background: #cfe2ff; color: #084298; }
+  .status-done { background: #d1e7dd; color: #0f5132; }
+
+  .generated {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 1.5rem 0 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .impact-grid { grid-template-columns: 1fr; }
+    .card { padding: 1rem 1.25rem; }
+    .header .ticket-key { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ticket-key">BMS-5302</div>
+  <div class="ticket-title">Develop externally embeddable LWC for product catalogue</div>
+  <div class="badges">
+    <span class="badge badge-status">To Do</span>
+    <span class="badge badge-type">Story</span>
+    <span class="badge badge-priority">High</span>
+    <span class="badge badge-label">gulf</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="meta-row">
+      <span><strong>Assignee:</strong> Auston Main</span>
+      <span><strong>Priority:</strong> High</span>
+      <span><strong>Labels:</strong> gulf</span>
+      <span><strong>Generated:</strong> 2026-06-09</span>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card">
+    <div class="section-header">Summary</div>
+    <p>The goal is to build a production-ready Lightning Web Component that can be embedded on external (non-Salesforce) websites to let end users browse and search a product catalogue. The component must use Lightning Out for secure Salesforce communication and handle high concurrency (hundreds to thousands of simultaneous users). A POC already exists in the Sales-Demos repo that outlines the procedural approach. Elliot has shared screenshots of VIP's current product site (vtinfo.com/brandbuilder) as a reference for the existing competitor offering.</p>
+  </div>
+
+  <!-- Impact -->
+  <div class="card">
+    <div class="section-header">Impact</div>
+    <div class="impact-grid">
+      <div class="impact-box">
+        <div class="impact-label">Who is affected</div>
+        <div class="impact-value">External retailers and distributors (Gulf Distributing context), plus any customer-facing website needing Salesforce product data</div>
+      </div>
+      <div class="impact-box">
+        <div class="impact-label">Current workaround</div>
+        <div class="impact-value">VIP currently offers a similar product catalogue site (products.vtinfo.com/brandbuilder) &mdash; this is the competitive offering Ohanafy needs to match or exceed</div>
+      </div>
+      <div class="impact-box">
+        <div class="impact-label">Downstream risk</div>
+        <div class="impact-value">Without an embeddable catalogue, customers relying on external product browsing have no Ohanafy-native solution &mdash; competitive gap against VIP</div>
+      </div>
+      <div class="impact-box">
+        <div class="impact-label">Scope</div>
+        <div class="impact-value"><strong>Large</strong> &mdash; Lightning Out infra, external hosting, security model for guest access, performance engineering for high concurrency</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solution -->
+  <div class="card">
+    <div class="section-header">Solution</div>
+
+    <div class="solution-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <strong>Lightning Out container setup</strong>
+        Configure a Lightning Out app to serve the LWC outside of Salesforce, following the POC in Sales-Demos repo
+        <span class="tag tag-existing">Existing</span>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <strong>Product Catalogue LWC</strong>
+        Build a read-only component with search, filtering, brand browsing, and product detail views
+        <span class="tag tag-new">Net-New</span>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <strong>Apex data layer</strong>
+        Create or expose APIs/controllers for product queries that can handle guest/unauthenticated access at scale
+        <span class="tag tag-new">Net-New</span>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <strong>Security &amp; authentication model</strong>
+        Define how external sites authenticate to Salesforce (connected app, site guest user, or public API) while keeping data read-only
+        <span class="tag tag-new">Net-New</span>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <strong>Performance &amp; scalability</strong>
+        Caching strategy, pagination, and load handling for hundreds-to-thousands concurrent users
+        <span class="tag tag-new">Net-New</span>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-number">6</div>
+      <div class="step-content">
+        <strong>Embeddable integration package</strong>
+        Script/snippet that external sites include to render the component
+        <span class="tag tag-new">Net-New</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Readiness -->
+  <div class="card">
+    <div class="section-header">Readiness Assessment</div>
+    <div class="readiness">
+      <div class="readiness-verdict">NEEDS REFINEMENT</div>
+      <p>The ticket has a clear high-level goal and a POC to reference, but lacks acceptance criteria, detailed UI requirements (beyond matching VIP's offering), a defined security/auth model, and performance benchmarks. The POC repo provides procedural steps but production requirements around concurrency, caching, and guest access need specification before implementation can begin confidently.</p>
+    </div>
+  </div>
+
+  <!-- Open Questions -->
+  <div class="card">
+    <div class="section-header">Open Questions</div>
+
+    <div class="question-item blocker">
+      <div class="author">[Analysis] <span class="blocker-tag">Blocker</span></div>
+      What authentication model should external sites use &mdash; Salesforce Site guest user, connected app with client credentials, or public API?
+    </div>
+
+    <div class="question-item">
+      <div class="author">[Analysis]</div>
+      What are the specific concurrency targets? "Hundreds to thousands" needs a concrete number for load testing and architecture decisions.
+    </div>
+
+    <div class="question-item">
+      <div class="author">[Analysis]</div>
+      Should the component match VIP's feature set exactly (brand tabs, search, product detail as shown in Elliot's screenshots), or is there a distinct Ohanafy product catalogue design?
+    </div>
+
+    <div class="question-item">
+      <div class="author">[Analysis]</div>
+      Which Salesforce org(s) will host this &mdash; is it per-customer or a central instance?
+    </div>
+
+    <div class="question-item">
+      <div class="author">[Analysis]</div>
+      Are there specific product data fields/objects that need to be exposed, or does this use the existing E-Commerce product model?
+    </div>
+
+    <div class="question-item">
+      <div class="author">[Elliot Flores]</div>
+      Shared VIP's current site as reference &mdash; is this the target feature parity, or a starting point?
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div class="card">
+    <div class="section-header">Comments</div>
+
+    <div class="comment-card">
+      <div class="comment-meta">
+        <span class="comment-author">Elliot Flores</span>
+        <span class="comment-date">2026-06-09</span>
+      </div>
+      <div class="comment-body">Shared link to VIP's current product catalogue offering at products.vtinfo.com/brandbuilder/00812/brands/tab/1 &mdash; "Vip's Current offering of this site"</div>
+    </div>
+
+    <div class="comment-card">
+      <div class="comment-meta">
+        <span class="comment-author">Elliot Flores</span>
+        <span class="comment-date">2026-06-09</span>
+      </div>
+      <div class="comment-body">Attached 4 screenshots of VIP's product site showing: brand listing page, brand detail page, product search results for "coors", and individual product detail page</div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <div class="deps-card">
+    <div class="section-header">Dependencies &amp; Connections</div>
+    <table class="deps-table">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Relationship</th>
+          <th>Status</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><em>None linked</em></td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+          <td>No issue links or parent epic found. The POC lives in the Sales-Demos repo (not tracked as a Jira ticket).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="generated">Generated 2026-06-09 &middot; BMS-5302 Ticket Summary</div>
+
+</div>
+</body>
+</html>

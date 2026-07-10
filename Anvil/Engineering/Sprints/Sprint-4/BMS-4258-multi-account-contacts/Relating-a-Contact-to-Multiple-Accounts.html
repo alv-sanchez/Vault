@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Relating a Contact to Multiple Accounts — Salesforce admin guide</title>
+<style>
+  :root {
+    --ink: #1f2430; --muted: #5b6472; --line: #e4e7ec;
+    --accent: #4a5fb0; --accent-soft: #eef1fb; --bg: #fbfbfc;
+    --code-bg: #f4f5f7; --warn: #a8610a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; }
+  main { max-width: 820px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 { font-size: 27px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 26px; }
+  h2 { font-size: 19px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+  h3 { font-size: 14px; margin: 22px 0 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+  p, li, td, th { font-size: 15px; }
+  ol li, ul li { margin: 4px 0; }
+  code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  pre { background: var(--code-bg); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px;
+    border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 14px; }
+  .callout.warn { border-color: var(--warn); background: #fdf4e7; }
+  nav.toc { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 0 0 26px; }
+  nav.toc p { margin: 0 0 6px; font-weight: 600; font-size: 13px; color: var(--muted); }
+  nav.toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  nav.toc ul { margin: 0; padding-left: 18px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Relating a Contact to Multiple Accounts</h1>
+  <p class="sub">Salesforce admin guide · For admins / ops setting up the ecom account switcher (BMS-4258) · Uses native Contacts to Multiple Accounts</p>
+
+  <nav class="toc">
+    <p>On this page</p>
+    <ul>
+      <li><a href="#model">The model</a></li>
+      <li><a href="#enable">Step 1 — Enable the feature</a></li>
+      <li><a href="#lists">Step 2 — Show the related lists</a></li>
+      <li><a href="#relate">Step 3 — Relate the contact</a></li>
+      <li><a href="#fields">Field reference</a></li>
+      <li><a href="#verify">How to verify</a></li>
+      <li><a href="#gotchas">Common gotchas</a></li>
+    </ul>
+  </nav>
+
+  <div class="callout">
+    <strong>Goal:</strong> link one contact to several businesses so the storefront account switcher shows them — and know how to confirm the data is right. No custom objects; this is Salesforce's built-in <code>AccountContactRelation</code>.
+  </div>
+
+  <h2 id="model">The model</h2>
+  <pre>Contact "Ecom Tester"
+   ├── AccountId = Customer Account 0        ← PRIMARY account (a "direct" relation)
+   ├── AccountContactRelation → Dixie Bar &amp; Grill       (indirect)
+   └── AccountContactRelation → Riverside Bottle Shop   (indirect)</pre>
+  <ul>
+    <li>Every contact has exactly <strong>one primary account</strong> (<code>Contact.AccountId</code>); Salesforce auto-creates its <code>AccountContactRelation</code> with <code>IsDirect = true</code>.</li>
+    <li>Each <strong>additional</strong> business is a separate <code>AccountContactRelation</code> with <code>IsDirect = false</code>.</li>
+    <li>The switcher lists every <strong>active</strong> related account (direct + indirect).</li>
+  </ul>
+
+  <h2 id="enable">Step 1 — Enable the feature (one-time, per org)</h2>
+  <p><strong>Setup → Account Settings → Edit →</strong> check <strong>"Allow users to relate a contact to multiple accounts"</strong> → Save. This creates the <code>AccountContactRelation</code> object.</p>
+  <div class="callout warn">
+    <strong>Scratch org caveat:</strong> the checkbox only works if the org was <em>created</em> with the <code>ContactsToMultipleAccounts</code> feature in its scratch definition. The box can read "checked" while the object still doesn't exist. Production/sandbox orgs need only the checkbox.
+  </div>
+
+  <h2 id="lists">Step 2 — Make the related lists visible (one-time, per layout)</h2>
+  <ul>
+    <li><strong>Setup → Object Manager → Contact → Page Layouts →</strong> drag the <strong>"Related Accounts"</strong> related list onto the layout → Save.</li>
+    <li>(Optional) <strong>Object Manager → Account → Page Layouts →</strong> add the <strong>"Related Contacts"</strong> related list.</li>
+  </ul>
+  <div class="callout">
+    <strong>Why a related contact isn't under "Contacts":</strong> the standard <strong>Contacts</strong> list only shows contacts whose <em>primary</em> account is that account. Indirect relationships appear under <strong>Related Contacts</strong>. Expected behavior, not a bug.
+  </div>
+
+  <h2 id="relate">Step 3 — Relate the contact to more businesses</h2>
+  <p><strong>From the contact (recommended):</strong></p>
+  <ol>
+    <li>Open the <strong>Contact</strong> record.</li>
+    <li>On <strong>Related Accounts</strong>, click <strong>Add Relationship</strong>.</li>
+    <li>Pick the <strong>Account</strong>, optionally set <strong>Roles</strong>, Save.</li>
+    <li>Repeat for each additional business.</li>
+  </ol>
+  <p><strong>From the account:</strong> <strong>Account → Related Contacts → Add Relationship →</strong> pick the contact. The primary (direct) relation is created automatically — don't re-add it.</p>
+
+  <h2 id="fields">AccountContactRelation field reference</h2>
+  <table>
+    <tr><th>Field</th><th>Meaning</th><th>For the switcher</th></tr>
+    <tr><td><code>ContactId</code></td><td>The contact</td><td>Who is related.</td></tr>
+    <tr><td><code>AccountId</code></td><td>The related business</td><td>One per relationship row.</td></tr>
+    <tr><td><code>IsDirect</code></td><td><code>true</code> = primary account; <code>false</code> = additional business</td><td>Direct one is marked primary; both appear.</td></tr>
+    <tr><td><code>IsActive</code></td><td>Whether the relationship is active</td><td>Only active relations are listed. Set <code>false</code> to hide without deleting.</td></tr>
+    <tr><td><code>Roles</code></td><td>Multi-select (Decision Maker, Buyer, …)</td><td>Optional; not used today.</td></tr>
+    <tr><td><code>StartDate</code>/<code>EndDate</code></td><td>Validity window</td><td>Optional; informational.</td></tr>
+  </table>
+  <ul>
+    <li>No duplicate Account+Contact pairs allowed.</li>
+    <li>You can't delete the <strong>direct</strong> relation directly — change the contact's primary account instead (the old primary becomes indirect).</li>
+    <li>Deactivating (<code>IsActive = false</code>) is the soft way to remove a business from the switcher.</li>
+  </ul>
+
+  <h2 id="verify">How to verify it's set up right</h2>
+  <h3>A · In the UI</h3>
+  <p>Contact → <strong>Related Accounts</strong> shows all businesses (primary marked direct, plus each added one). A secondary Account → <strong>Related Contacts</strong> shows the contact (it will <em>not</em> be under plain "Contacts").</p>
+  <h3>B · Via SOQL</h3>
+  <p>Scoped to one contact:</p>
+  <pre>SELECT Account.Name, IsDirect, IsActive
+FROM AccountContactRelation
+WHERE ContactId = '&lt;contact id&gt;'
+ORDER BY IsDirect DESC</pre>
+  <p>Expect one <code>IsDirect = true</code> (primary) and one per additional business (<code>IsDirect = false</code>), all <code>IsActive = true</code>.</p>
+  <p>Full field set (every relationship in the org — useful for an admin audit):</p>
+  <pre>SELECT Id,
+       AccountId, Account.Name,
+       ContactId, Contact.Name, Contact.Email,
+       IsDirect,
+       IsActive,
+       Roles,
+       StartDate, EndDate,
+       CreatedDate, LastModifiedDate
+FROM AccountContactRelation
+ORDER BY IsDirect DESC, Account.Name</pre>
+  <p>Note: there is no <code>Name</code> field on <code>AccountContactRelation</code> itself — use the relationship fields <code>Account.Name</code> / <code>Contact.Name</code>. <code>Roles</code> is a multi-select picklist (semicolon-delimited string, or null).</p>
+  <h3>C · In the storefront (end-to-end)</h3>
+  <p>Log in as the community user for that contact. Desktop nav shows the active business (dropdown when multiple); mobile hamburger shows a "Switch Business" dropdown. Switching reloads the storefront scoped to the selected business.</p>
+  <div class="callout warn">
+    <strong>Visibility requirement:</strong> the community user must be able to <em>read</em> an indirectly-related Account to open it. <code>AccountContactRelation</code> links them but does not grant record access — the ecom setup sets the external Account org-wide default to Read/Write. If a switch shows blank/placeholder data, check Account sharing for the community profile.
+  </div>
+
+  <h2 id="gotchas">Common gotchas</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause / fix</th></tr>
+    <tr><td>Contact not under "Contacts" on a secondary account</td><td>Expected — look under <strong>Related Contacts</strong>.</td></tr>
+    <tr><td>"Related Accounts" list missing on the contact</td><td>Add it to the Contact page layout (Step 2).</td></tr>
+    <tr><td>Switcher doesn't appear in the storefront</td><td>Contact has only one related account (name shown, no switch), or the feature is off.</td></tr>
+    <tr><td>Switching shows blank / placeholder business</td><td>Community user can't read the related Account — check external Account OWD / sharing.</td></tr>
+    <tr><td><code>AccountContactRelation</code> "not supported" in SOQL</td><td>Feature not provisioned (scratch org created without the <code>ContactsToMultipleAccounts</code> feature).</td></tr>
+  </table>
+</main>
+</body>
+</html>

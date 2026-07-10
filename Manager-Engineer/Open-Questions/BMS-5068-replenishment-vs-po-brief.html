@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5068 — Where does DOH safety-stock sizing belong?</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --a:#4a8df0; --b:#3fb950; --warn:#d6a32e; --rec:#a371f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:27px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .q{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--rec);border-radius:10px;padding:16px 20px;margin:22px 0 8px;font-size:18px}
+  .q b{color:#fff}
+  .sec{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:34px 0 12px}
+  .lanes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.lanes{grid-template-columns:1fr}}
+  .lane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .lane.a{border-top:3px solid var(--a)} .lane.b{border-top:3px solid var(--b)}
+  .lane h3{margin:0 0 2px;font-size:17px}
+  .lane .tag{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+  .node{background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:13px;text-align:center;flex:1;min-width:80px}
+  .arr{color:var(--muted);font-size:18px}
+  .ss{font-size:13px;color:var(--ink);background:rgba(74,141,240,.10);border:1px dashed var(--line);border-radius:8px;padding:9px 11px;margin-top:4px}
+  .lane.b .ss{background:rgba(63,185,80,.10)}
+  .wired{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin-top:10px}
+  .yes{background:rgba(63,185,80,.16);color:var(--b)} .no{background:rgba(214,163,46,.16);color:var(--warn)}
+  .tension{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:16px 20px;margin:18px 0}
+  .rec{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--rec);border-radius:10px;padding:16px 20px;margin:18px 0}
+  .decide{background:#0b0d13;border:1px solid var(--rec);border-radius:10px;padding:16px 20px;margin:24px 0}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6}
+  .label{font-size:12px;color:var(--muted);margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+  .label b{color:var(--ink)}
+  .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .pill{font-size:12px;border-radius:999px;padding:3px 10px;border:1px solid var(--line)}
+  .pa{color:var(--a)} .pb{color:var(--b)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Where does DOH "safety-stock" sizing belong?</h1>
+  <div class="sub">BMS-5068 Safety Stock Controls · product-refinement decision brief</div>
+
+  <div class="q">
+    <b>The question, in one line:</b> when "safety stock" raises a target, should it change
+    <b>how much we move to the pick face inside the warehouse</b>, or
+    <b>how much we buy from the supplier</b>?
+  </div>
+
+  <div class="sec">The two options</div>
+  <div class="lanes">
+    <div class="lane a">
+      <h3>Option A — Pick-face replenishment</h3>
+      <div class="tag">code home: <code>E_ReplenishmentTask</code></div>
+      <div class="flow">
+        <div class="node">Bulk / reserve stock<br><small>(already in warehouse)</small></div>
+        <div class="arr">→</div>
+        <div class="node">Pick face / bin</div>
+      </div>
+      <div class="ss">🛡️ Safety stock = keep the pick face from <b>running dry mid-shift</b>.</div>
+      <span class="wired yes">✓ DOH is already wired here today</span>
+    </div>
+    <div class="lane b">
+      <h3>Option B — Inbound PO sizing</h3>
+      <div class="tag">code home: purchasing (<code>E_PurchaseOrder</code>)</div>
+      <div class="flow">
+        <div class="node">Supplier<br><small>(Red Bull, etc.)</small></div>
+        <div class="arr">→</div>
+        <div class="node">Warehouse receiving</div>
+      </div>
+      <div class="ss">🛡️ Safety stock = <b>reorder buffer</b> vs. supplier lead-time + seasonal swings.</div>
+      <span class="wired no">✗ No DOH consumer here yet</span>
+    </div>
+  </div>
+
+  <div class="tension">
+    <b>⚖️ The tension to resolve:</b> the epic's own words — <i>"supply chain disruptions, supplier
+    lead-time variability, seasonal demand swings require elevating buffers"</i> — sound like
+    <b>Option B (purchasing)</b>. But the only place DOH is wired today is <b>Option A (pick-face)</b>.
+    They're different builds in different parts of the codebase.
+  </div>
+
+  <div class="rec">
+    <b>🧭 Recommendation:</b> confirm <b>intent</b> first.
+    <div class="pillrow">
+      <span class="pill pa">"Don't let the pick face go dry" → Option A</span>
+      <span class="pill pb">"Don't run out because the supplier is slow/seasonal" → Option B</span>
+    </div>
+    <p style="margin:12px 0 0">My read of the wording → <b>Option B</b>. But <b>A</b> is the cheap, already-wired path.
+    So this is a <b>product call, not a code call</b>.</p>
+  </div>
+
+  <div class="decide">
+    <b>👉 Decision needed from the team:</b> <b>A</b>, <b>B</b>, or <b>both</b> —
+    and if <b>B</b>, does it belong in <b>this epic</b> or a <b>separate purchasing epic</b>?
+  </div>
+
+  <div class="label">
+    <b>For the refinement review —</b> what's what:<br>
+    • <b>Code-verified facts:</b> the override engine + supplier tier already exist on <code>main</code> (shipped via BMS-4609); DOH currently affects only replenishment <i>priority</i>, never order <i>quantity</i>.<br>
+    • <b>AI-proposed, owner-confirmed:</b> close BMS-4217 as duplicate · v1 = SKU+location grain · round orders to layer/pallet · defer supplier-tier until proven needed.<br>
+    • <b>Open for the team to ratify:</b> this brief's A/B/both question.
+  </div>
+</div>
+</body>
+</html>

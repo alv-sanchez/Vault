@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint Demo — Build Overviews</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#ffffff; --line:#e3e9f2; --ink:#1d2531; --mut:#69748a;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb; --before:#8b94a6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:34px 18px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:28px;margin:0 0 4px}
+  .sub{color:var(--mut);margin:0 0 8px;font-size:17px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 26px;font-size:13.5px;color:var(--mut)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;margin:16px 0;overflow:hidden;
+    box-shadow:0 1px 3px rgba(20,30,60,.05)}
+  .head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#fff,#f3f6ff)}
+  .head .emoji{font-size:24px}
+  .head h2{font-size:19px;margin:0}
+  .head .keys{color:var(--mut);font-size:13px;margin-top:2px}
+  .head .badge{margin-left:auto;font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
+  .b-yes{background:rgba(31,157,87,.13);color:var(--grn);border:1px solid rgba(31,157,87,.35)}
+  .b-data{background:rgba(47,111,237,.12);color:var(--blu);border:1px solid rgba(47,111,237,.35)}
+  .b-blocked{background:rgba(181,130,31,.13);color:var(--amb);border:1px solid rgba(181,130,31,.35)}
+  .body{padding:6px 20px 18px}
+  .row{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .lbl{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);padding-top:2px}
+  .row .val{font-size:15.5px}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:none}
+  .ba .col{padding:11px 14px}
+  .ba .before{background:#f7f8fa;border-radius:10px;border:1px dashed var(--line)}
+  .ba .now{background:#f0fff6;border-radius:10px;border:1px solid rgba(31,157,87,.25);margin-left:10px}
+  .ba .t{font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .ba .before .t{color:var(--before)} .ba .now .t{color:var(--grn)}
+  .ba .col .x{font-size:14.5px}
+  h3.section{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin:34px 0 4px}
+  .foot{color:var(--mut);font-size:13.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+  @media(max-width:620px){.row{grid-template-columns:1fr}.ba{grid-template-columns:1fr}.ba .now{margin-left:0;margin-top:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Sprint Demo — what we built</h1>
+  <p class="sub">Five Gulf builds. For each: who it's for, the pain, the fix, what existed before, and what's new now.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--grn)"></span> Walkable screen</span>
+    <span><span class="dot" style="background:var(--blu)"></span> Backend / data demo</span>
+    <span><span class="dot" style="background:var(--amb)"></span> Needs an org to render</span>
+  </div>
+
+  <!-- RED BULL -->
+  <div class="card">
+    <div class="head"><span class="emoji">🥤</span><div><h2>Red Bull Allocation Import</h2><div class="keys">Epic BMS-4935 · story BMS-4120</div></div><span class="badge b-yes">Demo ✓ (ohfy-val-4120)</span></div>
+    <div class="body">
+      <div class="row"><div class="lbl">User</div><div class="val">Gulf <b>purchasing analysts</b> (and downstream: warehouses, drivers, customers)</div></div>
+      <div class="row"><div class="lbl">Impact</div><div class="val">Weekly allocation was <b>hand-keyed</b> and split across 5 warehouses manually → wrong stock-on-hand, bad driver limits, customer complaints.</div></div>
+      <div class="row"><div class="lbl">Solution</div><div class="val">Upload Red Bull's weekly file → <b>validate</b> (reject unknown SKUs, bad quantities, duplicates) → <b>auto-split</b> across the 5 warehouses by configured % (30/25/20/15/10). Now with a <b>week picker</b>.</div></div>
+      <div class="row ba"><div class="col before"><div class="t">Before</div><div class="x">Allocations could be stored, but entry was manual spreadsheet keying.</div></div><div class="col now"><div class="t">Built now</div><div class="x">Import screen + validation + automatic warehouse split + week picker.</div></div></div>
+    </div>
+  </div>
+
+  <!-- SHORT PAY -->
+  <div class="card">
+    <div class="head"><span class="emoji">💸</span><div><h2>Short Pay Review Queue</h2><div class="keys">Epic BMS-4965 · stories BMS-4059 + 4060</div></div><span class="badge b-yes">Demo ✓ (ohfy-val-4965)</span></div>
+    <div class="body">
+      <div class="row"><div class="lbl">User</div><div class="val"><b>AR / finance team</b> and warehouse managers (FL/AL compliance)</div></div>
+      <div class="row"><div class="lbl">Impact</div><div class="val">When a store pays less than owed, it became <b>invisible AR</b>; managers hunted balances by hand; in <b>Alabama it's a legal risk</b> to under-collect.</div></div>
+      <div class="row"><div class="lbl">Solution</div><div class="val">One <b>queue</b> of every short pay that <b>auto-escalates by FL/AL threshold</b>, <b>flags repeat offenders</b>, and lets AR <b>resolve with credit</b> or <b>mark collected</b>.</div></div>
+      <div class="row ba"><div class="col before"><div class="t">Before</div><div class="x">System could <b>detect</b> an underpayment (a formula on the invoice), but nothing more.</div></div><div class="col now"><div class="t">Built now</div><div class="x">Review queue + escalation + repeat-offender rollup + resolution workflow.</div></div></div>
+    </div>
+  </div>
+
+  <!-- SHIFT-END -->
+  <div class="card">
+    <div class="head"><span class="emoji">🌙</span><div><h2>Shift-End Workflow</h2><div class="keys">Epic BMS-5070 · story BMS-4078</div></div><span class="badge b-yes">Demo ✓ (ohfy-val-4078)</span></div>
+    <div class="body">
+      <div class="row"><div class="lbl">User</div><div class="val">Warehouse <b>supervisors</b>, incoming crews, finance/ops reporting</div></div>
+      <div class="row"><div class="lbl">Impact</div><div class="val">Breakage was keyed by shift manually (often skipped) → <b>invisible shrinkage</b> that couldn't be tied to a shift, picker, or task.</div></div>
+      <div class="row"><div class="lbl">Solution</div><div class="val">An end-of-shift <b>checklist</b> that aggregates breakage + bin counts into <b>one shrinkage number</b>, with pass-down notes for the next crew, before handoff.</div></div>
+      <div class="row ba"><div class="col before"><div class="t">Before</div><div class="x">Breakage keyed into an old system by hand, frequently skipped.</div></div><div class="col now"><div class="t">Built now</div><div class="x">Shift-end checklist + breakage review + pass-down notes (Ph1). <b>Total rollup is a future phase.</b></div></div></div>
+    </div>
+  </div>
+
+  <!-- SAFETY STOCK -->
+  <div class="card">
+    <div class="head"><span class="emoji">📦</span><div><h2>Safety Stock / Days-of-Inventory</h2><div class="keys">Epic BMS-5068 · story BMS-4217</div></div><span class="badge b-data">Backend / data demo</span></div>
+    <div class="body">
+      <div class="row"><div class="lbl">User</div><div class="val"><b>Inventory planners</b> (and procurement, sales)</div></div>
+      <div class="row"><div class="lbl">Impact</div><div class="val">Buffer stock was <b>gut-feel and undocumented</b>; planners reacted to stockouts after the fact.</div></div>
+      <div class="row"><div class="lbl">Solution</div><div class="val">Make the buffer a <b>setting</b>: raise a SKU/supplier's Days-of-Inventory target and the <b>recommended order quantity rises to match</b> — no code change.</div></div>
+      <div class="row ba"><div class="col before"><div class="t">Before</div><div class="x">Replenishment ordered to static targets; buffers lived in planners' heads.</div></div><div class="col now"><div class="t">Built now</div><div class="x">DOH-driven order sizing (backend, flag-gated). No screen — it's the math behind ordering.</div></div></div>
+    </div>
+  </div>
+
+  <!-- PICK CAPACITY -->
+  <div class="card">
+    <div class="head"><span class="emoji">🗄️</span><div><h2>Pick Location Capacity</h2><div class="keys">Epic BMS-5083 · story BMS-4467 (core BMS-3785 done)</div></div><span class="badge b-blocked">Reports — needs org</span></div>
+    <div class="body">
+      <div class="row"><div class="lbl">User</div><div class="val"><b>Slotting / replenishment teams</b> and pickers</div></div>
+      <div class="row"><div class="lbl">Impact</div><div class="val">Bins got over- or under-filled because slotting ran on <b>informal warehouse knowledge</b>, not product data.</div></div>
+      <div class="row"><div class="lbl">Solution</div><div class="val">Give each bin <b>min/max limits derived from the product's case dimensions</b>, and <b>report</b> on which locations are over/under capacity.</div></div>
+      <div class="row ba"><div class="col before"><div class="t">Before</div><div class="x"><b>Core engine already DONE</b> (BMS-3785): capacity rules on pick locations from case dims.</div></div><div class="col now"><div class="t">Built now</div><div class="x">Reporting layer (native reports/dashboards). Renders only in a report-eligible org.</div></div></div>
+    </div>
+  </div>
+
+  <h3 class="section">The honest frame</h3>
+  <div class="card"><div class="body"><div class="row" style="border:none;grid-template-columns:1fr"><div class="val">
+    These are <b>first-pass builds for direction</b> — complete enough to react to, not yet shipped. Across all five: branches are pushed but <b>not merged</b>, <b>no automated tests</b> yet, and <b>UI is pending your approval</b>. The demo exists to catch a wrong direction <em>before</em> polishing.
+  </div></div></div></div>
+
+  <p class="foot">Manager-Engineer · Sprint demo overview · updated 2026-06-30. Per-build deep dives live in each <code>Build-Overview/&lt;epic&gt;/</code> folder.</p>
+
+</div>
+</body>
+</html>

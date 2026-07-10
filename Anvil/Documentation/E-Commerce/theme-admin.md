@@ -8,7 +8,7 @@
 
 | Ticket | Date Added | Engineer | Ticket Type |
 |---|---|---|---|
-| [[BMS-3923]] | 5/12/2026 | Alvaro Sanchez | Story |
+| [[Experience Cloud theme & brand setup (Gulf branding) = BMS-3923]] | 5/12/2026 | Alvaro Sanchez | Story |
 
 ---
 

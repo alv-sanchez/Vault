@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4965 — Short Pay Automation</title>
+<meta name="description" content="Newcomer-friendly build overview of the short-pay back-office epic for Gulf Distributing: AR primer, jargon legend, lifecycle and reuse rationale.">
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --alloc:#e8853a; --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e;
+    --teach:#4fb0e8; --teach-bg:rgba(79,176,232,.10); --teach-line:rgba(79,176,232,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px;text-wrap:balance}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--ar)}
+  .card h2{margin:0 0 2px;font-size:19px}
+  .meta{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .build{background:rgba(214,163,46,.16);color:var(--warn)}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:84px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .qs{margin:12px 0 0;border-top:1px solid var(--line);padding-top:12px}
+  .qs ul{margin:6px 0 0;padding-left:18px} .qs li{margin:5px 0;font-size:14.5px}
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)} .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  code{background:#0b0d13;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:#c9d1e6}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:22px}
+  .box h2{margin:0 0 10px;font-size:17px}
+  .box li{margin:7px 0;font-size:14.5px}
+  .banner{background:rgba(214,163,46,.10);border:1px solid rgba(214,163,46,.35);border-left:4px solid var(--warn);border-radius:10px;padding:14px 18px;margin:14px 0 4px;font-size:14.5px}
+  .banner b{color:var(--warn)}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+
+  /* --- Newcomer teaching layer --- */
+  .primer{background:var(--teach-bg);border:1px solid var(--teach-line);border-left:4px solid var(--teach);border-radius:12px;padding:20px 22px;margin:18px 0}
+  .primer h2{margin:0 0 4px;font-size:19px;color:var(--ink)}
+  .primer .lede{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}
+  @media(max-width:680px){.defs{grid-template-columns:1fr}}
+  .def{font-size:14.5px}
+  .def .term{font-weight:700;color:var(--teach)}
+  .def p{margin:3px 0 0;color:var(--ink)}
+  .story{margin:16px 0 0;border-top:1px solid var(--teach-line);padding-top:14px}
+  .story .eyebrow{color:var(--teach)}
+  .math{font-variant-numeric:tabular-nums;background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:8px 0 0;font-size:14px;line-height:1.7}
+  .math .hl{color:var(--warn);font-weight:700}
+
+  table.jargon{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+  table.jargon th,table.jargon td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.jargon th{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+  table.jargon td:first-child{white-space:nowrap;font-weight:700;color:var(--teach)}
+  .jwrap{overflow-x:auto}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden}
+  details[open]{border-color:var(--teach-line)}
+  summary{cursor:pointer;padding:14px 20px;font-weight:700;font-size:15px;list-style:none;display:flex;align-items:center;gap:8px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸";color:var(--teach);font-size:13px;transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details .body{padding:0 20px 18px;font-size:14.5px;color:var(--ink)}
+  details .body p{margin:8px 0}
+  details .body ol,details .body ul{margin:8px 0;padding-left:20px}
+  details .body li{margin:6px 0}
+  .lifecycle{list-style:none;padding:0;margin:10px 0;counter-reset:step}
+  .lifecycle li{position:relative;padding:10px 0 10px 46px;border-bottom:1px solid var(--line)}
+  .lifecycle li:last-child{border-bottom:none}
+  .lifecycle li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;background:var(--teach-bg);border:1px solid var(--teach-line);color:var(--teach);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .lifecycle li.shipped::before{background:rgba(63,185,80,.16);border-color:rgba(63,185,80,.4);color:var(--inv)}
+  .lifecycle .stage{font-weight:700}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+  .pill.shipped{background:rgba(63,185,80,.16);color:var(--inv)}
+  a.x{color:var(--teach);text-decoration:none}
+  a.x:hover{text-decoration:underline}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-4965 — Short Pay Automation</h1>
+  <div class="sub">AR / Finance (OMS) · back-office half · single-epic build overview</div>
+
+  <!-- ====================== NEW HERE? PRIMER ====================== -->
+  <div class="primer">
+    <p class="eyebrow">Start here</p>
+    <h2>New here? Short-pay / AR primer</h2>
+    <p class="lede">New to accounts-receivable <em>and</em> to Salesforce? Read this first. It explains, in plain language, every idea this epic touches. Everything below assumes you have read it.</p>
+
+    <div class="defs">
+      <div class="def">
+        <span class="term">What is a "short pay"?</span>
+        <p>A customer pays <b>less than the invoice asks for</b>. The unpaid slice is called a <em>deduction</em>. In beverage distribution this is routine — a case arrived damaged, a promised promo discount wasn't on the bill, or the customer disputes a line. The shortfall must be <b>captured</b> (why did they pay short?) and later <b>resolved</b> (do we forgive it or chase it?).</p>
+      </div>
+      <div class="def">
+        <span class="term">What is AR (Accounts Receivable)?</span>
+        <p>The money <b>customers owe Gulf</b> but haven't paid yet. When a customer short-pays, the leftover stays in AR as a <b>balance owed</b>. The AR/finance team's job is to keep that balance explained and shrinking.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is an Invoice?</span>
+        <p>The <b>bill</b> for one delivery. In Salesforce it is the record <code>Invoice__c</code>. It already carries <code>Total_Due__c</code> (what's owed) and <code>Amount_Paid__c</code> (what was collected). When <code>Amount_Paid__c &lt; Total_Due__c</code>, that gap <b>is</b> the short pay.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is a Credit?</span>
+        <p>A <b>credit memo / write-off</b> — the record <code>Credit__c</code>. Posting a credit against the invoice (<code>Credit__c.Invoice__c</code>) is how Gulf says "we're forgiving this deduction." A posted credit is one of the two ways a short pay gets <b>resolved</b> (the other is the customer eventually paying — "collected").</p>
+      </div>
+      <div class="def">
+        <span class="term">The driver's role</span>
+        <p>The <b>delivery driver</b> is at the customer's door. If the customer short-pays, the driver picks the <b>reason</b> on the spot (e.g. "damaged goods"). That capture step already shipped under a sibling ticket, <b>BMS-3844</b>, in the driver's mobile app. This epic does <b>not</b> touch that — it builds everything that happens <em>after</em> the truck leaves.</p>
+      </div>
+      <div class="def">
+        <span class="term">Why "back office"?</span>
+        <p>"Back office" = the desk work after the delivery: someone in AR reviewing the open short-pays, escalating the big ones to compliance, and posting credits to close them. The driver captures; the back office <b>resolves</b>. This epic is the back office.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is "escalation" + FL/AL compliance?</span>
+        <p>Past a dollar threshold or once it's aged too long, a short pay gets <b>routed to compliance</b> instead of being quietly written off. Gulf operates in <b>Florida and Alabama</b>, and beer-franchise / credit law differs by state — so the threshold rules are <b>per-state and configurable</b>. The exact FL vs AL numbers are still pending from Gulf.</p>
+      </div>
+      <div class="def">
+        <span class="term">What is a "review queue"?</span>
+        <p>A <b>worklist</b> of open short-pays for AR to work through — practically, a Salesforce <b>list view</b> (a saved, filtered table) over invoices that are still Open or Under Review, with a screen to follow later. It is not a new object; it's a view over the invoices that have an open short pay.</p>
+      </div>
+    </div>
+
+    <div class="story">
+      <p class="eyebrow">A worked example</p>
+      <p>A bar is invoiced <b>$1,000</b> for a beer delivery. Three cases arrived broken, so the bar pays <b>$880</b>. The driver taps "Damaged Goods" as the reason. The $120 gap is the short pay:</p>
+      <div class="math">
+        <code>Total_Due__c</code> = <span style="color:var(--inv)">$1,000.00</span> &nbsp; − &nbsp; <code>Amount_Paid__c</code> = <span style="color:var(--inv)">$880.00</span> &nbsp; = &nbsp; <span class="hl">$120.00 short pay</span><br>
+        → sits in <b>AR</b> as a balance owed, status <b>Open</b> → AR reviews it → posts a <code>Credit__c</code> for $120 → status <b>Resolved-Credit</b>.
+      </div>
+
+      <div style="margin:16px 0 0;overflow-x:auto">
+        <svg viewBox="0 0 900 262" role="img" aria-label="Short-pay worked example: a $1,000 invoice paid $880 leaves $120 short; captured with a reason, opened in the AR queue, and resolved by posting a $120 credit." style="width:100%;height:auto;min-width:660px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+          <defs>
+            <marker id="sp-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#4a5468"/>
+            </marker>
+          </defs>
+
+          <text x="20" y="24" fill="#e7e9ee" font-size="15" font-weight="700">How a $120 short pay flows</text>
+          <text x="20" y="44" fill="#9aa3b2" font-size="12.5"><tspan font-family="ui-monospace,Menlo,monospace">Total_Due__c − Amount_Paid__c</tspan> = the short pay</text>
+
+          <!-- money bar: $1,000 total = $880 paid + $120 short -->
+          <text x="60" y="76" fill="#9aa3b2" font-size="11">$0</text>
+          <text x="840" y="76" fill="#9aa3b2" font-size="11" text-anchor="end">$1,000 owed</text>
+          <rect x="60" y="84" width="686" height="42" rx="6" fill="#3fb950" fill-opacity="0.20" stroke="#3fb950" stroke-opacity="0.55"/>
+          <text x="403" y="110" fill="#3fb950" font-size="13" font-weight="700" text-anchor="middle">$880 collected</text>
+          <rect x="746" y="84" width="94" height="42" rx="6" fill="#d6a32e" fill-opacity="0.30" stroke="#d6a32e"/>
+          <text x="793" y="110" fill="#d6a32e" font-size="12.5" font-weight="700" text-anchor="middle">$120</text>
+          <text x="793" y="146" fill="#d6a32e" font-size="11" font-weight="700" text-anchor="middle">↑ short pay</text>
+
+          <!-- pipeline -->
+          <g font-size="12">
+            <!-- 1 Invoice -->
+            <rect x="20" y="172" width="150" height="58" rx="9" fill="#1a1d27" stroke="#2a2f3d"/>
+            <text x="95" y="197" fill="#e7e9ee" font-size="12.5" font-weight="700" text-anchor="middle">Invoice</text>
+            <text x="95" y="215" fill="#9aa3b2" font-size="11" text-anchor="middle">$1,000 due</text>
+            <!-- 2 Capture -->
+            <rect x="195" y="172" width="150" height="58" rx="9" fill="#d6a32e" fill-opacity="0.12" stroke="#d6a32e" stroke-opacity="0.5"/>
+            <text x="270" y="197" fill="#d6a32e" font-size="12.5" font-weight="700" text-anchor="middle">Short pay</text>
+            <text x="270" y="215" fill="#9aa3b2" font-size="11" text-anchor="middle">reason captured</text>
+            <!-- 3 AR queue -->
+            <rect x="370" y="172" width="150" height="58" rx="9" fill="#a371f7" fill-opacity="0.12" stroke="#a371f7" stroke-opacity="0.5"/>
+            <text x="445" y="197" fill="#a371f7" font-size="12.5" font-weight="700" text-anchor="middle">AR queue</text>
+            <text x="445" y="215" fill="#9aa3b2" font-size="11" text-anchor="middle">Open · $120</text>
+            <!-- 4 Credit -->
+            <rect x="545" y="172" width="150" height="58" rx="9" fill="#3fb950" fill-opacity="0.12" stroke="#3fb950" stroke-opacity="0.5"/>
+            <text x="620" y="197" fill="#3fb950" font-size="12.5" font-weight="700" text-anchor="middle">Credit posted</text>
+            <text x="620" y="215" fill="#9aa3b2" font-size="11" text-anchor="middle">$120 forgiven</text>
+            <!-- 5 Resolved -->
+            <rect x="720" y="172" width="150" height="58" rx="9" fill="#3fb950" fill-opacity="0.26" stroke="#3fb950"/>
+            <text x="795" y="197" fill="#e7e9ee" font-size="12.5" font-weight="700" text-anchor="middle">Resolved</text>
+            <text x="795" y="215" fill="#c9e8cf" font-size="11" text-anchor="middle">Resolved-Credit</text>
+          </g>
+          <!-- arrows -->
+          <g stroke="#4a5468" stroke-width="1.6">
+            <line x1="171" y1="201" x2="192" y2="201" marker-end="url(#sp-arrow)"/>
+            <line x1="346" y1="201" x2="367" y2="201" marker-end="url(#sp-arrow)"/>
+            <line x1="521" y1="201" x2="542" y2="201" marker-end="url(#sp-arrow)"/>
+            <line x1="696" y1="201" x2="717" y2="201" marker-end="url(#sp-arrow)"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== JARGON LEGEND ====================== -->
+  <div class="box">
+    <h2>Jargon legend</h2>
+    <div class="jwrap">
+    <table class="jargon">
+      <thead><tr><th>Term</th><th>Plain meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Short pay</td><td>Customer paid less than the invoice; the gap is a "deduction."</td></tr>
+        <tr><td>Deduction</td><td>The unpaid slice of a short pay.</td></tr>
+        <tr><td>AR</td><td>Accounts Receivable — money customers owe Gulf.</td></tr>
+        <tr><td>DSD</td><td>Direct Store Delivery — the driver delivers <em>and</em> collects payment at the store.</td></tr>
+        <tr><td>Resolution</td><td>Closing a short pay: post a credit (forgive) or mark it collected (paid).</td></tr>
+        <tr><td>Escalation</td><td>Routing a large/aged short pay to compliance instead of writing it off.</td></tr>
+        <tr><td>Review queue</td><td>The AR worklist of still-open short pays (a Salesforce list view).</td></tr>
+        <tr><td>Repeat offender</td><td>A customer (Account) who short-pays unusually often.</td></tr>
+        <tr><td><code>__c</code></td><td>Salesforce suffix for a <b>custom</b> object or field (e.g. <code>Invoice__c</code>).</td></tr>
+        <tr><td>CMDT</td><td>Custom Metadata Type — config you can change <em>without</em> a code deploy (here: the per-state thresholds).</td></tr>
+        <tr><td>FLS / permission set</td><td>Field-Level Security — controls which profiles can see a field. Used here to hide AR fields from drivers.</td></tr>
+        <tr><td>Rollup</td><td>A field that sums/counts child records up onto a parent (here: short-pay counts onto the <code>Account</code>).</td></tr>
+        <tr><td>Trigger</td><td>Apex code that runs automatically when a record is saved.</td></tr>
+        <tr><td><code>B_</code> batch</td><td>A scheduled background job that processes records in bulk (Ohanafy naming for Batchable Apex).</td></tr>
+        <tr><td>TTM</td><td>Trailing Twelve Months — a rolling one-year window for the repeat-offender count.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><b class="tag ok">✓</b> confirmed</span>
+    <span><b class="tag ai">🧠</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">🟠</b> open (Gulf/PO)</span>
+    <span><span class="chip build">🔨 BUILD IN PROGRESS</span></span>
+  </div>
+
+  <div class="banner">
+    <b>Build status — BUILD IN PROGRESS.</b>
+    Branch <code>feat/short-pay-backoffice-bms-4965</code>.
+    Building: <code>Invoice__c.Short_Pay_Amount__c</code> / <code>Short_Pay_Status__c</code> / <code>Short_Pay_Resolved_Date__c</code>,
+    a per-state threshold CMDT (placeholder values), an escalation batch, <code>Credit__c</code>-based resolution,
+    <code>Account</code> repeat-offender rollups, and an AR-suppression permission set. <b>Zero new objects.</b>
+    <b>Needs an org:</b> deploy + Apex tests + permset assignment.
+  </div>
+
+  <div class="card">
+    <h2>Short Pay Automation <span class="chip build">🔨 BMS-4965</span></h2>
+    <div class="meta">Domain: AR / Finance (OMS) · Customer: Gulf Distributing (beverage DSD)</div>
+    <div class="row"><span class="lbl">User</span> Drivers (capture — already shipped) · AR/finance (resolution) · FL/AL compliance (escalation)</div>
+    <div class="row"><span class="lbl">Issue</span> Driver short-pay <b>capture shipped under sibling 3844</b> (<code>Invoice__c.Short_Pay_Reason__c</code>, <code>Short_Pay_Note__c</code>, captured in <code>E_DriverHome</code> / <code>driverHomePage</code>) — but the promised <b>back-office approval / escalation / resolution flow was never built</b>. <span style="color:var(--muted)">(The <code>Short_Pay_Reason__c</code> field description even <em>claims</em> it "drives the customer-org approval flow that locks short-paid invoices and routes them for manager review" — that flow does not exist. <b>That gap is this epic.</b>)</span> No review queue, no escalation, no resolution path, no compliance trail.</div>
+    <div class="row"><span class="lbl">Impact</span> Unexplained shortfalls, manual reconciliation, no compliance trail (FL vs AL), missed claim windows, repeat offenders invisible.</div>
+    <div class="row"><span class="lbl">Solution</span> Extend the shipped <code>Invoice__c</code> capture + reuse <code>Credit__c</code> for resolution — <b>zero new objects</b>. <code>Short_Pay_Status__c</code> review queue, configurable per-state escalation-threshold CMDT, <code>Credit__c</code>-based resolution, <code>Account</code> repeat-offender rollups, AR-suppression permission set, native EOD reporting. Strictly back-office, downstream of capture. Close the invented-object children.</div>
+    <div class="qs"><b>Closed questions</b>
+      <ul>
+        <li><span class="tag ok">✓</span> <b>Extend</b> <code>Invoice__c</code>, <b>not</b> the parallel <code>Short_Pay__c</code> / <code>Escalation__c</code> model — <b>those objects don't exist</b>. Reuse <code>Credit__c</code>; close the invented-object children.</li>
+        <li><span class="tag ai">🧠</span> Configurable <b>per-state thresholds</b> (CMDT: state → $ + aging days).</li>
+        <li><span class="tag ai">🧠</span> Resolution: a posted <code>Credit__c</code> = resolved (write-off / deduction) + a manual <b>"collected"</b> close; manager-approval <b>optional</b>.</li>
+        <li><span class="tag ai">🧠</span> AR suppression: <b>drivers see capture only</b> — status, escalation &amp; AR balance hidden from the driver profile (capture, don't chase).</li>
+      </ul>
+    </div>
+    <div class="qs"><b>Still open</b>
+      <ul>
+        <li><span class="tag op">🟠</span> <b>FL vs AL threshold values</b> + the legal driver (beer-franchise / credit-law) — <b>Gulf, via Elliot</b>. Build is configurable, so a config value, not a code blocker.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====================== GO DEEPER: LIFECYCLE ====================== -->
+  <details>
+    <summary>Go deeper — the capture → escalate → resolve lifecycle</summary>
+    <div class="body">
+      <p>One short pay travels through these stages. Stage 1 already exists (shipped under BMS-3844); stages 2–5 are what this epic builds.</p>
+      <ol class="lifecycle">
+        <li class="shipped"><span class="stage">Capture</span> <span class="pill shipped">already shipped · 3844</span><br>At the stop, the driver picks <code>Invoice__c.Short_Pay_Reason__c</code> (and optional <code>Short_Pay_Note__c</code>). In code, <code>E_DriverHome</code> sets these when the collected amount is short. <b>Do not re-touch this path</b> — duplicate writes would conflict.</li>
+        <li><span class="stage">Land in the review queue</span><br>The invoice gets <code>Short_Pay_Status__c = Open</code>. AR works a list view filtered to Open / Under Review. <code>Short_Pay_Amount__c</code> (= <code>Total_Due__c − Amount_Paid__c</code>) shows the dollar gap.</li>
+        <li><span class="stage">Escalate (if it crosses a threshold)</span><br>A <code>B_</code> batch checks each open short pay against the per-state CMDT (<code>Short_Pay_Threshold__mdt</code>: state → $ + aging days). Over the line → <code>Short_Pay_Status__c → Escalated</code>, routed to FL/AL compliance.</li>
+        <li><span class="stage">Resolve</span><br>Either AR posts a <code>Credit__c</code> against the invoice (forgive the deduction → <code>Resolved-Credit</code>), or the customer eventually pays and AR marks it <code>Resolved-Collected</code>. <code>Short_Pay_Resolved_Date__c</code> stamps the close.</li>
+        <li><span class="stage">Roll up &amp; report</span><br>The closed short pay feeds <code>Account.Short_Pay_Count_TTM__c</code> / <code>Short_Pay_Amount_TTM__c</code> so repeat offenders surface, and native Reports/Dashboards summarize by reason / status / date.</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ====================== GO DEEPER: WHY REUSE ====================== -->
+  <details>
+    <summary>Go deeper — why reuse <code>Invoice__c</code> + <code>Credit__c</code> instead of building new objects</summary>
+    <div class="body">
+      <p>The original children of this epic assumed brand-new objects — <code>Short_Pay__c</code>, <code>Escalation__c</code>, <code>Repeat_Offender__c</code>, even an <code>OHFY-Core</code> package. <b>None of those exist in the codebase.</b> The decision was to reuse what's already shipped instead. Why:</p>
+      <ul>
+        <li><b>Capture already lives on the invoice.</b> The driver writes <code>Short_Pay_Reason__c</code> / <code>Short_Pay_Note__c</code> straight onto <code>Invoice__c</code>. A short pay <em>is</em> an attribute of one invoice — a separate object would just shadow data the invoice already holds.</li>
+        <li><b>The dollar gap is already derivable.</b> <code>Total_Due__c</code> and <code>Amount_Paid__c</code> are on the invoice, so <code>Short_Pay_Amount__c</code> is a formula, not new stored data.</li>
+        <li><b>Resolution already has a home.</b> <code>Credit__c</code> exists with an <code>Invoice__c</code> lookup (relationship <code>Credits</code>) and even a QuickBooks credit-memo sync. "Resolved by posting a credit" reuses Gulf's real write-off mechanism instead of inventing one.</li>
+        <li><b>Repeat-offender = a rollup, not an object.</b> Counting short pays per customer is a TTM rollup onto the existing <code>Account</code> — a <code>Repeat_Offender__c</code> object would only duplicate it.</li>
+        <li><b>Fewer moving parts, no migration.</b> Zero new objects means no data migration, no new sharing model, and the work is purely additive — new fields, one CMDT, one batch method, one permission set.</li>
+      </ul>
+      <p><b>One collision to avoid:</b> use a distinct <code>Short_Pay_Status__c</code>, <b>not</b> <code>Is_Locked__c</code> — the latter belongs to <code>B_Invoice_LockInvoices</code> (delivery-prep) and reusing it would clash.</p>
+    </div>
+  </details>
+
+  <!-- ====================== GO DEEPER: DRIVERS SEE CAPTURE ONLY ====================== -->
+  <details>
+    <summary>Go deeper — why "drivers see capture only"</summary>
+    <div class="body">
+      <p>Drivers <b>capture</b> the reason but must <b>not</b> see the resolution status, the escalation state, or the AR balance. The principle is <em>"capture, don't chase"</em> — a driver's job is to record why the customer paid short, not to negotiate or collect the debt.</p>
+      <p>Mechanically this is enforced with <b>Field-Level Security (FLS)</b> via a permission set: the new <code>Short_Pay_Status__c</code> and AR fields are hidden from the driver profile, and <code>driverHomePage</code> never surfaces resolution state. The driver app stays exactly as it shipped under 3844.</p>
+    </div>
+  </details>
+
+  <div class="box">
+    <h2>🧱 What's being built</h2>
+    <ul>
+      <li><b><code>Invoice__c.Short_Pay_Amount__c</code></b> — Currency/formula = <code>Total_Due__c − Amount_Paid__c</code>.</li>
+      <li><b><code>Invoice__c.Short_Pay_Status__c</code></b> — Open / Under Review / Escalated / Resolved-Credit / Resolved-Collected / Written Off — + <code>Short_Pay_Resolved_Date__c</code>. <b>This IS the review queue.</b> Distinct from <code>Is_Locked__c</code> (collision risk).</li>
+      <li><b>Per-state escalation-threshold CMDT</b> (<code>Short_Pay_Threshold__mdt</code>) — state → $ amount + aging days (placeholder values pending Gulf).</li>
+      <li><b>Escalation batch</b> — a <code>B_</code> batch flipping <code>Short_Pay_Status__c</code> → Escalated past threshold.</li>
+      <li><b><code>Credit__c</code>-based resolution</b> — <code>Credit__c.Invoice__c</code>; a posted credit closes the deduction.</li>
+      <li><b><code>Account</code> repeat-offender rollups</b> — <code>Short_Pay_Count_TTM__c</code> / <code>Short_Pay_Amount_TTM__c</code> (no <code>Repeat_Offender__c</code> object).</li>
+      <li><b>AR-suppression permission set</b> — FLS hiding <code>Short_Pay_Status__c</code> + AR fields from the driver profile.</li>
+      <li><b>Native EOD reporting</b> — Report / Dashboard on <code>Invoice__c</code> by reason / status / date.</li>
+    </ul>
+  </div>
+
+  <div class="foot">Generated 2026-06-29 from <code>Open-Questions/BMS-4965-short-pay-rescope.md</code> and code in <code>OHFY-Split</code> (<code>Invoice__c</code> fields, <code>Credit__c</code>, <code>E_DriverHome</code>). Diagram: <code>diagram.excalidraw.md</code>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>

@@ -1,6 +1,47 @@
 {
-  "cascadeColors": false,
-  "colorBackground": false,
-  "palette": [],
-  "fileColors": []
+  "cascadeColors": true,
+  "colorBackground": true,
+  "palette": [
+    {
+      "id": "9WuG8OanSc9PnyhQA6AVf",
+      "name": "",
+      "value": "#ff0000"
+    },
+    {
+      "id": "Y6NqtUxh86aWmKWiDE82R",
+      "name": "",
+      "value": "#2e51ff"
+    },
+    {
+      "id": "OdPQZL8fR_lsPxlwPPk0_",
+      "name": "",
+      "value": "#00d10e"
+    },
+    {
+      "id": "t09JsaFX0Hqx0Q0aYH30P",
+      "name": "",
+      "value": "#ff810a"
+    },
+    {
+      "id": "3wUsh-b69OjQoxlzIXkvb",
+      "name": "",
+      "value": "#ee00ff"
+    },
+    {
+      "id": "T9SS-t7LLfXJN2Zig4ulv",
+      "name": "",
+      "value": "#eeff00"
+    },
+    {
+      "id": "WP4qKY9rQA0_3SGuvpeAb",
+      "name": "",
+      "value": "#00fffb"
+    }
+  ],
+  "fileColors": [
+    {
+      "path": "Manager-Engineer/Mission-Control/mission-control.html",
+      "color": "9WuG8OanSc9PnyhQA6AVf"
+    }
+  ]
 }

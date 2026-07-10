@@ -1,0 +1,150 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understand the Build — Epics</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--warn:#d29922;--accent:#58a6ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:1100px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .lede{color:var(--dim);margin:0 0 8px}
+  .how{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:16px 0 28px;font-size:13.5px;color:#c4cad8}
+  .how b{color:var(--txt)}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-top:6px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .epic{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:22px;border-left:5px solid var(--line)}
+  .epic.built{border-left-color:var(--sol)} .epic.pinned{border-left-color:var(--warn)} .epic.cold{border-left-color:var(--dim)}
+  .ehead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:2px}
+  .ehead h2{font-size:19px;margin:0}
+  .ehead .key{color:var(--accent);font-weight:700}
+  .badge{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .b-built{background:rgba(63,185,80,.16);color:var(--sol)} .b-pinned{background:rgba(210,153,34,.16);color:var(--warn)} .b-cold{background:rgba(136,145,165,.15);color:var(--dim)}
+  .dom{color:var(--dim);font-size:13px;margin:0 0 16px}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+  @media(max-width:680px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:13px 15px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px;display:flex;align-items:center;gap:7px}
+  .box p{margin:0;font-size:14px;color:#d7dce8}
+  .box.user h3{color:var(--user)} .box.impact h3{color:var(--impact)} .box.sol h3{color:var(--sol)} .box.next h3{color:var(--next)}
+  details{margin-top:14px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:2px 14px}
+  summary{cursor:pointer;font-weight:600;padding:11px 0;font-size:13.5px;color:var(--accent);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--dim)}
+  details[open] summary::before{content:"▾ "}
+  .qa{border-top:1px solid var(--line);padding:12px 0}
+  .qa .p{font-weight:700;font-size:13px;margin-bottom:4px}
+  .qa .q{color:#cdd3e2;font-style:italic;margin:0 0 5px}
+  .qa .a{color:var(--dim);font-size:13.5px;margin:0}
+  .qa.eng .p{color:#79c0ff} .qa.pm .p{color:#f0883e} .qa.ceo .p{color:#3fb950} .qa.mkt .p{color:#db61a2}
+  .tldr{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-radius:10px;padding:10px 15px;margin-top:12px;font-size:13.5px}
+  .tldr b{color:var(--warn)}
+</style></head><body>
+
+<h1>🧭 Understand the Build — Epics</h1>
+<p class="lede">Why each in-flight epic exists — the user, the business pain, the solution, and what's next. Read top-to-bottom; open the Q&A to pressure-test each one.</p>
+<div class="how">
+  <b>How to use this (≈45 min):</b> one card per epic. The four boxes answer <span style="color:var(--user)">who it's for</span> · <span style="color:var(--impact)">why it matters</span> · <span style="color:var(--sol)">what we're building</span> · <span style="color:var(--next)">what's next</span>. The Q&A at the bottom of each is the four people who'll grill you — answers included so you can close them.
+  <div class="legend">
+    <span><i style="background:var(--sol)"></i>Built — in an open PR</span>
+    <span><i style="background:var(--warn)"></i>Pinned — held on a decision</span>
+    <span><i style="background:var(--dim)"></i>Not started</span>
+  </div>
+</div>
+
+<!-- ================= SAFETY STOCK ================= -->
+<section class="epic built">
+  <div class="ehead"><h2><span class="key">BMS-5068</span> Safety Stock Controls</h2><span class="badge b-built">BUILT · PR #442 · ohfy-val-4217</span></div>
+  <p class="dom">Inventory — Replenishment · phase: crawl</p>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Gulf <b>inventory / demand planners</b> — the people who decide how much stock to hold per SKU and supplier.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Supply disruptions, supplier lead-time swings and seasonal peaks force planners to temporarily hold more stock. Static reorder points can't flex — so they either stock out or over-hold. This protects service levels <b>without touching system-wide defaults</b>.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Configurable safety-stock buffers: raise DOI targets <b>by supplier or by SKU</b>, with a resolution hierarchy (SKU &gt; supplier &gt; default), effective date ranges (temporary/permanent), a Scheduled → Active → Expired/Manually-Closed lifecycle, expiry notifications, a planning UI with impact preview, and audit reporting. Extends the existing override stack — doesn't rebuild it.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p><b>Merge PR #442</b> (the whole epic is in it). Then wire supplier-tier buffers into the replenishment <b>pick-face path</b> — deliberately deferred, gated on the open <b>Q4</b> product call (pick-face vs inbound-PO).</p></div>
+  </div>
+  <div class="tldr">🧠 <b>Remember it as:</b> "Let a planner turn up the safety buffer for one supplier or SKU, for a set window, without breaking everyone else's settings."</div>
+  <details><summary>The room: questions they'll ask (and your answers)</summary>
+    <div class="qa eng"><div class="p">🛠️ Senior Engineer</div><p class="q">"Are we forking the inventory model or extending it?"</p><p class="a">Extending. Reuses <code>SKU_Override__c</code>, the nightly expiration batch, and the <code>S_InventoryThresholds</code> waterfall (decision D1: don't create a new object). New fields + a supplier tier on top.</p></div>
+    <div class="qa pm"><div class="p">📋 Associate PM</div><p class="q">"What's actually shippable now vs later?"</p><p class="a">Config + resolution + UI + audit ship now (PR #442). The one deferred piece is activating supplier buffers in the pick-face path — fenced off pending the Q4 decision, so it doesn't block the rest.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"What does this save us?"</p><p class="a">Fewer stockouts during disruptions (protected sales) and less dead cash tied up in over-holding — planners tune buffers surgically instead of moving the whole system.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"What's the one-liner for customers?"</p><p class="a">"Set smarter safety stock — per supplier or SKU, for as long as you need, without disturbing your baseline."</p></div>
+  </details>
+</section>
+
+<!-- ================= SHORT PAY ================= -->
+<section class="epic built">
+  <div class="ehead"><h2><span class="key">BMS-4965</span> Short Pay Automation</h2><span class="badge b-built">BUILDING · PR #439 (Ph4)</span></div>
+  <p class="dom">AR-Finance / Delivery · phase: crawl</p>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Gulf <b>delivery drivers</b> (collect payment at the stop) and the <b>AR / finance</b> team that reconciles it.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Drivers regularly collect less than the invoice ("short pay"). Today it's a manual, error-prone exception process, and FL vs AL have different compliance rules. Money leaks and disputes drag.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>End-to-end automation: driver-side detection with <b>reason coding</b> → <b>FL/AL compliance escalation</b> → resolution, reporting &amp; history. Now decomposed into phases (Ph1–6 + returns, EFT, AR-aging). Ph4 = a configurable <b>driver finalize-stop approval gate</b>.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p><b>Land 5625 (Ph4 gate, PR #439).</b> Then the detection + escalation core (Ph1–3) — most still Backlog. Direction is now unblocked (3 tickets cut).</p></div>
+  </div>
+  <div class="tldr">🧠 <b>Remember it as:</b> "When a driver collects less than owed, the system catches it, codes why, escalates by state rules, and tracks it to resolution — instead of a spreadsheet."</div>
+  <details><summary>The room: questions they'll ask (and your answers)</summary>
+    <div class="qa eng"><div class="p">🛠️ Senior Engineer</div><p class="q">"Why a configurable approval gate instead of hard-coded thresholds?"</p><p class="a">FL and AL differ and rules change — the gate (Ph4) is data/CMDT-driven so compliance thresholds move without a deploy. Ph4b adds the stateful multi-layer approve/reject workflow.</p></div>
+    <div class="qa pm"><div class="p">📋 Associate PM</div><p class="q">"This epic is huge — what's the critical path?"</p><p class="a">Ph4 gate is in review now. The value core is Ph1 detection → Ph2 escalation → Ph3 resolution. EFT/AR-aging/returns are later add-ons, not blockers.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Is this revenue recovery or compliance?"</p><p class="a">Both — recovers leaked cash at the point of delivery and keeps FL/AL collection compliant, with an audit trail for disputes.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"Customer story?"</p><p class="a">"Never lose track of a short payment again — caught, coded, and closed automatically, by the rules of each state you operate in."</p></div>
+  </details>
+</section>
+
+<!-- ================= SHIFT-END ================= -->
+<section class="epic built">
+  <div class="ehead"><h2><span class="key">BMS-5070</span> Shift-End Workflow</h2><span class="badge b-built">BUILT · PR #431 (Ph1)</span></div>
+  <p class="dom">Warehouse — WMS · phase: crawl</p>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Gulf <b>warehouse supervisors</b> closing a shift; <b>finance</b> consumes the shrinkage data downstream.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Shifts close with no standard handoff — breakage noted informally, cycle counts untied to shifts, pass-down context lost between crews. Untracked breakage = <b>invisible shrinkage</b> and no shift-attributed data for finance.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>A structured shift-end checklist: <b>breakage review</b> (aggregating picker reports + bin counts), cycle-count integration, categorized <b>pass-down notes</b>, and a submission step that rolls shrinkage up to finance.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p><b>Merge Ph1 (PR #431)</b> — checklist + breakage review. Then Ph2 (cycle counts + pass-down notes) and Ph3 (submission + finance reporting).</p></div>
+  </div>
+  <div class="tldr">🧠 <b>Remember it as:</b> "A checklist that makes every shift close the same way — breakage counted, counts tied to the shift, notes handed to the next crew, clean data to finance."</div>
+  <details><summary>The room: questions they'll ask (and your answers)</summary>
+    <div class="qa eng"><div class="p">🛠️ Senior Engineer</div><p class="q">"Where does breakage data come from?"</p><p class="a">Aggregated from picker self-reports + bin counts at shift-end (Ph1). The schema was spiked first (BMS-4077) so phases don't rework it.</p></div>
+    <div class="qa pm"><div class="p">📋 Associate PM</div><p class="q">"Why phase it — why not one release?"</p><p class="a">Ph1 (capture) delivers standalone value and de-risks the schema; cycle counts (Ph2) and finance roll-up (Ph3) layer on without blocking the demo-ready core.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"Why should I care about shift handoffs?"</p><p class="a">Shrinkage you can't attribute is money you can't recover. This turns invisible breakage into shift-level data finance can act on across all 5 warehouses.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"Customer story?"</p><p class="a">"Close every shift with confidence — breakage, counts, and hand-off notes captured in one flow, feeding clean numbers to finance."</p></div>
+  </details>
+</section>
+
+<!-- ================= RED BULL (PINNED) ================= -->
+<section class="epic pinned">
+  <div class="ehead"><h2><span class="key">BMS-4935</span> Red Bull Allocation Import</h2><span class="badge b-pinned">📌 PINNED · waiting on Matt</span></div>
+  <p class="dom">Allocation &amp; Launch Planning · phase: crawl</p>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Gulf <b>purchasing analysts / procurement</b> who process Red Bull's weekly allocations.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Red Bull sends weekly allocation spreadsheets that must be split across 5 warehouses — done manually today. Slow, error-prone, and it gates 6+ downstream allocation-aware purchasing tickets.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Automated ingestion + <b>5-warehouse split</b> + validation (reject bad SKUs/quantities/dupes) + full supplier <b>audit trail</b>. Ph1 = import/validate/split; Ph2 = account mapping, seasonality, audit.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p><b>Held.</b> Blocked on Matt's direction re: what allocations should <b>do downstream</b>. Ph1 (4120) is in progress; don't build further until the decision lands. Question is parked in Open-Questions.</p></div>
+  </div>
+  <div class="tldr">🧠 <b>Remember it as:</b> "Auto-ingest Red Bull's weekly spreadsheet, split it across the 5 warehouses, validate + audit it — but paused until we know what the numbers should drive."</div>
+  <details><summary>The room: questions they'll ask (and your answers)</summary>
+    <div class="qa eng"><div class="p">🛠️ Senior Engineer</div><p class="q">"What's the actual blocker — code or decision?"</p><p class="a">Decision. Ingestion + split + validation are buildable; what's unclear is downstream behavior (how allocations constrain purchasing/transfers). Build-don't-wait means Ph1 continues, deeper logic waits.</p></div>
+    <div class="qa pm"><div class="p">📋 Associate PM</div><p class="q">"Why is it pinned, not dropped?"</p><p class="a">It's the prerequisite for 6+ allocation tickets — high leverage. Pinned = intentionally held with the ball in Matt's court, not abandoned.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"What's the cost of the manual process today?"</p><p class="a">Analyst hours every week + errors that cascade into wrong driver limits and over-ordering against supplier caps.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"Customer story?"</p><p class="a">"Drop in the supplier's weekly file — we split, validate, and log it across every warehouse automatically."</p></div>
+  </details>
+</section>
+
+<!-- ================= INTER-WAREHOUSE (COLD) ================= -->
+<section class="epic cold">
+  <div class="ehead"><h2><span class="key">BMS-5062</span> Inter-Warehouse Inventory Visibility</h2><span class="badge b-cold">NOT STARTED</span></div>
+  <p class="dom">Inventory — Transfers · phase: crawl</p>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p><b>Warehouse managers, sales ops, and demand planners</b> across the 5-site network.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>The 5 warehouses run as separate inventory pools with no real-time view of sibling stock or in-transit trucks. Result: reps oversell depleted sites while surplus sits idle elsewhere — stockouts, duplicate supplier orders, delayed deliveries.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Consolidated <b>cross-site inventory</b> visibility including <b>in-transit truck stock</b> — one unified view of the true network-wide position before anyone commits a transfer or an order.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p><b>Not started</b> — both tickets sit in To Do / Backlog. Good clean pickup when a build slot opens (isolated from current work).</p></div>
+  </div>
+  <div class="tldr">🧠 <b>Remember it as:</b> "One screen showing what every warehouse — and every truck in transit — actually has, before you oversell or re-order."</div>
+  <details><summary>The room: questions they'll ask (and your answers)</summary>
+    <div class="qa eng"><div class="p">🛠️ Senior Engineer</div><p class="q">"In-transit is the hard part — where does that data live?"</p><p class="a">Transit stock rides on the transfer/truck records; the visibility layer aggregates on-hand across sites + in-transit into one read model. Scope it in the spike before committing.</p></div>
+    <div class="qa pm"><div class="p">📋 Associate PM</div><p class="q">"Is it safe to start now?"</p><p class="a">Yes — disjoint from the current inventory/allocation work. Verify no package collision, then it's a clean solo start.</p></div>
+    <div class="qa ceo"><div class="p">💼 CEO</div><p class="q">"What breaks today without it?"</p><p class="a">Reps oversell from empty locations while stock sits idle at others — lost sales and unnecessary purchase orders across the AL/FL network.</p></div>
+    <div class="qa mkt"><div class="p">📣 Marketing</div><p class="q">"Customer story?"</p><p class="a">"See your whole network's inventory — every site and every truck — in one place, in real time."</p></div>
+  </details>
+</section>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:26px">Ticket-level detail (the 8 things actually built today) → <a href="../understand-TICKETS/understand-TICKETS.html" style="color:var(--accent)">understand-TICKETS.html</a> · visual map → <code>../build-map/build-map.excalidraw</code>. Status is live in Mission&nbsp;Control; this page is the "why."</p>
+</body></html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>/audit-pull-request vs /code-review — OHFY-Split</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-alt: #f5f3f0;
+    --border: #e7e5e0;
+    --border-strong: #d4d0ca;
+    --text: #1c1917;
+    --text-sec: #57534e;
+    --text-muted: #a8a29e;
+    --accent: #6d28d9;
+    --accent-light: #ede9fe;
+    --accent-mid: #a78bfa;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.07);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2.5rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.78rem;
+    background: var(--surface-alt);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 3rem 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--accent), var(--green));
+  }
+  .hero .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.6rem;
+    line-height: 1.25;
+  }
+  .hero .tagline {
+    color: var(--text-sec);
+    font-size: 1rem;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Section headings */
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    margin-top: 3rem;
+    text-align: center;
+  }
+  h2 .sub {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .divider {
+    width: 48px;
+    height: 3px;
+    background: var(--accent-mid);
+    border-radius: 2px;
+    margin: 0 auto 2rem;
+  }
+
+  /* Circular meters */
+  .meters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 700px) { .meters { grid-template-columns: 1fr; } }
+  .meter-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .meter-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .meter-card.audit { border: 1px solid var(--red-border); }
+  .meter-card.audit::before { background: var(--red); }
+  .meter-card.review { border: 2px solid var(--green-border); }
+  .meter-card.review::before { background: var(--green); }
+  .circle-meter {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    margin: 0 auto 1rem;
+  }
+  .circle-meter svg {
+    transform: rotate(-90deg);
+    width: 170px;
+    height: 170px;
+  }
+  .circle-meter .track {
+    fill: none;
+    stroke: var(--surface-alt);
+    stroke-width: 14;
+  }
+  .circle-meter .fill-audit {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 14;
+    stroke-linecap: round;
+    stroke-dasharray: 408;
+  }
+  .circle-meter .fill-review {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 14;
+    stroke-linecap: round;
+    stroke-dasharray: 408;
+  }
+  .circle-meter .pct {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .circle-meter .pct-val {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .circle-meter .pct-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  /* Scenario cards */
+  .scenario {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .scenario:hover { box-shadow: var(--shadow-md); }
+  .scenario::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+  }
+  .scenario.miss::before { background: var(--red); }
+  .scenario.catch::before { background: var(--green); }
+  .scenario .sc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+  .scenario .sc-tag {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .sc-tag.miss-tag { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .sc-tag.catch-tag { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .scenario h4 { font-size: 0.92rem; font-weight: 700; }
+  .scenario .sc-code {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.76rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+  }
+  .scenario .sc-code .hl-bad { color: #f38ba8; font-weight: 600; }
+  .scenario .sc-code .hl-good { color: #a6e3a1; font-weight: 600; }
+  .scenario .sc-code .hl-comment { color: #6c7086; }
+  .scenario .sc-explain {
+    font-size: 0.8rem;
+    color: var(--text-sec);
+    line-height: 1.55;
+  }
+  .scenario .sc-impact {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    margin-top: 0.4rem;
+  }
+  .impact-crit { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .impact-high { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .impact-runtime { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+
+  /* Matrix */
+  .matrix-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .matrix th {
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 700;
+    background: var(--surface-alt);
+  }
+  .matrix th:nth-child(2), .matrix th:nth-child(3) { text-align: center; }
+  .matrix td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .matrix td:nth-child(2), .matrix td:nth-child(3) { text-align: center; }
+  .matrix tr:last-child td { border-bottom: none; }
+  .matrix tr:hover td { background: var(--surface-alt); }
+  .matrix .section-row td {
+    background: var(--surface-alt);
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    padding: 0.5rem 0.9rem;
+  }
+  .check { color: var(--green); font-weight: 700; font-size: 1rem; }
+  .cross { color: var(--red); font-weight: 700; font-size: 1rem; }
+
+  /* Bars */
+  .bar-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 0.75rem;
+  }
+  .bar-group-title { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label {
+    width: 130px;
+    font-size: 0.72rem;
+    text-align: right;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--surface-alt);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .bar-fill.red-bar { background: linear-gradient(90deg, var(--red), #fb7185); }
+  .bar-fill.green-bar { background: linear-gradient(90deg, var(--green), #4ade80); }
+
+  /* Workflow */
+  .wf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 700px) { .wf-grid { grid-template-columns: 1fr; } }
+  .wf-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .wf-card h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .wf-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-sec);
+  }
+  .wf-step:last-child { border-bottom: none; }
+  .wf-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .wf-num.purple { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-mid); }
+  .wf-num.g { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+  /* Verdict */
+  .verdict {
+    background: var(--surface);
+    border: 2px solid var(--accent-mid);
+    border-radius: var(--radius);
+    padding: 2rem 1.75rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+  }
+  .verdict::before {
+    content: 'VERDICT';
+    position: absolute;
+    top: -11px;
+    left: 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.7rem;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+  }
+  .verdict h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .verdict p { font-size: 0.85rem; color: var(--text-sec); line-height: 1.65; margin-bottom: 0.5rem; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict strong { color: var(--text); }
+
+  .footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="eyebrow">Why We Need More Than a Linter &mdash; OHFY-Split</div>
+  <h1>What <code style="background: var(--red-bg); color: var(--red);">/audit-pull-request</code> Misses<br>and <code style="background: var(--green-bg); color: var(--green);">/code-review</code> Catches</h1>
+  <p class="tagline">Our custom audit skill covers 40% of the review surface. The other 60% &mdash; security, conventions, cross-file regressions, test coverage &mdash; ships unchecked to production today.</p>
+</div>
+
+<!-- Coverage Meters -->
+<h2>Review Surface Coverage <span class="sub">Percentage of total reviewable concerns each tool addresses</span></h2>
+<div class="divider"></div>
+
+<div class="meters">
+  <div class="meter-card audit">
+    <div style="font-family: 'SF Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--red); margin-bottom: 0.2rem;">/audit-pull-request</div>
+    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.25rem;">Diff-only &bull; 6 hardcoded dimensions &bull; No repo context</div>
+    <div class="circle-meter">
+      <svg viewBox="0 0 140 140">
+        <circle class="track" cx="70" cy="70" r="65"/>
+        <circle class="fill-audit" cx="70" cy="70" r="65" stroke-dashoffset="245"/>
+      </svg>
+      <div class="pct">
+        <div class="pct-val" style="color: var(--red);">40%</div>
+        <div class="pct-label">Coverage</div>
+      </div>
+    </div>
+    <div style="text-align: left; margin-top: 0.5rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem;">Blind spots:</div>
+      <div style="font-size: 0.78rem; color: var(--red); line-height: 1.7;">
+        &#10005; No security analysis (SOQL injection, XSS, CRUD/FLS)<br>
+        &#10005; No CLAUDE.md awareness (QueryService, Logger, DTOs)<br>
+        &#10005; No cross-file context (can't read callers/services)<br>
+        &#10005; No test coverage assessment<br>
+        &#10005; No performance analysis beyond governor limits<br>
+        &#10005; Posts one wall-of-text comment, not inline
+      </div>
+    </div>
+  </div>
+
+  <div class="meter-card review">
+    <div style="font-family: 'SF Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--green); margin-bottom: 0.2rem;">/code-review</div>
+    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.25rem;">Full repo &bull; CLAUDE.md + REVIEW.md &bull; Multi-turn agent</div>
+    <div class="circle-meter">
+      <svg viewBox="0 0 140 140">
+        <circle class="track" cx="70" cy="70" r="65"/>
+        <circle class="fill-review" cx="70" cy="70" r="65" stroke-dashoffset="49"/>
+      </svg>
+      <div class="pct">
+        <div class="pct-val" style="color: var(--green);">88%</div>
+        <div class="pct-label">Coverage</div>
+      </div>
+    </div>
+    <div style="text-align: left; margin-top: 0.5rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem;">Full spectrum:</div>
+      <div style="font-size: 0.78rem; color: var(--green); line-height: 1.7;">
+        &#10003; Everything /audit-pull-request does, plus:<br>
+        &#10003; Security (SOQL injection, XSS, CRUD/FLS, SYSTEM_MODE)<br>
+        &#10003; Convention enforcement via CLAUDE.md + REVIEW.md<br>
+        &#10003; Opens callers, services, tests for cross-file analysis<br>
+        &#10003; Test coverage &amp; assertion quality checks<br>
+        &#10003; Inline comments on exact PR lines with severity
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- The 60% gap — real scenarios -->
+<h2>The 60% That Ships Unchecked Today <span class="sub">Real Salesforce scenarios from OHFY-Split that /audit-pull-request cannot catch</span></h2>
+<div class="divider"></div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>Raw DML bypassing QueryService &mdash; security regression</h4>
+  </div>
+  <div class="sc-code"><span class="hl-comment">// Engineer writes inline DML instead of using DmlService</span>
+<span class="hl-bad">Database.insert(newRecords, AccessLevel.SYSTEM_MODE);</span>
+<span class="hl-comment">// No AccessLevelResolver check, no rule citation comment</span>
+<span class="hl-comment">// /audit-pull-request: sees nothing wrong — it doesn't know about QueryService mandate</span>
+<span class="hl-comment">// /code-review: reads CLAUDE.md, flags BMS-3965 violation + missing SYSTEM_MODE citation</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> Raw DML bypasses <code>AccessLevelResolver</code>, which means CRUD/FLS is not enforced. This is a security hole in a managed package &mdash; it passes the security review today but violates our own architecture for a reason.</div>
+  <span class="sc-impact impact-crit">SECURITY &mdash; bypassed access control</span>
+</div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>Catch block without Logger &mdash; silent production failure</h4>
+  </div>
+  <div class="sc-code"><span class="hl-bad">} catch (Exception e) {</span>
+<span class="hl-bad">    System.debug('Error: ' + e.getMessage());</span>
+<span class="hl-comment">    // No Logger.getInstance().error() + flush()</span>
+<span class="hl-comment">    // This error vanishes — never reaches Datadog, never pages anyone</span>
+<span class="hl-bad">}</span>
+<span class="hl-comment">// /audit-pull-request: flags System.debug() but NOT the missing Logger call</span>
+<span class="hl-comment">// /code-review: reads CLAUDE.md, flags BMS-4298 Logger-in-catch violation</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> Errors that only go to <code>System.debug()</code> are invisible in production. No Datadog alert, no ticket, no awareness. The user sees a vague error or silent failure. Our CLAUDE.md mandates <code>Logger.getInstance().error()</code> + <code>flush()</code> in every catch &mdash; but the audit skill doesn't know that rule exists.</div>
+  <span class="sc-impact impact-crit">OBSERVABILITY &mdash; invisible production errors</span>
+</div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>DTO missing { get; set; } &mdash; silent all-null across packages</h4>
+  </div>
+  <div class="sc-code"><span class="hl-comment">// Cross-package DTO used in @AuraEnabled return</span>
+<span class="hl-bad">global class InvoiceLineDTO {</span>
+<span class="hl-bad">    global String productName;     // no { get; set; }</span>
+<span class="hl-bad">    global Decimal quantity;        // no { get; set; }</span>
+<span class="hl-bad">    global Decimal unitPrice;       // no { get; set; }</span>
+<span class="hl-bad">}</span>
+<span class="hl-comment">// Works perfectly in unit tests (same package context)</span>
+<span class="hl-comment">// In managed package install: ALL properties deserialize as null</span>
+<span class="hl-comment">// /audit-pull-request: doesn't know ADR-0007 exists</span>
+<span class="hl-comment">// /code-review: reads CLAUDE.md, flags missing { get; set; } accessors</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> This is one of the most insidious Salesforce managed package bugs. Properties without <code>{ get; set; }</code> serialize as null across package boundaries. Unit tests pass because they run in the same namespace. The bug only appears in customer orgs after package install. ADR-0007 exists specifically because this has bitten us before.</div>
+  <span class="sc-impact impact-runtime">RUNTIME &mdash; invisible in tests, breaks in prod installs</span>
+</div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>Class rename breaks ServiceLocator &mdash; runtime TypeException</h4>
+  </div>
+  <div class="sc-code"><span class="hl-comment">// PR renames InvoiceCalculator → InvoiceCalculationService</span>
+<span class="hl-comment">// But Service_Configuration__mdt still points to 'InvoiceCalculator'</span>
+<span class="hl-bad">ServiceLocator.resolve('InvoiceCalculator')  // → TypeException at runtime</span>
+<span class="hl-comment">// /audit-pull-request: only reads the diff — can't see CMDT records</span>
+<span class="hl-comment">// /code-review: opens Service_Configuration__mdt, flags stale reference</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> <code>ServiceLocator.resolve()</code> depends on Custom Metadata wiring. There's no compile-time check. The audit skill only reads the diff &mdash; it literally cannot see the CMDT record that still points to the old class name. <code>/code-review</code> opens related files beyond the diff and catches the broken contract.</div>
+  <span class="sc-impact impact-runtime">RUNTIME &mdash; TypeException in production</span>
+</div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>SYSTEM_MODE without rule citation &mdash; privilege escalation</h4>
+  </div>
+  <div class="sc-code"><span class="hl-bad">List&lt;Account&gt; accts = [SELECT Id FROM Account WITH SYSTEM_MODE];</span>
+<span class="hl-comment">// Missing: inline comment citing which rule (1/2/3/4/6) permits this</span>
+<span class="hl-comment">// Or worse: citing rule 5, which is explicitly invalid per our security doc</span>
+<span class="hl-comment">// /audit-pull-request: no awareness of mode-selection.md rules</span>
+<span class="hl-comment">// /code-review: reads CLAUDE.md + docs/security/mode-selection.md, flags it</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> Every <code>SYSTEM_MODE</code> usage must cite a specific rule from our security docs. Uncited SYSTEM_MODE means no one verified the privilege escalation is justified. This is a compliance requirement, not a style preference.</div>
+  <span class="sc-impact impact-crit">SECURITY &mdash; unchecked privilege escalation</span>
+</div>
+
+<div class="scenario miss">
+  <div class="sc-header">
+    <span class="sc-tag miss-tag">Missed by /audit</span>
+    <h4>Trigger service change without test update &mdash; cascade regression</h4>
+  </div>
+  <div class="sc-code"><span class="hl-comment">// PR adds DML to AccountTriggerService.afterUpdate()</span>
+<span class="hl-comment">// 14 other test classes create/update Accounts and fire this trigger</span>
+<span class="hl-comment">// None of those tests expect or assert on the new DML side effect</span>
+<span class="hl-comment">// /audit-pull-request: only sees the changed file, not the 14 callers</span>
+<span class="hl-comment">// /code-review: reads test files, flags untested cascade</span></div>
+  <div class="sc-explain"><strong>Why it matters:</strong> Trigger services sit in the critical path. Any change cascades to every operation on that sObject. The audit skill reads the diff only &mdash; it can't trace who calls this code. <code>/code-review</code> opens test files and callers to detect missing coverage.</div>
+  <span class="sc-impact impact-high">REGRESSION &mdash; cascade bug in untested path</span>
+</div>
+
+<!-- Category bars -->
+<h2>Coverage by Category <span class="sub">Where the gap is widest</span></h2>
+<div class="divider"></div>
+
+<div style="margin-bottom: 2.5rem;">
+  <div class="bar-group">
+    <div class="bar-group-title">Security Analysis</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 3%;"></div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 85%;">85%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Convention Compliance (CLAUDE.md / REVIEW.md)</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 3%;"></div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 92%;">92%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Cross-File Regression Detection</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 3%;"></div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 80%;">80%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Test Coverage Assessment</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 3%;"></div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 75%;">75%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Bugs &amp; Runtime Errors</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 55%;">55%</div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 90%;">90%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Silent Failures &amp; Error Handling</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 50%;">50%</div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 90%;">90%</div></div></div>
+  </div>
+  <div class="bar-group">
+    <div class="bar-group-title">Performance (LWC re-renders, unbounded queries)</div>
+    <div class="bar-row"><span class="bar-label">/audit</span><div class="bar-track"><div class="bar-fill red-bar" style="width: 3%;"></div></div></div>
+    <div class="bar-row"><span class="bar-label">/code-review</span><div class="bar-track"><div class="bar-fill green-bar" style="width: 70%;">70%</div></div></div>
+  </div>
+</div>
+
+<!-- Salesforce Dev Workflow -->
+<h2>Where It Fits in Your Salesforce Workflow <span class="sub">How /code-review plugs into the daily dev cycle</span></h2>
+<div class="divider"></div>
+
+<div class="wf-grid">
+  <div class="wf-card">
+    <h3><span style="font-size: 1rem;">&#128187;</span> During Development</h3>
+    <div class="wf-step"><span class="wf-num purple">1</span><span>Write Apex class / LWC component / trigger service on feature branch</span></div>
+    <div class="wf-step"><span class="wf-num purple">2</span><span>Run <code>/code-review --comment</code> before pushing &mdash; catches convention violations, security gaps, missing Logger calls while code is fresh in your head</span></div>
+    <div class="wf-step"><span class="wf-num purple">3</span><span>Fix findings locally &mdash; no CI cycle, no waiting for a reviewer to point out the same things</span></div>
+    <div class="wf-step"><span class="wf-num purple">4</span><span>Push clean code, open PR &mdash; mechanical issues already resolved</span></div>
+  </div>
+  <div class="wf-card">
+    <h3><span style="font-size: 1rem;">&#128269;</span> During PR Review</h3>
+    <div class="wf-step"><span class="wf-num g">5</span><span>CI/CD auto-review fires (or on-demand via <code>@claude</code> comment) &mdash; safety net for anything missed</span></div>
+    <div class="wf-step"><span class="wf-num g">6</span><span>Inline comments appear on specific lines &mdash; reviewer sees exactly what was flagged and why</span></div>
+    <div class="wf-step"><span class="wf-num g">7</span><span>Human reviewer skips mechanical checklist, focuses on: Does this design make sense? Does it solve the ticket? Is the UX right?</span></div>
+    <div class="wf-step"><span class="wf-num g">8</span><span>Merge with confidence &mdash; conventions, security, and regressions already verified</span></div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2.5rem;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); text-align: center;">
+    <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.4rem;">Apex &amp; Trigger Services</div>
+    <div style="font-size: 0.85rem; color: var(--text-sec); line-height: 1.5;">QueryService/DmlService mandate, Logger-in-catch, SYSTEM_MODE audit, DTO pattern, trigger cascade detection</div>
+  </div>
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); text-align: center;">
+    <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.4rem;">LWC &amp; Frontend</div>
+    <div style="font-size: 0.85rem; color: var(--text-sec); line-height: 1.5;">XSS in lwc:dom="manual", reactive property thrashing, promise rejection handling, @wire adapter misuse</div>
+  </div>
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); text-align: center;">
+    <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.4rem;">Metadata &amp; Packaging</div>
+    <div style="font-size: 0.85rem; color: var(--text-sec); line-height: 1.5;">org-metadata prefix drift, ServiceLocator CMDT wiring, cross-package DTO contracts, global API surface</div>
+  </div>
+</div>
+
+<!-- Feature Matrix -->
+<h2>Full Feature Matrix <span class="sub">Every capability, side by side</span></h2>
+<div class="divider"></div>
+
+<div class="matrix-wrap">
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th style="width: 45%;">Capability</th>
+        <th style="width: 27.5%;">/audit-pull-request</th>
+        <th style="width: 27.5%;">/code-review</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="section-row"><td colspan="3">What It Reads</td></tr>
+      <tr><td>PR diff</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Full repo files beyond the diff</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>CLAUDE.md project conventions</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>REVIEW.md review rules</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+
+      <tr class="section-row"><td colspan="3">Security (entirely missing from /audit)</td></tr>
+      <tr><td><strong>SOQL injection detection</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>XSS in LWC (lwc:dom="manual" + unsanitized HTML)</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>CRUD/FLS enforcement check</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>SYSTEM_MODE rule citation audit</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Exposed @AuraEnabled without permission checks</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Hardcoded credentials/tokens in code</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+
+      <tr class="section-row"><td colspan="3">Convention Enforcement (entirely missing from /audit)</td></tr>
+      <tr><td><strong>QueryService / DmlService mandate (BMS-3965)</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Logger-in-catch compliance (BMS-4298)</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>DTO pattern &mdash; ADR-0007 (global + { get; set; })</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>org-metadata prefix correctness</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>_T test convention compliance</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+
+      <tr class="section-row"><td colspan="3">Cross-File Analysis (impossible for diff-only tool)</td></tr>
+      <tr><td><strong>ServiceLocator contract validation</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Trigger cascade side-effect detection</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Test coverage for new/changed methods</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Interface contract break detection</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+
+      <tr class="section-row"><td colspan="3">Shared (both cover)</td></tr>
+      <tr><td>SOQL/DML in loops (governor limits)</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Null dereference / divide by zero</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Empty/swallowing catch blocks</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Dead code &amp; debug statements</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Basic naming (PascalCase, camelCase)</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Severity labels</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+
+      <tr class="section-row"><td colspan="3">Output Quality</td></tr>
+      <tr><td><strong>Inline comments on specific PR lines</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td>Single monolithic comment</td><td class="check">&#10003;</td><td class="cross" style="opacity: 0.3;">&#10005;</td></tr>
+      <tr><td><strong>Multi-agent verification &amp; dedup</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+      <tr><td><strong>Feedback loop (thumbs up/down)</strong></td><td class="cross">&#10005;</td><td class="check">&#10003;</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h3>The audit skill is a good start. It's not enough.</h3>
+  <p>
+    <strong>/audit-pull-request</strong> catches governor limit violations and async error handling gaps. That's valuable &mdash; those are real Salesforce bugs. But it reads the diff and nothing else. It doesn't know our conventions exist. It can't open a related file. It can't tell you a catch block is missing Logger because it doesn't know Logger is required.
+  </p>
+  <p>
+    <strong>/code-review</strong> reads the entire repo. It knows our rules because it reads CLAUDE.md. It opens callers, services, tests, and metadata to catch issues that are invisible in the diff alone. It posts findings on the exact line, not a wall of text. It covers <strong>the 60% of the review surface that currently ships unchecked</strong>.
+  </p>
+  <p>
+    <strong>The ask:</strong> Adopt <strong>/code-review --comment</strong> as the standard pre-push step. Upgrade to the <strong>$200 Max plan</strong> for 5x usage &mdash; deeper reviews, no throttling, $0 per review. Every engineer reviews their own code with the same REVIEW.md rulebook before it reaches a teammate.
+  </p>
+</div>
+
+<!-- $200 plan -->
+<div style="background: linear-gradient(135deg, #ede9fe, #f0e6ff, #eff6ff); border: 2px solid var(--accent-mid); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--blue), var(--green));"></div>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 0.4rem;">Unlock the Full 88%</div>
+    <h3 style="font-size: 1.15rem; font-weight: 800;">Max $200 Plan &mdash; $0 Per Local Review, No Turn Limit</h3>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; max-width: 520px; margin: 0 auto 1rem;">
+    <div style="background: rgba(255,255,255,0.7); border: 1px solid #e7e5e0; border-radius: 10px; padding: 1rem; text-align: center;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--red);">40%</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">coverage with /audit only</div>
+    </div>
+    <div style="font-size: 1.5rem; color: var(--accent);">&#10145;</div>
+    <div style="background: rgba(255,255,255,0.7); border: 2px solid var(--green-border); border-radius: 10px; padding: 1rem; text-align: center;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--green);">88%</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">coverage with /code-review</div>
+    </div>
+  </div>
+  <p style="font-size: 0.82rem; color: var(--text-sec); text-align: center; max-width: 560px; margin: 0 auto; line-height: 1.6;">
+    Every <code>/code-review</code> run is included in the subscription. No API key. No per-review cost. No turn cap. The $200 plan gives 5x usage for deeper reviews during crunch weeks. <strong style="color: var(--text);">Less than the cost of one escaped DTO bug hitting a customer org.</strong>
+  </p>
+</div>
+
+<div class="footer">
+  /audit-pull-request vs /code-review &mdash; Ohanafy / OHFY-Split &middot; June 2026
+</div>
+
+</body>
+</html>

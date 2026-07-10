@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-4995 Orchestration — Project Handoff Report</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1d2130; --ink:#e8eaf2; --muted:#9aa1b5;
+    --line:#2a2f40; --green:#3ecf8e; --amber:#f5b83d; --red:#f06a6a; --blue:#6aa3f0; --purple:#b48ef0;
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,"Segoe UI",Inter,sans-serif;padding:48px 24px}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:30px;letter-spacing:-.02em;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 8px}
+  .banner{background:linear-gradient(90deg,rgba(180,142,240,.14),rgba(106,163,240,.06));border:1px solid var(--line);border-left:3px solid var(--purple);border-radius:0 10px 10px 0;padding:14px 18px;margin:20px 0 32px;font-size:13.5px;color:var(--ink)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:42px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{margin:0 0 6px;font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .stat b{display:block;font-size:26px}
+  .stat span{color:var(--muted);font-size:12.5px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:0 0 12px}
+  .card p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  a{color:var(--blue);text-decoration:none}
+  .ok{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--red)} .mut{color:var(--muted)}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 7px}
+  .t-green{background:rgba(62,207,142,.15);color:var(--green)}
+  .t-amber{background:rgba(245,184,61,.15);color:var(--amber)}
+  .t-red{background:rgba(240,106,106,.15);color:var(--red)}
+  .t-mut{background:rgba(154,161,181,.14);color:var(--muted)}
+  ul{margin:6px 0 0;padding-left:20px;color:var(--muted);font-size:13.5px}
+  ul li{margin:4px 0}
+  .foot{margin-top:44px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:14px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:760px){.grid,.two{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>BMS-4995 — Epic Orchestration Handoff</h1>
+<p class="sub">Retailer Online Ordering Experience (Gulf) · multi-agent build orchestration · report generated 2026-06-14</p>
+
+<div class="banner">
+<b>Why this is a handoff, not a status update.</b> The Fable 5 model that ran this orchestration has been sunset by government order. This report is the durable record of what the system was, what it produced, what is reusable, and exactly where a successor (human or model) picks it up. All figures are verified against git, GitHub, and the Obsidian context bucket as of 2026-06-14 — not from memory.
+</div>
+
+<div class="grid">
+  <div class="stat"><b class="ok">3</b><span>draft PRs opened</span></div>
+  <div class="stat"><b class="ok">3</b><span>storefront orgs stood up</span></div>
+  <div class="stat"><b>2</b><span>reusable skills built</span></div>
+  <div class="stat"><b>4</b><span>Jira tickets restructured</span></div>
+</div>
+
+<h2>What this project was</h2>
+<div class="card">
+<p style="color:var(--ink)">A <b>Workflow-tool orchestration</b> that takes a Jira epic (BMS-4995, the Gulf retailer Experience Cloud storefront) and drives its tickets to reviewed, test-green PRs with near-zero human babysitting. The design: group tickets into <b>domain lanes</b>, claim one scratch org per lane from the CI pool, run lanes in parallel and tickets sequentially within a lane, each ticket getting its own git worktree → polish → implement → test → draft PR → docs. A shared Obsidian "context bucket" was the only cross-agent communication channel; the orchestrator mediated everything else.</p>
+<p>It ran in distinct phases: <b>Scope</b> (10-agent fan-out grading every ticket), <b>Validation Run 0</b> (8-agent duplicate-work + lane-fit sweep), and the <b>Build fleet</b> (3 lanes, org-per-lane, polish-and-build per ticket). A human (Alvaro) ran one ticket — BMS-4258 — manually in parallel as the learning template for Experience Cloud development.</p>
+</div>
+
+<h2>Delivered — code (3 draft PRs against <code>main</code>)</h2>
+<table>
+  <tr><th>PR</th><th>Ticket</th><th>What shipped</th><th>CI</th></tr>
+  <tr>
+    <td><a href="https://github.com/Ohanafy/OHFY-Split/pull/294">#294</a></td>
+    <td>BMS-4050<br><span class="mut">Cart + basic pricing</span></td>
+    <td>Price-provenance breakdown popover on cart lines (FLP source → list → adjustment → final), provenance stamping in <code>userDataService</code>, pure <code>buildPriceProvenance</code> helper + 12 Jest tests, new Playwright spec proving cart↔invoice price parity.</td>
+    <td><span class="tag t-green">8/8 green</span></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Ohanafy/OHFY-Split/pull/293">#293</a></td>
+    <td>BMS-4053<br><span class="mut">Product card</span></td>
+    <td>Extracted reusable <code>c-ecom-product-card</code> LWC with a documented <code>@api</code>/event contract (the consumption contract for #296), + configurable field-set-driven data-point framework reusing <code>Fieldset_Customization__mdt</code>; ships UPC by default. Also fixed a latent <code>Object_Name__c</code> unique-constraint bug.</td>
+    <td><span class="tag t-red">deploy-delta fails</span></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Ohanafy/OHFY-Split/pull/296">#296</a></td>
+    <td>BMS-4054<br><span class="mut">Grid + reuse</span></td>
+    <td>Promotions-first default catalog sort (reuses already-loaded <code>item.hasPromotions</code>), product-card image-sizing polish, adopts #293's extracted card via the published contract. Built <i>on top of</i> #293's branch.</td>
+    <td><span class="tag t-red">deploy-delta fails</span></td>
+  </tr>
+</table>
+<p class="mut" style="font-size:13px;margin-top:8px">All three are <b>draft</b> with full bodies: residual-AC walk with evidence, self-answered ambiguities + rationale, honest run-vs-skipped test inventory, and customer-facing docs riding each branch. #293/#296 share one root cause for the red check (below) — their Jest/Prettier/lint all pass; Apex+Playwright <i>skip</i> because the deploy job gates them.</p>
+
+<h2>Delivered — infrastructure & process (the durable assets)</h2>
+<div class="two">
+  <div class="card"><h3>Skills</h3><p>
+  <code>/ecom-setup</code> — claim pool org → <code>setup-site.sh</code> → smoke-verify a working storefront. <code>/ecom-done</code> — definition-of-done gate (AC walk, prettier/lint/Jest, Apex+deploy-validate, ecom Playwright, the <b>experience-bundle + permissions contracts</b> for fresh-org survival, visual check, CI babysit, <code>/document</code>). Both uncommitted on <code>fable-project-as</code>.</p></div>
+  <div class="card"><h3>Context bucket</h3><p>The <code>Agents/</code> Obsidian tree: per-ticket reports (scope + validation + decisions + done evidence), domain <code>_lane.md</code> files, and <code>_shared/</code> for <code>orgs.md</code>, <code>contracts.md</code>, <code>blockers.md</code>, and an append-only <code>org-issues.md</code> troubleshooting log. Convention: write-own-file, append-only, escalate coin-flips.</p></div>
+  <div class="card"><h3>Validation methodology</h3><p>Run 0 (8 agents) caught that <b>5 of 7 tickets described already-shipped work</b> — building them as written would have re-implemented BMS-3929/4076/4171. Every shrink-scope verdict carries a cited "already shipped, do NOT rebuild" inventory in the ticket report.</p></div>
+  <div class="card"><h3>Manual learning log</h3><p>BMS-4258 was developed by hand and logged step-by-step (<code>BMS-4258-manual-run-log.md</code>) as the Experience Cloud replication template the build agents read before starting.</p></div>
+</div>
+
+<h2>Delivered — Jira restructuring</h2>
+<table>
+  <tr><th>Ticket</th><th>Action</th></tr>
+  <tr><td>BMS-3857</td><td>Closed <span class="tag t-mut">Won't Do</span> — duplicate umbrella of BMS-3920 (created 9 min apart, both restating the epic).</td></tr>
+  <tr><td>BMS-3920</td><td>Rescoped + retitled to the real remainder: <i>supplier allocation constraints &amp; case-pack rounding</i>.</td></tr>
+  <tr><td>BMS-5321 <span class="tag t-green">new</span></td><td>Split out the segmented-promo-banner scope (Sprint 4, Needs Refinement).</td></tr>
+  <tr><td>BMS-5322 <span class="tag t-green">new</span></td><td>Captures BMS-3932's deferred v2 scope (zone model, address validation, change-approval) — Backlog, blocked-by 3932.</td></tr>
+  <tr><td>BMS-3932</td><td>Scope decisions written into the description: zone model + address validation → v2; <b>no approval process in v1</b> (pending PO sign-off); <code>Account_Change_Request__c</code> flagged as net-new, not existing.</td></tr>
+</table>
+
+<h2>Where it stopped & why</h2>
+<div class="card"><p style="color:var(--ink)">The build fleet hit the <b>org monthly spend limit</b> mid-run (2026-06-12), killing 5 ticket agents at launch. A post-reset resume completed CAT-4054. The work then paused for the model sunset. <b>Honest accounting:</b> 4 human interventions total across the whole project (workflow args bug, two scope re-cuts, the 3932 PO rulings) — plus the spend-limit halt. No half-finished worktrees were left in a broken state; agents that died died before creating their worktree.</p></div>
+
+<h2>Remaining work</h2>
+<table>
+  <tr><th>Ticket</th><th>State</th><th>Next step</th></tr>
+  <tr><td>BMS-4051 <span class="mut">volume tiers + promos</span></td><td><span class="tag t-amber">worktree, 0 commits</span></td><td>Build the volume-tier <b>scaffold</b> (service seam + DTOs + stub-backed tests for the deferred ADR-0010 resolver); pull from existing promotions logic. Blocked on the sharing-rule fix for write-path tests.</td></tr>
+  <tr><td>BMS-3932 <span class="mut">self-service account</span></td><td><span class="tag t-amber">worktree, 0 commits</span></td><td>Build v1 per the locked scope decisions (address/contact edit, direct-write + notification, no approval). Coordinate with manual BMS-4258 on the shared wrapper/perm-set surface.</td></tr>
+  <tr><td>BMS-4052 <span class="mut">checkout + tax</span></td><td><span class="tag t-red">not started · needs human</span></td><td>FL/AL tax rules, pricing-lineage fields, per-warehouse vs per-account minimum all undefined. Build only the tax-resolution scaffold; escalate the rules.</td></tr>
+  <tr><td>BMS-3925 <span class="mut">catalog + promotions carousel</span></td><td><span class="tag t-mut">not started</span></td><td>Residual is a promotions carousel + hardcoded product-type-list cleanup. Pull from <code>ecomPromotions</code> / home carousel.</td></tr>
+  <tr><td>BMS-5321 <span class="mut">segmented banners</span></td><td><span class="tag t-mut">candidate, not lane-assigned</span></td><td>Refine first — flag: pre-auth login page can't segment by retailer group.</td></tr>
+</table>
+
+<h2>Blockers needing a human</h2>
+<ul>
+  <li><b>Community add-to-cart 400 on all pool orgs</b> (CART-4050) — <code>INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY</code> on <code>Account.Sales_Rep__c</code> (external users can't see internal Users; User OWD is Private). Fix = sharing rule <code>UserType=Standard → Read → AllCustomerPortalUsers</code>; auto-mode correctly refused the security-loosening deploy. <b>Blocks CART-4051/4052 write-path testing.</b> Full detail in <code>_shared/blockers.md</code>.</li>
+  <li><b>PR #293 / #296 deploy-delta CI failure</b> — the "Claim Org &amp; Deploy Delta" job fails, which skips Apex + Playwright. Needs diagnosis + a fix push on the 4053 branch (4054 inherits it).</li>
+  <li><b>CAT-4053 brand logo/color accent</b> — no brand field exists on <code>Item_Type__c</code>; product decision (new field vs derived vs drop).</li>
+  <li><b>BMS-4258 / pool orgs lack AccountContactRelation</b> — escalated to OHFY-CICD; affects multi-account features.</li>
+</ul>
+
+<h2>Live scratch orgs (do not release without confirming)</h2>
+<table>
+  <tr><th>Lane</th><th>Alias</th><th>Org Id</th><th>Status</th></tr>
+  <tr><td>Cart &amp; Checkout</td><td><code>ecom-cart</code></td><td>00DO200000LXLMX</td><td><span class="ok">site ready, smoke 4/4</span></td></tr>
+  <tr><td>Catalog &amp; Discovery</td><td><code>ecom-catalog</code></td><td>00DO500000mFXxh</td><td><span class="ok">site ready, smoke 4/4</span></td></tr>
+  <tr><td>Account &amp; Registration</td><td><code>ecom-account</code></td><td>00DEk00000iGQy7</td><td><span class="ok">site ready</span> <span class="mut">(reused from BMS-4258 manual run)</span></td></tr>
+</table>
+<p class="mut" style="font-size:13px">Scratch orgs expire; these were claimed 2026-06-11/12. Verify they're alive before resuming, or re-run lane setup (the setup prompts handle pre-claimed orgs gracefully).</p>
+
+<h2>How a successor resumes</h2>
+<ul>
+  <li><b>Source of truth</b>: <code>ORCHESTRATION_HANDOFF.md</code> (architecture, decisions, "Hold state &amp; resume") and <code>QUEST_NOTES.md</code> (evidence log) on branch <code>fable-project-as</code>; this report + the <code>Agents/</code> bucket in Obsidian.</li>
+  <li><b>First moves on resume</b>: (1) deploy the sharing-rule fix to unblock CART write paths; (2) fix the #293/#296 deploy-delta CI; (3) get the PO answers for BMS-4052 and confirm BMS-3932 v1 scope; (4) commit the two uncommitted skills so future worktrees inherit them.</li>
+  <li><b>Then</b>: re-launch the build script (saved under the session's <code>workflows/scripts/</code>) trimmed to the 4 remaining tickets, or run them by hand using the same lane orgs.</li>
+  <li><b>Caveat</b>: the <code>/document</code> skill ecom-auth fix made here was <b>superseded by upstream</b> (#298 added the storefront capture branch + <code>ecom</code> SKU officially) — use main's version.</li>
+</ul>
+
+<h2>What worked / what to keep</h2>
+<div class="two">
+  <div class="card"><h3 class="ok">Worked</h3><ul>
+    <li>Validation-before-build caught duplicate work that would have wasted the whole fleet.</li>
+    <li>Org-per-lane + sequential tickets — no org contention, clean parallelism.</li>
+    <li>The "already shipped, do NOT rebuild" inventory kept agents honest and scoped.</li>
+    <li>Agents escalated real coin-flips (tax rules, brand field, security deploy) instead of guessing.</li>
+    <li>One fully-green PR (#294) end-to-end with docs, hands-off.</li>
+  </ul></div>
+  <div class="card"><h3 class="warn">Friction</h3><ul>
+    <li>Spend limit is the hard ceiling — a 7-ticket fleet exhausted it in ~84 min.</li>
+    <li>Shared-worktree <code>.env</code> contention between lanes (logged in org-issues).</li>
+    <li>Pool orgs lack some features (AccountContactRelation, Twilio cred) vs the snapshot.</li>
+    <li>The cross-reference sharing bug is a real product gap surfaced by automation, not a test artifact.</li>
+  </ul></div>
+</div>
+
+<p class="foot">Sources: <code>git worktree list</code> + per-branch <code>log</code>; <code>gh pr list/checks</code> (#293/#294/#296); <code>Agents/_shared/{orgs,blockers,org-issues,contracts}.md</code>; <code>ORCHESTRATION_HANDOFF.md</code>; <code>QUEST_NOTES.md</code>. Personal planning artifact — not referenced in PRs/commits/repo docs. Build orchestration ran on Claude Fable 5 (sunset 2026-06).</p>
+
+</div></body>
+</html>

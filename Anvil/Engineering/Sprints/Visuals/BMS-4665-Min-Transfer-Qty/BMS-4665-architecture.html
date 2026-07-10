@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4665 — Architecture</title>
+<style>
+  :root {
+    --ink:#1f2733; --muted:#5b6677; --line:#e3e8ef; --paper:#f7f8fa; --card:#fff;
+    --cork:#2e4639; --cork-soft:#ecf2ee; --yellow:#f5c518; --yellow-soft:#fdf6dd;
+    --blue:#2a5d8f; --blue-soft:#e9f1f8; --red:#b3422f; --red-soft:#faeae6;
+    --purple:#5c4a8f; --purple-soft:#efecf8; --green:#2f7d4f; --green-soft:#e6f3ec;
+    --mono:"SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.55 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 28px 90px; }
+
+  header { background:var(--cork); color:#fff; padding:40px 28px 34px; border-bottom:6px solid var(--yellow); }
+  header .wrap { padding-bottom:0; }
+  header .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--yellow); text-transform:uppercase; margin:0 0 8px; }
+  header h1 { margin:0 0 8px; font-size:30px; letter-spacing:-0.5px; }
+  header p { margin:0; color:#c8d6cd; max-width:85ch; }
+  header .meta { margin-top:16px; font-family:var(--mono); font-size:12px; color:#9fb5a7; display:flex; gap:18px; flex-wrap:wrap; }
+  header .meta b { color:var(--yellow); font-weight:600; }
+
+  h2 { font-size:21px; margin:54px 0 4px; letter-spacing:-0.3px; display:flex; align-items:baseline; gap:10px; }
+  h2 .no { font-family:var(--mono); font-size:13px; color:var(--yellow); background:var(--cork); border-radius:4px; padding:2px 8px; }
+  .lede { color:var(--muted); margin:0 0 22px; max-width:92ch; }
+  .inline-code { font-family:var(--mono); font-size:12px; background:var(--card); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+  .fileref { font-family:var(--mono); font-size:10.5px; color:var(--muted); }
+
+  /* legend */
+  .legend { display:flex; gap:16px; flex-wrap:wrap; margin:14px 0 0; font-family:var(--mono); font-size:11px; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; color:var(--muted); }
+  .dot { width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  /* flow nodes */
+  .flow { display:flex; flex-direction:column; align-items:stretch; gap:0; }
+  .node { border:1.5px solid var(--line); border-radius:11px; background:var(--card); padding:13px 16px; position:relative; }
+  .node .t { font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .node .d { color:var(--muted); font-size:12.5px; margin-top:4px; }
+  .node .code { font-family:var(--mono); font-size:11.5px; color:var(--ink); margin-top:6px; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:6px 9px; white-space:pre-wrap; }
+  .node.ui { border-left:5px solid var(--blue); }
+  .node.dml { border-left:5px solid var(--yellow); background:var(--yellow-soft); }
+  .node.trig { border-left:5px solid var(--cork); }
+  .node.enf { border-left:5px solid var(--purple); }
+  .node.block { border-left:5px solid var(--red); background:var(--red-soft); }
+  .node.audit { border-left:5px solid var(--green); background:var(--green-soft); }
+  .node.pass { border-left:5px solid var(--green); }
+  .tag { font:600 10px/1 var(--mono); padding:3px 7px; border-radius:999px; }
+  .tag.ui { background:var(--blue-soft); color:var(--blue); }
+  .tag.trig { background:var(--cork-soft); color:var(--cork); }
+  .tag.enf { background:var(--purple-soft); color:var(--purple); }
+  .tag.red { background:var(--red-soft); color:var(--red); }
+  .tag.green { background:var(--green-soft); color:var(--green); }
+  .down { text-align:center; color:var(--muted); font-size:20px; line-height:1; padding:6px 0; }
+  .down small { display:block; font-family:var(--mono); font-size:10px; letter-spacing:.5px; }
+
+  /* two entry paths */
+  .entries { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .merge { text-align:center; color:var(--muted); font-family:var(--mono); font-size:11px; margin:8px 0 2px; }
+
+  /* data model */
+  .dm { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .obj { border:1.5px solid var(--line); border-radius:11px; background:var(--card); overflow:hidden; }
+  .obj.cfg { border-color:#e8d590; }
+  .obj h3 { margin:0; padding:10px 14px; font-size:12.5px; font-family:var(--mono); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .obj.cfg h3 { background:var(--yellow-soft); }
+  .obj.evt h3 { background:var(--green-soft); }
+  .obj.core h3 { background:var(--cork-soft); }
+  .obj h3 .pill { font:600 9px/1 var(--mono); padding:3px 6px; border-radius:999px; background:var(--cork); color:#fff; }
+  .obj ul { list-style:none; margin:0; padding:9px 14px 11px; }
+  .obj li { font-family:var(--mono); font-size:11px; padding:3px 0; display:flex; justify-content:space-between; gap:8px; color:var(--ink); }
+  .obj li .ty { color:var(--muted); white-space:nowrap; }
+  .obj li.key { background:var(--cork-soft); margin:0 -7px; padding:3px 7px; border-radius:4px; }
+  .obj li.new { background:var(--yellow-soft); margin:0 -7px; padding:3px 7px; border-radius:4px; }
+  .obj .foot { background:var(--paper); border-top:1px solid var(--line); padding:8px 14px; font-size:10.5px; color:var(--muted); font-family:var(--mono); }
+
+  /* steps */
+  .steps { counter-reset:s; display:flex; flex-direction:column; gap:10px; }
+  .step { display:grid; grid-template-columns:34px 1fr; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:13px 16px; }
+  .step::before { counter-increment:s; content:counter(s); font-family:var(--mono); font-weight:700; font-size:16px; color:var(--purple); background:var(--purple-soft); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+  .step .t { font-weight:600; }
+  .step .d { color:var(--muted); font-size:13px; margin-top:3px; }
+  .step.throwstep { border-left:4px solid var(--red); }
+  .step.throwstep::before { color:var(--red); background:var(--red-soft); }
+
+  /* tiers */
+  .tiers { display:flex; flex-direction:column; gap:10px; }
+  .tier { display:grid; grid-template-columns:150px 1fr; gap:14px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 14px; }
+  .tier .lbl { font-family:var(--mono); font-size:11px; font-weight:700; color:var(--cork); }
+  .tier .items { font-family:var(--mono); font-size:11.5px; color:var(--muted); }
+  .tier .items b { color:var(--ink); font-weight:600; }
+
+  .callout { background:var(--cork-soft); border:1px solid #cfe0d5; border-left:5px solid var(--cork); border-radius:11px; padding:16px 20px; margin-top:20px; }
+  .callout .h { font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cork); font-weight:700; margin-bottom:8px; }
+  .callout ul { margin:0; padding-left:18px; color:var(--muted); font-size:13px; }
+  .callout li { margin:4px 0; }
+
+  footer { margin-top:60px; padding-top:20px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--muted); }
+
+  /* join chain */
+  .erd { display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:16px; margin-bottom:18px; font-family:var(--mono); font-size:11.5px; }
+  .ent { border:1.5px solid var(--cork); border-radius:8px; padding:8px 12px; background:var(--cork-soft); color:var(--cork); font-weight:700; }
+  .ent.cfg { border-color:#e8d590; background:var(--yellow-soft); color:#7a6402; }
+  .ent.item { border-color:#cfe0d5; }
+  .rel { color:var(--muted); display:flex; flex-direction:column; align-items:center; }
+  .rel .k { color:var(--blue); font-weight:700; }
+  .rel .a { font-size:16px; line-height:1; }
+  .joins { display:flex; flex-direction:column; gap:0; }
+  .jbox { border:1.5px solid var(--line); border-radius:11px; background:var(--card); padding:12px 16px; }
+  .jbox .t { font-weight:700; font-size:13.5px; }
+  .jbox .d { color:var(--muted); font-size:12.5px; margin-top:3px; }
+  .jbox .code { font-family:var(--mono); font-size:11px; margin-top:7px; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:7px 10px; white-space:pre-wrap; }
+  .jbox.q { border-left:5px solid var(--blue); }
+  .jbox.k1 { border-left:5px solid var(--cork); }
+  .jbox.hot { border-left:5px solid var(--yellow); background:var(--yellow-soft); }
+  .jkey { text-align:center; padding:8px 0; }
+  .jkey .k { font-family:var(--mono); font-size:11px; background:var(--cork); color:#fff; border-radius:999px; padding:4px 13px; display:inline-block; }
+  .jkey .s { display:block; color:var(--muted); font-size:10px; margin-top:4px; font-family:var(--mono); letter-spacing:.3px; }
+
+  /* reference tables */
+  .tblwrap { overflow-x:auto; border:1px solid var(--line); border-radius:11px; background:var(--card); }
+  table.ref { border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px; }
+  table.ref th { text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); padding:10px 14px; border-bottom:1.5px solid var(--line); background:var(--paper); }
+  table.ref td { padding:9px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.ref tr:last-child td { border-bottom:0; }
+  table.ref .mono { font-family:var(--mono); font-size:11.5px; }
+  table.ref .grp td { background:var(--cork-soft); font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--cork); }
+  .rw { font:600 9.5px/1 var(--mono); padding:3px 6px; border-radius:999px; white-space:nowrap; }
+  .rw.read { background:var(--blue-soft); color:var(--blue); }
+  .rw.write { background:var(--yellow-soft); color:#9a7d0a; }
+  .rw.pub { background:var(--green-soft); color:var(--green); }
+  .rw.roll { background:var(--red-soft); color:var(--red); }
+
+  @media (max-width:860px){ .entries,.dm{ grid-template-columns:1fr; } .tier{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="eyebrow">BMS-4665 · Architecture · Gulf</p>
+    <h1>Minimum Transfer Quantity Thresholds — Whole Architecture</h1>
+    <p>How a Transfer Group commit gets gated end-to-end: the two entry paths that issue the status update, the trigger framework that dispatches it, the enforcement that converts unit-aware minimums to cases and blocks, and the rollback-proof audit trail that feeds reporting.</p>
+    <div class="meta">
+      <span>Packages <b>OHFY-Data-Model · OHFY-WMS · OHFY-WMS-UI</b></span>
+      <span>PR <b>#355</b></span>
+      <span>Updated <b>2026-06-24</b></span>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--blue)"></i> UI / entry</span>
+      <span><i class="dot" style="background:var(--yellow)"></i> DML</span>
+      <span><i class="dot" style="background:var(--cork)"></i> trigger framework</span>
+      <span><i class="dot" style="background:var(--purple)"></i> enforcement</span>
+      <span><i class="dot" style="background:var(--red)"></i> block / throw</span>
+      <span><i class="dot" style="background:var(--green)"></i> audit / pass</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. END TO END -->
+  <h2><span class="no">01</span> End-to-end execution</h2>
+  <p class="lede">Two different surfaces can advance a group <b>New → In Progress</b>, but they <b>converge on the same UPDATE DML</b> — and the enforcement lives downstream of that DML, so it fires no matter who triggered it.</p>
+
+  <div class="entries">
+    <div class="node ui">
+      <div class="t"><span class="tag ui">PATH A</span> Record page / inline edit</div>
+      <div class="d">User edits <span class="inline-code">Status__c</span> New → In&nbsp;Progress on the Transfer Group and Saves. No controller, no LWC.</div>
+      <div class="code">standard platform UPDATE on
+ohfy__Transfer_Group__c</div>
+    </div>
+    <div class="node ui">
+      <div class="t"><span class="tag ui">PATH B</span> "Update Transfer" LWC</div>
+      <div class="d"><span class="inline-code">locationTransfer</span> → <span class="inline-code">WMS_UI_Wrappers.createTransfers</span> → <span class="inline-code">LocationTransferController.createTransfers</span>, which sets Status and upserts.</div>
+      <div class="code">DmlService.doUpsert(transferGroup)
+// LocationTransferController.cls:96–99</div>
+    </div>
+  </div>
+
+  <div class="merge">▼ &nbsp; both paths issue the same DML &nbsp; ▼</div>
+
+  <div class="flow">
+    <div class="node dml">
+      <div class="t">⚙️ UPDATE DML — <span class="inline-code">ohfy__Transfer_Group__c</span> (Status__c → In Progress)</div>
+      <div class="d">Path B additionally requires real inventory at the origin (its own pre-check) — that's the "no items in this location" warning. Path A skips straight to the DML.</div>
+    </div>
+    <div class="down">↓</div>
+    <div class="node trig">
+      <div class="t"><span class="tag trig">TRIGGER</span> TransferGroupTrigger (after update)</div>
+      <div class="d">One-liner — delegates to the framework.</div>
+      <div class="code">new TriggerHandler().run();   <span class="fileref">// TransferGroupTrigger.trigger:10</span></div>
+    </div>
+    <div class="down">↓</div>
+    <div class="node trig">
+      <div class="t"><span class="tag trig">FRAMEWORK</span> TriggerHandler.run → dispatch AFTER_UPDATE</div>
+      <div class="d">Reads enabled methods from <span class="inline-code">Trigger_Configuration__mdt</span>; <span class="inline-code">TriggerServiceFactory</span> instantiates <span class="inline-code">TransferGroupTriggerService</span>.</div>
+      <div class="code">TriggerHandler.run():62 → AfterUpdate:196</div>
+    </div>
+    <div class="down">↓</div>
+    <div class="node trig">
+      <div class="t"><span class="tag trig">SERVICE</span> TransferGroupTriggerService.afterUpdate</div>
+      <div class="d">Runs enabled methods in order. <b>enforceMinTransferQuantity</b> first → then updateTransferAdjustments → then updateDockStatus. A throw in the first stops the rest.</div>
+      <div class="code">isEnabled('enforceMinTransferQuantity') → call   <span class="fileref">// afterUpdate():62</span></div>
+    </div>
+    <div class="down">↓</div>
+    <div class="node enf">
+      <div class="t"><span class="tag enf">ENFORCEMENT</span> enforceMinTransferQuantity()</div>
+      <div class="d">The BMS-4665 logic (see §03). Filters to New→In&nbsp;Progress, resolves the threshold per item/lane, converts the minimum to cases, checks minimum + whole-layer/pallet multiple.</div>
+    </div>
+    <div class="down">↓<small>ON VIOLATION</small></div>
+    <div class="node block">
+      <div class="t"><span class="tag red">BLOCK</span> publish event, then throw → full rollback</div>
+      <div class="d">Publishes <span class="inline-code">Transfer_Threshold_Block__e</span> (PublishImmediately) <b>before</b> throwing, then throws <span class="inline-code">TransferGroupTriggerServiceException</span>. The whole save rolls back; the record stays New; the user sees the message.</div>
+      <div class="code">"... item Boats Float: 1/2 BBL moves 5 case(s) but the minimum is 10 case(s) (short by 5 case(s))."
+<span class="fileref">// enforceMinTransferQuantity():~283 (throw)</span></div>
+    </div>
+    <div class="down">↓<small>ON PASS</small></div>
+    <div class="node pass">
+      <div class="t"><span class="tag green">PASS</span> commit proceeds</div>
+      <div class="d">No violation → remaining trigger methods run, Status becomes In Progress, save succeeds.</div>
+    </div>
+  </div>
+
+  <!-- 2. DATA MODEL -->
+  <h2><span class="no">02</span> Data model</h2>
+  <p class="lede">One new config object, two new audit shapes (an event + a record), and the existing transfer objects + the item conversion factors the minimum math relies on.</p>
+  <div class="dm">
+    <div class="obj cfg">
+      <h3>Transfer_Threshold__c <span class="pill">NEW · cfg</span></h3>
+      <ul>
+        <li class="key"><span>Item__c</span><span class="ty">Lookup</span></li>
+        <li><span>Origin_Location__c</span><span class="ty">Lookup · null=any</span></li>
+        <li><span>Destination_Location__c</span><span class="ty">Lookup · null=any</span></li>
+        <li class="new"><span>Min_Quantity__c</span><span class="ty">Number</span></li>
+        <li class="new"><span>Quantity_Unit__c</span><span class="ty">Cases/Layers/Pallets</span></li>
+        <li><span>Enforce_Layer_Pallet_Rounding__c</span><span class="ty">Checkbox</span></li>
+        <li><span>Is_Active__c</span><span class="ty">Checkbox</span></li>
+        <li><span>Notes__c / External_Id__c</span><span class="ty">Text</span></li>
+      </ul>
+      <div class="foot">the "rule" an admin sets · VR: Min_Quantity &gt; 0</div>
+    </div>
+    <div class="obj core">
+      <h3>Transfer_Group__c / Transfer__c <span class="pill">existing</span></h3>
+      <ul>
+        <li class="key"><span>TG.Status__c</span><span class="ty">New/InProg/Complete</span></li>
+        <li><span>TG.Origin_Location__c</span><span class="ty">Lookup</span></li>
+        <li><span>TG.New_Location__c</span><span class="ty">Lookup (dest)</span></li>
+        <li><span>TG.Use_Pallets_And_Layers__c</span><span class="ty">Checkbox</span></li>
+        <li class="key"><span>Transfer__c.Transfer_Quantity_Cases__c</span><span class="ty">Number</span></li>
+        <li><span>Item__r.Cases_Per_Layer__c</span><span class="ty">factor</span></li>
+        <li><span>Item__r.Cases_Per_Pallet__c</span><span class="ty">factor</span></li>
+      </ul>
+      <div class="foot">what we measure + the unit-conversion factors</div>
+    </div>
+    <div class="obj evt">
+      <h3>Block__e → Event__c <span class="pill">NEW · audit</span></h3>
+      <ul>
+        <li class="new"><span>Transfer_Threshold_Block__e</span><span class="ty">Platform Event</span></li>
+        <li><span>· Transfer_Group_Id__c</span><span class="ty">Text</span></li>
+        <li><span>· Item_Id__c</span><span class="ty">Text</span></li>
+        <li><span>· Configured_Min_Case_Quantity__c</span><span class="ty">Number</span></li>
+        <li><span>· Attempted / Shortfall / Event_Type</span><span class="ty">—</span></li>
+        <li class="new"><span>Transfer_Threshold_Event__c</span><span class="ty">durable row</span></li>
+      </ul>
+      <div class="foot">event survives rollback → subscriber writes the record</div>
+    </div>
+  </div>
+
+  <!-- 3. ENFORCEMENT INTERNALS -->
+  <h2><span class="no">03</span> Inside <span style="font-family:var(--mono);font-size:15px;">enforceMinTransferQuantity()</span></h2>
+  <p class="lede">Bulk-safe: two queries, no SOQL in loops. <span class="fileref">OHFY-WMS/.../triggerServices/transferGroup/TransferGroupTriggerService.cls</span></p>
+  <div class="steps">
+    <div class="step"><div><div class="t">Filter to the commit point</div><div class="d">Keep only groups crossing <b>New → In Progress</b> (old=New, new=In Progress). Empty → return early.</div></div></div>
+    <div class="step"><div><div class="t">Query 1 — the lines</div><div class="d"><span class="inline-code">Transfer__c</span> on the committing groups, incl. <span class="inline-code">Item__r.Cases_Per_Layer__c</span> / <span class="inline-code">Cases_Per_Pallet__c</span>. Sum cases per (group, item).</div></div></div>
+    <div class="step"><div><div class="t">Query 2 — active thresholds</div><div class="d"><span class="inline-code">Transfer_Threshold__c</span> where <span class="inline-code">Item__c IN :items AND Is_Active__c=true</span>. Grouped by item.</div></div></div>
+    <div class="step"><div><div class="t">Resolve the applicable threshold</div><div class="d"><span class="inline-code">resolveApplicableThreshold()</span> — most-specific lane wins (exact &gt; one-sided &gt; global); ties → strictest (highest min).</div></div></div>
+    <div class="step"><div><div class="t">Convert minimum to cases</div><div class="d"><span class="inline-code">casesPerUnit()</span>: Cases→1, Layers→Cases_Per_Layer, Pallets→Cases_Per_Pallet. <b>Missing factor → skip this item</b> (not blocked). <span class="inline-code">minCases = Min_Quantity × casesPerUnit</span>.</div></div></div>
+    <div class="step"><div><div class="t">Check minimum</div><div class="d">If <span class="inline-code">totalCases &lt; minCases</span> → violation (names item, configured min in its unit + case-equiv, shortfall).</div></div></div>
+    <div class="step"><div><div class="t">Check rounding (pallet/layer mode)</div><div class="d">Else if <span class="inline-code">Use_Pallets_And_Layers__c</span> &amp; <span class="inline-code">Enforce_Layer_Pallet_Rounding__c</span> → <span class="inline-code">isWholeMultiple(totalCases, casesPerUnit)</span> must hold, else violation.</div></div></div>
+    <div class="step throwstep"><div><div class="t">Publish audit event, then throw</div><div class="d">Any violations → <span class="inline-code">EventBus.publish</span> the <span class="inline-code">Block__e</span> events (PublishImmediately), then throw → entire transaction rolls back.</div></div></div>
+  </div>
+
+  <!-- 3.5 HOW IT RESOLVES -->
+  <h2><span class="no">03·5</span> How it knows which thresholds to check — the joins</h2>
+  <p class="lede">The enforcement never starts from items. It starts from the <b>committing groups</b>, walks down to their child <span class="inline-code">Transfer__c</span> lines (the link is the <span class="inline-code">Transfer__c.Transfer_Group__c</span> lookup), reads each line's <span class="inline-code">Item__c</span>, then pulls active thresholds <b>keyed by those item ids</b> and matches them to the group's <b>lane</b>.</p>
+
+  <div class="erd">
+    <span class="ent">Transfer_Group__c</span>
+    <span class="rel"><span class="k">Id ← Transfer_Group__c</span><span class="a">▶</span><span>1 : many</span></span>
+    <span class="ent">Transfer__c <small>(line)</small></span>
+    <span class="rel"><span class="k">Item__c</span><span class="a">▶</span><span>lookup</span></span>
+    <span class="ent item">Item__c <small>(factors)</small></span>
+    <span class="rel"><span class="k">Item__c</span><span class="a">▶</span><span>+ lane match</span></span>
+    <span class="ent cfg">Transfer_Threshold__c</span>
+  </div>
+
+  <div class="joins">
+    <div class="jbox k1">
+      <div class="t">① Start: the committing groups (from Trigger context)</div>
+      <div class="d">Compare <span class="inline-code">Trigger.new</span> vs <span class="inline-code">Trigger.old</span>; keep only groups where <b>old Status = New</b> and <b>new Status = In Progress</b>. Their Ids become the anchor.</div>
+      <div class="code">Set&lt;Id&gt; groupIds = { groups crossing New → In Progress }</div>
+    </div>
+    <div class="jkey"><span class="k">▼ join on Transfer__c.Transfer_Group__c = Group.Id</span><span class="s">this lookup is HOW it reaches the related transfer items</span></div>
+    <div class="jbox q">
+      <div class="t">② SOQL 1 — pull the related transfer lines (the "items")</div>
+      <div class="d">The child <span class="inline-code">Transfer__c</span> records of those groups. Each line carries its <span class="inline-code">Item__c</span>, the moved <span class="inline-code">Transfer_Quantity_Cases__c</span>, and the item's conversion factors via the relationship.</div>
+      <div class="code">SELECT Item__c, Item__r.Name, Item__r.Cases_Per_Layer__c,
+       Item__r.Cases_Per_Pallet__c, Transfer_Group__c, Transfer_Quantity_Cases__c
+FROM Transfer__c WHERE Transfer_Group__c IN :groupIds</div>
+    </div>
+    <div class="jkey"><span class="k">▼ collect line.Item__c → Set&lt;Id&gt; itemIds</span></div>
+    <div class="jbox q">
+      <div class="t">③ SOQL 2 — pull active thresholds for exactly those items</div>
+      <div class="d">Keyed by the item ids gathered from the lines. Inactive rows are filtered out. Result grouped into <span class="inline-code">thresholdsByItem</span>.</div>
+      <div class="code">SELECT Item__c, Origin_Location__c, Destination_Location__c,
+       Min_Quantity__c, Quantity_Unit__c, Enforce_Layer_Pallet_Rounding__c
+FROM Transfer_Threshold__c WHERE Item__c IN :itemIds AND Is_Active__c = true</div>
+    </div>
+    <div class="jkey"><span class="k">▼ for each (group, item): match by lane</span><span class="s">resolveApplicableThreshold()</span></div>
+    <div class="jbox hot">
+      <div class="t">④ Lane match — pick the applicable threshold</div>
+      <div class="d">Among that item's candidates, keep those whose <span class="inline-code">Origin_Location__c</span> / <span class="inline-code">Destination_Location__c</span> are <b>null (wildcard)</b> or <b>equal the group's</b> <span class="inline-code">Origin_Location__c</span> / <span class="inline-code">New_Location__c</span>. Most-specific wins; ties → strictest (highest min).</div>
+      <div class="code">originOk  = t.Origin_Location__c == null || == group.Origin_Location__c
+destOk    = t.Destination_Location__c == null || == group.New_Location__c
+specificity = (originSet?1:0) + (destSet?1:0)   // higher wins; tie → higher Min_Quantity</div>
+    </div>
+    <div class="jkey"><span class="k">▼ compare</span></div>
+    <div class="jbox">
+      <div class="t">⑤ Convert &amp; check (per group+item)</div>
+      <div class="d">Sum cases for that (group, item). <span class="inline-code">casesPerUnit()</span> turns the unit into cases via the item factors (missing factor → <b>skip</b>). Block if <span class="inline-code">totalCases &lt; Min_Quantity × casesPerUnit</span>, or — in pallet/layer mode with rounding on — if it isn't a whole multiple.</div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:18px;">
+    <div class="h">So "how does it know to check the related transfer items?"</div>
+    <ul>
+      <li>It doesn't iterate items globally — it <b>queries down the <span class="inline-code">Transfer__c.Transfer_Group__c</span> lookup</b> (step ②) to get only the lines on the committing groups.</li>
+      <li>Each line's <span class="inline-code">Item__c</span> drives the <b>second query</b> (step ③) — thresholds are fetched only for items actually on the transfer.</li>
+      <li>The <b>lane</b> (group Origin / New_Location vs threshold Origin / Destination) decides <i>which</i> threshold applies (step ④).</li>
+      <li>All of it is <b>set-based / bulk-safe</b> — two queries total, no SOQL inside the per-group or per-item loops.</li>
+    </ul>
+  </div>
+
+  <!-- 4. AUDIT / ROLLBACK -->
+  <h2><span class="no">04</span> The rollback-proof audit trail</h2>
+  <p class="lede">The clever bit: the block <b>throws</b>, which rolls back the whole transaction — so a normal <span class="inline-code">insert</span> of an audit row would vanish with it. A <span class="inline-code">PublishImmediately</span> platform event is delivered <b>outside</b> the rolling-back transaction.</p>
+  <div class="flow">
+    <div class="node enf"><div class="t">enforceMinTransferQuantity detects violation(s)</div></div>
+    <div class="down">↓</div>
+    <div class="node audit"><div class="t"><span class="tag green">PUBLISH</span> EventBus.publish( Transfer_Threshold_Block__e )</div><div class="d">PublishImmediately → committed independently of the doomed transaction.</div></div>
+    <div class="down">↓</div>
+    <div class="node block"><div class="t"><span class="tag red">THROW</span> TransferGroupTriggerServiceException → rollback</div><div class="d">Status change reverts; user sees the message.</div></div>
+    <div class="down">↓ <small>EVENT DELIVERED SEPARATELY</small></div>
+    <div class="node audit"><div class="t"><span class="tag green">SUBSCRIBER</span> TransferThresholdBlockTriggerService → TransferThresholdEventHandler</div><div class="d">Materialises each event into a durable <span class="inline-code">Transfer_Threshold_Event__c</span> row (Block · item · configured min · attempted · shortfall).</div></div>
+    <div class="down">↓</div>
+    <div class="node pass"><div class="t">📊 Reporting source for BMS-4667</div><div class="d">Blocked-commit counts by item / lane / warehouse; coverage gaps. Same <span class="inline-code">Log__e</span> survive-the-rollback pattern used elsewhere in the repo.</div></div>
+  </div>
+
+  <!-- 5. WHERE IT LIVES -->
+  <h2><span class="no">05</span> Where it lives (package tiers)</h2>
+  <div class="tiers">
+    <div class="tier"><div class="lbl">Tier 0 · Data-Model</div><div class="items"><b>Transfer_Threshold__c</b> (+ VR), <b>Transfer_Threshold_Event__c</b>, <b>Transfer_Threshold_Block__e</b>, Item factor fields</div></div>
+    <div class="tier"><div class="lbl">Tier 2 · Platform</div><div class="items">TriggerHandler · TriggerServiceFactory · Trigger_Configuration__mdt (framework dispatch)</div></div>
+    <div class="tier"><div class="lbl">Tier 3 · WMS</div><div class="items"><b>TransferGroupTriggerService.enforceMinTransferQuantity</b> · TransferThresholdEventHandler · TransferThresholdBlockTriggerService</div></div>
+    <div class="tier"><div class="lbl">Tier 4 · WMS-UI</div><div class="items">locationTransfer LWC · WMS_UI_Wrappers · LocationTransferController (Path B only — issues the status DML)</div></div>
+  </div>
+
+  <!-- 6. CLASSES & FUNCTIONS -->
+  <h2><span class="no">06</span> Classes &amp; functions pulled</h2>
+  <p class="lede">Every class/method touched from the status update through the block and the audit write, in call order.</p>
+  <div class="tblwrap">
+    <table class="ref">
+      <thead><tr><th>Class</th><th>Function / member</th><th>Pkg</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="4">Entry — Path B only (LWC). Path A is a plain record-page save, no Apex of its own.</td></tr>
+        <tr><td class="mono">locationTransfer (LWC)</td><td class="mono">createTransfers({...})</td><td>WMS-UI</td><td>user submits the modal</td></tr>
+        <tr><td class="mono">WMS_UI_Wrappers</td><td class="mono">createTransfers()</td><td>WMS-UI</td><td>@AuraEnabled facade</td></tr>
+        <tr><td class="mono">LocationTransferController</td><td class="mono">createTransfers() <span class="fileref">:96–99</span></td><td>WMS</td><td>sets Status, issues the upsert</td></tr>
+
+        <tr class="grp"><td colspan="4">Trigger framework (fires for BOTH paths)</td></tr>
+        <tr><td class="mono">TransferGroupTrigger</td><td class="mono">(after update) → run() <span class="fileref">:10</span></td><td>WMS</td><td>one-liner</td></tr>
+        <tr><td class="mono">TriggerHandler</td><td class="mono">run() :62 · AfterUpdate :196 · isEnabled()</td><td>PLTFM</td><td>dispatch by operationType</td></tr>
+        <tr><td class="mono">TriggerServiceFactory</td><td class="mono">(resolve service via CMDT)</td><td>PLTFM</td><td>instantiate the service</td></tr>
+        <tr><td class="mono">ContextManager</td><td class="mono">getInstance() · pushContext()</td><td>Utilities</td><td>operation context</td></tr>
+
+        <tr class="grp"><td colspan="4">Enforcement — TransferGroupTriggerService (WMS)</td></tr>
+        <tr><td class="mono">TransferGroupTriggerService</td><td class="mono">afterUpdate() <span class="fileref">:62</span></td><td>WMS</td><td>calls the enabled methods</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">enforceMinTransferQuantity()</td><td>WMS</td><td>the BMS-4665 gate</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">resolveApplicableThreshold()</td><td>WMS</td><td>most-specific lane, ties→strictest</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">casesPerUnit()</td><td>WMS</td><td>unit→cases factor (null=skip)</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">isWholeMultiple()</td><td>WMS</td><td>layer/pallet multiple check</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">describeMinimum() · unitLabel()</td><td>WMS</td><td>build the block message</td></tr>
+        <tr><td class="mono">↳</td><td class="mono">buildThresholdEvent()</td><td>WMS</td><td>assemble the Block__e</td></tr>
+
+        <tr class="grp"><td colspan="4">Shared services invoked</td></tr>
+        <tr><td class="mono">QueryService</td><td class="mono">newBuilder().filters().build().execute()</td><td>Utilities</td><td>the 2 reads (bulk-safe)</td></tr>
+        <tr><td class="mono">AccessLevelResolver</td><td class="mono">getDefaultAccessLevel() (implicit)</td><td>Utilities</td><td>USER/SYSTEM mode default</td></tr>
+        <tr><td class="mono">EventBus</td><td class="mono">publish(List&lt;Block__e&gt;)</td><td>platform</td><td>PublishImmediately audit</td></tr>
+        <tr><td class="mono">U_ParseErrorMessage</td><td class="mono">wrapErrorMessage()</td><td>WMS</td><td>format the thrown message</td></tr>
+
+        <tr class="grp"><td colspan="4">Audit subscriber (separate transaction, after the rollback)</td></tr>
+        <tr><td class="mono">TransferThresholdBlockTrigger</td><td class="mono">(after insert) → run()</td><td>WMS</td><td>platform-event subscriber</td></tr>
+        <tr><td class="mono">TransferThresholdBlockTriggerService</td><td class="mono">afterInsert()</td><td>WMS</td><td>routes to the handler</td></tr>
+        <tr><td class="mono">TransferThresholdEventHandler</td><td class="mono">handle()</td><td>WMS</td><td>maps event → record</td></tr>
+        <tr><td class="mono">DmlService</td><td class="mono">doInsert(events)</td><td>Utilities</td><td>writes the audit row</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7. OBJECTS & FIELDS -->
+  <h2><span class="no">07</span> Objects &amp; fields manipulated</h2>
+  <p class="lede"><span class="rw read">READ</span> queried/compared &nbsp; <span class="rw write">WRITE</span> DML target &nbsp; <span class="rw roll">ROLLED BACK</span> reverted on block &nbsp; <span class="rw pub">PUBLISHED</span> platform event</p>
+  <div class="tblwrap">
+    <table class="ref">
+      <thead><tr><th>Object</th><th>Fields</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Transfer_Group__c</td><td class="mono">Status__c (New→In Progress)</td><td><span class="rw write">WRITE</span> <span class="rw roll">ROLLED BACK</span></td></tr>
+        <tr><td class="mono">Transfer_Group__c</td><td class="mono">Status__c (old+new), Origin_Location__c, New_Location__c, Use_Pallets_And_Layers__c, Name, Id</td><td><span class="rw read">READ</span></td></tr>
+        <tr><td class="mono">Transfer__c</td><td class="mono">Item__c, Transfer_Group__c, Transfer_Quantity_Cases__c</td><td><span class="rw read">READ</span></td></tr>
+        <tr><td class="mono">Item__c (via Transfer__r)</td><td class="mono">Name, Cases_Per_Layer__c, Cases_Per_Pallet__c</td><td><span class="rw read">READ</span></td></tr>
+        <tr><td class="mono">Transfer_Threshold__c</td><td class="mono">Item__c, Origin_Location__c, Destination_Location__c, Min_Quantity__c, Quantity_Unit__c, Enforce_Layer_Pallet_Rounding__c, Is_Active__c (filter)</td><td><span class="rw read">READ</span></td></tr>
+        <tr><td class="mono">Trigger_Configuration__mdt</td><td class="mono">enabled-method config (framework)</td><td><span class="rw read">READ</span></td></tr>
+        <tr><td class="mono">Transfer_Threshold_Block__e</td><td class="mono">Transfer_Group_Id__c, Item_Id__c, Configured_Min_Case_Quantity__c, Attempted_Case_Quantity__c, Shortfall__c, Event_Type__c</td><td><span class="rw pub">PUBLISHED</span></td></tr>
+        <tr><td class="mono">Transfer_Threshold_Event__c</td><td class="mono">Event_Type__c, Configured_Min_Case_Quantity__c, Attempted_Case_Quantity__c, Shortfall__c, Item__c, Transfer_Group__c, External_Id__c</td><td><span class="rw write">WRITE</span> <span class="fileref">(subscriber, survives rollback)</span></td></tr>
+        <tr class="grp"><td colspan="3">On PASS only — other afterUpdate methods (not threshold logic), shown for completeness</td></tr>
+        <tr><td class="mono">Inventory_Adjustment__c · Inventory__c</td><td class="mono">status / Is_Force_Update__c</td><td><span class="rw write">WRITE</span> <span class="fileref">updateTransferAdjustments</span></td></tr>
+        <tr><td class="mono">Location__c</td><td class="mono">Dock_Status__c</td><td><span class="rw write">WRITE</span> <span class="fileref">updateDockStatus</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="h">⛳ The one thing to remember</div>
+    <ul>
+      <li><b>Enforcement is downstream of the DML, not the UI.</b> Record-page edit (Path A) and the LWC (Path B) converge on the same UPDATE → same <span class="inline-code">afterUpdate</span> → same <span class="inline-code">enforceMinTransferQuantity</span>. There is no bypass path.</li>
+      <li><b>The minimum is unit-aware</b> (Cases/Layers/Pallets) and converts to cases via the item's factors; rounding enforces whole-layer/pallet multiples in pallet/layer mode.</li>
+      <li><b>Hard block for v1</b> — no override path (deferred to phase 2). Open product question: who maintains the config records and via what surface.</li>
+      <li><b>Verify it</b> by editing <span class="inline-code">Status__c</span> New → In Progress on a seeded <span class="inline-code">test:mtq-tg-*</span> group (the LWC path needs origin inventory the seed doesn't create).</li>
+    </ul>
+  </div>
+
+  <footer>
+    BMS-4665 · Minimum Transfer Quantity Thresholds — architecture · reflects PR #355, 2026-06-24 ·
+    OHFY-Data-Model · OHFY-WMS · OHFY-WMS-UI · ohanafy.atlassian.net/browse/BMS-4665
+  </footer>
+
+</div>
+</body>
+</html>

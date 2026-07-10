@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Case for a Front End — Minimum Transfer Quantity Thresholds</title>
+<style>
+  :root{
+    --ink:#1f2733; --muted:#5b6677; --line:#e3e8ef; --paper:#f7f8fa; --card:#fff;
+    --cork:#2e4639; --cork-soft:#ecf2ee; --yellow:#f5c518; --yellow-soft:#fdf6dd;
+    --blue:#2a5d8f; --blue-soft:#e9f1f8; --red:#b3422f; --red-soft:#faeae6;
+    --green:#2f7d4f; --green-soft:#e6f3ec; --purple:#5c4a8f; --purple-soft:#efecf8;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 28px 90px;}
+  header{background:var(--cork);color:#fff;padding:44px 28px 36px;border-bottom:6px solid var(--yellow);}
+  header .wrap{padding-bottom:0;}
+  header .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--yellow);text-transform:uppercase;margin:0 0 10px;}
+  header h1{margin:0 0 10px;font-size:30px;letter-spacing:-0.5px;max-width:24ch;}
+  header p{margin:0;color:#c8d6cd;max-width:80ch;font-size:16px;}
+  header .meta{margin-top:16px;font-family:var(--mono);font-size:12px;color:#9fb5a7;display:flex;gap:18px;flex-wrap:wrap;}
+  header .meta b{color:var(--yellow);}
+
+  h2{font-size:22px;margin:56px 0 6px;display:flex;align-items:baseline;gap:10px;letter-spacing:-0.3px;}
+  h2 .no{font-family:var(--mono);font-size:13px;color:var(--yellow);background:var(--cork);border-radius:4px;padding:2px 8px;}
+  .lede{color:var(--muted);margin:0 0 22px;max-width:92ch;}
+  .inline-code{font-family:var(--mono);font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1px 5px;}
+
+  .tldr{background:var(--yellow-soft);border:1px solid #e8d590;border-left:5px solid var(--yellow);border-radius:12px;padding:18px 22px;margin-top:26px;}
+  .tldr .h{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7a6402;font-weight:700;margin-bottom:8px;}
+  .tldr p{margin:0;font-size:15.5px;}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+  .card.have{border-left:5px solid var(--green);}
+  .card.gap{border-left:5px solid var(--red);}
+  .card h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px;}
+  .card.have h3{color:var(--green);} .card.gap h3{color:var(--red);}
+  .card ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13.5px;}
+  .card li{margin:5px 0;}
+
+  .pain{display:flex;flex-direction:column;gap:12px;}
+  .prow{display:grid;grid-template-columns:160px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 16px;}
+  .prow .who{font-weight:700;font-size:13.5px;}
+  .prow .who small{display:block;color:var(--muted);font-weight:400;font-family:var(--mono);font-size:10.5px;margin-top:3px;}
+  .prow .now{font-size:13.5px;}
+  .prow .now .tag{font:600 10px/1 var(--mono);background:var(--red-soft);color:var(--red);padding:3px 7px;border-radius:999px;margin-right:6px;}
+
+  /* mockups */
+  .mock{border:1.5px solid var(--cork);border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 2px 10px rgba(31,39,51,.07);margin-bottom:8px;}
+  .mock .bar{background:var(--cork);color:#fff;padding:9px 14px;font-family:var(--mono);font-size:12px;display:flex;align-items:center;gap:8px;}
+  .mock .bar .dots{display:flex;gap:5px;} .mock .bar .dots i{width:9px;height:9px;border-radius:50%;background:#5c7567;display:inline-block;}
+  .mock .body{padding:16px 18px;}
+  .cap{font-family:var(--mono);font-size:11px;color:var(--muted);margin:0 0 18px;}
+
+  /* threshold manager mock */
+  .tm-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;}
+  .tbl{border:1px solid var(--line);border-radius:9px;overflow:hidden;font-size:12px;}
+  .tbl .th,.tbl .tr{display:grid;grid-template-columns:1.4fr 1.4fr 0.7fr 0.7fr 0.5fr;gap:6px;padding:8px 10px;align-items:center;}
+  .tbl .th{background:var(--paper);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);border-bottom:1px solid var(--line);}
+  .tbl .tr{border-bottom:1px solid var(--line);}
+  .tbl .tr:last-child{border-bottom:0;}
+  .chiplet{font:600 9.5px/1 var(--mono);padding:3px 6px;border-radius:999px;}
+  .chiplet.layers{background:var(--blue-soft);color:var(--blue);}
+  .chiplet.pallets{background:var(--purple-soft);color:var(--purple);}
+  .chiplet.cases{background:var(--cork-soft);color:var(--cork);}
+  .chiplet.on{background:var(--green-soft);color:var(--green);}
+  .chiplet.off{background:var(--paper);color:var(--muted);border:1px solid var(--line);}
+  .editor{border:1px solid var(--line);border-radius:9px;padding:14px;background:var(--paper);}
+  .editor .fld{margin-bottom:10px;}
+  .editor .fld label{display:block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:3px;}
+  .editor .inp{background:#fff;border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:12.5px;}
+  .editor .seg{display:flex;gap:6px;}
+  .editor .seg span{flex:1;text-align:center;font-size:11.5px;padding:6px 0;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);}
+  .editor .seg span.sel{background:var(--cork);color:#fff;border-color:var(--cork);font-weight:600;}
+  .preview{background:var(--yellow-soft);border:1px solid #e8d590;border-radius:7px;padding:9px 11px;font-size:12.5px;margin-top:4px;}
+  .preview b{color:#7a6402;}
+
+  .gapbanner{background:var(--red-soft);border:1px solid #eccabf;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--red);margin-bottom:12px;}
+
+  /* dashboard mock */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{border:1px solid var(--line);border-radius:9px;padding:12px;text-align:center;}
+  .kpi .n{font-size:24px;font-weight:800;letter-spacing:-1px;}
+  .kpi .l{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px;}
+  .kpi.red .n{color:var(--red);} .kpi.blue .n{color:var(--blue);} .kpi.green .n{color:var(--green);} .kpi.amber .n{color:#b8860b;}
+  .bars{border:1px solid var(--line);border-radius:9px;padding:14px;}
+  .bars .bh{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:10px;}
+  .bar2{display:grid;grid-template-columns:150px 1fr 38px;gap:10px;align-items:center;margin:7px 0;font-size:12px;}
+  .bar2 .track{background:var(--paper);border-radius:5px;height:14px;overflow:hidden;}
+  .bar2 .fill{height:100%;background:var(--blue);border-radius:5px;}
+  .bar2 .v{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;}
+
+  /* inline hint mock */
+  .ihint{border:1px dashed #c5dcee;background:var(--blue-soft);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--blue);display:flex;gap:10px;align-items:flex-start;}
+  .ihint .ic{font-size:16px;line-height:1;}
+
+  .val{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .vrow{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .vrow .vh{font-weight:700;font-size:13.5px;margin-bottom:4px;}
+  .vrow .vd{color:var(--muted);font-size:13px;}
+
+  .phase{display:flex;flex-direction:column;gap:10px;}
+  .ph{display:grid;grid-template-columns:84px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 16px;align-items:center;}
+  .ph .tag{font:700 11px/1 var(--mono);text-align:center;padding:7px 4px;border-radius:7px;}
+  .ph.p1 .tag{background:var(--green-soft);color:var(--green);}
+  .ph.p2 .tag{background:var(--yellow-soft);color:#7a6402;}
+  .ph.p3 .tag{background:var(--blue-soft);color:var(--blue);}
+  .ph .d b{color:var(--ink);} .ph .d{font-size:13.5px;color:var(--muted);}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  @media (max-width:860px){.two,.tm-grid,.kpis,.val{grid-template-columns:1fr;} .prow,.ph{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="eyebrow">BMS-4665 · Product case</p>
+    <h1>The logic works. Now it needs a face.</h1>
+    <p>Minimum Transfer Quantity Thresholds shipped as <b style="color:var(--yellow)">pure backend enforcement</b>. It correctly blocks bad transfers — but today no one can <b style="color:var(--yellow)">see</b> what it's doing or <b style="color:var(--yellow)">manage</b> the rules without editing raw records. This is the case for a front end.</p>
+    <div class="meta">
+      <span>Backend <b>built (PR #355)</b></span>
+      <span>Front end <b>not started</b></span>
+      <span>Relates <b>BMS-4666 spike · BMS-4667 reporting</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tldr">
+    <div class="h">The ask in one line</div>
+    <p>Fund a small front end with two surfaces — a <b>Threshold Management</b> screen and an <b>enforcement visibility dashboard</b> — so admins can configure rules safely and ops can see blocks, coverage gaps, and compliance. The data and enforcement already exist; only the human layer is missing.</p>
+  </div>
+
+  <!-- 1. WHERE WE ARE -->
+  <h2><span class="no">01</span> Where we are today</h2>
+  <p class="lede">The backend is solid and tested. The gap is entirely human-facing: configuration happens in raw record pages, and enforcement is invisible until it slaps someone with an error.</p>
+  <div class="two">
+    <div class="card have">
+      <h3>✅ What's built &amp; working</h3>
+      <ul>
+        <li>Unit-aware enforcement (cases / layers / pallets) at <span class="inline-code">New → In Progress</span></li>
+        <li>Whole-layer / whole-pallet rounding rules</li>
+        <li>Lane resolution (item + origin/destination), most-specific wins</li>
+        <li>A durable, rollback-proof audit trail (<span class="inline-code">Transfer_Threshold_Event__c</span>)</li>
+        <li>90% test coverage, no bypass path</li>
+      </ul>
+    </div>
+    <div class="card gap">
+      <h3>❌ What's missing (human layer)</h3>
+      <ul>
+        <li>No UI to <b>create / manage thresholds</b> — admins edit raw <span class="inline-code">Transfer_Threshold__c</span> records</li>
+        <li>No way to <b>see</b> what's configured vs. what's missing (coverage gaps)</li>
+        <li>Planners only learn a rule exists when the commit <b>fails</b> with a toast</li>
+        <li>The rich audit data <b>has no dashboard</b> — it's collected, not surfaced</li>
+        <li>Easy to misconfigure silently (e.g. Layers unit on an item with no factor → rule skipped)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 2. WHO FEELS IT -->
+  <h2><span class="no">02</span> Who feels the gap</h2>
+  <div class="pain">
+    <div class="prow">
+      <div class="who">Admin / Ops config<small>maintains the rules</small></div>
+      <div class="now"><span class="tag">today</span>Opens a raw record, hand-types a number, guesses whether "1 layer" means the right number of cases, has no validation beyond "&gt; 0", and can't tell which items/lanes already have rules. Misconfigurations are silent.</div>
+    </div>
+    <div class="prow">
+      <div class="who">Warehouse planner<small>moves the product</small></div>
+      <div class="now"><span class="tag">today</span>Builds a transfer, hits <b>commit</b>, and only then gets a red error toast. No upfront signal that a minimum applies, what it is, or how far short they are until they've already done the work.</div>
+    </div>
+    <div class="prow">
+      <div class="who">Operations manager<small>owns the outcome</small></div>
+      <div class="now"><span class="tag">today</span>Can't answer "are these thresholds actually helping?" — no view of how many transfers were blocked, on which lanes, or which items still have no rule. Flying blind on adoption and impact.</div>
+    </div>
+  </div>
+
+  <!-- 3. MOCK: THRESHOLD MANAGER -->
+  <h2><span class="no">03</span> Surface 1 — Threshold Management</h2>
+  <p class="lede">A guided screen to create and maintain rules: lane pickers, a unit selector with a <b>live cases-equivalent preview</b>, real validation, and a coverage view of items/lanes with no rule. Replaces "edit the raw record and hope."</p>
+  <div class="mock">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span> Transfer Thresholds — Manager</div>
+    <div class="body">
+      <div class="gapbanner">⚠ Coverage: <b>3 active lanes</b> have high-volume items with <b>no threshold</b> configured — review suggested.</div>
+      <div class="tm-grid">
+        <div class="tbl">
+          <div class="th"><span>Item</span><span>Lane</span><span>Min</span><span>Unit</span><span>Active</span></div>
+          <div class="tr"><span>Boats Float 1/2 BBL</span><span>Milton → Montgomery</span><span>1 (10 cs)</span><span><i class="chiplet layers">LAYERS</i></span><span><i class="chiplet on">ON</i></span></div>
+          <div class="tr"><span>Boats Float 1/2 BBL</span><span>WH C → Montgomery</span><span>1 (100 cs)</span><span><i class="chiplet pallets">PALLETS</i></span><span><i class="chiplet on">ON</i></span></div>
+          <div class="tr"><span>Red Bull 250ml</span><span>any → any</span><span>12 cs</span><span><i class="chiplet cases">CASES</i></span><span><i class="chiplet on">ON</i></span></div>
+          <div class="tr"><span>Coors Banquet</span><span>Mobile → Huntsville</span><span>30 cs</span><span><i class="chiplet cases">CASES</i></span><span><i class="chiplet off">OFF</i></span></div>
+        </div>
+        <div class="editor">
+          <div class="fld"><label>Item</label><div class="inp">Boats Float: 1/2 BBL</div></div>
+          <div class="fld"><label>Lane (origin → destination)</label><div class="inp">Milton FL → Montgomery AL</div></div>
+          <div class="fld"><label>Quantity unit</label><div class="seg"><span>Cases</span><span class="sel">Layers</span><span>Pallets</span></div></div>
+          <div class="fld"><label>Minimum</label><div class="inp">1</div></div>
+          <div class="preview">📐 <b>1 layer = 10 cases</b> for this item · rounding ON → must move whole layers (10, 20, 30 …)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Mockup — illustrative. The live cases-equivalent preview kills the #1 misconfiguration risk (mis-converting layers/pallets to cases).</p>
+
+  <!-- 4. MOCK: DASHBOARD -->
+  <h2><span class="no">04</span> Surface 2 — Enforcement visibility</h2>
+  <p class="lede">The audit trail already records every block. A dashboard turns that into answers: how much is being prevented, where, and where rules are still missing. <span class="inline-code">Transfer_Threshold_Event__c</span> is the source — this is the BMS-4667 reporting story made concrete.</p>
+  <div class="mock">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span> Transfer Threshold — Operations Dashboard · last 30 days</div>
+    <div class="body">
+      <div class="kpis">
+        <div class="kpi red"><div class="n">142</div><div class="l">commits blocked</div></div>
+        <div class="kpi blue"><div class="n">28</div><div class="l">lanes w/ rules</div></div>
+        <div class="kpi amber"><div class="n">9</div><div class="l">coverage gaps</div></div>
+        <div class="kpi green"><div class="n">94%</div><div class="l">rounding compliance</div></div>
+      </div>
+      <div class="bars">
+        <div class="bh">Blocked commits by lane</div>
+        <div class="bar2"><span>Milton → Montgomery</span><span class="track"><span class="fill" style="width:90%"></span></span><span class="v">52</span></div>
+        <div class="bar2"><span>Mobile → Huntsville</span><span class="track"><span class="fill" style="width:62%"></span></span><span class="v">36</span></div>
+        <div class="bar2"><span>WH C → Montgomery</span><span class="track"><span class="fill" style="width:48%"></span></span><span class="v">28</span></div>
+        <div class="bar2"><span>Pensacola → Mobile</span><span class="track"><span class="fill" style="width:31%"></span></span><span class="v">18</span></div>
+        <div class="bar2"><span>others</span><span class="track"><span class="fill" style="width:14%" ></span></span><span class="v">8</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Mockup — illustrative. Same data already persisted by the backend; today it has nowhere to go.</p>
+
+  <!-- 5. MOCK: INLINE -->
+  <h2><span class="no">05</span> Bonus — preventive, not just punitive</h2>
+  <p class="lede">A small inline hint on the transfer screen turns a hard stop into guidance — the planner sees the rule <b>before</b> committing, not after.</p>
+  <div class="mock">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span> Update Transfer — Boats Float 1/2 BBL · Milton → Montgomery</div>
+    <div class="body">
+      <div class="ihint"><span class="ic">💡</span><div><b>Minimum applies on this lane:</b> 1 layer (10 cases), whole layers only. You've staged <b>3 cases</b> — add <b>7</b> to reach 1 layer, or 17 to reach 2. <span style="color:var(--muted)">(Commit will be blocked below the minimum.)</span></div></div>
+    </div>
+  </div>
+  <p class="cap">Mockup — illustrative. Same threshold resolution the backend already does, surfaced read-only at staging time.</p>
+
+  <!-- 6. VALUE -->
+  <h2><span class="no">06</span> Why it's worth it</h2>
+  <div class="val">
+    <div class="vrow"><div class="vh">Fewer misconfigurations</div><div class="vd">Live unit→cases preview + validation + coverage view stop silent mistakes (the wrong number, a Layers rule on an item with no factor, a missing lane).</div></div>
+    <div class="vrow"><div class="vh">Adoption you can prove</div><div class="vd">"142 uneconomical transfers prevented this month" is a number you can take to Gulf. Right now that value is invisible.</div></div>
+    <div class="vrow"><div class="vh">Less planner friction</div><div class="vd">Guidance at staging beats a surprise error at commit — fewer reworked transfers, faster docks.</div></div>
+    <div class="vrow"><div class="vh">Self-service config</div><div class="vd">Admins manage rules without engineering or raw-record spelunking — answers the open "who maintains it" question on BMS-4665.</div></div>
+  </div>
+
+  <!-- 7. PHASING -->
+  <h2><span class="no">07</span> Suggested phasing</h2>
+  <div class="phase">
+    <div class="ph p1"><div class="tag">DONE</div><div class="d"><b>Backend enforcement + audit</b> (BMS-4665, PR #355). The hard part is shipped — config object, rules, rollback-proof audit.</div></div>
+    <div class="ph p2"><div class="tag">NEXT</div><div class="d"><b>Threshold Management LWC</b> — guided create/edit, unit→cases preview, validation, coverage gaps. Directly resolves the open "who maintains it / via what surface" question.</div></div>
+    <div class="ph p3"><div class="tag">THEN</div><div class="d"><b>Visibility dashboard</b> (BMS-4666 spike → BMS-4667 build) over the existing audit object, plus the optional inline planner hint.</div></div>
+  </div>
+
+  <div class="tldr" style="margin-top:30px;">
+    <div class="h">Bottom line</div>
+    <p>We've built an engine with no dashboard and no steering wheel. The enforcement is correct and the audit data is already flowing — a focused front end is what turns invisible, expert-only backend logic into a usable, measurable feature Gulf can actually operate.</p>
+  </div>
+
+  <footer>BMS-4665 · The case for a front end · Minimum Transfer Quantity Thresholds · mockups illustrative · 2026-06-24</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay — Explained Simply (BMS-4965)</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --card:#ffffff; --line:#e4e9f2; --ink:#1f2733; --mut:#677488;
+    --grn:#1f9d57; --amb:#b5821f; --red:#d24b43; --blu:#2f6fed; --accent:#6b4cff;
+    --soft:#eef2fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:34px 18px;}
+  .wrap{max-width:720px;margin:0 auto}
+  .tag{display:inline-block;background:var(--soft);color:var(--accent);font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:10px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:18px}
+  .story{background:linear-gradient(135deg,#fff,#f0f4ff);border:1px solid var(--line);
+    border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:0 0 14px;font-size:18px}
+  .story b{color:var(--accent)}
+  h2{font-size:21px;margin:30px 0 10px;display:flex;align-items:center;gap:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:10px 0;
+    box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  ul{margin:6px 0;padding-left:22px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;margin:6px 0;font-size:16px}
+  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .when{font-weight:700;white-space:nowrap}
+  .now{color:var(--grn)} .before{color:var(--mut)} .future{color:var(--blu)}
+  .takeaway{background:#1f2733;color:#fff;border-radius:16px;padding:22px 24px;margin:26px 0 0;font-size:18px;line-height:1.6}
+  .takeaway b{color:#9db8ff}
+  .foot{color:var(--mut);font-size:14px;margin-top:24px;text-align:center}
+  .chip{display:inline-block;background:var(--soft);border-radius:8px;padding:1px 8px;font-size:14px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Short Pay · BMS-4965 · explained simply</div>
+  <h1>When a store doesn't pay in full</h1>
+  <p class="sub">One screen that catches it. Here's the whole thing, plain.</p>
+
+  <div class="story">
+    🍺 A Gulf truck delivers <b>$500</b> of beer to a store. The owner hands the driver only <b>$480</b>.
+    They're <b>$20 short</b>. That gap is a <b>“short pay.”</b> Now imagine that across hundreds of stops a week.
+  </div>
+
+  <h2>😖 Why it's a problem</h2>
+  <div class="card">
+    <ul>
+      <li>That $20 isn't written down anywhere useful → the company quietly <b>loses money it's owed</b>.</li>
+      <li>In <b>Alabama it's illegal</b> to sell beer without collecting full payment — so a short pay there is a <b>legal risk</b>, not just lost cash.</li>
+      <li>Their old tracking tool got <b>shut off</b>, so today a manager <b>hunts through the system by hand</b> to find who owes what. Slow, and easy to miss.</li>
+    </ul>
+  </div>
+
+  <h2>🧍 Who it hurts</h2>
+  <div class="card">
+    <ul>
+      <li><b>Finance / AR team</b> — chasing missing money with messy data.</li>
+      <li><b>Managers</b> — wasting time hunting shortfalls by hand.</li>
+      <li><b>The company</b> — lost cash + legal exposure in Alabama.</li>
+    </ul>
+  </div>
+
+  <h2>💡 The solution — the Short-Pay Review Queue</h2>
+  <div class="card">
+    <b>One screen that lists every short pay in one place.</b> A manager opens it and sees who's short, how much, how old, which warehouse, which state. And it's smart about it:
+    <ul>
+      <li>🚨 <b>Big or illegal ones get flagged</b> (“escalated”); tiny routine ones stay quiet so they're not noise.</li>
+      <li>🔁 <b>Repeat offenders</b> (stores that short you again and again) <b>stand out</b>.</li>
+      <li>✅ A button to <b>resolve it</b> — issue a credit or mark it collected — so the books stay clean.</li>
+    </ul>
+    Think of it as <span class="chip">one inbox for “people who didn't pay in full”</span> that sorts itself by urgency.
+  </div>
+
+  <h2>🧱 What's built — before, now, next</h2>
+  <div class="card">
+    <table>
+      <tr><th>When</th><th>What</th><th>In plain words</th></tr>
+      <tr><td class="when before">Before</td><td>Short-pay capture <span class="chip">BMS-3844</span></td><td>The system can already tell when an invoice was underpaid (paid less than owed).</td></tr>
+      <tr><td class="when now">Now ✅</td><td>The Review Queue <span class="chip">BMS-4059 + 4060</span></td><td>The back-office screen that <b>catches, sorts, flags, and resolves</b> those short pays. <b>This is what you demo.</b></td></tr>
+      <tr><td class="when future">Future</td><td>Driver handheld capture <span class="chip">BMS-4058</span></td><td>Letting the <b>driver record the shortfall right at the doorstep</b> on their device. Not built yet.</td></tr>
+    </table>
+    <p style="color:var(--mut);font-size:15px;margin:6px 0 0">(<span class="chip">BMS-4057</span> was just a planning/research step — no screen; its decisions are already baked into what you demo.)</p>
+  </div>
+
+  <div class="takeaway">
+    🎯 <b>Hold onto this one sentence:</b><br>
+    A short pay = a store paid less than they owed. The Review Queue is the one screen that catches every one,
+    flags the urgent / illegal ones, spots repeat offenders, and lets you close them out — replacing the manual hunting Gulf does today.
+  </div>
+
+  <p class="foot">Manager-Engineer · Build-Overview · updated 2026-06-30</p>
+
+</div>
+</body>
+</html>

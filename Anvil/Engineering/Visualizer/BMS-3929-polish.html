@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMS-3929 — Polish Review</title>
+<style>
+  :root {
+    --cork: #2D2A26;
+    --cork-light: #3D3A36;
+    --surface: #FAFAF8;
+    --surface-alt: #F2F1ED;
+    --yellow: #FFD600;
+    --yellow-muted: #FFF3B0;
+    --red: #E53935;
+    --red-bg: #FFF0F0;
+    --green: #2E7D32;
+    --green-bg: #F0FFF0;
+    --green-border: #C8E6C9;
+    --blue: #1565C0;
+    --blue-bg: #F0F4FF;
+    --blue-border: #C5D5F0;
+    --orange: #E65100;
+    --orange-bg: #FFF3E0;
+    --orange-border: #FFCC80;
+    --text: #1A1A1A;
+    --text-sec: #5A5A5A;
+    --border: #E0DED8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 940px;
+    margin: 0 auto;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    background: var(--surface-alt);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--cork);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--yellow);
+  }
+  .header .ticket-id {
+    color: var(--yellow);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0.15rem 0 0.75rem;
+  }
+  .header .meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .badge-yellow { background: var(--yellow); color: var(--cork); }
+  .badge-ghost { background: rgba(255,255,255,0.15); color: white; }
+  .badge-orange { background: var(--orange); color: white; }
+
+  /* Cards */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-sec);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--yellow);
+    display: inline-block;
+  }
+  .card p { margin-bottom: 0.6rem; font-size: 0.9rem; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Verdict banner */
+  .verdict-banner {
+    background: var(--orange-bg);
+    border: 2px solid var(--orange);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .verdict-icon {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .verdict-text h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--orange);
+    margin-bottom: 0.2rem;
+  }
+  .verdict-text p {
+    font-size: 0.85rem;
+    color: var(--text-sec);
+    line-height: 1.55;
+  }
+
+  /* Tech approach — wrong items */
+  .wrong-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin-top: 0.75rem;
+  }
+  .wrong-table th {
+    background: var(--cork);
+    color: white;
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .wrong-table th:first-child { border-radius: 8px 0 0 0; }
+  .wrong-table th:last-child { border-radius: 0 8px 0 0; }
+  .wrong-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .wrong-table tr:last-child td { border-bottom: none; }
+  .wrong-table .wrong { color: var(--red); font-weight: 600; text-decoration: line-through; }
+  .wrong-table .right { color: var(--green); font-weight: 600; }
+
+  /* AC cards */
+  .ac-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .ac-header {
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .ac-header h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    flex: 1;
+  }
+  .ac-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .ac-pct.shipped { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .ac-pct.partial { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+  .ac-pct.not-built { background: var(--red-bg); color: var(--red); border: 1px solid #FFCDD2; }
+  .ac-pct.contradicts { background: var(--red-bg); color: var(--red); border: 1px solid #FFCDD2; }
+
+  .ac-bar {
+    height: 4px;
+    background: var(--surface-alt);
+  }
+  .ac-bar-fill { height: 100%; }
+  .ac-bar-fill.green { background: var(--green); }
+  .ac-bar-fill.orange { background: var(--orange); }
+  .ac-bar-fill.red { background: var(--red); }
+
+  .ac-body {
+    padding: 1rem 1.25rem;
+  }
+  .ac-body p {
+    font-size: 0.85rem;
+    color: var(--text-sec);
+    margin-bottom: 0.5rem;
+    line-height: 1.55;
+  }
+  .ac-body p:last-child { margin-bottom: 0; }
+
+  .gap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    font-size: 0.84rem;
+    color: var(--text-sec);
+    border-bottom: 1px solid var(--border);
+  }
+  .gap-item:last-child { border-bottom: none; }
+  .gap-icon {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    margin-top: 0.05rem;
+  }
+  .gap-icon.miss { color: var(--red); }
+  .gap-icon.warn { color: var(--orange); }
+  .gap-icon.ok { color: var(--green); }
+  .gap-item strong { color: var(--text); }
+
+  /* Code callout */
+  .code-callout {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 0.6rem 0;
+  }
+  .code-callout .hl-bad { color: #f38ba8; }
+  .code-callout .hl-good { color: #a6e3a1; }
+  .code-callout .hl-muted { color: #6c7086; }
+  .code-callout .hl-warn { color: #fab387; }
+
+  /* Dependency notes */
+  .dep-card {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .dep-card h2 {
+    color: var(--blue);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    border: none;
+    padding: 0;
+  }
+  .dep-item {
+    font-size: 0.85rem;
+    color: var(--text-sec);
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    line-height: 1.5;
+  }
+  .dep-item:last-child { border-bottom: none; }
+
+  /* Recommendation box */
+  .reco-box {
+    background: white;
+    border: 2px solid var(--cork);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .reco-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--yellow);
+  }
+  .reco-box h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cork);
+    margin-bottom: 0.75rem;
+    border: none;
+    padding: 0;
+  }
+
+  .scope-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .scope-item:last-child { border-bottom: none; }
+  .scope-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: var(--cork);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* PO decisions */
+  .po-box {
+    background: var(--yellow-muted);
+    border: 2px solid var(--yellow);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .po-box h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cork);
+    margin-bottom: 0.75rem;
+    border: none;
+    padding: 0;
+  }
+  .po-question {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 0.88rem;
+  }
+  .po-question:last-child { border-bottom: none; }
+  .po-q-icon {
+    color: var(--cork);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  .footer {
+    text-align: center;
+    color: var(--text-sec);
+    font-size: 0.7rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="ticket-id">BMS-3929</div>
+  <h1>Order History &amp; Reorder</h1>
+  <div class="meta">
+    <span class="badge badge-yellow">Polish Review</span>
+    <span class="badge badge-ghost">Story</span>
+    <span class="badge badge-ghost">eCommerce</span>
+    <span class="badge badge-ghost">Gulf</span>
+    <span class="badge badge-orange">Reframe Before Refinement</span>
+  </div>
+</div>
+
+<!-- Verdict -->
+<div class="verdict-banner">
+  <div class="verdict-icon">!</div>
+  <div class="verdict-text">
+    <h3>This ticket reads as greenfield but the core is already shipped</h3>
+    <p>Order history + reorder functionality already exists in <code>OHFY-eCommerce-UI</code> (<code>ecomOrderHistory</code>, <code>reorderModal</code>) and <code>OHFY-eCommerce</code> (<code>OrderHistoryController</code>). Per Elliot's Apr 16 comment, Alvaro was to rework this ticket to document the actual 2-click journey &mdash; that hasn't happened yet. The technical approach is entirely wrong and should be deleted before refinement.</p>
+  </div>
+</div>
+
+<!-- Tech Approach — Remove -->
+<div class="card" style="border-color: var(--red); border-width: 2px;">
+  <h2 style="border-color: var(--red); color: var(--red);">Technical Approach &mdash; Remove or Rewrite</h2>
+  <p>The AI-generated technical approach (<code>customfield_10040</code>) is entirely incorrect. Every object name, field, and component reference is wrong:</p>
+
+  <table class="wrong-table">
+    <thead>
+      <tr>
+        <th>In the Ticket (Wrong)</th>
+        <th>Actually In Codebase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="wrong">Order__c / Order_Line_Item__c</span></td>
+        <td><span class="right">Invoice__c / Invoice_Item__c</span></td>
+      </tr>
+      <tr>
+        <td><span class="wrong">Price_Record__c</span></td>
+        <td><span class="right">Pricelist__c / Pricelist_Item__c</span></td>
+      </tr>
+      <tr>
+        <td><span class="wrong">Reorder_Source__c</span></td>
+        <td><span class="right">Does not exist</span></td>
+      </tr>
+      <tr>
+        <td><span class="wrong">historyTile in "Sales-Demos"</span></td>
+        <td><span class="right">Does not exist in this repo</span></td>
+      </tr>
+      <tr>
+        <td><span class="wrong">OrderItemTrigger in "OHFY-Core"</span></td>
+        <td><span class="right">Does not exist in this repo</span></td>
+      </tr>
+      <tr>
+        <td><span class="wrong">"Build the Order History view as an LWC"</span></td>
+        <td><span class="right">Already built (ecomOrderHistory)</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--red); font-weight: 600;">Recommend deleting the technical approach entirely before refinement to avoid misleading the implementer.</p>
+</div>
+
+<!-- AC Validation -->
+<h2 style="font-size: 1.05rem; font-weight: 700; margin: 1.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--yellow); display: inline-block; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sec);">AC Validation Against Existing Implementation</h2>
+
+<!-- AC1 -->
+<div class="ac-card">
+  <div class="ac-header">
+    <h3>AC1 &mdash; Order History with Filtering</h3>
+    <span class="ac-pct shipped">~90% Shipped</span>
+  </div>
+  <div class="ac-bar"><div class="ac-bar-fill green" style="width: 90%;"></div></div>
+  <div class="ac-body">
+    <p>Reverse-chron order, columns (date, number, amount, status, delivery date), status/timeframe filters, search, pagination, expandable line items &mdash; <strong>all exist.</strong></p>
+
+    <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.04em; margin: 0.75rem 0 0.4rem;">Remaining Gaps</div>
+
+    <div class="gap-item">
+      <span class="gap-icon warn">&#9888;</span>
+      <span><strong>Warehouse column missing from UI</strong> &mdash; <code>Fulfillment_Location__c</code> is queried (<code>OrderHistoryController.cls:55</code>) but not rendered in the component</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon warn">&#9888;</span>
+      <span><strong>Status vocabulary mismatch</strong> &mdash; AC says "Delivered, Invoiced, Cancelled" but actual <code>Invoice__c.Status__c</code> values are New, Picking, Loaded, Out for Delivery, Complete, Cancelled</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon warn">&#9888;</span>
+      <span><strong>Pagination default</strong> &mdash; AC says 20, implementation defaults to 10 (configurable 10/25/50/100)</span>
+    </div>
+  </div>
+</div>
+
+<!-- AC2 -->
+<div class="ac-card">
+  <div class="ac-header">
+    <h3>AC2 &mdash; Reorder with Pricing Comparison</h3>
+    <span class="ac-pct not-built">Not Built</span>
+  </div>
+  <div class="ac-bar"><div class="ac-bar-fill red" style="width: 5%;"></div></div>
+  <div class="ac-body">
+    <p><strong>This is the genuine remaining work.</strong> The reorder modal (<code>reorderModal.js</code>) replays historical prices only. No comparison against current pricelist pricing, no struck-through display, and no "X items have updated pricing" summary.</p>
+
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>No current-price lookup</strong> &mdash; reorder replays historical prices, doesn't compare to <code>Pricelist__c / Pricelist_Item__c</code></span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>No price-change UI</strong> &mdash; no strikethrough, no "X items updated" summary</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>AC references wrong object</strong> &mdash; <code>Price_Record__c</code> does not exist; should be <code>Pricelist__c / Pricelist_Item__c</code></span>
+    </div>
+
+    <div class="code-callout"><span class="hl-muted">// CartController.cls — three pricing/promotion methods returning empty stubs:</span>
+<span class="hl-warn">Line 448:</span> <span class="hl-bad">// STUB during develop-split</span>
+<span class="hl-warn">Line 485:</span> <span class="hl-bad">// STUB during develop-split</span>
+<span class="hl-warn">Line 501:</span> <span class="hl-bad">// STUB during develop-split</span>
+<span class="hl-muted">// BMS-3719 and BMS-4019 are both Done — are these stubs now resolvable?</span></div>
+  </div>
+</div>
+
+<!-- AC3 -->
+<div class="ac-card">
+  <div class="ac-header">
+    <h3>AC3 &mdash; Order History Immutability</h3>
+    <span class="ac-pct contradicts">Contradicts Implementation</span>
+  </div>
+  <div class="ac-bar"><div class="ac-bar-fill red" style="width: 15%;"></div></div>
+  <div class="ac-body">
+    <p><strong>The AC contradicts the current codebase.</strong></p>
+
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>Cancelled orders are actively filtered out</strong> &mdash; <code>OrderHistoryController.cls:73-74</code> filters <code>Status__c NOT IN ('Draft', 'Cancelled')</code>. The AC says Cancelled should be visible.</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>"Voided" is not a valid status</strong> on <code>Invoice__c</code>. The AC references it but it doesn't exist.</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon miss">&#10005;</span>
+      <span><strong>No cancellation reason field found</strong> &mdash; AC implies one exists or should exist</span>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon ok">&#10003;</span>
+      <span><strong>Read-only portal access</strong> &mdash; confirmed by design (Experience Cloud portal users can't edit invoices)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Dependencies -->
+<div class="dep-card">
+  <h2>Dependency Notes</h2>
+  <div class="dep-item"><strong>BMS-3719</strong> &mdash; Link direction is backwards in Jira. Shows BMS-3929 "blocks" BMS-3719, but Alvaro's May 5 comment says the opposite. Both Done, so cosmetic only.</div>
+  <div class="dep-item"><strong>BMS-3930</strong> (credit terms display) &mdash; Correctly blocked by this ticket. No issue.</div>
+</div>
+
+<!-- Recommendation -->
+<div class="reco-box">
+  <h2>Recommendation: Reframe Before Refinement</h2>
+  <p style="font-size: 0.88rem; color: var(--text-sec); margin-bottom: 0.75rem;">This ticket should be rewritten to scope only the actual remaining gaps, not re-describe shipped features. Suggested scope:</p>
+
+  <div class="scope-item">
+    <span class="scope-num">1</span>
+    <span><strong>AC2 — Pricing comparison on reorder</strong> &mdash; the real work. Pending confirmation that pricing stubs in <code>CartController</code> are now resolvable post BMS-3719/BMS-4019.</span>
+  </div>
+  <div class="scope-item">
+    <span class="scope-num">2</span>
+    <span><strong>AC3 decisions</strong> &mdash; Cancelled order visibility, "Voided" status existence, cancellation reason field. These are product decisions, not engineering work.</span>
+  </div>
+  <div class="scope-item">
+    <span class="scope-num">3</span>
+    <span><strong>AC1 minor gaps</strong> &mdash; Warehouse column render, status vocabulary alignment, pagination default (10 vs 20).</span>
+  </div>
+</div>
+
+<!-- PO Decisions -->
+<div class="po-box">
+  <h2>Decisions Needed from PO (@Elliot Flores)</h2>
+  <div class="po-question">
+    <span class="po-q-icon">?</span>
+    <span><strong>Rewrite or split?</strong> Should this be rewritten as a gap-fill story, or closed and gaps split into new tickets?</span>
+  </div>
+  <div class="po-question">
+    <span class="po-q-icon">?</span>
+    <span><strong>AC3 — Cancelled visibility:</strong> Should Cancelled orders be visible in the portal? Should "Voided" become a real status, or should the AC be revised to match what exists?</span>
+  </div>
+  <div class="po-question">
+    <span class="po-q-icon">?</span>
+    <span><strong>AC2 — Pricing stubs:</strong> Are the three empty stub methods in <code>CartController.cls</code> (lines 448, 485, 501) now resolvable post BMS-3719/BMS-4019, or is pricing comparison still blocked?</span>
+  </div>
+</div>
+
+<div class="footer">
+  BMS-3929 Polish Review &middot; 2026-06-09 &middot; @Alvaro Sanchez via /polish &middot; Source: Jira + codebase validation
+</div>
+
+</body>
+</html>

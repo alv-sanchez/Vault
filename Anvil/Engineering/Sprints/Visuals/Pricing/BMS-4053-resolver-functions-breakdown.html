@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4053 · S_PriceResolver — Function Breakdown & What's Mine vs. Existing</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#ffffff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --yellow:#e4f223; --green:#0f6e56;
+    --green-soft:#e7f4ef; --amber:#92400e; --amber-soft:#fdf4e3; --crimson:#a32d2d;
+    --crimson-soft:#fbeaea; --code:#0e1726; --code-ink:#e7ecf5; --code-dim:#8794ad;
+    --mine:#0f6e56; --existing:#4a5fb0; --shared:#92400e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 28px 90px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:var(--yellow);color:var(--ink);margin-left:6px;}
+  h1{font-size:27px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:780px;}
+  h2{font-size:20px;margin:46px 0 6px;padding-top:16px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+    background:var(--denim);color:#fff;border-radius:50%;font-size:13px;margin-right:9px;vertical-align:2px;}
+  h3{font-size:14px;margin:26px 0 8px;color:var(--denim);text-transform:uppercase;letter-spacing:.05em;}
+  p{margin:10px 0;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;white-space:nowrap;}
+  .src{display:inline-block;background:var(--code);color:var(--code-ink);font:11px ui-monospace,Menlo,monospace;
+    padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;white-space:nowrap;}
+  .src b{color:var(--yellow);}
+  table{width:100%;border-collapse:collapse;margin:12px 0;background:var(--card);border-radius:10px;
+    overflow:hidden;box-shadow:0 2px 10px rgba(22,35,58,.05);font-size:13px;}
+  th{background:var(--ink);color:#fff;text-align:left;padding:9px 11px;font-size:11.5px;letter-spacing:.03em;}
+  td{padding:9px 11px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf9f8;}
+  td code{font:12px ui-monospace,Menlo,monospace;font-weight:600;color:var(--ink);white-space:nowrap;}
+  /* ticket chips */
+  .tk{display:inline-block;font:700 10.5px ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:5px;white-space:nowrap;}
+  .tk.mine{background:var(--green-soft);color:var(--mine);border:1px solid #b7ddcf;}
+  .tk.exist{background:var(--denim-soft);color:var(--existing);border:1px solid #c5cdf0;}
+  .tk.shared{background:var(--amber-soft);color:var(--shared);border:1px solid #ecd9b0;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0;font-size:12.5px;}
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:3px;}
+  .dot.mine{background:var(--mine);} .dot.exist{background:var(--existing);} .dot.shared{background:var(--shared);}
+  /* layer cards */
+  .panel{border-radius:12px;padding:16px 20px;margin:14px 0;border-left:6px solid;background:var(--card);
+    box-shadow:0 2px 10px rgba(22,35,58,.05);}
+  .panel.mine{border-color:var(--mine);} .panel.exist{border-color:var(--existing);}
+  .panel h4{margin:0 0 6px;font-size:15px;}
+  .panel .meta{font:11px ui-monospace,Menlo,monospace;color:var(--muted);margin-bottom:8px;}
+  pre{background:var(--code);color:var(--code-ink);border-radius:10px;padding:15px 18px;overflow-x:auto;
+    font:11.5px/1.5 "SF Mono",ui-monospace,Menlo,monospace;margin:10px 0;}
+  .cmt{color:#7f8db0;} .kw{color:#e4f223;} .fn{color:#7fd1ff;} .st{color:#b6e886;}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;}
+  .note b{color:var(--denim);}
+  .note.g{background:var(--green-soft);} .note.g b{color:var(--green);}
+  .warn{background:var(--amber-soft);border-left:5px solid var(--amber);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13.5px;}
+  .warn b{color:var(--amber);}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  @media(max-width:740px){.cmp{grid-template-columns:1fr;}}
+  .cmp .col{background:var(--card);border-radius:12px;padding:16px 18px;box-shadow:0 2px 10px rgba(22,35,58,.05);}
+  .cmp .col.a{border-top:4px solid var(--existing);} .cmp .col.b{border-top:4px solid var(--mine);}
+  .cmp h4{margin:0 0 4px;font-size:15px;} .cmp .meta{font:11px ui-monospace,Menlo,monospace;color:var(--muted);margin-bottom:10px;}
+  .cmp ul{margin:8px 0;padding-left:20px;font-size:13px;} .cmp li{margin:5px 0;}
+  ul{margin:8px 0;padding-left:22px;} li{margin:5px 0;}
+  .foot{margin-top:54px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4053</span><span class="tag y">Resolver Map</span>
+  <h1>S_PriceResolver — Every Function, and What's Mine vs. Already There</h1>
+  <p class="sub">An 873-line, cross-package promotion engine. Most of it predates BMS-4053. This page separates what you added (the storefront <b>discovery API</b> + ecom consumption) from the resolver core that BMS-3876 built and the one-day-sale tickets extended — then breaks down every method.</p>
+</header>
+
+<div class="legend">
+  <span><span class="dot exist"></span><b>Existing</b> — BMS-3876 core / BMS-4144 / BMS-4145 (not your work)</span>
+  <span><span class="dot shared"></span><b>Shared</b> — pre-existing function your ticket reuses</span>
+  <span><span class="dot mine"></span><b>BMS-4053</b> — what you added</span>
+</div>
+
+<!-- ───────────── 1 · attribution ───────────── -->
+<h2><span class="n">1</span>What you did vs. what already existed</h2>
+<p>Straight from <code class="inl">git log</code> on the <span class="kvs">priceResolver/</span> directory — the resolver has four authors over four tickets:</p>
+<table>
+  <tr><th>Commit</th><th>Ticket</th><th>What it landed in this class</th><th>Yours?</th></tr>
+  <tr><td><code>e4cc770c</code> (#286)</td><td>BMS-3876</td><td><b>Created the whole engine</b> — <code class="inl">resolve()</code>, <code class="inl">resolveLine()</code>, the 5-stage waterfall, FLP layering, QD tiers, cart-context summing, best-for-customer, all base SOQL helpers.</td><td><span class="tk exist">existing</span></td></tr>
+  <tr><td><code>05072111</code> (#247)</td><td>BMS-4144</td><td>One-Day Sale Ph1 — added <b>Location / Channel scope</b> + group-less one-day-sale audience to <code class="inl">filterEligiblePromotions</code>, <code class="inl">queryAccountScope</code>, the <code class="inl">One_Day_Sale_Batch__c</code> field.</td><td><span class="tk exist">existing</span></td></tr>
+  <tr><td><code>66189df9</code> (#326)</td><td>BMS-4145</td><td>One-Day Sale Ph2 — added <b>Chain_Banner__c scope</b> to the same eligibility filter + account-scope query.</td><td><span class="tk exist">existing</span></td></tr>
+  <tr><td><code>1daeccd4</code></td><td><b>BMS-4053</b></td><td><b>Promotion-discovery API</b> — added <code class="inl">eligiblePromotionsByItem()</code> + <code class="inl">queryDiscoveryPromotions()</code>, and wired the ecom item-promotions modal. Refactored eligibility so discovery reuses the exact same filter as pricing.</td><td><span class="tk mine">BMS-4053</span></td></tr>
+</table>
+<p>On the <b>ecom side</b> (separate package, also BMS-4053): <code class="inl">Ecom_UI_Wrappers.resolveCatalogPricing / resolveCartPricing / getEligibleItemPromotions</code>, the <code class="inl">userDataService</code> label-stamping, the product card, and the cart-reactive recompute — commits <code>40f41e69</code>, <code>7ed1f4da</code>, <code>1daeccd4</code>.</p>
+
+<div class="note g"><b>Reconciling what you were told ("data model is in, resolver isn't").</b> The promotion <b>data model</b> landed with BMS-3876, and so did a substantial <b>resolver</b> — it's not a blank slate. What was genuinely missing for the storefront was a <b>read/discovery surface</b> (list every eligible promo per item, with tiers, for badges & modals) distinct from the pricing path (one winner per line). That discovery API <em>is</em> your BMS-4053 resolver contribution. So "what you did might be the solution" is accurate — but it sits on top of an existing, mature pricing engine, which is why it'll still need to track that team's future done-state.</div>
+
+<!-- ───────────── 2 · the pasted code ───────────── -->
+<h2><span class="n">2</span>The exact code you pasted — line by line ownership</h2>
+
+<div class="panel exist">
+  <h4><code>filterEligiblePromotions(...)</code> <span class="tk shared">shared — you reuse it</span></h4>
+  <div class="meta">S_PriceResolver.cls · ~L630–700 · authored BMS-3876, extended BMS-4144 + BMS-4145</div>
+  <p>This is <b>not your code</b>. It's the single, shared eligibility gate. Each branch traces to a ticket:</p>
+  <ul>
+    <li><b>Exclusion check</b> (<code class="inl">excludedPromotionIds.contains</code>) — BMS-3876.</li>
+    <li><b>Audience membership</b> — BMS-3876 wrote the group-member half; <b>BMS-4144</b> added the <code class="inl">isOneDaySale</code> / group-less branch (Location/Channel-scoped or company-wide one-day sales).</li>
+    <li><b>Warehouse / Channel scope</b> — BMS-4144.</li>
+    <li><b>Chain scope</b> (<code class="inl">Chain_Banner__c</code>) — BMS-4145.</li>
+  </ul>
+  <p>Your ticket's contribution to this method was the <b>refactor that made it shared</b> — see the doc-comment: <em>"Shared by resolve() (pricing) and eligiblePromotionsByItem() (discovery) so eligibility has exactly ONE implementation."</em> That sentence is the BMS-4053 design decision: discovery can never show a promo that pricing wouldn't honor.</p>
+</div>
+
+<div class="panel mine">
+  <h4><code>eligiblePromotionsByItem(...)</code> <span class="tk mine">BMS-4053</span></h4>
+  <div class="meta">global static Map&lt;Id, List&lt;Promotion__c&gt;&gt; · the storefront discovery entry point</div>
+  <p><b>This is yours.</b> Where <code class="inl">resolve()</code> returns one <em>winning</em> promo per line for <em>pricing</em>, this returns <em>every</em> eligible, scope-matched promo per item — with <code class="inl">Promotion_Tiers__r</code> children — for the storefront's <b>discovery UI</b> (card badge, "promotions on this item" modal). It deliberately does <b>not</b> run threshold / winnow / best-for-customer, because it isn't pricing — it's listing.</p>
+  <p>It reuses the existing plumbing end-to-end: <code class="inl">queryItems</code>, <code class="inl">queryAccountGroupIds</code>, <code class="inl">queryExclusions</code>, <code class="inl">queryAccountScope</code>, and the shared <code class="inl">filterEligiblePromotions</code>. The only new query is the richer SELECT below.</p>
+</div>
+
+<div class="panel mine">
+  <h4><code>queryDiscoveryPromotions(...)</code> <span class="tk mine">BMS-4053</span></h4>
+  <div class="meta">private static List&lt;Promotion__c&gt; · the one new SOQL the discovery API needs</div>
+  <p><b>Also yours.</b> Same eligibility filters and scope-OR clause as the pricing-path <code class="inl">queryCandidatePromotions</code>, but with a <b>fatter SELECT</b> (adds <code class="inl">Name</code>, <code class="inl">Description__c</code>, <code class="inl">Start/End_Date__c</code>, <code class="inl">Status__c</code>) and the <code class="inl">(SELECT … FROM Promotion_Tiers__r ORDER BY Min_Quantity__c ASC)</code> subquery — so QD tier detail rides along for the listing UI without a second query.</p>
+  <pre><span class="cmt">// pricing path (BMS-3876)            // discovery path (BMS-4053)</span>
+queryCandidatePromotions(...)         queryDiscoveryPromotions(...)
+  SELECT pricing-only fields            SELECT + Name, Description__c, dates, Status__c
+  <span class="cmt">(no tier subquery — tiers come</span>       + (SELECT ... FROM Promotion_Tiers__r
+   <span class="cmt"> from queryTiers only for QDs)</span>           ORDER BY Min_Quantity__c ASC)</pre>
+</div>
+
+<!-- ───────────── 3 · full inventory ───────────── -->
+<h2><span class="n">3</span>Full function inventory</h2>
+<p>Every method in <code class="inl">S_PriceResolver</code>, grouped by role. <span class="tk exist">existing</span> = BMS-3876/4144/4145; <span class="tk mine">BMS-4053</span> = yours.</p>
+
+<h3>Entry points (global)</h3>
+<table>
+  <tr><th>Function</th><th>Returns</th><th>Line</th><th>Role</th><th>Owner</th></tr>
+  <tr><td><code>resolve(request)</code></td><td><code>CartResolutionResult</code></td><td>104–206</td><td><b>Pricing.</b> Whole cart in → one <code class="inl">LineResult</code> per line out. Orchestrates FLP base + 5-stage promo waterfall. The only sanctioned price path.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>eligiblePromotionsByItem(...)</code></td><td><code>Map&lt;Id,List&lt;Promotion__c&gt;&gt;</code></td><td>~720–800</td><td><b>Discovery.</b> All eligible scope-matched promos per item (with tiers) for badges/modals. No pricing.</td><td><span class="tk mine">4053</span></td></tr>
+</table>
+
+<h3>Core per-line logic (private)</h3>
+<table>
+  <tr><th>Function</th><th>Line</th><th>What it does</th><th>Owner</th></tr>
+  <tr><td><code>resolveLine(...)</code></td><td>212–293</td><td>Per-line waterfall: copies FLP base → qualifies promos (scope + threshold) → captures <code class="inl">maxPriority</code> → priority winnow → best-for-customer → stamps the winner onto <code class="inl">LineResult</code>.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>applicableDiscount(...)</code></td><td>313–358</td><td>The threshold gate. QD: highest tier where <code class="inl">cartQty ≥ Min_Quantity__c</code> (sets <code class="inl">tierId</code>). Post-off: parent <code class="inl">Min_Quantity__c</code> + <code class="inl">Discount_Amount__c</code>. Handles Percent vs Dollar. Returns a <code class="inl">Qualified</code> or null.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>isBetterForCustomer(a,b)</code></td><td>299–304</td><td>Deepest <code class="inl">perCase</code> wins across competing promos; tie-break on highest <code class="inl">promotionId</code>.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>scopeMatches(promo,item)</code></td><td>370–390</td><td>Is the item inside the promo's cascade scope (ITEM/TYPE/LINE/SUPPLIER)? + optional <code class="inl">Packaging_Style__c</code> filter. Used by BOTH pricing and discovery.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>cartContextQuantities(...)</code></td><td>396–413</td><td>Per eligible promo, sums quantity of every in-scope cart line → the total QD tiers are tested against (not per-line).</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>lineDiscountTotal(perCase,qty)</code></td><td>360–363</td><td><code class="inl">perCase × quantity</code>, rounded — the line's total discount amount.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>filterEligiblePromotions(...)</code></td><td>~630–700</td><td>The shared eligibility gate: exclusion, audience (incl. one-day-sale), warehouse/channel/chain scope. <b>One implementation</b> for pricing + discovery.</td><td><span class="tk shared">3876+4144+4145</span></td></tr>
+</table>
+
+<h3>FLP bridge &amp; SOQL helpers (private — query count stays flat)</h3>
+<table>
+  <tr><th>Function</th><th>Line</th><th>The one query / call it makes</th><th>Owner</th></tr>
+  <tr><td><code>resolveFlpBase(...)</code></td><td>419–433</td><td>Delegates to <code class="inl">S_FrontLinePricing.resolve()</code> (BMS-3725) for the base price per line. Never queries FLP directly.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>queryItems(itemIds)</code></td><td>439–463</td><td>Item cascade keys: <code class="inl">Item_Type__c, Item_Line__c, Item_Line__r.Supplier__c, Packaging_Style__c</code>.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>queryCandidatePromotions(...)</code></td><td>465–523</td><td>Status + date + scope-OR candidate promos for <b>pricing</b>. (4144/4145 added the one-day-sale fields.)</td><td><span class="tk shared">3876+4144/45</span></td></tr>
+  <tr><td><code>queryDiscoveryPromotions(...)</code></td><td>~810–873</td><td>Same filters, fatter SELECT + <code class="inl">Promotion_Tiers__r</code> subquery, for <b>discovery</b>.</td><td><span class="tk mine">4053</span></td></tr>
+  <tr><td><code>queryAccountGroupIds(...)</code></td><td>525–555</td><td>Account's promo groups via <code class="inl">Account_Promotion_Group__c</code>, date-windowed (decoupled from <code class="inl">Is_Active__c</code>).</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>queryAccountScope(accountId)</code></td><td>564–580</td><td>One row: <code class="inl">Premise_Type__c</code> (channel) + <code class="inl">Chain_Banner__c</code> (chain). Fetched only when a candidate is channel/chain-scoped.</td><td><span class="tk shared">4144+4145</span></td></tr>
+  <tr><td><code>queryExclusions(...)</code></td><td>582–607</td><td>Account's rows in <code class="inl">Promotion_Account_Exclusion__c</code> for the candidate set.</td><td><span class="tk exist">3876</span></td></tr>
+  <tr><td><code>queryTiers(candidates)</code></td><td>609–~640</td><td><code class="inl">Promotion_Tier__c</code> children for QD candidates only (skipped entirely if no QD).</td><td><span class="tk exist">3876</span></td></tr>
+</table>
+<p class="kvs">+ inner class <code>Qualified</code> { promotionId, tierId, perCase, priority } — the per-promo candidate carried through the winnow.</p>
+
+<!-- ───────────── 4 · two paths ───────────── -->
+<h2><span class="n">4</span>The two paths, side by side — pricing vs. discovery</h2>
+<p>This is the single most useful mental model for your contribution: <b>same eligibility, different purpose.</b></p>
+<div class="cmp">
+  <div class="col a">
+    <h4>resolve() — PRICING</h4>
+    <div class="meta">BMS-3876 · returns money</div>
+    <ul>
+      <li>Whole cart → one <b>winner</b> per line</li>
+      <li>Runs eligibility → scope → <b>threshold</b> → <b>winnow</b> → <b>best-for-customer</b></li>
+      <li>Cart-context qty matters (tiers)</li>
+      <li>Output: <code class="inl">LineResult</code> with <code class="inl">finalCasePrice</code>, the single <code class="inl">promotionId</code>/<code class="inl">tierId</code></li>
+      <li>Consumed by: invoice, credit, truck, <b>ecom cart/catalog pricing</b></li>
+    </ul>
+  </div>
+  <div class="col b">
+    <h4>eligiblePromotionsByItem() — DISCOVERY</h4>
+    <div class="meta">BMS-4053 · returns a list to show</div>
+    <ul>
+      <li>Item list → <b>all</b> eligible promos per item</li>
+      <li>Runs eligibility → scope, then <b>stops</b> (no threshold/winnow/pricing)</li>
+      <li>Quantity irrelevant — it lists what <em>could</em> apply</li>
+      <li>Output: <code class="inl">Promotion__c</code> records + <code class="inl">Promotion_Tiers__r</code> for tier display</li>
+      <li>Consumed by: <b>ecom badge + item-promotions modal</b></li>
+    </ul>
+  </div>
+</div>
+<div class="note"><b>Why they can't disagree:</b> both call the same <code class="inl">filterEligiblePromotions</code> and the same audience/exclusion/scope queries. A promo shown in the discovery modal is guaranteed to be one the pricing path also considered — the badge never lies about a deal the cart won't honor. That guarantee is the point of the BMS-4053 refactor.</div>
+
+<div class="warn"><b>Future-state caveat (unchanged).</b> You added a discovery <em>read</em> API on top of an existing pricing engine; you didn't author the waterfall, the tiering, or the one-day-sale scoping. If the promotions team revises the resolver's core contract (stacking, cart-context summing, tier semantics), your discovery API and the ecom consumption ride on top of it and will need to stay aligned — but the layering is clean: discovery delegates to the shared filter rather than duplicating eligibility.</div>
+
+<div class="foot">
+  BMS-4053 · S_PriceResolver function breakdown · branch <span class="kvs">feat/product-card-component-bms-4053</span>.<br/>
+  Source (873 lines): <span class="kvs">OHFY-OMS/.../services/priceResolver/S_PriceResolver.cls</span> · attribution from <span class="kvs">git log -- priceResolver/</span>.<br/>
+  Siblings: <span class="kvs">BMS-4053-pricing-priority-walkthrough.html</span> · <span class="kvs">BMS-4053-volume-tier-cart-context.html</span> · <span class="kvs">BMS-4053-pricing-layers.md</span>
+</div>
+
+</div>
+</body>
+</html>

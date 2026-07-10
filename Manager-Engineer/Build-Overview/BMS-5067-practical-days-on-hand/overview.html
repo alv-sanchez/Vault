@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5067 — Practical Days on Hand · Overview</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--accent:#58a6ff;--ok:#3fb950;--wait:#d29922}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:34px;max-width:900px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 2px}.key{color:var(--accent)} .sub{color:var(--dim);margin:0 0 18px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;margin:26px 0 10px;display:flex;align-items:center;gap:9px}
+  h2.user{color:var(--user)} h2.impact{color:var(--impact)} h2.sol{color:var(--sol)}
+  .tl{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;font-size:16px}
+  .tl b{color:var(--txt)}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 20px 16px;margin-bottom:14px}
+  p{color:#dce1ec} ul{margin:8px 0;padding-left:20px} li{margin:5px 0;color:#dce1ec}
+  .pain{color:#f0a878} .win{color:#8fd39a}
+  code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:13px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:6px 0}
+  th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .built{color:var(--ok);font-weight:600}.wait{color:var(--wait);font-weight:600}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+  @media(max-width:640px){.three{grid-template-columns:1fr}}
+  .layer{background:var(--card2);border-radius:9px;padding:12px 13px}
+  .layer h4{margin:0 0 4px;font-size:13px;color:var(--sol)} .layer p{margin:0;font-size:13px}
+  .foot{color:var(--dim);font-size:12px;margin-top:22px}
+  .flag{background:rgba(210,153,34,.1);border-left:3px solid var(--wait);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px;color:#e7e9f0}
+</style></head><body>
+
+<h1>📊 <span class="key">BMS-5067</span> — Practical Days on Hand</h1>
+<p class="sub">Inventory Management · phase walk · epic In Progress · org <code>ohfy-val-5067</code></p>
+
+<div class="tl">🧠 <b>In one line:</b> Show each item's <b>actual days-on-hand vs the leadership-set target</b>, right where planners work — so over/understock is obvious at a glance, without spreadsheets.</div>
+
+<div class="sec">
+<h2 class="user">👤 The user</h2>
+<p><b>Gulf inventory analysts &amp; supply-chain leadership.</b> Two grains, two audiences:</p>
+<ul>
+  <li><b>Purchasing</b> works at the <b>warehouse</b> grain — "are we over/under target across McCalla?"</li>
+  <li><b>Warehouse ops</b> works at the <b>location</b> grain — "is this pick face short vs its target?"</li>
+</ul>
+</div>
+
+<div class="sec">
+<h2 class="impact">💥 Business impact</h2>
+<p class="pain"><b>Today:</b> planners judge inventory health with ad-hoc averages and tribal knowledge. There's a leadership-set "practical" DOH target, but nothing compares live stock against it in the system — so the target lives in spreadsheets.</p>
+<p class="win"><b>The cost of that:</b> excess inventory ties up space in tighter warehouses (Huntsville, Montgomery) while high-velocity SKUs stock out in Milton/Mobile — because no one sees the variance until it bites.</p>
+<p class="win"><b>The win:</b> the target-vs-actual gap becomes a <b>system field + report column</b> — an overstock/understock signal analysts can filter and act on, at the grain they own.</p>
+</div>
+
+<div class="sec">
+<h2 class="sol">🛠️ Proposed solution</h2>
+<p><b>Reuse-first, declarative — no new objects, no code.</b> The benchmark storage + DOH/DOI calculation already shipped; this <b>surfaces the variance</b> on top of it:</p>
+<div class="three">
+  <div class="layer"><h4>Variance fields</h4><p>On <code>Inventory__c</code>: <b>days</b> (<code>Current_DOI − Effective_Target_DOH</code>), <b>%</b>, and a <b>status</b> (Above / At / Below Target · No Benchmark Set · No Velocity Data). Formula fields — always in sync, nothing to run.</p></div>
+  <div class="layer"><h4>Report</h4><p>Those columns added to the shipped <b>"Days of Inventory"</b> report type. Warehouse view via grouping; location view by filtering. No new dashboard.</p></div>
+  <div class="layer"><h4>Docs</h4><p>Warehouse-vs-location behavior documented for the team + Gulf.</p></div>
+</div>
+<p style="font-size:13.5px;color:var(--dim)">Deliberately <b>out of scope</b> (deferred): provisional new-item benchmarks, seasonal/capacity engine, CSV import, supplier-tier resolution, a bespoke planning dashboard.</p>
+</div>
+
+<div class="sec">
+<h2 class="sol">✅ Where it stands</h2>
+<table>
+  <tr><th>Piece</th><th>Status</th></tr>
+  <tr><td>3 variance fields on <code>Inventory__c</code></td><td class="built">Built · deployed + validated to ohfy-val-5067</td></tr>
+  <tr><td>Days-of-Inventory report columns</td><td class="built">Built · deployed</td></tr>
+  <tr><td>Docs (warehouse-vs-location)</td><td class="built">Written</td></tr>
+  <tr><td>Report smoke + open PR</td><td class="wait">Remaining</td></tr>
+  <tr><td>BMS-5702 — merge DOH/DOI spike docs to main</td><td class="wait">Not started (docs chore)</td></tr>
+</table>
+<div class="flag">See it in the org (<code>ohfy-val-5067</code>): <b>Object Manager → Inventory → Fields</b> for the three <code>Target_DOH_Variance*</code> fields; then build a report from the <b>Days of Inventory</b> report type to see the variance columns + "No Benchmark Set" state, grouped by warehouse.</div>
+</div>
+
+<p class="foot">BMS-5067 · child BMS-3816 (3 pts, Sprint 8). Build decisions + rationale: <code>SESSION.md</code> in this folder. No UI component — surfaced declaratively (report + record fields).</p>
+</body></html>

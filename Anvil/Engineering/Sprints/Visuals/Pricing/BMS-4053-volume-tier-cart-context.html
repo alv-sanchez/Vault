@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-4053 · Volume Tier — Cart-Context Summing (worked examples)</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5b6678; --line:#e2e6ee; --bg:#f4f2f0; --card:#ffffff;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --yellow:#e4f223; --green:#0f6e56;
+    --green-soft:#e7f4ef; --amber:#92400e; --amber-soft:#fdf4e3; --crimson:#a32d2d;
+    --crimson-soft:#fbeaea; --code:#0e1726; --code-ink:#e7ecf5; --code-dim:#8794ad;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 28px 90px;}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;
+    letter-spacing:.06em;padding:4px 10px;border-radius:5px;text-transform:uppercase;}
+  .tag.y{background:var(--yellow);color:var(--ink);margin-left:6px;}
+  h1{font-size:27px;margin:14px 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:760px;}
+  h2{font-size:20px;margin:44px 0 6px;padding-top:16px;border-top:1px solid var(--line);}
+  h2 .n{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+    background:var(--green);color:#fff;border-radius:50%;font-size:13px;margin-right:9px;vertical-align:2px;}
+  p{margin:10px 0;}
+  code.inl{background:var(--denim-soft);color:var(--denim);padding:1px 6px;border-radius:4px;
+    font:12.5px ui-monospace,Menlo,monospace;font-weight:600;white-space:nowrap;}
+  .src{display:inline-block;background:var(--code);color:var(--code-ink);font:11px ui-monospace,Menlo,monospace;
+    padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;}
+  .src b{color:var(--yellow);}
+  .setup{background:var(--ink);color:#e7ecf5;border-radius:12px;padding:18px 22px;margin:18px 0;
+    font:13px ui-monospace,Menlo,monospace;line-height:1.6;}
+  .setup b{color:var(--yellow);}
+  .setup .row{display:flex;justify-content:space-between;border-bottom:1px solid #26334d;padding:3px 0;}
+  .setup .row:last-child{border:none;}
+  /* example cards */
+  .ex{background:var(--card);border-radius:13px;margin:18px 0;overflow:hidden;
+    box-shadow:0 3px 14px rgba(22,35,58,.07);border-left:6px solid var(--green);}
+  .ex.frontline{border-left-color:var(--denim);}
+  .ex.promo{border-left-color:var(--amber);}
+  .ex-h{padding:14px 20px;background:#fbfbfc;border-bottom:1px solid var(--line);}
+  .ex-h .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green);}
+  .ex.frontline .ex-h .lbl{color:var(--denim);} .ex.promo .ex-h .lbl{color:var(--amber);}
+  .ex-h h3{margin:3px 0 0;font-size:16px;}
+  .ex-body{padding:16px 20px;}
+  .cart{margin:0 0 12px;}
+  .cart .cl{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13.5px;border-bottom:1px dotted var(--line);}
+  .cart .cl:last-child{border:none;}
+  .cart .q{font:700 13px ui-monospace,Menlo,monospace;background:var(--denim-soft);color:var(--denim);
+    padding:2px 8px;border-radius:5px;min-width:46px;text-align:center;}
+  .cart .nm{flex:1;}
+  .cart .b{font:600 13px ui-monospace,Menlo,monospace;color:var(--muted);}
+  .calc{background:var(--green-soft);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13.5px;}
+  .ex.frontline .calc{background:var(--denim-soft);} .ex.promo .calc{background:var(--amber-soft);}
+  .calc .step{margin:5px 0;}
+  .calc .arrow{color:var(--green);font-weight:700;}
+  .out{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+  .out .o{flex:1;min-width:180px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+  .out .o .on{font-size:12px;color:var(--muted);}
+  .out .o .ov{font:800 20px ui-monospace,Menlo,monospace;margin-top:2px;}
+  .strike{text-decoration:line-through;color:#9aa3b2;font-weight:400;font-size:15px;}
+  .win{color:var(--green);} .neutral{color:var(--ink);}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin-top:6px;}
+  .pill.frontline{background:var(--denim-soft);color:var(--denim);}
+  .pill.promo{background:var(--amber-soft);color:var(--amber);}
+  .pill.volume{background:var(--green-soft);color:var(--green);}
+  .takeaway{font-size:13px;color:var(--muted);margin-top:12px;padding-top:10px;border-top:1px solid var(--line);}
+  .takeaway b{color:var(--ink);}
+  .note{background:var(--denim-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;}
+  .note b{color:var(--denim);}
+  .warn{background:var(--amber-soft);border-left:5px solid var(--amber);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:13.5px;}
+  .warn b{color:var(--amber);}
+  pre{background:var(--code);color:var(--code-ink);border-radius:10px;padding:16px 18px;overflow-x:auto;
+    font:12px/1.55 "SF Mono",ui-monospace,Menlo,monospace;}
+  .cmt{color:#7f8db0;}
+  .kw{color:#e4f223;} .fn{color:#7fd1ff;}
+  /* json blocks */
+  pre.json{font-size:11.5px;line-height:1.5;margin:8px 0;}
+  .jk{color:#7fd1ff;}   /* key */
+  .js{color:#b6e886;}   /* string */
+  .jn{color:#ffc46b;}   /* number */
+  .jb{color:#ff9bd0;}   /* bool/null */
+  details{margin:12px 0 0;border-top:1px solid var(--line);padding-top:8px;}
+  details summary{cursor:pointer;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--muted);outline:none;}
+  details summary:hover{color:var(--ink);}
+  details[open] summary{color:var(--ink);margin-bottom:4px;}
+  .jlabel{font:11px ui-monospace,Menlo,monospace;color:var(--code-dim);margin:8px 0 -2px;}
+  .foot{margin-top:54px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  .kvs{font:12px ui-monospace,Menlo,monospace;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">BMS-4053</span><span class="tag y">Volume Tier</span>
+  <h1>Cart-Context Summing — Worked Examples</h1>
+  <p class="sub">The subtle part of the tier sub-layer: a QD's quantity threshold is tested against the <b>summed quantity of every in-scope cart line</b>, not any single line. Seven traces against the seeded demo, each grounded in the real resolver code. Companion to <span class="kvs">BMS-4053-pricing-priority-walkthrough.html</span>.</p>
+</header>
+
+<!-- setup -->
+<h2><span class="n">0</span>The demo promotions</h2>
+<div class="setup">
+  <div class="row"><span><b>QD (Volume)</b> · scope = ITEM_TYPE: Sharks Fin · Dollar</span><span>tier@10 → −$3 · tier@50 → −$6</span></div>
+  <div class="row"><span><b>Post-off</b> · scope = ITEM: Wave Splitter 1/6 BBL · Dollar</span><span>−$10 · Min_Quantity 1</span></div>
+  <div class="row"><span>Sharks Fin bases</span><span>Case $17 · 1/6 BBL $60 · 1/4 BBL $70 · 1/2 BBL $160</span></div>
+</div>
+<p>How the engine works, in two functions:</p>
+<pre><span class="cmt">// 1 · For EACH eligible promo, sum every cart line whose item matches its scope.</span>  <span class="src">S_PriceResolver.cls · <b>L396–413</b></span>
+<span class="kw">for</span> (Promotion__c promo : eligible) {
+    Decimal total = 0;
+    <span class="kw">for</span> (LineRequest line : lines) {
+        Item__c it = itemsById.get(line.itemId);
+        <span class="kw">if</span> (it != <span class="kw">null</span> && <span class="fn">scopeMatches</span>(promo, it) && line.quantity != <span class="kw">null</span>)
+            total += line.quantity;            <span class="cmt">// ← cart-context sum, NOT per-line</span>
+    }
+    qtyByPromotion.put(promo.Id, total);
+}
+
+<span class="cmt">// 2 · QD picks the HIGHEST tier whose Min_Quantity is still ≤ that summed qty.</span>  <span class="src">S_PriceResolver.cls · <b>L322–342</b></span>
+<span class="kw">for</span> (Promotion_Tier__c tier : tiers) {
+    Decimal tierMin = tier.Min_Quantity__c == <span class="kw">null</span> ? 0 : tier.Min_Quantity__c;
+    <span class="kw">if</span> (cartQty &lt; tierMin) <span class="kw">continue</span>;            <span class="cmt">// not unlocked</span>
+    <span class="kw">if</span> (best == <span class="kw">null</span> || tierMin &gt; bestMin) { best = tier; bestMin = tierMin; }
+}
+<span class="kw">if</span> (best == <span class="kw">null</span>) <span class="kw">return null</span>;                  <span class="cmt">// no tier → no QD win → Frontline</span>
+amount = best.Discount_Amount__c;  tierId = best.Id;   <span class="cmt">// tierId set ⇒ "Volume Price"</span></pre>
+
+<!-- seeded records -->
+<h2><span class="n">1</span>The seeded records (JSON)</h2>
+<p>These are <b>static</b> — seeded once by <span class="kvs">seed-promo-demo.apex</span> and shared by every example below. Field names match the org (<code class="inl">ohfy__</code> namespace); Ids are illustrative. <code class="inl">Start_Date__c</code> is <span class="kvs">today − 7</span> so the window covers today.</p>
+
+<div class="jlabel">// audience group + account membership (the eligibility junction)</div>
+<pre class="json">{
+  "ohfy__Promotion_Group__c": {
+    "Id": "a3Xed000000Grp01",
+    "Name": "Promo Demo Group",
+    "ohfy__External_Id__c": "promodemo:grp"
+  },
+  "ohfy__Account_Promotion_Group__c": {
+    "Id": "a3Wed000000Apg01",
+    "ohfy__Account__c": "001ed000000Cust0",          // seed:acct-customer-0
+    "ohfy__Promotion_Group__c": "a3Xed000000Grp01",
+    "ohfy__Effective_Date__c": "2026-06-18",
+    "ohfy__End_Date__c": null,                         // open-ended
+    "ohfy__External_Id__c": "promodemo:apg-cust0"
+  }
+}</pre>
+
+<div class="jlabel">// Post-off promotion → "Promo Price" (flat, no tiers)</div>
+<pre class="json">{
+  "attributes": { "type": "ohfy__Promotion__c" },
+  "Id": "a3Yed000000Post0",
+  "Name": "Demo Post-off — Wave Splitter 1/6 BBL",
+  "ohfy__Type__c": "Post-off",
+  "ohfy__Item_Scope_Level__c": "ITEM",
+  "ohfy__Item__c": "a0Ied000000Ws16b",               // Wave Splitter: 1/6 BBL
+  "ohfy__Item_Type__c": null,
+  "ohfy__Discount_Type__c": "Dollar",
+  "ohfy__Discount_Amount__c": 10,                     // used directly (else-branch, L348)
+  "ohfy__Min_Quantity__c": 1,
+  "ohfy__Priority__c": null,
+  "ohfy__Promotion_Group__c": "a3Xed000000Grp01",
+  "ohfy__Status__c": "Active",
+  "ohfy__Start_Date__c": "2026-06-11",
+  "ohfy__End_Date__c": null,
+  "ohfy__External_Id__c": "promodemo:promo-postoff"
+}</pre>
+
+<div class="jlabel">// QD promotion + its two tiers (child relationship ohfy__Promotion_Tiers__r) → "Volume Price"</div>
+<pre class="json">{
+  "attributes": { "type": "ohfy__Promotion__c" },
+  "Id": "a3Yed000000Qd001",
+  "Name": "Demo Volume Deal — Sharks Fin",
+  "ohfy__Type__c": "QD",
+  "ohfy__Item_Scope_Level__c": "ITEM_TYPE",
+  "ohfy__Item__c": null,
+  "ohfy__Item_Type__c": "a0Ted000000Shark",          // Sharks Fin (Item Type)
+  "ohfy__Discount_Type__c": "Dollar",
+  "ohfy__Discount_Amount__c": null,                   // QD ignores parent amount; tiers carry it
+  "ohfy__Min_Quantity__c": null,
+  "ohfy__Priority__c": null,
+  "ohfy__Promotion_Group__c": "a3Xed000000Grp01",
+  "ohfy__Status__c": "Active",
+  "ohfy__Start_Date__c": "2026-06-11",
+  "ohfy__End_Date__c": null,
+  "ohfy__External_Id__c": "promodemo:promo-qd",
+  "ohfy__Promotion_Tiers__r": {
+    "totalSize": 2,
+    "records": [
+      {
+        "Id": "a3Zed000000Tr10",
+        "ohfy__Promotion__c": "a3Yed000000Qd001",
+        "ohfy__Min_Quantity__c": 10,
+        "ohfy__Discount_Amount__c": 3,
+        "ohfy__External_Id__c": "promodemo:tier-10"
+      },
+      {
+        "Id": "a3Zed000000Tr50",
+        "ohfy__Promotion__c": "a3Yed000000Qd001",
+        "ohfy__Min_Quantity__c": 50,
+        "ohfy__Discount_Amount__c": 6,
+        "ohfy__External_Id__c": "promodemo:tier-50"
+      }
+    ]
+  }
+}</pre>
+<div class="note"><b>Read the shapes:</b> Post-off carries its discount on the parent (<code class="inl">Discount_Amount__c = 10</code>, <code class="inl">Min_Quantity__c = 1</code>) and has <b>no</b> tiers. QD leaves the parent amount <code class="inl">null</code> and pushes the curve into <code class="inl">Promotion_Tier__c</code> children. That structural difference is exactly what <code class="inl">applicableDiscount</code> branches on (L322 vs L343).</div>
+
+<!-- A -->
+<h2><span class="n">2</span>Seven traces</h2>
+
+<div class="ex">
+  <div class="ex-h"><div class="lbl">Example A · single line, simple crossing</div><h3>12 × Shark Fin: Case</h3></div>
+  <div class="ex-body">
+    <div class="cart"><div class="cl"><span class="q">12×</span><span class="nm">Shark Fin: Case</span><span class="b">base $17</span></div></div>
+    <div class="calc">
+      <div class="step">cart-context sum (Sharks Fin scope) = <b>12</b></div>
+      <div class="step">tier@10: <code class="inl">12 ≥ 10</code> ✓ &nbsp; tier@50: <code class="inl">12 ≥ 50</code> ✗ &nbsp;<span class="arrow">→ best = tier@10 (−$3)</span></div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">per case</div><div class="ov win"><span class="strike">$17</span> $14</div><span class="pill volume">Volume Price</span></div>
+      <div class="o"><div class="on">line discount total</div><div class="ov neutral">$3 × 12 = $36</div></div>
+    </div>
+    <div class="takeaway"><b>Baseline:</b> one line clears the tier on its own. <code class="inl">promotionTierId</code> set ⇒ Volume.</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[ { "itemId": "a0Ied000000SfCas", "quantity": 12 } ]   // Shark Fin: Case</pre>
+<div class="jlabel">// cartContextQuantities → Map&lt;promotionId, summedQty&gt;</div>
+<pre class="json">{ "a3Yed000000Qd001": 12 }   // QD sees 12  → tier@10 (a3Zed000000Tr10)</pre>
+<div class="jlabel">// LineResult (output)</div>
+<pre class="json">{
+  "itemId": "a0Ied000000SfCas",
+  "casePrice": 17.00,
+  "flpResolutionPath": "ITEM_TYPE_PKG",
+  "promotionId": "a3Yed000000Qd001",
+  "promotionTierId": "a3Zed000000Tr10",      // ⇒ "Volume Price"
+  "promotionDiscountPerCase": 3,
+  "promotionDiscountAmount": 36.00,          // 3 × 12
+  "finalCasePrice": 14.00
+}</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex">
+  <div class="ex-h"><div class="lbl">Example B · the whole point — threshold met ACROSS lines</div><h3>6 × Case  +  5 × 1/6 BBL</h3></div>
+  <div class="ex-body">
+    <div class="cart">
+      <div class="cl"><span class="q">6×</span><span class="nm">Shark Fin: Case</span><span class="b">base $17</span></div>
+      <div class="cl"><span class="q">5×</span><span class="nm">Shark Fin: 1/6 BBL</span><span class="b">base $60</span></div>
+    </div>
+    <div class="calc">
+      <div class="step">Per line, <b>neither reaches 10</b> — but both are <b>Sharks Fin</b>, so both match the QD scope.</div>
+      <div class="step">cart-context sum = <code class="inl">6 + 5 = 11</code> &nbsp; <code class="inl">11 ≥ 10</code> ✓ &nbsp;<span class="arrow">→ tier@10 (−$3) unlocks for BOTH lines</span></div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">Shark Fin: Case</div><div class="ov win"><span class="strike">$17</span> $14</div><span class="pill volume">Volume Price</span></div>
+      <div class="o"><div class="on">Shark Fin: 1/6 BBL</div><div class="ov win"><span class="strike">$60</span> $57</div><span class="pill volume">Volume Price</span></div>
+    </div>
+    <div class="takeaway"><b>This is cart-context summing.</b> 6 cans + 5 sixtels of the same brand pool to 11 and trip the tier together — even though no single line is ≥ 10.</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[
+  { "itemId": "a0Ied000000SfCas", "quantity": 6 },   // Shark Fin: Case
+  { "itemId": "a0Ied000000Sf16b", "quantity": 5 }    // Shark Fin: 1/6 BBL
+]</pre>
+<div class="jlabel">// cartContextQuantities — both lines match ITEM_TYPE Sharks Fin, so they sum</div>
+<pre class="json">{ "a3Yed000000Qd001": 11 }   // 6 + 5 = 11  → tier@10 unlocks for BOTH lines</pre>
+<div class="jlabel">// LineResult[] (output)</div>
+<pre class="json">[
+  {
+    "itemId": "a0Ied000000SfCas",
+    "casePrice": 17.00, "flpResolutionPath": "ITEM_TYPE_PKG",
+    "promotionId": "a3Yed000000Qd001", "promotionTierId": "a3Zed000000Tr10",
+    "promotionDiscountPerCase": 3, "promotionDiscountAmount": 18.00,   // 3 × 6
+    "finalCasePrice": 14.00
+  },
+  {
+    "itemId": "a0Ied000000Sf16b",
+    "casePrice": 60.00, "flpResolutionPath": "ITEM_LINE_PKG",
+    "promotionId": "a3Yed000000Qd001", "promotionTierId": "a3Zed000000Tr10",
+    "promotionDiscountPerCase": 3, "promotionDiscountAmount": 15.00,   // 3 × 5
+    "finalCasePrice": 57.00
+  }
+]</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex">
+  <div class="ex-h"><div class="lbl">Example C · crossing into the DEEPER tier</div><h3>30 × Case  +  25 × 1/4 BBL</h3></div>
+  <div class="ex-body">
+    <div class="cart">
+      <div class="cl"><span class="q">30×</span><span class="nm">Shark Fin: Case</span><span class="b">base $17</span></div>
+      <div class="cl"><span class="q">25×</span><span class="nm">Shark Fin: 1/4 BBL</span><span class="b">base $70</span></div>
+    </div>
+    <div class="calc">
+      <div class="step">cart-context sum = <code class="inl">30 + 25 = 55</code></div>
+      <div class="step">tier@10 ✓ (min 10) &nbsp; tier@50 ✓ (min 50) and <code class="inl">50 &gt; 10</code> &nbsp;<span class="arrow">→ best = tier@50 (−$6, the highest qualifying)</span></div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">Shark Fin: Case</div><div class="ov win"><span class="strike">$17</span> $11</div><span class="pill volume">Volume Price</span></div>
+      <div class="o"><div class="on">Shark Fin: 1/4 BBL</div><div class="ov win"><span class="strike">$70</span> $64</div><span class="pill volume">Volume Price</span></div>
+    </div>
+    <div class="takeaway"><b>Flat per case within a tier.</b> The tier selects <em>which</em> <code class="inl">Discount_Amount__c</code> applies; it isn't scaled by quantity. Both lines get −$6.</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[
+  { "itemId": "a0Ied000000SfCas", "quantity": 30 },  // Shark Fin: Case
+  { "itemId": "a0Ied000000Sf14b", "quantity": 25 }   // Shark Fin: 1/4 BBL
+]</pre>
+<div class="jlabel">// cartContextQuantities</div>
+<pre class="json">{ "a3Yed000000Qd001": 55 }   // 30 + 25 = 55  → tier@50 (a3Zed000000Tr50), the deepest ≤ 55</pre>
+<div class="jlabel">// LineResult[] (output) — both get the tier@50 −$6</div>
+<pre class="json">[
+  {
+    "itemId": "a0Ied000000SfCas",
+    "casePrice": 17.00, "flpResolutionPath": "ITEM_TYPE_PKG",
+    "promotionId": "a3Yed000000Qd001", "promotionTierId": "a3Zed000000Tr50",
+    "promotionDiscountPerCase": 6, "promotionDiscountAmount": 180.00,  // 6 × 30
+    "finalCasePrice": 11.00
+  },
+  {
+    "itemId": "a0Ied000000Sf14b",
+    "casePrice": 70.00, "flpResolutionPath": "ITEM_DEFAULT",
+    "promotionId": "a3Yed000000Qd001", "promotionTierId": "a3Zed000000Tr50",
+    "promotionDiscountPerCase": 6, "promotionDiscountAmount": 150.00,  // 6 × 25
+    "finalCasePrice": 64.00
+  }
+]</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex frontline">
+  <div class="ex-h"><div class="lbl">Example D · just below → dormant (why the catalog card shows Frontline)</div><h3>9 × Shark Fin: Case</h3></div>
+  <div class="ex-body">
+    <div class="cart"><div class="cl"><span class="q">9×</span><span class="nm">Shark Fin: Case</span><span class="b">base $17</span></div></div>
+    <div class="calc">
+      <div class="step">cart-context sum = <b>9</b> &nbsp; tier@10: <code class="inl">9 ≥ 10</code> ✗ &nbsp; tier@50: ✗</div>
+      <div class="step"><code class="inl">best == null</code> ⇒ <code class="inl">applicableDiscount</code> returns null &nbsp;<span class="arrow">→ no QD win → Frontline</span></div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">Shark Fin: Case</div><div class="ov neutral">$17</div><span class="pill frontline">Frontline (no label)</span></div>
+    </div>
+    <div class="takeaway"><b>Why the grid never shows Volume:</b> the catalog resolves at <b>qty 1</b>, which can't clear tier@10. The flip only happens once the cart sum reaches the threshold.</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[ { "itemId": "a0Ied000000SfCas", "quantity": 9 } ]</pre>
+<div class="jlabel">// cartContextQuantities</div>
+<pre class="json">{ "a3Yed000000Qd001": 9 }    // 9 &lt; 10 → applicableDiscount returns null (L338)</pre>
+<div class="jlabel">// LineResult (output) — no promotion fields populated</div>
+<pre class="json">{
+  "itemId": "a0Ied000000SfCas",
+  "casePrice": 17.00,
+  "flpResolutionPath": "ITEM_TYPE_PKG",
+  "promotionId": null,                 // ⇒ no label (Frontline)
+  "promotionTierId": null,
+  "promotionDiscountPerCase": null,
+  "promotionDiscountAmount": null,
+  "finalCasePrice": 17.00              // == casePrice
+}</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex frontline">
+  <div class="ex-h"><div class="lbl">Example E · scope boundary — out-of-scope items don't count</div><h3>8 × Shark Fin: Case  +  20 × Wave Splitter: Case</h3></div>
+  <div class="ex-body">
+    <div class="cart">
+      <div class="cl"><span class="q">8×</span><span class="nm">Shark Fin: Case</span><span class="b">base $17</span></div>
+      <div class="cl"><span class="q">20×</span><span class="nm">Wave Splitter: Case</span><span class="b">base $22</span></div>
+    </div>
+    <div class="calc">
+      <div class="step">QD scope = Sharks Fin. <code class="inl">scopeMatches</code> is <b>false</b> for Wave Splitter (different Item_Type) — its 20 units <b>don't contribute</b>.</div>
+      <div class="step">QD sum = <b>8</b> (Shark Fin only) &nbsp; <code class="inl">8 &lt; 10</code> &nbsp;<span class="arrow">→ no tier → Shark Fin stays Frontline</span></div>
+      <div class="step">Wave Splitter <b>Case</b> ≠ the Post-off's ITEM target (1/6 BBL) → no promo there either.</div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">Shark Fin: Case</div><div class="ov neutral">$17</div><span class="pill frontline">Frontline</span></div>
+      <div class="o"><div class="on">Wave Splitter: Case</div><div class="ov neutral">$22</div><span class="pill frontline">Frontline</span></div>
+    </div>
+    <div class="takeaway"><b>The sum is per-promo-scope, not whole-cart.</b> A big pile of the wrong item buys nothing toward a tier.</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[
+  { "itemId": "a0Ied000000SfCas", "quantity": 8 },   // Shark Fin: Case
+  { "itemId": "a0Ied000000WsCas", "quantity": 20 }   // Wave Splitter: Case
+]</pre>
+<div class="jlabel">// cartContextQuantities — per promo, only in-scope lines count</div>
+<pre class="json">{
+  "a3Yed000000Qd001": 8,     // QD (Sharks Fin): only the 8 Shark Fin cases; Wave Splitter excluded
+  "a3Yed000000Post0": 0      // Post-off (Wave Splitter 1/6 ITEM): the Case isn't the 1/6 → 0
+}</pre>
+<div class="jlabel">// LineResult[] (output) — both fall to Frontline</div>
+<pre class="json">[
+  {
+    "itemId": "a0Ied000000SfCas", "casePrice": 17.00, "flpResolutionPath": "ITEM_TYPE_PKG",
+    "promotionId": null, "promotionTierId": null, "finalCasePrice": 17.00   // 8 &lt; 10
+  },
+  {
+    "itemId": "a0Ied000000WsCas", "casePrice": 22.00, "flpResolutionPath": "ITEM_LINE_PKG",
+    "promotionId": null, "promotionTierId": null, "finalCasePrice": 22.00   // not the 1/6 ITEM
+  }
+]</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex">
+  <div class="ex-h"><div class="lbl">Example F · exact-boundary behavior (≥, not &gt;)</div><h3>10 × Case  ·  and  ·  50 × 1/6 BBL</h3></div>
+  <div class="ex-body">
+    <div class="calc">
+      <div class="step"><b>10 × Shark Fin: Case</b> → sum 10, <code class="inl">10 ≥ 10</code> ✓ → tier@10 → <b>$17 − $3 = $14</b></div>
+      <div class="step"><b>50 × Shark Fin: 1/6 BBL</b> → sum 50, <code class="inl">50 ≥ 50</code> ✓ → tier@50 → <b>$60 − $6 = $54</b></div>
+    </div>
+    <div class="takeaway"><b>The compare is <code class="inl">cartQty &lt; tierMin → skip</code> (L330)</b>, so hitting the threshold <em>exactly</em> qualifies.</div>
+    <details><summary>▸ data — two separate carts</summary>
+<div class="jlabel">// Cart 1: 10 × Shark Fin: Case  → sum 10, exactly tier@10</div>
+<pre class="json">// input
+[ { "itemId": "a0Ied000000SfCas", "quantity": 10 } ]
+// cartContext { "a3Yed000000Qd001": 10 }   (10 ≥ 10 ✓)
+// result
+{ "casePrice": 17.00, "promotionTierId": "a3Zed000000Tr10",
+  "promotionDiscountPerCase": 3, "finalCasePrice": 14.00 }</pre>
+<div class="jlabel">// Cart 2: 50 × Shark Fin: 1/6 BBL  → sum 50, exactly tier@50</div>
+<pre class="json">// input
+[ { "itemId": "a0Ied000000Sf16b", "quantity": 50 } ]
+// cartContext { "a3Yed000000Qd001": 50 }   (50 ≥ 50 ✓)
+// result
+{ "casePrice": 60.00, "promotionTierId": "a3Zed000000Tr50",
+  "promotionDiscountPerCase": 6, "finalCasePrice": 54.00 }</pre>
+    </details>
+  </div>
+</div>
+
+<div class="ex promo">
+  <div class="ex-h"><div class="lbl">Example G · contrast — Post-off is NOT tiered</div><h3>1 × (and 40 ×) Wave Splitter: 1/6 BBL</h3></div>
+  <div class="ex-body">
+    <div class="cart"><div class="cl"><span class="q">1×</span><span class="nm">Wave Splitter: 1/6 BBL</span><span class="b">base $69</span></div></div>
+    <div class="calc">
+      <div class="step">Post-off goes through the <b>else branch</b> (L343–348), not the tier loop: <code class="inl">1 ≥ Min_Quantity 1</code> ✓ → −$10.</div>
+      <div class="step"><code class="inl">tierId</code> is <b>never assigned</b> in this branch → stays null.</div>
+      <div class="step">At <b>40 ×</b> it's still <b>−$10/case</b> — flat, no curve.</div>
+    </div>
+    <div class="out">
+      <div class="o"><div class="on">per case (any qty)</div><div class="ov" style="color:var(--amber)"><span class="strike">$69</span> $59</div><span class="pill promo">Promo Price</span></div>
+    </div>
+    <div class="takeaway"><b><code class="inl">tierId == null</code> is the single bit</b> that makes the UI print "Promo Price" instead of "Volume Price" (<span class="src">userDataService.js · <b>L525–531</b></span>).</div>
+    <details><summary>▸ data — request, cart-context, result</summary>
+<div class="jlabel">// CartResolutionRequest.lines (input)</div>
+<pre class="json">[ { "itemId": "a0Ied000000Ws16b", "quantity": 1 } ]   // Wave Splitter: 1/6 BBL</pre>
+<div class="jlabel">// cartContextQuantities — matches the Post-off's ITEM scope</div>
+<pre class="json">{ "a3Yed000000Post0": 1 }    // 1 ≥ Min_Quantity 1 ✓ → else-branch (L343), no tier loop</pre>
+<div class="jlabel">// LineResult (output) — promotionTierId stays null</div>
+<pre class="json">{
+  "itemId": "a0Ied000000Ws16b",
+  "casePrice": 69.00,
+  "flpResolutionPath": "ITEM",
+  "promotionId": "a3Yed000000Post0",
+  "promotionTierId": null,                   // ⇒ "Promo Price", not Volume
+  "promotionDiscountPerCase": 10,
+  "promotionDiscountAmount": 10.00,          // 10 × 1
+  "finalCasePrice": 59.00
+}</pre>
+<div class="jlabel">// at 40 × it's identical per-case: finalCasePrice 59.00, promotionDiscountAmount 400.00 — flat, still no tier</div>
+    </details>
+  </div>
+</div>
+
+<div class="note"><b>In one paragraph:</b> <code class="inl">cartContextQuantities</code> builds a <code class="inl">Map&lt;promotionId → summed-qty&gt;</code> by adding every cart line whose item is in that promo's scope. For a QD, <code class="inl">applicableDiscount</code> keeps the tier with the highest <code class="inl">Min_Quantity__c</code> still ≤ that sum, and stamps its <code class="inl">tierId</code>. Same brand, mixed packaging, spread across lines — it all pools into one threshold. The deeper the pool, the deeper the tier; the instant a tier is chosen, <code class="inl">promotionTierId</code> is non-null and the storefront says "Volume Price."</div>
+
+<div class="warn"><b>Future-state caveat.</b> This per-promo, raw-quantity summing is one of the likeliest spots for the canonical resolver to change — e.g. whether mixed packaging should pool at all, or whether tiers should evaluate <em>case-equivalent volume</em> rather than raw <code class="inl">line.quantity</code>. The code today sums raw line quantities (L407). The layering and priority model hold regardless; this specific aggregation rule is the soft edge.</div>
+
+<!-- ───────────── two selectors ───────────── -->
+<h2><span class="n">3</span>Two different "winners" — threshold vs. deepest discount</h2>
+<p>A common confusion: <em>"the deeper tier won because it had the bigger discount."</em> It didn't. There are <b>two separate selection mechanisms</b>, and only one of them looks at the discount amount.</p>
+<table>
+  <tr><th>Mechanism</th><th>Scope</th><th>Selects by</th><th>Discount amount used to choose?</th></tr>
+  <tr><td><b>Tier pick</b><br><span class="kvs">L322–342</span></td><td>tiers <em>inside one</em> QD</td><td>highest <code class="inl">Min_Quantity__c</code> ≤ cart qty</td><td><b>No</b> — read only <em>after</em> the tier is fixed</td></tr>
+  <tr><td><b>Best for customer</b><br><span class="kvs">L299–304</span></td><td><em>across</em> qualifying promotions</td><td>highest <code class="inl">perCase</code> discount</td><td><b>Yes</b> — it <em>is</em> the comparison</td></tr>
+</table>
+
+<div class="ex">
+  <div class="ex-h"><div class="lbl">Mechanism 1 · Tier pick — selected by THRESHOLD, not discount</div><h3>30 × Case + 25 × 1/4 BBL → sum 55 (one QD in scope)</h3></div>
+  <div class="ex-body">
+    <p>Inside <code class="inl">applicableDiscount</code>, the only comparison is on <code class="inl">Min_Quantity__c</code>:</p>
+<pre><span class="kw">for</span> (Promotion_Tier__c tier : tiers) {
+    tierMin = tier.Min_Quantity__c;
+    <span class="kw">if</span> (cartQty &lt; tierMin) <span class="kw">continue</span>;
+    <span class="kw">if</span> (best == <span class="kw">null</span> || tierMin &gt; bestMin) {   <span class="cmt">// ← Min_Quantity, NOT discount</span>
+        best = tier; bestMin = tierMin;
+    }
+}
+amount = best.Discount_Amount__c;            <span class="cmt">// −$6 read only AFTER winner is fixed</span></pre>
+    <div class="calc">
+      <div class="step">tier@10: <code class="inl">55 ≥ 10</code> ✓ → bestMin 10 &nbsp;·&nbsp; tier@50: <code class="inl">55 ≥ 50</code> ✓ and <code class="inl">50 &gt; 10</code> &nbsp;<span class="arrow">→ best = tier@50</span></div>
+    </div>
+    <div class="jlabel">// the single Qualified this produces — tier@50 chosen by threshold</div>
+    <pre class="json">{ "promotionId": "a3Yed000000Qd001", "tierId": "a3Zed000000Tr50", "perCase": 6, "priority": null }</pre>
+    <div class="takeaway"><b>Proof it's threshold, not discount — misconfigured tiers:</b> if tier@50 were authored at <b>−$2</b> (smaller than tier@10's −$3), at qty 55 the loop <em>still</em> picks tier@50 (50 &gt; 10) → you'd get <b>$17 − $2 = $15</b>, the <em>worse</em> deal. The resolver never rescues you with tier@10. Tiers must be authored monotonically; nothing validates it.</div>
+  </div>
+</div>
+
+<div class="ex promo">
+  <div class="ex-h"><div class="lbl">Mechanism 2 · Best for customer — selected by DEEPEST perCase</div><h3>12 × Shark Fin: Case, two overlapping promotions</h3></div>
+  <div class="ex-body">
+    <div class="note" style="margin-top:0"><b>Hypothetical overlap.</b> The seeded demo has no overlap (Post-off = Wave Splitter ITEM; QD = Sharks Fin ITEM_TYPE). To show this mechanism we add a second promo that <em>does</em> overlap the QD on Sharks Fin:</div>
+    <div class="cart">
+      <div class="cl"><span class="q">QD</span><span class="nm">Sharks Fin · tier@10</span><span class="b">−$3/case</span></div>
+      <div class="cl"><span class="q">B</span><span class="nm">Post-off · ITEM_TYPE Sharks Fin (hypothetical)</span><span class="b">−$5/case flat, MinQty 1</span></div>
+    </div>
+    <p>Both are eligible and scope-match <b>12 × Shark Fin: Case</b> ($17). The qualification loop (L243–267) builds two <code class="inl">Qualified</code>:</p>
+    <pre class="json">[
+  { "promotionId": "qd",     "tierId": "tier@10", "perCase": 3, "priority": null },  // QD branch
+  { "promotionId": "promoB", "tierId": null,      "perCase": 5, "priority": null }   // else-branch (12 ≥ 1)
+]</pre>
+    <div class="calc">
+      <div class="step"><code class="inl">maxPriority</code> = null (neither set) → winnow (L274–282) drops nobody.</div>
+      <div class="step"><code class="inl">isBetterForCustomer</code>: winner=QD (3) &nbsp;·&nbsp; candidate B: <code class="inl">5 ≠ 3 → 5 &gt; 3</code> ✓ &nbsp;<span class="arrow">→ winner = PromoB</span></div>
+    </div>
+    <div class="jlabel">// LineResult — PromoB beat the QD because 5 &gt; 3</div>
+    <pre class="json">{
+  "itemId": "a0Ied000000SfCas",
+  "casePrice": 17.00,
+  "promotionId": "promoB",
+  "promotionTierId": null,              // PromoB is Post-off → null → "Promo Price"
+  "promotionDiscountPerCase": 5,
+  "promotionDiscountAmount": 60.00,     // 5 × 12
+  "finalCasePrice": 12.00              // 17 − 5
+}</pre>
+    <div class="out"><div class="o"><div class="on">winning per case</div><div class="ov" style="color:var(--amber)"><span class="strike">$17</span> $12</div><span class="pill promo">Promo Price</span></div></div>
+    <div class="takeaway"><b>Here the discount amount IS the selector</b> — but only because two <em>different promotions</em> compete for one line. That's Layer 2 · Stage 5, distinct from picking a tier inside a single QD.</div>
+  </div>
+</div>
+
+<div class="note"><b>The contrast in one line.</b> <b>Same QD, many tiers</b> → pick by <b>quantity threshold</b> (deeper tier <em>assumed</em> to carry a bigger discount, never checked). <b>Different promotions, one line</b> → pick by <b>deepest perCase</b> via <code class="inl">isBetterForCustomer</code> — unless a <code class="inl">Priority__c</code> winnow already eliminated the cheaper one first.</div>
+
+<div class="foot">
+  BMS-4053 · Volume tier / cart-context worked examples · branch <span class="kvs">feat/product-card-component-bms-4053</span>.<br/>
+  Source: <span class="kvs">OHFY-OMS/.../services/priceResolver/S_PriceResolver.cls</span> (L313–413) · label <span class="kvs">OHFY-eCommerce-UI/.../lwc/userDataService/userDataService.js</span> (L525–531).<br/>
+  Siblings: <span class="kvs">BMS-4053-pricing-priority-walkthrough.html</span> (interactive replay) · <span class="kvs">BMS-4053-pricing-layers.md</span> (Mermaid).
+</div>
+
+</div>
+<script>
+/* lightweight JSON highlighter — colors keys/strings/numbers/bool-null in <pre class="json">,
+   leaves // comments and any inline markup untouched. */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+document.querySelectorAll('pre.json').forEach(function(pre){
+  var lines = pre.textContent.split('\n').map(function(line){
+    var cut = line.indexOf('//');
+    var code = cut === -1 ? line : line.slice(0, cut);
+    var comment = cut === -1 ? '' : line.slice(cut);
+    var h = esc(code)
+      // keys: "foo":
+      .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g, '<span class="jk">$1</span>$2')
+      // remaining strings (values)
+      .replace(/:(\s*)("(?:[^"\\]|\\.)*")/g, ':$1<span class="js">$2</span>')
+      // numbers
+      .replace(/:(\s*)(-?\d+(?:\.\d+)?)/g, ':$1<span class="jn">$2</span>')
+      // bool / null
+      .replace(/:(\s*)(true|false|null)\b/g, ':$1<span class="jb">$2</span>');
+    return h + (comment ? '<span class="cmt">' + esc(comment) + '</span>' : '');
+  });
+  pre.innerHTML = lines.join('\n');
+});
+</script>
+</body>
+</html>

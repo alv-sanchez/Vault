@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5754 — Safety-Stock Impact Value</title>
+<meta name="description" content="Per-ticket build overview: the nightly batch that puts a dollar figure on every safety-stock override — why it's a batch-stamp, the four estimate statuses, and the live dry-run.">
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e; --blue:#4a8df0;
+    --code:#0b0d13; --codeink:#c9d1e6;
+    --teach:#5cc8e8; --teachbg:rgba(92,200,232,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .meta-line{color:var(--muted);font-size:13px;margin-top:8px}
+  .meta-line code{color:var(--codeink)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .build{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;letter-spacing:.04em}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--inv)}
+  .card h2{margin:0 0 12px;font-size:19px}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:86px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .row .body{display:inline}
+
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)}
+  .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:6px 0;font-size:14.5px}
+  code{background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:var(--codeink)}
+
+  .primer{background:linear-gradient(180deg,var(--teachbg),rgba(26,29,39,1) 78%);
+        border:1px solid var(--teach);border-left:4px solid var(--teach);
+        border-radius:12px;padding:20px 22px;margin:18px 0}
+  .primer .kicker{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teach)}
+  .primer h2{margin:4px 0 10px;font-size:20px}
+  .primer p{margin:9px 0;font-size:14.5px}
+  .primer .lead{color:var(--muted);font-size:14px;margin-top:0}
+  .primer dl{margin:6px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:8px 16px;font-size:14px}
+  .primer dt{color:var(--teach);font-weight:700}
+  .primer dd{margin:0;color:var(--ink)}
+  @media(max-width:560px){.primer dl{grid-template-columns:1fr;gap:2px 0}.primer dd{margin:0 0 8px}}
+
+  .jargon{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--teach)}
+  .jargon h2{margin:0 0 4px;font-size:19px}
+  .jargon .lead{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+  .jargon table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .jargon td{border-top:1px solid var(--line);padding:9px 8px;vertical-align:top}
+  .jargon td.term{white-space:nowrap;color:var(--ink);font-weight:600;width:1%}
+  .jargon td.term code{color:var(--codeink)}
+  .jargon td.def{color:var(--muted)}
+  .jargon-scroll{overflow-x:auto}
+
+  details{background:var(--code);border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:0}
+  details summary{cursor:pointer;list-style:none;padding:12px 16px;font-size:13.5px;font-weight:700;color:var(--teach);display:flex;align-items:center;gap:8px}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"\25B8";color:var(--teach);font-size:12px;transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details .dd{padding:2px 18px 16px;font-size:14px;color:var(--ink);border-top:1px solid var(--line)}
+  details .dd p{margin:11px 0}
+  details .dd .muted{color:var(--muted)}
+  .worked{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:13.5px}
+  .worked .step{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  .worked .step b{color:var(--teach);font-family:-apple-system,sans-serif}
+  .worked .num{color:var(--codeink);text-align:right;font-variant-numeric:tabular-nums}
+
+  .fork{background:linear-gradient(180deg,rgba(74,141,240,.07),rgba(26,29,39,1) 70%);
+        border:1px solid var(--blue);border-left:4px solid var(--blue);
+        border-radius:12px;padding:20px 22px;margin:22px 0}
+  .fork .kicker{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+  .fork h2{margin:4px 0 4px;font-size:20px}
+  .fork .qline{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .plainfork{background:var(--teachbg);border:1px dashed var(--teach);border-radius:8px;padding:10px 14px;margin:0 0 16px;font-size:13.5px}
+  .plainfork b{color:var(--teach)}
+
+  .formula{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--codeink);overflow-x:auto}
+
+  .status-tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  .status-tbl th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line);padding:8px}
+  .status-tbl td{border-top:1px solid var(--line);padding:9px 8px;vertical-align:top}
+  .status-tbl td.st{white-space:nowrap;font-weight:700}
+  .st-est{color:var(--inv)} .st-below{color:var(--muted)} .st-nodata{color:var(--warn)} .st-supp{color:var(--ar)}
+  .status-scroll{overflow-x:auto}
+  .num{font-variant-numeric:tabular-nums;text-align:right;font-family:ui-monospace,Menlo,monospace}
+
+  .verify{background:linear-gradient(180deg,rgba(63,185,80,.07),rgba(26,29,39,1) 72%);border:1px solid var(--inv);border-left:4px solid var(--inv);border-radius:12px;padding:20px 22px;margin:18px 0}
+  .verify h2{margin:0 0 4px;font-size:19px}
+  .verify .lead{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-5754 — Safety-Stock Impact Value</h1>
+  <div class="sub">Inventory / replenishment planning · per-ticket build overview · residual of BMS-5641 AC-2</div>
+  <div class="meta-line">
+    Branch <code>feat/safety-stock-impact-value-bms-5754</code> · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/492" style="color:var(--blue)">#492</a> · epic <a href="https://ohanafy.atlassian.net/browse/BMS-5068" style="color:var(--blue)">BMS-5068</a> · PO Elliot Flores · updated 2026-07-08
+    &nbsp;<span class="build" style="background:rgba(63,185,80,.16);color:var(--inv)">&#10003; BUILT &mdash; draft PR, all touched files &ge;90%, dry-run live</span>
+  </div>
+  <div class="legend">
+    <span><b class="tag ok">&#10003;</b> confirmed / verified</span>
+    <span><b class="tag ai">&#129504;</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">&#128993;</b> open / deferred</span>
+  </div>
+
+  <!-- ─────────── PRIMER ─────────── -->
+  <div class="primer">
+    <div class="kicker">&#128230; New here? The one-paragraph version</div>
+    <h2>Putting a dollar sign on "keep extra stock"</h2>
+    <p class="lead">A demand planner raises the safety-stock target for a product — "hold 16 days of cover, not the usual 10." That decision <i>costs money</i>: you're now carrying extra cases that tie up cash. BMS-5640 already showed that dollar figure as a <b>preview</b> the moment you type a proposed target. This ticket makes it a <b>standing number</b> — so a manager can pull a report and see, across <i>every</i> override in force right now, how much cash each one is holding above baseline.</p>
+    <dl>
+      <dt>Safety stock</dt>
+      <dd>Extra buffer inventory kept on purpose so you don't run out when a supplier is late or demand spikes.</dd>
+      <dt>DOH</dt>
+      <dd><b>Days on Hand</b> — stock measured in <i>time</i>. "16 DOH" = ~16 days of cover at the current sales pace.</dd>
+      <dt>Override</dt>
+      <dd>A planner-set, dated record (<code>SKU_Override__c</code>) that raises a product's target DOH above the system default.</dd>
+      <dt>Baseline / standard</dt>
+      <dd>The target the org <i>would</i> use if the override didn't exist. The extra value is measured against <b>this</b>, not the override's own number.</dd>
+      <dt>The output</dt>
+      <dd>One dollar figure per override — <b>Estimated Additional Inventory Value</b> — plus the day-delta and a status, all shown as columns on the Safety Stock Overrides report.</dd>
+    </dl>
+  </div>
+
+  <!-- ─────────── ISSUE / IMPACT / SOLUTION ─────────── -->
+  <div class="card">
+    <h2>Issue &middot; Impact &middot; Solution</h2>
+    <div class="row"><span class="lbl">Gap</span><span class="body">BMS-5641 AC-2 asked the report to <b>quantify the buffer being held</b> in dollars. The BMS-5640 planning screen only shows that figure <i>per-proposal, at save time</i> — it never became a standing report column. The report exposed raw fields only. <span class="muted" style="color:var(--muted)">(Confirmed unresolved after PR&nbsp;#481, which measures actual-vs-target <i>days</i>, not the $ value.)</span></span></div>
+    <div class="row"><span class="lbl">Impact</span><span class="body">No way to see, at a glance, the total cash tied up by active overrides — so nobody can review or defend the buffer spend.</span></div>
+    <div class="row"><span class="lbl">Solution</span><span class="body">A nightly batch (<code>B_SafetyStockImpact</code>) computes the incremental value each Active override holds <b>above its standard baseline</b> and stamps four fields onto <code>SKU_Override__c</code>. They become standing report columns.</span></div>
+    <div class="formula">value = ceil( (overrideTarget &minus; standardBaseline) &times; Average_Daily_Depletion__c &divide; Units_Per_Case__c ) &times; Average_Case_Cost__c</div>
+
+    <details>
+      <summary>Go deeper &mdash; the formula, with the live worked example</summary>
+      <div class="dd">
+        <p>The formula turns a <b>time gap</b> (extra days of cover) into a <b>dollar figure</b>. The key subtlety: the delta is measured against the <b>standard baseline</b>, not the override's own target — because once the override is Active it <i>becomes</i> the effective target, so measuring against "effective" would always yield zero.</p>
+        <div class="worked">
+          <div class="step">
+            <b>Override target</b><span><span class="num">16</span> DOH (the planner's setting)</span>
+            <b>Standard baseline</b><span><span class="num">10</span> DOH (from <code>Inventory_Threshold__c</code>)</span>
+            <b>&rarr; delta days</b><span>16 &minus; 10 = <span class="num">6</span> extra days</span>
+            <b>velocity</b><span><span class="num">100</span> units/day (<code>Average_Daily_Depletion__c</code>)</span>
+            <b>units wanted</b><span>6 &times; 100 = <span class="num">600</span> extra units</span>
+            <b>case size</b><span><span class="num">24</span> units/case (<code>Units_Per_Case__c</code>)</span>
+            <b>&rarr; cases</b><span>ceil(600 &divide; 24) = <span class="num">25</span> cases</span>
+            <b>case cost</b><span><span class="num">$30</span> (<code>Average_Case_Cost__c</code>)</span>
+            <b>&rarr; value</b><span>25 &times; $30 = <span class="num">$750</span></span>
+          </div>
+        </div>
+        <p class="muted">This is the exact scenario stamped live in org <code>bms5754</code> (see verification below). Rounds cases <b>up</b> (ceiling) — you can't hold a fraction of a case.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ─────────── THE ARCHITECTURE CALL ─────────── -->
+  <div class="fork">
+    <div class="kicker">&#9989; Architecturally forced &mdash; not a preference</div>
+    <h2>Why a nightly batch-stamp, and not a report formula?</h2>
+    <p class="qline">The obvious instinct is a formula field or a trigger. Both are impossible here — the package tier model rules them out.</p>
+    <div class="plainfork">
+      <b>In plain English:</b> the number needs two ingredients the override record doesn't carry — how fast the product sells (<i>velocity</i>, which lives on the Inventory table) and what the <i>standard</i> target would be (which only a WMS-tier service can work out). A report formula can't reach the first; the code that owns the override can't reach the second. So the value is <b>pre-computed by a background job and written onto the record</b>, exactly like the existing DOI report (BMS-3779) does.</p>
+    </div>
+    <ul>
+      <li><b>No relationship to velocity.</b> There is no path from <code>SKU_Override__c</code> to <code>Inventory__c</code>, and velocity (<code>Average_Daily_Depletion__c</code>) lives on Inventory. A cross-object report formula can't hop a relationship that doesn't exist.</li>
+      <li><b>Tier wall on the baseline.</b> The standard baseline is resolved by <code>S_InventoryThresholds</code>, which is <b>WMS-tier (3)</b>. The <code>SKU_Override__c</code> trigger is <b>PLTFM-tier (2)</b>. WMS depends on PLTFM, never the reverse — so the trigger physically cannot call the resolver. The compute must live in WMS.</li>
+      <li><b>Precedent.</b> This mirrors <code>B_InventoryDOI</code> (BMS-3779): a WMS batch that stamps a computed figure onto a record so a report can display it. Same shape, same reasons.</li>
+    </ul>
+    <p class="muted" style="color:var(--muted);font-size:13.5px;margin-bottom:0">Consequence for admins: the batch must be registered once per environment (<code>System.schedule('WMS Safety Stock Impact Value', '0 0 2 * * ?', new B_SafetyStockImpact())</code>). Documented in <code>setup.md</code>.</p>
+  </div>
+
+  <!-- ─────────── THE FOUR STATUSES ─────────── -->
+  <div class="card" style="border-left-color:var(--teach)">
+    <h2>The four estimate statuses &mdash; an honest number or an honest "can't"</h2>
+    <p class="row" style="color:var(--muted);font-size:13.5px;margin:0 0 6px">A missing figure must never read as "$0 impact." Every row gets a status that says <i>why</i> it is or isn't valued.</p>
+    <div class="status-scroll">
+    <table class="status-tbl">
+      <tr><th>Status</th><th>When</th><th>Value</th><th>Delta</th></tr>
+      <tr><td class="st st-est">Estimated</td><td>Override raises the target and velocity + packaging + cost are all present.</td><td class="num">$750</td><td class="num">6</td></tr>
+      <tr><td class="st st-below">At or Below Standard</td><td>Override target &le; standard &rarr; it adds no buffer. A genuine zero.</td><td class="num">$0</td><td class="num">&minus;2</td></tr>
+      <tr><td class="st st-nodata">No Velocity or Packaging Data</td><td>Can't be estimated (missing velocity, units-per-case, or case cost). Blank, never a misleading $0.</td><td class="num">&mdash;</td><td class="num">10</td></tr>
+      <tr><td class="st st-supp">Supplier Scope Not Aggregated</td><td>Supplier-wide override; per-SKU aggregation is out of scope. Flagged, not valued.</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+    </table>
+    </div>
+    <p class="row" style="color:var(--muted);font-size:12.5px;margin-top:10px">Delta column is blank only when the <i>standard</i> is unknown (supplier scope) — a dry-run fix: the formula's <code>BlankAsBlank</code> setting keeps a missing standard from silently reading as 0.</p>
+  </div>
+
+  <!-- ─────────── DECISIONS ─────────── -->
+  <div class="card">
+    <h2>Decisions logged for refinement</h2>
+    <ul>
+      <li><span class="tag ai">&#129504;</span> <b>Delta is measured vs the STANDARD baseline</b>, not the override's effective target (which would always net to 0). New <code>S_InventoryThresholds.resolveStandardTarget()</code> returns the baseline-only target.</li>
+      <li><span class="tag ai">&#129504;</span> <b>Can't-estimate shows blank + a status, never $0</b> — distinct from a genuine at-or-below zero. Four status labels up for ratification.</li>
+      <li><span class="tag ai">&#129504;</span> <b>No baseline &rArr; standard treated as 0</b> (whole target counts as additional). Open: should a missing baseline instead be "No Data"?</li>
+      <li><span class="tag op">&#128993;</span> <b>Supplier-scope overrides are flagged, not valued</b> — cross-SKU aggregation deferred. Open: do we want supplier-level roll-up as a follow-up?</li>
+    </ul>
+    <p class="row" style="color:var(--muted);font-size:12.5px;margin-top:8px">All four posted to <a href="https://ohanafy.atlassian.net/browse/BMS-5754" style="color:var(--blue)">BMS-5754</a> for the team to ratify.</p>
+  </div>
+
+  <!-- ─────────── VERIFICATION ─────────── -->
+  <div class="verify">
+    <h2>Verified &amp; dry-run</h2>
+    <p class="lead">Automated + by-hand, live on org <code>bms5754</code>.</p>
+    <div class="row"><span class="lbl">Apex</span><span class="body">S_SafetyStockImpact 98% &middot; B_SafetyStockImpact 100% &middot; S_InventoryThresholds 97% (incl. new method) &mdash; 11/11 green, all touched files &ge;90%.</span></div>
+    <div class="row"><span class="lbl">Code review</span><span class="body">Clean against all 8 hard constraints (QueryService/DmlService only, SYSTEM_MODE rule-4 comments, no <code>ohfy__</code> in Apex, tier-8 isolation, Logger in catch).</span></div>
+    <div class="row"><span class="lbl">Live dry-run</span><span class="body">All four status branches seeded and batch-stamped in <code>bms5754</code>: Estimated ($750), At or Below ($0), No Data (blank), Supplier (blank) &mdash; matches the table above exactly.</span></div>
+    <div class="row"><span class="lbl">Docs</span><span class="body"><code>/document</code>: sku-override setup / usage / release-notes updated (schedule step + report columns).</span></div>
+  </div>
+
+  <!-- ─────────── DRY-RUN INSTRUCTIONS ─────────── -->
+  <div class="card" style="border-left-color:var(--warn)">
+    <h2>Want to run it by hand? (org <code>bms5754</code>)</h2>
+    <ol style="margin:6px 0 0;padding-left:20px">
+      <li style="margin:6px 0;font-size:14.5px">Data is already seeded &mdash; four Active overrides, one per status, already stamped by the batch.</li>
+      <li style="margin:6px 0;font-size:14.5px">To re-run the compute after changing anything: Developer Console &rarr; Anonymous Apex &rarr; <code>Database.executeBatch(new B_SafetyStockImpact(), 20);</code></li>
+      <li style="margin:6px 0;font-size:14.5px">View the values: build a report from the <b>Safety Stock Overrides</b> report type (the four columns are checked-by-default), or open a <code>SKU_Override__c</code> record. The <code>Safety_Stock_Manager_Access</code> permset grants read on the fields.</li>
+    </ol>
+  </div>
+
+  <!-- ─────────── JARGON ─────────── -->
+  <div class="jargon">
+    <h2>Jargon legend</h2>
+    <p class="lead"><code>monospace</code> = a real field, object, or class in the codebase.</p>
+    <div class="jargon-scroll">
+    <table>
+      <tr><td class="term"><code>SKU_Override__c</code></td><td class="def">A planner-set, dated override raising a product's target DOH. <code>Scope__c</code> is <b>SKU</b> (one item &times; warehouse) or <b>Supplier</b> (all items of a supplier).</td></tr>
+      <tr><td class="term"><code>S_SafetyStockImpact</code></td><td class="def">The compute service (WMS). Bulk-queries velocity + packaging once, memoizes baseline resolution, returns the value + status per override.</td></tr>
+      <tr><td class="term"><code>B_SafetyStockImpact</code></td><td class="def">The Batchable + Schedulable that runs the service across all Active overrides nightly and writes the stamps (SYSTEM_MODE).</td></tr>
+      <tr><td class="term"><code>S_InventoryThresholds</code></td><td class="def">The WMS service that resolves target DOH. New method <code>resolveStandardTarget()</code> returns the <i>baseline-only</i> target, ignoring overrides.</td></tr>
+      <tr><td class="term"><code>Inventory_Threshold__c</code></td><td class="def">The baseline targets, set per warehouse (and optionally per supplier). Source of the "standard" the delta is measured against.</td></tr>
+      <tr><td class="term">SYSTEM_MODE</td><td class="def">The batch runs as a service account and writes regardless of the scheduling user's field security — that's why the value stamps even for users who can't see the field.</td></tr>
+      <tr><td class="term">Stamp</td><td class="def">Pre-compute a value and store it on the record (vs. computing it live). Lets a plain report show a figure that would otherwise need cross-object logic.</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="foot">Sources: PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/492" style="color:var(--blue)">#492</a> &amp; commits on <code>feat/safety-stock-impact-value-bms-5754</code>; Jira <a href="https://ohanafy.atlassian.net/browse/BMS-5754" style="color:var(--blue)">BMS-5754</a> (open-question comment) under epic BMS-5068; live verification on org <code>bms5754</code> (2026-07-08). Docs: <code>docs/product/wms/sku-override/</code>. Parent epic overview: <code>../BMS-5068-safety-stock/overview.html</code>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>

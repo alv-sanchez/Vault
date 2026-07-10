@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5068 — Safety Stock Controls</title>
+<meta name="description" content="Per-epic build overview with a newcomer primer: DOH order-sizing, scope decisions, and the live pick-face-vs-PO architectural fork.">
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e7e9ee; --muted:#9aa3b2; --line:#2a2f3d;
+    --inv:#3fb950; --ar:#a371f7; --warn:#d6a32e; --blue:#4a8df0;
+    --code:#0b0d13; --codeink:#c9d1e6;
+    --teach:#5cc8e8; --teachbg:rgba(92,200,232,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:28px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+  .meta-line{color:var(--muted);font-size:13px;margin-top:8px}
+  .meta-line code{color:var(--codeink)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 8px;font-size:13px;color:var(--muted)}
+  .legend b{color:var(--ink)}
+  .build{display:inline-block;background:rgba(214,163,46,.16);color:var(--warn);font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;letter-spacing:.04em}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--inv)}
+  .card h2{margin:0 0 12px;font-size:19px}
+  .row{margin:8px 0}
+  .lbl{display:inline-block;min-width:86px;color:var(--muted);font-size:13px;font-weight:600;vertical-align:top}
+  .row .body{display:inline}
+
+  .tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-right:5px}
+  .ok{background:rgba(63,185,80,.16);color:var(--inv)}
+  .ai{background:rgba(163,113,247,.16);color:var(--ar)}
+  .op{background:rgba(214,163,46,.16);color:var(--warn)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:6px 0;font-size:14.5px}
+  code{background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12.5px;color:var(--codeink)}
+
+  /* ── Newcomer teaching surfaces (new, additive to the theme) ── */
+  .primer{background:linear-gradient(180deg,var(--teachbg),rgba(26,29,39,1) 78%);
+        border:1px solid var(--teach);border-left:4px solid var(--teach);
+        border-radius:12px;padding:20px 22px;margin:18px 0}
+  .primer .kicker{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teach)}
+  .primer h2{margin:4px 0 10px;font-size:20px}
+  .primer p{margin:9px 0;font-size:14.5px}
+  .primer .lead{color:var(--muted);font-size:14px;margin-top:0}
+  .primer dl{margin:6px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:8px 16px;font-size:14px}
+  .primer dt{color:var(--teach);font-weight:700}
+  .primer dd{margin:0;color:var(--ink)}
+  @media(max-width:560px){.primer dl{grid-template-columns:1fr;gap:2px 0}.primer dd{margin:0 0 8px}}
+
+  .jargon{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;border-left:4px solid var(--teach)}
+  .jargon h2{margin:0 0 4px;font-size:19px}
+  .jargon .lead{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+  .jargon table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .jargon td{border-top:1px solid var(--line);padding:9px 8px;vertical-align:top}
+  .jargon td.term{white-space:nowrap;color:var(--ink);font-weight:600;width:1%}
+  .jargon td.term code{color:var(--codeink)}
+  .jargon td.def{color:var(--muted)}
+  .jargon-scroll{overflow-x:auto}
+
+  details{background:var(--code);border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:0}
+  details summary{cursor:pointer;list-style:none;padding:12px 16px;font-size:13.5px;font-weight:700;color:var(--teach);display:flex;align-items:center;gap:8px}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸";color:var(--teach);font-size:12px;transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details .dd{padding:2px 18px 16px;font-size:14px;color:var(--ink);border-top:1px solid var(--line)}
+  details .dd p{margin:11px 0}
+  details .dd .muted{color:var(--muted)}
+  .worked{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:13.5px}
+  .worked .step{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+  .worked .step b{color:var(--teach);font-family:-apple-system,sans-serif}
+  .worked .num{color:var(--codeink);text-align:right;font-variant-numeric:tabular-nums}
+
+  /* The live decision — given visual weight */
+  .fork{background:linear-gradient(180deg,rgba(214,163,46,.07),rgba(26,29,39,1) 70%);
+        border:1px solid var(--warn);border-left:4px solid var(--warn);
+        border-radius:12px;padding:20px 22px;margin:22px 0}
+  .fork .kicker{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--warn)}
+  .fork h2{margin:4px 0 4px;font-size:20px}
+  .fork .qline{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .plainfork{background:var(--teachbg);border:1px dashed var(--teach);border-radius:8px;padding:10px 14px;margin:0 0 16px;font-size:13.5px}
+  .plainfork b{color:var(--teach)}
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.ab{grid-template-columns:1fr}}
+  .opt{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card)}
+  .opt.a{border-color:var(--blue);box-shadow:0 0 0 1px rgba(74,141,240,.25)}
+  .opt h3{margin:0 0 2px;font-size:15px}
+  .opt .place{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+  .opt .plain{font-size:13px;color:var(--ink);background:rgba(255,255,255,.03);border-radius:6px;padding:8px 10px;margin:0 0 10px}
+  .opt dl{margin:0;font-size:13.5px}
+  .opt dt{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;margin-top:9px}
+  .opt dd{margin:1px 0 0}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-top:2px}
+  .pill.go{background:rgba(74,141,240,.18);color:var(--blue)}
+  .pill.no{background:rgba(154,163,178,.16);color:var(--muted)}
+  .tension{margin:16px 0 0;border-top:1px solid var(--line);padding-top:13px;font-size:14px}
+  .tension b{color:var(--ink)}
+
+  .formula{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--codeink);overflow-x:auto}
+  .build-list li b{color:var(--warn)}
+  .needorg{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;font-size:14px}
+  .needorg b{color:var(--warn)}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body><div id="bo-nav" style="position:sticky;top:0;z-index:9999;background:#2b2b2b;padding:8px 16px;display:flex;align-items:center;gap:12px;font-family:-apple-system,sans-serif;"><a href="/index.html" style="color:#f5c518;text-decoration:none;font-weight:700;font-size:14px;">&larr; All Overviews</a><span style="color:#555;font-size:13px;">|</span><a href="/Build-Overview.html" style="color:#999;text-decoration:none;font-size:13px;">Full Build Overview</a><a href="#" onclick="dlPage();return false;" style="margin-left:auto;color:#f5c518;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #f5c518;padding:4px 10px;border-radius:5px;">Download</a></div>
+<div class="wrap">
+  <h1>BMS-5068 — Safety Stock Controls</h1>
+  <div class="sub">Inventory / replenishment planning · per-epic build overview</div>
+  <div class="meta-line">
+    Branch <code>feat/safety-stock-controls-bms-5068</code> · PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442" style="color:var(--blue)">#442</a> · PO Elliot Flores · updated 2026-07-02
+    &nbsp;<span class="build" style="background:rgba(63,185,80,.16);color:var(--inv)">✅ BUILT — all 6 stories, CI green</span>
+  </div>
+  <div class="legend">
+    <span><b class="tag ok">✅</b> confirmed</span>
+    <span><b class="tag ai">🧠</b> AI best-judgment (ratify in refinement)</span>
+    <span><b class="tag op">🟠</b> open (architectural)</span>
+  </div>
+
+  <!-- ─────────── NEW HERE? INVENTORY PRIMER ─────────── -->
+  <div class="primer">
+    <div class="kicker">📦 New here? Inventory primer</div>
+    <h2>The whole epic in everyday words</h2>
+    <p class="lead">Gulf Distributing is a beverage distributor (DSD = <i>Direct Store Delivery</i> — they truck drinks straight to stores). Their warehouse holds cases of product. This epic is about <b>not running out</b> of a product, and <b>not drowning in too much</b> of it. Here are the ideas you need, in plain English.</p>
+    <dl>
+      <dt>Safety stock</dt>
+      <dd>Extra buffer inventory you keep on purpose, so you don't run out when a supplier ships late or a heat wave makes everyone buy Gatorade. It's the "just in case" cushion on top of normal stock.</dd>
+
+      <dt>DOH / DOI</dt>
+      <dd><b>Days on Hand / Days of Inventory</b> — how many days your current stock will last at the current sales rate. "12 DOH" means "if we keep selling at today's pace, we have ~12 days before we hit zero." It's stock measured in <i>time</i>, not cases.</dd>
+
+      <dt>Velocity</dt>
+      <dd>How fast a product sells. Stored as <code>Average_Daily_Depletion__c</code> (cases sold per day). DOH is just <code>stock ÷ velocity</code> — the live value lives in <code>Current_DOI__c</code>.</dd>
+
+      <dt>Reorder point</dt>
+      <dd>The low-water mark. When stock drops to this line, the system raises its hand and says "refill me." Refilling is called <b>replenishment</b>.</dd>
+
+      <dt>Pick face</dt>
+      <dd>The front-of-shelf bin a warehouse worker (a "picker") grabs cases from to fill an order. It's small and gets refilled from bulk stock you <i>already own</i>.</dd>
+
+      <dt>Inbound PO</dt>
+      <dd>A <b>Purchase Order</b> — buying <i>more</i> product from the supplier (e.g. ordering more Red Bull from Red Bull). This is how new stock enters the building.</dd>
+    </dl>
+    <p class="muted" style="color:var(--muted);font-size:13.5px;margin-bottom:0">Option A (pick-face) is <b>built and live</b>. The open decision below is narrower now: should the supplier-level buffer (also built) <i>also</i> drive pick-face sizing, or does "supplier lead-time" really mean Option B (buy more), which is a from-scratch build elsewhere? Keep that one sentence in your pocket.</p>
+  </div>
+
+  <!-- ─────────── JARGON LEGEND ─────────── -->
+  <div class="jargon">
+    <h2>Jargon legend</h2>
+    <p class="lead">Every technical and Salesforce term on this page, decoded once. <code>monospace</code> = a real field, object, or class name in the codebase.</p>
+    <div class="jargon-scroll">
+    <table>
+      <tr><td class="term">Salesforce</td><td class="def">The platform this is all built on. Business data lives in <b>objects</b> (like database tables) and logic runs in <b>Apex</b> (Salesforce's Java-like language). Class names like <code>E_ReplenishmentTask</code> are Apex.</td></tr>
+      <tr><td class="term">Custom object (<code>__c</code>)</td><td class="def">A table the company defined themselves. The <code>__c</code> suffix marks it as custom. <code>Inventory__c</code> is "the Inventory table"; one <b>row</b> = one product's stock at one location.</td></tr>
+      <tr><td class="term">Field (<code>__c</code>)</td><td class="def">A column on an object. <code>Average_Daily_Depletion__c</code> is the "how fast it sells" column on <code>Inventory__c</code>.</td></tr>
+      <tr><td class="term">Formula field</td><td class="def">A field that <i>computes itself</i> from other fields instead of being typed in — like a spreadsheet cell. <code>Effective_Target_DOH__c</code> is one: the system's chosen DOH target.</td></tr>
+      <tr><td class="term">Relationship (<code>__r</code>)</td><td class="def">A link to another object's row. <code>Item_Line__r.Supplier__r</code> means "from a product, hop to its supplier" — how we'd reach the supplier tier later.</td></tr>
+      <tr><td class="term">CMDT feature flag</td><td class="def"><b>Custom Metadata Type</b> — a config switch shipped with the code. A "feature flag" lets us turn the new behavior on/off per org <i>without redeploying</i>. The new sizing is <b>flag-guarded</b>: off by default, safe to ship dark.</td></tr>
+      <tr><td class="term">Supplier tier</td><td class="def">Setting safety-stock targets <i>per supplier</i> (slow suppliers get a bigger buffer). The plumbing exists via <code>Inventory_Threshold__c.Account__c</code> but is deferred for v1.</td></tr>
+      <tr><td class="term">Layer / pallet</td><td class="def">Physical shipping units. A pallet is a stack; a layer is one tier of cases on it (a fixed count of cases). You ship whole layers/pallets, not loose cases — so order quantities round to them.</td></tr>
+      <tr><td class="term"><code>S_InventoryThresholds</code></td><td class="def">The Apex service that answers "what's the target DOH for this product here?" Its <code>resolve()</code> walks a precedence ladder (see below).</td></tr>
+      <tr><td class="term"><code>E_ReplenishmentTask</code></td><td class="def">The Apex that creates refill tasks when a pick-face bin runs low. This is where the new order-sizing gets wired in.</td></tr>
+      <tr><td class="term"><code>Pick_Location_Assignment__c</code></td><td class="def">A pick-face bin's config: which product, and its <code>Min_Capacity__c</code> / <code>Max_Capacity__c</code> (in cases). The order size is <b>clamped</b> so it never overfills the bin. (This object is shared with sibling epic <b>BMS-5083</b>.)</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Issue · Impact · Proposed solution</h2>
+    <div class="row"><span class="lbl">User</span><span class="body">Inventory / demand planners · service-level owners <span class="muted" style="color:var(--muted)">— the people who decide how much stock to keep so stores never go empty.</span></span></div>
+    <div class="row"><span class="lbl">Issue</span><span class="body">Static reorder points can't flex when a supplier is slow or demand is seasonal — buffers don't move with conditions. <span class="muted" style="color:var(--muted)">(A fixed "reorder at 50 cases" line is wrong the moment sales speed up or the supplier slows down.)</span></span></div>
+    <div class="row"><span class="lbl">Impact</span><span class="body">Stockouts or overstock when supply conditions change; service levels slip.</span></div>
+    <div class="row"><span class="lbl">Solution</span><span class="body">The override/threshold <b>engine already shipped</b> (BMS-4609). Net-new = make the resolved <b>target DOH actually size replenishment orders</b> in <code>E_ReplenishmentTask</code> (today DOH only nudges <i>priority</i>, never <i>quantity</i>).</span></div>
+    <div class="formula">targetCases = round( targetDOH × Average_Daily_Depletion__c ÷ Units_Per_Case__c )
+&nbsp;&nbsp;→ round to layer / pallet&nbsp;&nbsp;→ clamp to bin capacity&nbsp;&nbsp;→ null fallback = today's capacity-fill</div>
+
+    <details>
+      <summary>Go deeper — the <code>targetCases</code> formula, with a worked example</summary>
+      <div class="dd">
+        <p>The formula turns a <b>time target</b> (days) into a <b>physical order</b> (cases). Read it left to right:</p>
+        <p class="muted"><code>targetDOH</code> = how many days of cover we want · <code>Average_Daily_Depletion__c</code> = units sold per day · <code>Units_Per_Case__c</code> = units in one case. Multiply the first two to get units we want on hand; divide by units-per-case to get cases.</p>
+        <div class="worked">
+          <div class="step">
+            <b>Say:</b><span>target = <span class="num">10</span> days of cover</span>
+            <b></b><span>velocity = <span class="num">48</span> units/day (<code>Average_Daily_Depletion__c</code>)</span>
+            <b></b><span>case size = <span class="num">24</span> units/case (<code>Units_Per_Case__c</code>)</span>
+            <b>units wanted</b><span>10 × 48 = <span class="num">480</span> units</span>
+            <b>→ cases</b><span>480 ÷ 24 = <span class="num">20</span> cases</span>
+            <b>round to layer</b><span>layer = 8 cases → round 20 up to <span class="num">24</span> (3 layers)</span>
+            <b>clamp to bin</b><span>bin <code>Max_Capacity__c</code> = 22 → final = <span class="num">22</span> cases</span>
+          </div>
+        </div>
+        <p class="muted">If <code>targetDOH</code> or velocity is <b>null</b> (an un-configured SKU), the formula is skipped entirely and the code falls back to <b>today's behavior</b> — fill the bin to its max. So turning this on can never make an un-configured product worse; it only changes products someone deliberately set a target for.</p>
+      </div>
+    </details>
+  </div>
+
+  <details>
+    <summary>Go deeper — how <code>S_InventoryThresholds.resolve()</code> picks the target ("the engine that already shipped")</summary>
+    <div class="dd">
+      <p><b>What "the engine already shipped (BMS-4609)" means:</b> the hard part — deciding <i>which</i> DOH target applies to a given product at a given place — is already built and live on <code>main</code>. We are <b>not</b> rebuilding it. We only make its answer drive the order <i>size</i>.</p>
+      <p>The engine is three pieces working together:</p>
+      <ul>
+        <li><code>SKU_Override__c</code> — a hand-set, dated override for one exact product + location ("for <i>this</i> SKU in <i>this</i> warehouse, force target = 14 days until June 30").</li>
+        <li><code>Inventory_Threshold__c</code> — the baseline targets, set broadly (per warehouse, and optionally per supplier via <code>Account__c</code>).</li>
+        <li><code>S_InventoryThresholds.resolve(itemId, locationId, accountId)</code> — the referee. It returns Min/Target/Max DOH + Lead Time by walking a <b>precedence ladder</b> (most specific wins):</li>
+      </ul>
+      <p class="muted">1. Active <code>SKU_Override__c</code> for this exact (item, location) — fills any field it sets.<br>
+      2. <code>Inventory_Threshold__c</code> matching both supplier <i>and</i> warehouse.<br>
+      3. <code>Inventory_Threshold__c</code> for the warehouse only.<br>
+      4. <code>Inventory_Threshold__c</code> for the supplier only.<br>
+      5. Nothing matches → returns null, and the caller decides the default.</p>
+      <p>Note step 2/4 need a <b>supplier</b> (<code>accountId</code>). Today every caller passes <code>accountId = null</code> (see <code>E_ReplenishmentTask</code> ~line 353), so the supplier tier exists but never fires — that's exactly why supplier-tier is "feasible but deferred."</p>
+    </div>
+  </details>
+
+  <div class="card">
+    <h2>Closed questions</h2>
+    <ul>
+      <li><span class="tag ok">✅</span> <b>Don't rebuild the engine — re-scope BMS-4217 onto it.</b> <code>SKU_Override__c</code> + <code>Inventory_Threshold__c</code> + <code>S_InventoryThresholds.resolve()</code> already shipped under BMS-4609 (Done). BMS-4217 became the DOH order-sizing build (below), not a re-demo.</li>
+      <li><span class="tag ok">✅</span> <b>Extend, don't duplicate, for the rest of the epic.</b> The remaining 20-scenario AC (from the original BMS-4025/4217 spec) was mapped against every sibling epic; the genuinely unowned gap became 5 new stories — all extending <code>SKU_Override__c</code>, never a new <code>Safety_Stock_Override__c</code> object. Full overlap analysis: <code>breakout-and-overlap.md</code>.</li>
+      <li><span class="tag ok">✅</span> <b>Supplier-<i>scope</i> overrides are now built</b> (BMS-5636) — a planner can create a Supplier-scope <code>SKU_Override__c</code> (via <code>Account__c</code>) and <code>S_InventoryThresholds.resolve()</code> applies it to every SKU of that supplier lacking its own override, correctly outranked by a SKU-scope override. <b>What's still deferred</b> is narrower than before: only the replenishment <i>pick-face</i> caller (<code>E_ReplenishmentTask</code>) still passes <code>accountId = null</code> — that one wire-in stays gated on the Option A/B call below.</li>
+      <li><span class="tag ai">🧠</span> <b>Round order sizing to layer / pallet</b> (standard in beverage DSD — you physically can't ship a third of a layer).</li>
+    </ul>
+  </div>
+
+  <!-- ─────────── THE LIVE FORK ─────────── -->
+  <div class="fork">
+    <div class="kicker">🟠 Still open · the live product decision</div>
+    <h2>Where does DOH order-sizing belong?</h2>
+    <p class="qline">Same target DOH, two different builds in two different places. This is a product call, not a code call.</p>
+    <div class="plainfork">
+      <b>In plain English:</b> a planner raises the safety-stock target for, say, Red Bull. That should mean "keep more on hand." But <i>where?</i> <b>Option A</b> says move more cases from bulk to the <b>pick face</b> inside the warehouse (using stock we already own). <b>Option B</b> says <b>buy more</b> from Red Bull on the next purchase order. Both are real, sensible readings of "more safety stock" — that's why this needs a human to decide, not code.
+    </div>
+    <div class="ab">
+      <div class="opt a">
+        <h3>Option A — Pick-face replenishment</h3>
+        <p class="place"><code>E_ReplenishmentTask</code> · bulk → pick face</p>
+        <p class="plain">Refill the front-of-shelf bin from stock you already have in the building. Protects against the bin going dry while pickers are working a shift.</p>
+        <dl>
+          <dt>Question it answers</dt><dd>Don't let the <i>pick face</i> go dry mid-shift.</dd>
+          <dt>DOH's role</dt><dd>Keep the bin from running empty during a shift.</dd>
+          <dt>Code today</dt><dd>The only existing DOH consumer — already wired in.</dd>
+        </dl>
+        <span class="pill go" style="background:rgba(63,185,80,.18);color:var(--inv)">✅ BUILT — live in <code>ohfy-val-5068</code></span>
+      </div>
+      <div class="opt b">
+        <h3>Option B — Inbound PO sizing</h3>
+        <p class="place">purchasing · <code>E_PurchaseOrder</code> · supplier → receiving</p>
+        <p class="plain">Decide how many cases to <i>buy from the supplier</i> on the next order. Protects against running out because the supplier is slow or demand is seasonal.</p>
+        <dl>
+          <dt>Question it answers</dt><dd>Don't run out because the <i>supplier</i> is slow / seasonal.</dd>
+          <dt>DOH's role</dt><dd>Reorder buffer vs lead-time + demand swings.</dd>
+          <dt>Code today</dt><dd>No DOH consumer exists yet — would be net-new.</dd>
+        </dl>
+        <span class="pill no">not built</span>
+      </div>
+    </div>
+    <div class="tension">
+      <b>The tension:</b> the epic's wording ("supplier lead-time variability, seasonal demand swings") leans toward <b>Option B (purchasing)</b>, but the only existing code hook is <b>Option A (pick-face)</b> — and Option A now shipped.
+      <b>Still open:</b> whether the now-built supplier-<i>scope</i> override (BMS-5636) should also drive Option A's sizing (thread its <code>accountId</code> into <code>E_ReplenishmentTask</code>) or whether "supplier lead-time" really means Option B and belongs in a purchasing epic instead. Confirm intent at the next refinement.
+    </div>
+
+    <details>
+      <summary>Go deeper — the pick-face-vs-PO fork in depth (why it's a genuine fork)</summary>
+      <div class="dd">
+        <p>Picture the warehouse as two separate flows of inventory, each with its own "don't run out" risk:</p>
+        <p><b>Flow 1 — inside the building (Option A).</b> You already own pallets of Red Bull in bulk storage. Through the day, pickers pull cases off the small <b>pick face</b> bin to build store orders. When that bin gets low, <code>E_ReplenishmentTask</code> makes a task: "move N cases from bulk to the pick face." Raising the DOH target here means <i>refill the bin sooner / fuller</i> so it never empties mid-shift. <b>No new product enters the building</b> — you're just shuffling what you have. This is cheap to build because the DOH value is <i>already passed into this code</i> today (it just nudges task priority, not quantity).</p>
+        <p><b>Flow 2 — from the supplier (Option B).</b> Eventually bulk itself runs low and you must <b>buy more</b> from Red Bull. That's a purchase order. Here, safety stock is a <b>reorder buffer</b>: order enough extra to cover the supplier's <i>lead time</i> (how long shipping takes) plus demand swings, so you don't stock out waiting for the truck. This lives in purchasing (<code>E_PurchaseOrder</code>) and <b>has no DOH wiring at all yet</b> — it would be a from-scratch build.</p>
+        <p class="muted">Why this is a real product decision and not an engineering detail: the <i>same words</i> ("raise the buffer") point at two different systems, two different code paths, and two very different build costs. The epic's business language sounds like Flow 2 (suppliers, seasons, lead time). The cheap/ready path is Flow 1. Engineering can't pick — the business has to say which risk they're actually trying to kill, A, B, or both.</p>
+        <p>To unblock the build now, the engineer wires Option A (already-wired, low-risk) behind a feature flag and leaves an <code>OPEN(refinement)</code> marker in code at the exact wire-in point, so if the meeting chooses B, the seam is obvious.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Build status <span class="build" style="background:rgba(63,185,80,.16);color:var(--inv)">✅ BUILT — 6/6 stories</span></h2>
+    <div class="row"><span class="lbl">Branch</span><span class="body"><code>feat/safety-stock-controls-bms-5068</code> → PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/442" style="color:var(--blue)">#442</a></span></div>
+    <ul class="build-list">
+      <li><b>BMS-4217 — DOH order sizing.</b> <code>round(targetDOH × Average_Daily_Depletion__c ÷ Units_Per_Case__c)</code>, layer/pallet rounding, clamped to bin capacity. Wired into <code>E_ReplenishmentTask</code>, additive + <b>flag-guarded</b> (off by default), null-falls-back to today's capacity-fill.</li>
+      <li><b>BMS-5636 — Supplier-scope overrides + full lifecycle.</b> <code>SKU_Override__c</code> extended with <code>Scope__c</code>/<code>Account__c</code>/<code>Adjustment_Type__c</code> and <b>Scheduled</b> / <b>Manually Closed</b> statuses; <code>S_InventoryThresholds</code> now labels <i>which</i> tier won (<code>resolutionSource</code>); nightly batch activates Scheduled→Active and expires past-due records; one-active-per-entity uniqueness for both scopes.</li>
+      <li><b>BMS-5638 — Expiry notifications.</b> Planner gets a <code>CustomNotification</code> on expiry and N days before (CMDT-configurable window, default 4) — no hardcoded value.</li>
+      <li><b>BMS-5639 — Freeze on the task.</b> <code>Replenishment_Task__c</code> now stores <code>Effective_Target_DOH__c</code> + <code>Resolution_Source__c</code> at generation time — frozen, so a later override expiry never rewrites history.</li>
+      <li><b>BMS-5640 — Planning LWC.</b> <code>safetyStockManager</code>: grid + status filter, pre-save impact preview (SKUs affected / additional cases / est. $ value, reusing the sizing formula), row-level early close.</li>
+      <li><b>BMS-5641 — Reporting.</b> <code>Safety Stock Overrides</code> custom report type for history/audit.</li>
+    </ul>
+    <div class="row" style="margin-top:14px"><span class="lbl">Verified</span><span class="body">All 7 CI checks green (Apex, Jest, Playwright, Prettier, Lint, deploy). 105/105 Apex tests. Manually dry-run live on <code>ohfy-val-5068</code> — impact preview, hierarchy precedence, uniqueness, lifecycle transitions, and manual-close all confirmed correct by hand, beyond the automated suite.</span></div>
+  </div>
+
+  <div class="card" style="border-left-color:var(--warn)">
+    <h2>QA pass — findings (2026-07-02)</h2>
+    <ul>
+      <li><span class="tag ok">✅</span> <b>Fixed:</b> a <code>Permanent</code> override could carry a populated <code>End_Date__c</code>, which the lifecycle batch would then silently expire/notify against, contradicting the "Permanent" label. New validation rule + tests shipped (zero blast radius — the field is net-new to this epic).</li>
+      <li><span class="tag op">🟠</span> <b>Found, not fixed here:</b> <code>Override_Reason__c</code> has no mandatory-field enforcement anywhere — contradicts the original "reason is mandatory" AC. Not fixed in this PR because it predates this epic and 8 test classes across 4 other tickets (BMS-3779/4102/3819/4609) create records without one; needs its own scoped ticket + fixture updates.</li>
+      <li><span class="tag op">🟠</span> <b>BMS-5641 scope gap:</b> the report type exposes only raw fields — there is no computed "estimated additional inventory value" or "buffer delta vs. standard" anywhere, so its AC to "quantify the buffer being held" isn't actually satisfied yet.</li>
+      <li><span class="tag op">🟠</span> <b>PR #442 is merge-blocked</b> — <code>reviewDecision: REVIEW_REQUIRED</code>. The org's automated review bot hit its monthly spend cap and skipped the real review (placeholder comment only). Needs a human approval, or the cap to reset + a new commit.</li>
+      <li><span class="tag ai">🧠</span> <b>Not independently verified live:</b> the LWC's visual polish (no <code>/ohfy-design</code> pass), a new Playwright spec for its own flows (the passing "Playwright E2E" check is the pre-existing, unrelated suite), and the replenishment-task freeze end-to-end (no <code>Pick_Location_Assignment__c</code> fixture data in the demo org — covered by 2 passing automated tests instead).</li>
+    </ul>
+  </div>
+
+  <div class="foot">Sources: <code>Open-Questions/BMS-5068-safety-stock-rescope.md</code> (v1 decisions, 2026-06-29) and <code>breakout-and-overlap.md</code> (epic breakout + overlap analysis, 2026-07-01). QA dry run + findings: 2026-07-02, PR #442 body and Jira comments on BMS-5068/BMS-5641. Diagram: <code>diagram.excalidraw.md</code>. Sibling epic on bin capacity: <b>BMS-5083</b>.</div>
+</div>
+<script>function dlPage(){var a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);a.download=document.title.replace(/[^a-zA-Z0-9-_ ]/g,'')+'.html';a.click();}</script></body>
+</html>
