@@ -1,0 +1,42 @@
+/* DBML Render — diagram container + error box */
+
+.dbml-render-container {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.dbml-render-diagram {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.dbml-render-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.dbml-render-error {
+  border: 1px solid var(--color-red, #e03131);
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: rgba(224, 49, 49, 0.08);
+  color: var(--text-normal, #d4d4d4);
+  padding: 10px 12px;
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+
+.dbml-render-error strong {
+  color: var(--color-red, #e03131);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dbml-render-error-msg {
+  font-family: var(--font-monospace, monospace);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

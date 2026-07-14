@@ -1,0 +1,9 @@
+{
+  "id": "dbml-render",
+  "name": "DBML Render",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Render fenced ```dbml code blocks as ER diagrams inline, using @dbml/core and a bundled Mermaid.",
+  "author": "Alvaro Sanchez",
+  "isDesktopOnly": false
+}

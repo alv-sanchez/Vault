@@ -15,3 +15,12 @@
 | 2026-07-08 22:57 | 6 (+12 to-do) | 32 | 20 | 8⚠ | 0 (conductor skipped — off-main) |
 | 2026-07-10 09:06 | 6 | 32 | 8 | 1 | 11 |
 | 2026-07-10 11:54 | 8 (+10 to-do) | 38 | 9 | 8⚠ | 0 (conductor skipped — off-main) · +Jira: 5113/5161/5789→In Progress · +orgs component |
+| 2026-07-10 15:10 | 5 (+10 to-do) | ? | ? | ? | 0 · closed 5068+5070 (Done) |
+| 2026-07-13 09:20 | 15 (4 IP/11 todo) | 55 |  | 0 | 16 |
+| 2026-07-13 10:40 | 15 (4 IP/11 todo) | 55 | (see report) | 0 | 16 |
+| 2026-07-13 11:02 | 4 (+11 to-do) | 21 | 3 | 0 | 0 · fixed stale 4936 (Done), 5768 added |
+| 2026-07-13 11:09 | 4 (+11 to-do) | 21 | 3 | 0 | 0 · base reconciled (no drift) |
+| 2026-07-13 11:46 | 4 (+11 to-do) | 21 | 3 | 0 | 0 · no drift |
+| 2026-07-13 15:30 | 4 in-progress / 11 to-do / 18 done | 25 | 6 | 0 | BMS-4088 (blocks BMS-5164), freight-vs-claim audit surface (BMS-5790) |
+| 2026-07-14 22:33 | 5 in-progress + 11 to-do + 18 done | 34 | 7 | 0 | 16 |
+| 2026-07-14 22:39 | 5 in-progress + 11 to-do + 18 done | 34 | 7 | 0 | 16 |

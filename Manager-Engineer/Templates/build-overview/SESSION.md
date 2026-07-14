@@ -4,6 +4,8 @@
 > or tell the session: "Read this file first." It is the context seed.
 > Last updated: {{DATE}}.
 
+**Sprint:** TBD — _stamp the active sprint (e.g. "Sprint 9, 2026-07-13 → 2026-07-20") the moment work resumes here; if no child ticket is in an open sprint, write "dormant — last touched Sprint N."_ Keep this line current every session; it's the freshness check before anyone picks this back up.
+
 ## Scope of THIS session
 {{KEY}} — {{TITLE}}. Do not touch other tickets/streams.
 

@@ -38,7 +38,7 @@ tags:
 > [!success] Current state (2026-07-01) — BUILT
 > Epic broken out + built on one branch: **PR [#442](https://github.com/Ohanafy/OHFY-Split/pull/442)** (`feat/safety-stock-controls-bms-5068`), **all 7 CI checks green**, 105 Apex tests. Resolution: **extend the existing `SKU_Override__c` stack** (not the fictional `Safety_Stock_Override__c`) — reconciling the 2026-06-29 contradiction below.
 > - **Children built:** BMS-4217 (DOH order sizing) · **BMS-5636** (supplier-scope + Scheduled/Manually-Closed lifecycle) · **BMS-5638** (expiry notifications) · **BMS-5639** (freeze effective-DOI + source on task) · **BMS-5640** (planning LWC + impact preview) · **BMS-5641** (report type).
-> - **Full breakout + overlap analysis:** [[breakout-and-overlap]] (`Build-Overview/BMS-5068-safety-stock/`).
+> - **Full breakout + overlap analysis:** [[breakout-and-overlap]] (`Build-Overview/Sprint-8/BMS-5068-safety-stock/`).
 
 ## 🖥️ Claimed orgs
 | Org | State | Notes |

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 — Why the Epic Builds Everything Tidily</title>
+<style>
+/* Shared stylesheet for the "Safety Stock Epic (BMS-5068)" teaching set.
+   Same Tufte-ish visual identity as the code-review set so the two courses feel
+   like one shelf. Quiet, readable, generous margins; theme-aware. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #2e5d8a;          /* inventory/blue — distinct from code-review's rust */
+  --accent-soft: #e0eaf4;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #a1720b;
+  --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #7fa8d6;
+    --accent-soft: #202c38; --muted: #a39a86; --code-bg: #2a251d;
+    --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #7fa8d6;
+  --accent-soft: #202c38; --muted: #a39a86; --code-bg: #2a251d;
+  --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+}
+:root[data-theme="light"] {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4; --accent: #2e5d8a;
+  --accent-soft: #e0eaf4; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.3rem; font-weight: 600; }
+.kicker {
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 2rem;
+}
+h2 {
+  font-size: 1.3rem; margin: 2.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem;
+}
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.5rem; color: var(--accent); }
+p { margin: 0.9rem 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+a:hover { text-decoration-color: var(--accent); }
+.lede {
+  font-size: 1.15rem; color: var(--muted);
+  border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0 2rem;
+}
+.callout {
+  background: var(--accent-soft); border-radius: 6px;
+  padding: 1rem 1.3rem; margin: 1.3rem 0; font-size: 0.95rem;
+}
+.callout .label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.3rem;
+}
+code, .mono {
+  font-family: var(--mono); font-size: 0.85em; background: var(--code-bg);
+  color: var(--ink); padding: 0.1em 0.35em; border-radius: 3px;
+}
+pre { background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; }
+pre code { background: none; padding: 0; }
+
+/* Horizontal pipeline (stories/phases) */
+.pipeline { display: flex; gap: 0.5rem; align-items: stretch; margin: 1.5rem 0; flex-wrap: wrap; }
+.pipeline .step { flex: 1; min-width: 130px; background: var(--code-bg); border-radius: 6px; padding: 0.8rem 0.9rem; font-size: 0.85rem; }
+.pipeline .step .n { font-family: var(--mono); color: var(--accent); font-weight: 700; display: block; margin-bottom: 0.2rem; }
+.pipeline .arrow { align-self: center; color: var(--muted); font-size: 1.2rem; }
+
+/* Vertical data-flow ladder — one runtime step per rung */
+.flow { margin: 1.5rem 0; }
+.flow .rung { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
+.flow .rung:last-child { border-bottom: none; }
+.flow .rung .badge {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--paper);
+  background: var(--accent); border-radius: 5px; padding: 0.25rem 0.5rem; white-space: nowrap; margin-top: 0.15rem;
+}
+.flow .rung .body { flex: 1; font-size: 0.92rem; }
+.flow .rung .body strong { color: var(--accent); }
+.flow .rung .body .src { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* Story→seam mapping cards */
+.seams { display: grid; gap: 0.6rem; margin: 1.5rem 0; }
+.seam { border: 1px solid var(--rule); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.9rem; }
+.seam .key { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.seam .extends { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+.severity-blocker { color: var(--blocker); font-weight: 600; }
+.severity-warning { color: var(--warning); font-weight: 600; }
+.severity-suggestion { color: var(--suggestion); font-weight: 600; }
+
+table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+/* Quiz widget */
+.quiz { border: 1px solid var(--rule); border-radius: 8px; padding: 1.3rem 1.4rem; margin: 1.5rem 0; background: var(--paper); }
+.quiz .q { font-weight: 600; margin-bottom: 0.8rem; }
+.quiz .choices { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz button.choice {
+  font-family: var(--serif); font-size: 0.95rem; text-align: left; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink);
+  cursor: pointer; transition: background 0.15s;
+}
+.quiz button.choice:hover { background: var(--accent-soft); }
+.quiz button.choice.correct { background: #e3ecdf; border-color: var(--suggestion); color: #1a1a1a; }
+.quiz button.choice.incorrect { background: #f3e0dc; border-color: var(--blocker); color: #1a1a1a; }
+.quiz .feedback { margin-top: 0.8rem; font-size: 0.9rem; min-height: 1.2rem; }
+.quiz .feedback.show-correct { color: var(--suggestion); }
+.quiz .feedback.show-incorrect { color: var(--blocker); }
+
+.recall { border: 1px dashed var(--rule); border-radius: 8px; padding: 1.2rem 1.4rem; margin: 1.5rem 0; }
+.recall textarea {
+  width: 100%; min-height: 3.5rem; font-family: var(--serif); font-size: 0.95rem;
+  border: 1px solid var(--rule); border-radius: 6px; padding: 0.6rem; margin-top: 0.5rem;
+  background: var(--paper); color: var(--ink);
+}
+.recall button {
+  margin-top: 0.6rem; font-family: var(--mono); font-size: 0.8rem; padding: 0.4rem 0.9rem;
+  border-radius: 5px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--ink); cursor: pointer;
+}
+
+.mnemonic { background: #1f1c16; color: #f3efe6; border-radius: 10px; padding: 1.6rem 1.8rem; margin: 2rem 0; }
+.mnemonic .label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: #c4bbaa; margin-bottom: 0.6rem; display: block; }
+.mnemonic .big { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.8rem; }
+.mnemonic .letter { color: #f0a860; }
+
+.footer-nav {
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+}
+.ask-agent { margin-top: 2.5rem; font-size: 0.85rem; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 0002 &middot; Safety Stock Epic (BMS-5068)</p>
+<h1>Why the Epic Builds Everything Tidily</h1>
+
+<p class="lede">Lesson 1 gave you the runtime chain. This one answers the other half of your question: <em>why is the epic split into the six stories it is, and why does that split feel clean rather than arbitrary?</em> The whole answer rests on one decision made <strong>before</strong> a line was written.</p>
+
+<h2>1. The decision that made it tidy</h2>
+<p>The demo ticket (<a href="https://ohanafy.atlassian.net/browse/BMS-4025">BMS-4025</a>) proposed a brand-new object — <code>Safety_Stock_Override__c</code> — with its own scope picklist, effective dates, status lifecycle, and audit fields. Building that would have meant a <em>parallel</em> override system living next to the one already in production.</p>
+<p>The production epic threw that away. It found that the repo <strong>already shipped</strong> the exact machinery — from earlier tickets (BMS-3819/4609/3822):</p>
+<ul>
+<li><code>SKU_Override__c</code> — an item+location DOH override with start/end dates and a reason.</li>
+<li><code>B_/BA_SKUOverride_ExpirationProcessor</code> — a nightly batch already flipping overrides Active→Expired.</li>
+<li><code>S_InventoryThresholds.resolve()</code> — the waterfall that already resolves an effective target DOH.</li>
+</ul>
+<p>So the epic's governing rule became: <strong>extend the shipped stack; do not rebuild it.</strong> Every child story's description literally opens with a &ldquo;<em>Reuse — do NOT rebuild</em>&rdquo; list. That's not tidiness as an accident — it's tidiness as the written contract.</p>
+
+<div class="callout">
+<span class="label">The principle, named</span>
+Tidy here = <strong>one new seam per story, each grafted onto exactly one existing component, additively.</strong> No parallel systems, no duplicated lifecycle, no second resolver. The demo's net-new object is the &ldquo;untidy&rdquo; counterfactual you can point to.
+</div>
+
+<h2>2. One story = one seam</h2>
+<p>Because the base already existed, each story could be a single clean extension. Read this as &ldquo;story → the one thing it bolts onto&rdquo;:</p>
+
+<div class="seams">
+  <div class="seam"><span class="key">BMS-4217 · the engine</span> — hardens the demo's DOH order-sizing into <code>S_ReplenishmentOrderSizing</code>, flag-gated, with a fallback that leaves unconfigured SKUs untouched.
+    <span class="extends">seam: replenishment order sizing (new service, additive to capacity-fill)</span></div>
+  <div class="seam"><span class="key">BMS-5636 · scope + lifecycle</span> — adds supplier-scope + Scheduled/Manually-Closed states to the <em>existing</em> <code>SKU_Override__c</code>. No new object.
+    <span class="extends">seam: SKU_Override__c fields + resolver's supplier tier</span></div>
+  <div class="seam"><span class="key">BMS-5638 · notifications</span> — adds expiry &amp; approaching-expiry alerts <em>onto the batch that already runs</em>. Doesn't create a job.
+    <span class="extends">seam: BA_SKUOverride_ExpirationProcessor + S_SafetyStockNotifier</span></div>
+  <div class="seam"><span class="key">BMS-5639 · freeze</span> — two fields on <code>Replenishment_Task__c</code> so the resolved target &amp; its source are stamped at generation time.
+    <span class="extends">seam: Replenishment_Task__c (audit fields)</span></div>
+  <div class="seam"><span class="key">BMS-5640 · UI</span> — one LWC over the same data: list, filter, impact preview, early-close. Tier-4, reads the stack below it.
+    <span class="extends">seam: safetyStockManager LWC + controller + DTOs</span></div>
+  <div class="seam"><span class="key">BMS-5641 (+5754) · reporting</span> — a report type over the override history, plus the estimated additional inventory <strong>$</strong> value.
+    <span class="extends">seam: Safety_Stock_Overrides report type</span></div>
+</div>
+
+<p>Notice the shape: <strong>4217 builds the engine, 5636 feeds it richer config, 5639 records what it decided, 5638 unwinds it safely, 5640/5641 let humans see and steer it.</strong> Each depends on the base, not on a fragile web of each other — which is exactly why all six could land in one branch without stepping on themselves.</p>
+
+<h2>3. Why &ldquo;tidy&rdquo; is a real engineering property, not a vibe</h2>
+<ul>
+<li><strong>Additive = no regression.</strong> The fallback contract (Lesson 1) means untouched SKUs behave identically. Reuse of the resolver means no second source of truth to drift.</li>
+<li><strong>One object = one audit trail.</strong> Extending <code>SKU_Override__c</code> instead of adding <code>Safety_Stock_Override__c</code> means override history lives in one place — which is why BMS-5641's report could just point at existing fields.</li>
+<li><strong>Seam isolation = parallelizable, reviewable stories.</strong> A reviewer can reason about BMS-5638 (notifications) without loading the UI story into their head.</li>
+</ul>
+
+<div class="callout">
+<span class="label">The honest asterisk</span>
+Tidy structure didn't make every AC pass. The PR's own notes flag that <code>Override_Reason__c</code> is still <em>not</em> mandatory at the data layer (would break 8 unrelated test classes — deferred to its own ticket), and the LWC never got an independent live smoke test. Tidy architecture ≠ complete delivery. Knowing where a clean design still left gaps is the senior read of this epic.
+</div>
+
+<h2>4. Check yourself</h2>
+<div class="quiz" data-answer="B">
+  <div class="q">What is the single decision that makes the whole epic &ldquo;tidy&rdquo;?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">Shipping all six stories together in one large pull request instead of six</button>
+    <button class="choice" data-key="B">Extending the shipped SKU_Override__c / resolver stack instead of building a new object</button>
+    <button class="choice" data-key="C">Gating the new order-sizing engine behind a feature flag for safe rollout</button>
+    <button class="choice" data-key="D">Writing Gherkin acceptance criteria before any code was implemented</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="A">
+  <div class="q">Which statement about BMS-5638 (notifications) reflects the &ldquo;one seam&rdquo; principle?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">It adds alerts onto the nightly batch that already flips overrides to Expired</button>
+    <button class="choice" data-key="B">It creates a new scheduled job dedicated to sending expiry notifications</button>
+    <button class="choice" data-key="C">It introduces a second override object to track notification state</button>
+    <button class="choice" data-key="D">It moves expiry logic out of the batch and into the planning LWC</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="recall">
+<strong>Retrieval.</strong> Name the counterfactual: what did the <em>demo</em> ticket propose that the production epic deliberately did not build — and why was skipping it the tidy move?
+<textarea placeholder="The demo proposed … ; skipping it was tidy because …"></textarea>
+<button onclick="this.parentElement.querySelector('.rev').style.display='block';">Reveal</button>
+<div class="rev" style="display:none; margin-top:0.8rem; font-size:0.9rem;">A net-new <code>Safety_Stock_Override__c</code> object. Skipping it avoided a parallel override system — one object, one lifecycle batch, one resolver, one audit trail — so every story became an additive graft rather than a fork.</div>
+</div>
+
+<div class="mnemonic">
+<span class="label">Carry this out of the lesson</span>
+<div class="big"><span class="letter">R</span>euse the base &middot; <span class="letter">O</span>ne seam per story</div>
+<div>&ldquo;<strong>RO</strong> — <strong>R</strong>euse, <strong>O</strong>ne-seam.&rdquo; The epic is tidy because it grafted six additive seams onto one already-shipped trunk (<code>SKU_Override__c</code> + resolver + batch) instead of growing a second tree. When someone asks &ldquo;why is BMS-5068 clean?&rdquo; → <em>&ldquo;reuse the trunk, one seam per story.&rdquo;</em></div>
+</div>
+
+<h2>Read next</h2>
+<p><strong>Primary source:</strong> re-read the <a href="https://github.com/Ohanafy/OHFY-Split/pull/442">PR #442</a> body — specifically the story→delivered table and the &ldquo;QA findings&rdquo; section. You wrote/own this; reading it now with the &ldquo;one seam per story&rdquo; lens will make the whole thing click as a structure, not a list.</p>
+
+<p class="ask-agent">Want to go deeper on the gaps that shipped (mandatory-reason, un-smoke-tested LWC, the un-reviewed merge) as a lesson in its own right? Say the word — that's the natural Lesson 3.</p>
+
+<div class="footer-nav">
+  <span><a href="0001-how-safety-stock-flows.html">← Lesson 1: How safety stock flows</a></span>
+  <span>Safety Stock Epic &middot; Lesson 2 of 2</span>
+</div>
+
+<script>
+// Reusable retrieval-practice quiz widget, shared across lessons.
+// Markup contract:
+// <div class="quiz" data-answer="B">
+//   <div class="q">Question text</div>
+//   <div class="choices">
+//     <button class="choice" data-key="A">...</button>
+//     <button class="choice" data-key="B">...</button>
+//   </div>
+//   <div class="feedback"></div>
+// </div>
+(function () {
+  function initQuizzes() {
+    document.querySelectorAll(".quiz").forEach(function (quiz) {
+      var answer = quiz.getAttribute("data-answer");
+      var feedback = quiz.querySelector(".feedback");
+      var buttons = quiz.querySelectorAll(".choice");
+      var answered = false;
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var picked = btn.getAttribute("data-key");
+          buttons.forEach(function (b) {
+            if (b.getAttribute("data-key") === answer) {
+              b.classList.add("correct");
+            } else if (b === btn) {
+              b.classList.add("incorrect");
+            }
+          });
+          if (feedback) {
+            if (picked === answer) {
+              feedback.textContent = "Correct.";
+              feedback.classList.add("show-correct");
+            } else {
+              feedback.textContent = "Not quite — the highlighted option is correct.";
+              feedback.classList.add("show-incorrect");
+            }
+          }
+        });
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuizzes);
+  } else {
+    initQuizzes();
+  }
+})();
+</script>
+</body>
+</html>

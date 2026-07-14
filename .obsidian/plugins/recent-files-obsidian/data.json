@@ -1,24 +1,80 @@
 {
   "recentFiles": [
     {
+      "basename": "0002-why-the-epic-is-tidy",
+      "path": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
+    },
+    {
+      "basename": "0001-how-safety-stock-flows",
+      "path": "Teachings/safety-stock-epic/lessons/0001-how-safety-stock-flows.html"
+    },
+    {
       "basename": "mission-control",
       "path": "Manager-Engineer/Mission-Control/mission-control.html"
     },
     {
+      "basename": "Build-Overview",
+      "path": "Manager-Engineer/Build-Overview/Build-Overview.html"
+    },
+    {
+      "basename": "lesson-1-what-it-solves",
+      "path": "Teachings/code-review/lesson-1-what-it-solves.html"
+    },
+    {
+      "basename": "cheat-sheet",
+      "path": "Teachings/code-review/cheat-sheet.html"
+    },
+    {
+      "basename": "0001-prior-hands-on-code-review-exposure",
+      "path": "Teachings/code-review/learning-records/0001-prior-hands-on-code-review-exposure.md"
+    },
+    {
+      "basename": "NOTES",
+      "path": "Teachings/NOTES.md"
+    },
+    {
+      "basename": "RESOURCES",
+      "path": "Teachings/code-review/RESOURCES.md"
+    },
+    {
+      "basename": "MISSION",
+      "path": "Teachings/code-review/MISSION.md"
+    },
+    {
       "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/overview.html"
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5113-doi-formula-standardization/overview.html"
     },
     {
-      "basename": "demo",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/demo.html"
+      "basename": "overview",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/overview.html"
     },
     {
-      "basename": "03-location-flat",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png"
+      "basename": "Build-Overview",
+      "path": "Manager-Engineer/Build-Overview/Build-Overview.md"
     },
     {
-      "basename": "claude-code-review-process",
-      "path": "Anvil/Engineering/Sprints/Visuals/Process-Tooling/claude-code-review-process.html"
+      "basename": "understand-TICKETS",
+      "path": "Manager-Engineer/Build-Overview/understand-TICKETS/understand-TICKETS.html"
+    },
+    {
+      "basename": "pr-503-overview",
+      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
+    },
+    {
+      "basename": "doh-schema",
+      "path": "Manager-Engineer/Diagrams/doh-schema.md"
+    },
+    {
+      "basename": "dbml-render-test",
+      "path": "Manager-Engineer/Diagrams/dbml-render-test.md"
+    },
+    {
+      "basename": "pr-464-overview",
+      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-464-overview.html"
+    },
+    {
+      "basename": "Drawing 2026-07-13 10.31.58.excalidraw",
+      "path": "Excalidraw/Drawing 2026-07-13 10.31.58.excalidraw.md"
     },
     {
       "basename": "pr-489-overview",
@@ -29,68 +85,24 @@
       "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/price-resolver-pr286.html"
     },
     {
-      "basename": "pr-464-overview",
-      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-464-overview.html"
+      "basename": "ohfy-doh-safety-stock",
+      "path": "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas"
     },
     {
-      "basename": "orientation",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/orientation.html"
+      "basename": "ohfy-doh-safety-stock",
+      "path": "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.md"
     },
     {
-      "basename": "data-model",
-      "path": "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/data-model.html"
-    },
-    {
-      "basename": "CLOSING-QUESTIONS",
-      "path": "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/CLOSING-QUESTIONS.md"
-    },
-    {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/overview.html"
-    },
-    {
-      "basename": "code-design-explainer",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/code-design-explainer.html"
-    },
-    {
-      "basename": "SESSION",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/SESSION.md"
+      "basename": "claude-code-review-process",
+      "path": "Anvil/Engineering/Sprints/Visuals/Process-Tooling/claude-code-review-process.html"
     },
     {
       "basename": "refresh-log",
       "path": "Manager-Engineer/Mission-Control/refresh-log.md"
     },
     {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/overview.md"
-    },
-    {
-      "basename": "orientation",
-      "path": "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/orientation.html"
-    },
-    {
       "basename": "BMS-4936-launch-planning-coordination",
       "path": "Manager-Engineer/Epics/Allocation-Launch-Planning/BMS-4936-launch-planning-coordination.md"
-    },
-    {
-      "basename": "Build-Overview",
-      "path": "Manager-Engineer/Build-Overview/Build-Overview.html"
-    },
-    {
-      "basename": "Build-Overview",
-      "path": "Manager-Engineer/Build-Overview/Build-Overview.md"
-    },
-    {
-      "basename": "breakout-and-overlap",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/breakout-and-overlap.md"
-    },
-    {
-      "basename": "ENG-HANDOFF-doh-sizing-fork",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/ENG-HANDOFF-doh-sizing-fork.html"
-    },
-    {
-      "basename": "safety-stock-explained",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/safety-stock-explained.html"
     },
     {
       "basename": "SKILL",
@@ -105,100 +117,12 @@
       "path": "Anvil/Manager/Managing Tickets/Alvaro Sanchez - Ticket Overview.md"
     },
     {
-      "basename": "SESSION",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/SESSION.md"
-    },
-    {
       "basename": "BMS-5067-practical-days-on-hand",
       "path": "Manager-Engineer/Epics/Inventory-Replenishment/BMS-5067-practical-days-on-hand.md"
     },
     {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5070-shift-end/overview.html"
-    },
-    {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5070-shift-end/overview.md"
-    },
-    {
-      "basename": "shift-end-explained",
-      "path": "Manager-Engineer/Build-Overview/BMS-5070-shift-end/shift-end-explained.html"
-    },
-    {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/overview.md"
-    },
-    {
       "basename": "BMS-5083-pick-location-capacity",
       "path": "Manager-Engineer/Epics/Warehouse-WMS/BMS-5083-pick-location-capacity.md"
-    },
-    {
-      "basename": "01-warehouse-grouped",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/01-warehouse-grouped.png"
-    },
-    {
-      "basename": "02-off-target-only",
-      "path": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/02-off-target-only.png"
-    },
-    {
-      "basename": "Passwordless Login — Retailer Portal (Summary & Analysis)",
-      "path": "Anvil/Engineering/E-Commerce/Profiles & Access/Passwordless Login — Retailer Portal (Summary & Analysis).md"
-    },
-    {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5083-pick-location-capacity/overview.html"
-    },
-    {
-      "basename": "SESSION",
-      "path": "Manager-Engineer/Build-Overview/BMS-5083-pick-location-capacity/SESSION.md"
-    },
-    {
-      "basename": "BMS-4965-short-pay-automation",
-      "path": "Manager-Engineer/Epics/AR-Finance/BMS-4965-short-pay-automation.md"
-    },
-    {
-      "basename": "BMS-5625-driver-finalize-approval-gate",
-      "path": "Manager-Engineer/Tickets/BMS-5625-driver-finalize-approval-gate.md"
-    },
-    {
-      "basename": "OHFY-Data-Model",
-      "path": "Manager-Engineer/Atlas/Areas/OHFY-Data-Model.md"
-    },
-    {
-      "basename": "2026-07-01-1340",
-      "path": "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-01-1340.md"
-    },
-    {
-      "basename": "_dashboard",
-      "path": "Manager-Engineer/Branch-Org Manager/_dashboard.md"
-    },
-    {
-      "basename": "_MAP",
-      "path": "Manager-Engineer/Atlas/_MAP.md"
-    },
-    {
-      "basename": "atlas",
-      "path": "Manager-Engineer/Atlas/atlas.base"
-    },
-    {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/overview.html"
-    },
-    {
-      "basename": "diagram.excalidraw",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/diagram.excalidraw.md"
-    },
-    {
-      "basename": "theme-bar-switcher-pr271",
-      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/theme-bar-switcher-pr271.html"
-    },
-    {
-      "basename": "notebooklm-video-transcript",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/notebooklm-video-transcript.md"
-    },
-    {
-      "basename": "ticket-intentions",
-      "path": "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/ticket-intentions.html"
     }
   ],
   "omittedPaths": [],

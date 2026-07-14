@@ -10,18 +10,30 @@
           {
             "id": "319916869b306be2",
             "type": "tabs",
-            "dimension": 48.837209302325576,
+            "dimension": 59.03438185808339,
             "children": [
+              {
+                "id": "632064e7032aaf0f",
+                "type": "leaf",
+                "state": {
+                  "type": "html-view",
+                  "state": {
+                    "file": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
+                  },
+                  "icon": "code-glyph",
+                  "title": "0002-why-the-epic-is-tidy"
+                }
+              },
               {
                 "id": "6a0fa6a92a0404c9",
                 "type": "leaf",
                 "state": {
                   "type": "html-view",
                   "state": {
-                    "file": "Manager-Engineer/Mission-Control/mission-control.html"
+                    "file": "Teachings/code-review/lesson-1-what-it-solves.html"
                   },
                   "icon": "code-glyph",
-                  "title": "mission-control"
+                  "title": "lesson-1-what-it-solves"
                 }
               },
               {
@@ -34,30 +46,6 @@
                   },
                   "icon": "code-glyph",
                   "title": "pr-489-overview"
-                }
-              },
-              {
-                "id": "632064e7032aaf0f",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Manager-Engineer/Mission-Control/mission-control.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "mission-control"
-                }
-              },
-              {
-                "id": "25bdf5309f481149",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/orientation.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "orientation"
                 }
               },
               {
@@ -78,10 +66,36 @@
                 "state": {
                   "type": "html-view",
                   "state": {
-                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-464-overview.html"
+                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
                   },
                   "icon": "code-glyph",
-                  "title": "pr-464-overview"
+                  "title": "pr-503-overview"
+                }
+              },
+              {
+                "id": "e299f5208467a891",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Manager-Engineer/Diagrams/dbml-render-test.md",
+                    "mode": "source",
+                    "source": false
+                  },
+                  "icon": "lucide-file",
+                  "title": "dbml-render-test"
+                }
+              },
+              {
+                "id": "09f740ab16f2617a",
+                "type": "leaf",
+                "state": {
+                  "type": "html-view",
+                  "state": {
+                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
+                  },
+                  "icon": "code-glyph",
+                  "title": "pr-503-overview"
                 }
               }
             ]
@@ -89,7 +103,7 @@
           {
             "id": "45b279e259f34102",
             "type": "tabs",
-            "dimension": 51.162790697674424,
+            "dimension": 40.96561814191661,
             "children": [
               {
                 "id": "178d83c8a8398acd",
@@ -133,7 +147,7 @@
                   },
                   "pinned": true,
                   "icon": "terminal",
-                  "title": "Terminal: ✳ Open CSV files from test imports folder"
+                  "title": "Terminal: ✳ Update child tickets with correct status"
                 }
               }
             ]
@@ -214,7 +228,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 315.5124969482422
+    "width": 417.50418853759766
   },
   "right": {
     "id": "65035a2562b2b34e",
@@ -329,8 +343,8 @@
             "state": {
               "type": "hinote-view",
               "state": {},
-              "icon": "highlighter",
-              "title": "HiNote"
+              "icon": "lucide-ghost",
+              "title": "hinote-view"
             }
           }
         ],
@@ -359,53 +373,54 @@
   },
   "active": "178d83c8a8398acd",
   "lastOpenFiles": [
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-1154.md",
-    "Manager-Engineer/Mission-Control/Snapshots/2026-07-10-1152.html",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-1144.md",
+    "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html",
+    "Teachings/safety-stock-epic/lessons/0001-how-safety-stock-flows.html",
     "Manager-Engineer/Mission-Control/mission-control.html",
-    "Manager-Engineer/Mission-Control/Snapshots/2026-07-10-1144.html",
-    "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/overview.html",
-    "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/demo.html",
+    "Teachings/safety-stock-epic/learning-records/0001-starting-point-owns-epic-but-lacks-whole-picture.md",
+    "Teachings/safety-stock-epic/reference/data-flow-and-seams.html",
+    "Teachings/safety-stock-epic/RESOURCES.md",
+    "Teachings/safety-stock-epic/MISSION.md",
+    "Teachings/safety-stock-epic/assets/quiz.js",
+    "Teachings/safety-stock-epic/assets/lesson.css",
+    "Teachings/safety-stock-epic/reference",
+    "Teachings/safety-stock-epic/lessons",
+    "Teachings/safety-stock-epic/learning-records",
+    "Teachings/safety-stock-epic/assets",
+    "Teachings/safety-stock-epic",
+    "Teachings/code-review/learning-records/0001-prior-hands-on-code-review-exposure.md",
+    "Teachings/NOTES.md",
+    "Teachings/code-review/RESOURCES.md",
+    "Teachings/code-review/MISSION.md",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-14-2239.md",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-14-2233.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/BMS-5481-feedback.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/SESSION.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/orientation.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5754-impact-value/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/diagram.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/SESSION.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/verify-bms-4078-fixed.png",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/ui-firstpass.png",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/diagram.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/SESSION.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/notebooklm-video-transcript.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/diagram.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/breakout-and-overlap.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/SESSION.md",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/02-off-target-only.png",
+    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/01-warehouse-grouped.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/ui-firstpass.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4935-red-bull-allocation/ui-firstpass.png",
+    "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas",
+    "Images/Screenshot 2026-07-13 at 10.31.46 AM.png",
     "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
-    "Anvil/Engineering/Sprints/Visuals/Process-Tooling/claude-code-review-process.html",
-    "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-489-overview.html",
-    "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html",
-    "Anvil/Engineering/Sprints/Visuals/PR-Reviews/price-resolver-pr286.html",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-1101.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-1100.md",
-    "Manager-Engineer/Runs/2026-07-10-BMS-5113-polish-dispatch.md",
-    "Manager-Engineer/Feedback/BMS-5113-feedback.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-1059.md",
-    "Manager-Engineer/Open-Questions/BMS-5113-lookback-windows.md",
-    "Manager-Engineer/Open-Questions/BMS-5113-sales-rate-source.md",
-    "Manager-Engineer/Runs/2026-07-10-BMS-5161-decompose.md",
-    "Manager-Engineer/Open-Questions/BMS-5113-doi-doh-vocabulary.md",
-    "Manager-Engineer/Tickets/BMS-3742-doi-formula-standardization.md",
-    "Manager-Engineer/Feedback/BMS-5161-feedback.md",
-    "Manager-Engineer/Open-Questions/BMS-5161-freight-claims-boundary.md",
-    "Manager-Engineer/Epics/Inventory-Replenishment/BMS-5113-doi-formula-standardization.md",
-    "Manager-Engineer/Open-Questions/BMS-5161-po-side-billback-scope.md",
-    "Manager-Engineer/Epics/AR-Finance/BMS-5161-supplier-freight-cost-billbacks.md",
-    "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-464-overview.html",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-10-0906.md",
-    "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/CLOSING-QUESTIONS.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-09-1104.md",
-    "Manager-Engineer/Build-Overview/BMS-5068-safety-stock/SESSION.md",
-    "Manager-Engineer/Mission-Control/refresh-log.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-09-2257.md",
-    "Manager-Engineer/Build-Overview/BMS-4936-launch-planning-coordination/overview.md",
-    "Manager-Engineer/Epics/Allocation-Launch-Planning/BMS-4936-launch-planning-coordination.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-08-1643.md",
     "Manager-Engineer/Mission-Control/Snapshots/todo-epics-preview.png",
-    "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/01-warehouse-grouped.png",
-    "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/02-off-target-only.png",
-    "Manager-Engineer/Build-Overview/BMS-5070-shift-end/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/BMS-5070-shift-end/verify-bms-4078-fixed.png",
-    "Manager-Engineer/Build-Overview/BMS-4965-short-pay/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/BMS-4935-red-bull-allocation/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/BMS-5070-shift-end-workflow/ui-firstpass.png",
     "Anvil/Engineering/Visualizer/Untitled.canvas",
-    "Images/Screenshot 2026-06-17 at 1.37.56 PM.png",
     "Anvil/Engineering/Planning/Canvases/Sprint 4 Board.canvas",
     "Anvil/Engineering/Planning/Canvases/E-Commerce Sprints 3-5 Dependencies.canvas",
     "Anvil/Engineering/planning/Canvases/E-Commerce Sprints 3-5 Dependencies.canvas",

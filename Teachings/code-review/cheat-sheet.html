@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheat Sheet — /code-review Structure</title>
+<style>
+/* Shared stylesheet for all lessons in this teaching workspace. Tufte-ish: quiet, readable, generous margins. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #8a3b2e;
+  --accent-soft: #f4e8e0;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #a1720b;
+  --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+    --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+    --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+  --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+  --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+}
+:root[data-theme="light"] {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4; --accent: #8a3b2e;
+  --accent-soft: #f4e8e0; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+}
+
+* { box-sizing: border-box; }
+
+html, body { background: var(--paper); }
+
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.3rem;
+}
+
+p { margin: 0.9rem 0; }
+
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+a:hover { text-decoration-color: var(--accent); }
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+code, .mono {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+.severity-blocker { color: var(--blocker); font-weight: 600; }
+.severity-warning { color: var(--warning); font-weight: 600; }
+.severity-suggestion { color: var(--suggestion); font-weight: 600; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2rem 0;
+  font-size: 0.9rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+.footer-nav {
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ask-agent {
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+@media print { .ask-agent, .footer-nav { display: none; } }
+</style>
+</head>
+<body>
+
+<p class="kicker">Reference &middot; How /code-review Works</p>
+<h1>/code-review — Structure at a Glance</h1>
+<p class="lede">Print this one out. Source of truth: <code>CODE-REVIEW.md</code> and <code>.claude/commands/code-review.md</code> at the OHFY-Split repo root.</p>
+
+<h2>The pipeline — "Good Finders Verify Output"</h2>
+<table>
+<tr><th>Phase</th><th>What happens</th></tr>
+<tr><td><strong>Gather</strong></td><td>Read the PR/ticket + diff before any code judgment — the diff is judged against what it <em>claims</em> to do.</td></tr>
+<tr><td><strong>Find</strong></td><td>Independent parallel "angles": line-by-line bug scan, removed-behavior audit, cross-file caller/callee trace, reuse check, simplification check, efficiency check, altitude (right-depth-of-fix) check.</td></tr>
+<tr><td><strong>Verify</strong></td><td>Each candidate finding gets one adversarial pass whose job is to try to <em>refute</em> it. Returns <span class="mono">CONFIRMED</span> / <span class="mono">PLAUSIBLE</span> / <span class="mono">REFUTED</span>.</td></tr>
+<tr><td><strong>Output</strong></td><td>Fixed section order, severity-labeled, every finding cited <code>file:line</code>.</td></tr>
+</table>
+
+<h2>Severity ladder</h2>
+<table>
+<tr><th>Label</th><th>Meaning</th></tr>
+<tr><td class="severity-blocker">BLOCKER</td><td>Violates a repo hard rule, or will cause a runtime error / data loss / security issue / governor-limit exception in prod.</td></tr>
+<tr><td class="severity-warning">WARNING</td><td>Likely problem or bad practice — should be fixed before merge.</td></tr>
+<tr><td class="severity-suggestion">SUGGESTION</td><td>Minor style/hygiene — optional but recommended.</td></tr>
+</table>
+<p><strong>Rule:</strong> one finding, one severity — no "blocker-ish" hedging. If severity is uncertain because of missing context, it's not a low-confidence BLOCKER — it becomes a ❓ Question instead.</p>
+
+<h2>Output section order</h2>
+<table>
+<tr><th>Section</th><th>Catches</th></tr>
+<tr><td>🧭 Focus &amp; High-Impact Decisions</td><td>Where scrutiny went deepest, and decisions that are expensive/impossible to reverse later (schema, released API surface, cross-package dependencies).</td></tr>
+<tr><td>🐛 Bugs &amp; Runtime Errors</td><td>Will/likely will crash: null deref, off-by-one, SOQL/DML in a loop, race conditions.</td></tr>
+<tr><td>🔇 Silent Failures &amp; Swallowed Errors</td><td>Async work, empty catches, unchecked partial-DML results, missing Finalizers.</td></tr>
+<tr><td>🔀 Conditional Logic &amp; Dead Branches</td><td>Effectively-constant conditions, silent guard-clause skips, unreachable/identical branches.</td></tr>
+<tr><td>🧹 Dead Code</td><td>Commented-out blocks, unreachable code, unused vars/imports.</td></tr>
+<tr><td>🔍 Debug Statements</td><td><code>System.debug</code>, <code>console.log</code>, <code>.only(</code>, <code>.skip(</code> left in.</td></tr>
+<tr><td>🏷️ Naming Convention Violations</td><td>Label/API-name mismatches, casing rules.</td></tr>
+<tr><td>❓ Questions for the Author</td><td>Anything whose severity depends on business/data context the reviewer doesn't have — asked, not guessed.</td></tr>
+<tr><td>👏 Kudos</td><td>Specific, line-cited good work. 1–3 items, only if genuinely earned.</td></tr>
+<tr><td>✅ Summary</td><td>Is this safe to merge — blockers vs. suggestions, patterns worth noting.</td></tr>
+</table>
+
+<h2>Why the shape, not just what it is — F.A.C.T.</h2>
+<table>
+<tr><th>Letter</th><th>Rule</th><th>Fights</th></tr>
+<tr><td><strong>F</strong>ocus first</td><td>High-impact/irreversible decisions get their own section, read before nits.</td><td>Burying the one thing that matters under 40 style nits.</td></tr>
+<tr><td><strong>A</strong>sk, don't assume</td><td>Uncertain findings become questions, not confident guesses.</td><td>False certainty / wrong-but-confident blockers that burn trust.</td></tr>
+<tr><td><strong>C</strong>ite file:line</td><td>Every claim points at real, checkable code.</td><td>Unverifiable authority — claims taken on faith or dismissed outright.</td></tr>
+<tr><td><strong>T</strong>ier by severity</td><td>One finding, one severity, no hedging.</td><td>Alert fatigue — if everything's urgent, nothing is.</td></tr>
+</table>
+
+<h2>Effort scaling (this repo's `/code-review` skill)</h2>
+<table>
+<tr><th>Effort</th><th>Finder angles &times; candidates</th><th>Verification</th><th>Cap</th></tr>
+<tr><td>low</td><td>3 angles &times; 4</td><td>Verify only would-be warnings/blockers</td><td>&le;5</td></tr>
+<tr><td>medium (default)</td><td>7 angles &times; 6</td><td>1-vote verify (skip pure suggestions)</td><td>&le;8</td></tr>
+<tr><td>high</td><td>7 angles &times; 8</td><td>1-vote verify all</td><td>&le;12</td></tr>
+<tr><td>max</td><td>7 angles &times; 8</td><td>2-vote verify on warnings/blockers</td><td>&le;15</td></tr>
+</table>
+
+<p class="ask-agent">Full authoritative text: <code>CODE-REVIEW.md</code> (repo root) and <code>.claude/commands/code-review.md</code>. This sheet is a compression, not a replacement — when in doubt, read the source.</p>
+
+<div class="footer-nav">
+  <span><a href="lesson-1-what-it-solves.html">&larr; Back to Lesson 1</a></span>
+</div>
+
+</body>
+</html>

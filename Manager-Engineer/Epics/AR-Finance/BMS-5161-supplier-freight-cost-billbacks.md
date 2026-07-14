@@ -1,16 +1,16 @@
 ---
 epic: BMS-5161
 title: "[REQ-234] Supplier Freight Cost Billbacks"
-status: To Do
-audit_verdict: Not-Decomposed   # decomposed on paper this run; children NOT yet created in Jira (Atlassian MCP unavailable)
+status: In Progress
+audit_verdict: Decomposed        # children created + building — verified from repo PRs 2026-07-13 (A→5789, B→5790, C→5791, D→5792)
 score: 3
 stream: S2-Supplier
 do_not_do: false
 do_not_do_reason:
-executable_children: []          # none created in Jira yet — see "Proposed decomposition" below
-blockers: [BMS-4951, BMS-4952]   # billback rails (In Progress) — but see note: core pipeline has since LANDED on main
-build_order: []                  # see "Proposed build order" — keys assigned on Jira creation
-updated: 2026-07-10
+executable_children: [BMS-5789, BMS-5790, BMS-5791]   # A/B/C — open draft PRs #511/#514/#516; D=5792 parked Awaiting-UI
+blockers: [BMS-4951, BMS-4952]   # billback rails (In Progress) — core pipeline has LANDED on main; not a hard code blocker
+build_order: [BMS-5789, BMS-5790, BMS-5791]           # linear A→B→C; 5792 (D) design-parallel, build gated on UI approval
+updated: 2026-07-13
 jira: https://ohanafy.atlassian.net/browse/BMS-5161
 tags:
   - manager-engineer
@@ -100,6 +100,7 @@ No inventory-mutation lock involved (freight touches cost/receivables, not `Inve
 - **DD-4 — Reuse the BMS-4141 pipeline pattern verbatim** (idempotent recompute, deterministic External_Ids, coverage cascade) — no parallel recovery path, honoring Bryson Carroll's 2026-06-12 PO decision.
 
 ## Run history
+- 2026-07-13 (plan-only, repo-verified) — **The proposed decomposition became real.** Atlassian MCP still down, but `gh`/git confirm the four children now exist and map cleanly to the proposed A/B/C/D: **A → BMS-5789** (`feat/freight-cost-capture-bms-5789`, PR #511 draft), **B → BMS-5790** (`feat/freight-billback-generation-bms-5790`, PR #514 draft), **C → BMS-5791** (`feat/po-freight-billback-bms-5791`, PR #516 draft), **D → BMS-5792** (mockup done, parked `Awaiting-UI`, no branch — correct). All three code PRs target `main`, dependency-ordered A→B→C (not git-stacked; merge in order). Frontmatter updated: verdict Decomposed, status In Progress, executable_children + build_order populated. The two PO open questions (po-side scope, freight-claims boundary) remain open — couldn't post/answer via Jira this pass.
 - 2026-07-10 — First decomposition pass. Audited epic + 4-comment paper trail against `main`; found the depended-on billback rails have LANDED (BMS-4141) → re-shaped epic from "build subsystem" to "extend pipeline with a freight source." Authored 4 child specs, build order, 2 PO open questions, feedback doc. **Blocked:** Jira ticket creation, PO comments, polish-epic-on-children, engineer dispatch, PRs — Atlassian MCP + agent-dispatch tools not available this run. All specs staged for a Jira-connected re-run.
 </content>
 </invoke>

@@ -46,9 +46,7 @@
     "iconColor": "#fa0000"
   },
   "Manager-Engineer/Mission-Control/mission-control.html": {
-    "iconName": "LiAlarmClockCheck",
+    "iconName": "LiAlertCircle",
     "iconColor": "#ff0000"
-  },
-  "Manager-Engineer/Build-Overview/BMS-5068-safety-stock": "LiAlertCircle",
-  "Manager-Engineer/Build-Overview/BMS-4965-short-pay": "LiAlertOctagon"
+  }
 }

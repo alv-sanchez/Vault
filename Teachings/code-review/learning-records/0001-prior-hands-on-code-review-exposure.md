@@ -1,0 +1,3 @@
+# Prior hands-on exposure to /code-review-style output, before Lesson 1
+
+Learner had already run a review and posted PR comments on real code (PR #503, BMS-3768) before this lesson — including catching a scope-creep issue (`ci.yml`) and a regression introduced by a "cleanup" commit (accidental deletion of `E_ThemeResolver.cls`). This means the mission isn't "introduce code review from zero" — it's "name and structure what the learner is already doing well by instinct" (e.g. leading with a positive before a critical finding, matching the Kudos-before-criticism principle). Future lessons should keep anchoring to this PR as the running example rather than inventing hypotheticals.

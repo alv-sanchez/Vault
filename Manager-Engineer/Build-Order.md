@@ -23,6 +23,17 @@ tags:
 > - 4996 (S1) is **mostly already shipped** — only a contradicted remnant remains.
 > - 5060 needs slicing; 4935 & 5129 need a data-model decision before AC exists.
 
+> [!check] Repo-verified active-work reconciliation — 2026-07-13 (plan-only)
+> Atlassian MCP was down this pass, so the **cross-epic topo-sort below (streams/stages) was NOT regenerated** — that needs the live `blocks`/`blocked-by` issuelink graph. Instead the repo (`gh`/git) was used as an independent source to pin the *current* wavefront of the 4 active epics. This addendum is repo-derived active state, not a full Jira re-flow.
+>
+> **Active now (in-flight / open PR — `/work-epic` owns within-epic PR grouping, not this doc):**
+> - **BMS-5113 DOI-Std (S5):** BMS-3822 merged (baseline shipped). **BMS-3742** = PR #513 draft, High risk — gated on live DOI reconciliation before ready-for-review (known, not a new blocker). 4544 spike + 4543 UI-demo backlog.
+> - **BMS-5161 Freight Billbacks (S2):** decomposed + building. Dependency-safe order **BMS-5789 → 5790 → 5791** (PRs #511 → #514 → #516, all draft to `main`, merge in that order); **BMS-5792** (UI/demo) parked `Awaiting-UI`, build gated on mockup approval. No `Inventory__c` lock involved (touches cost/receivables). ⚠ soft-coordinate 5790/5792 with BMS-5154 (both write `Transfer_Group__c`).
+> - **BMS-4965 Short Pay (S-Finance/OMS):** 4059 + 4060 In Progress by hand; 5625 = PR #439 **ready** (12d old); 4785 reporting spike is the only clean autonomous candidate.
+> - **BMS-4935 Red Bull (S3):** 4120 In Progress; epic otherwise **blocked on Matt** (allocation direction) — do not advance children 3735/4119/4121.
+>
+> **Blocked (real, already-logged):** **BMS-5164** children **BMS-5825/5826/5827** are all blocked on **BMS-4088** (shared AL cert-engine spike, Backlog/unstarted under sibling epic BMS-5160) — no branches exist for any of them (repo-confirmed). Cannot enter any stage until 4088 is scheduled.
+
 ## What the audit found (overrides a title-only guess)
 1. **Inventory is one serial stream.** DOI, Snapshots, Safety Stock, Returns, and transfers' inventory-writes all go through `InventoryAdjustmentTriggerService.cls` + `Inventory__c`/`Inventory_Adjustment__c` (OHFY-PLTFM) → they collide → serialize.
 2. **Keystone blocker unbuilt:** `BMS-4245` (Item Master Data Governance – Productize) is **Backlog** and blocks **5160, 5158, 5074, 5083, 5155**. (3799 Done; 3728 is a stale demo link.) The warehouse cluster can't start until 4245 builds or the link is ruled stale (PO question).

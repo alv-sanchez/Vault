@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — What /code-review Solves, and Why It's Built This Way</title>
+<style>
+/* Shared stylesheet for all lessons in this teaching workspace. Tufte-ish: quiet, readable, generous margins. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #8a3b2e;
+  --accent-soft: #f4e8e0;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #a1720b;
+  --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+    --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+    --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+  --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+  --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+}
+:root[data-theme="light"] {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4; --accent: #8a3b2e;
+  --accent-soft: #f4e8e0; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+}
+
+* { box-sizing: border-box; }
+
+html, body { background: var(--paper); }
+
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.3rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 1.6rem 0 0.5rem;
+  color: var(--accent);
+}
+
+p { margin: 0.9rem 0; }
+
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+a:hover { text-decoration-color: var(--accent); }
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.3rem;
+  margin: 1.3rem 0;
+  font-size: 0.95rem;
+}
+
+.callout .label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+code, .mono {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+
+.pipeline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+.pipeline .step {
+  flex: 1;
+  min-width: 130px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 0.8rem 0.9rem;
+  font-size: 0.85rem;
+}
+.pipeline .step .n {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.pipeline .arrow {
+  align-self: center;
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+.severity-blocker { color: var(--blocker); font-weight: 600; }
+.severity-warning { color: var(--warning); font-weight: 600; }
+.severity-suggestion { color: var(--suggestion); font-weight: 600; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2rem 0;
+  font-size: 0.9rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+/* --- Quiz widget --- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.3rem 1.4rem;
+  margin: 1.5rem 0;
+  background: var(--paper);
+}
+.quiz .q { font-weight: 600; margin-bottom: 0.8rem; }
+.quiz .choices { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz button.choice {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.quiz button.choice:hover { background: var(--accent-soft); }
+.quiz button.choice.correct { background: #e3ecdf; border-color: var(--suggestion); color: #1a1a1a; }
+.quiz button.choice.incorrect { background: #f3e0dc; border-color: var(--blocker); color: #1a1a1a; }
+.quiz .feedback { margin-top: 0.8rem; font-size: 0.9rem; min-height: 1.2rem; }
+.quiz .feedback.show-correct { color: var(--suggestion); }
+.quiz .feedback.show-incorrect { color: var(--blocker); }
+
+.recall {
+  border: 1px dashed var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin: 1.5rem 0;
+}
+.recall textarea {
+  width: 100%;
+  min-height: 3.5rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+.recall button {
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.mnemonic {
+  /* Fixed dark card, independent of the page's light/dark theme — this is an
+     intentional high-contrast pull-quote, not a themed surface. Using
+     var(--ink)/var(--paper) here used to invert (light bg + light text) once
+     those variables swapped for dark mode; pinning the colors avoids that. */
+  background: #1f1c16;
+  color: #f3efe6;
+  border-radius: 10px;
+  padding: 1.6rem 1.8rem;
+  margin: 2rem 0;
+}
+.mnemonic .label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c4bbaa;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+.mnemonic .big {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.8rem;
+}
+.mnemonic .letter { color: #f0a860; }
+
+.footer-nav {
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ask-agent {
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 0001 &middot; How /code-review Works</p>
+<h1>What <code>/code-review</code> Solves — and Why It's Built the Way It Is</h1>
+
+<p class="lede">You ran a review on PR #503 (BMS-3768) earlier — flagged an out-of-scope <code>ci.yml</code> hunk, then caught a legitimate PLTFM file deletion that slipped past a "cleanup" commit. This lesson explains <em>why</em> the tool that produces reviews like that is structured the way it is — the problem it solves, why that problem matters in the SDLC, and why its output looks the way it does.</p>
+
+<h2>1. The problem it solves</h2>
+<p>Unstructured human code review has three failure modes, all well documented:</p>
+<ul>
+<li><strong>Fatigue.</strong> Per the SmartBear/Cisco peer-review study, defect-detection effectiveness drops sharply once a reviewer exceeds roughly 200–400 lines per hour, and again past about 60 minutes of continuous review. <a href="https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/">(source)</a> PR #503 alone was 148 files at one point — well past that threshold for a single sitting.</li>
+<li><strong>Inconsistency.</strong> What one reviewer flags as a blocker, another waves through — there's no shared, written bar.</li>
+<li><strong>Single-pass bias.</strong> A human reviewer reads once, forms a theory, and tends to confirm it rather than actively hunt for a reason they're wrong.</li>
+</ul>
+<div class="callout">
+<span class="label">Grounded in this repo</span>
+<code>CODE-REVIEW.md</code> exists specifically to fix the "inconsistency" failure mode — it's a single written bar (hard rules + severity definitions) that every review, human or agent-assisted, is judged against.
+</div>
+
+<h2>2. Why this matters in the SDLC</h2>
+<p>The cost-of-change curve is the whole argument: a defect caught at review time costs a comment and a re-push. The same defect caught in production costs an incident, a hotfix, and — in this repo specifically — potentially a broken nightly snapshot build that takes the whole CI org pool down with it (see: repo Hard Constraint #7 on the <code>ohfy__</code> namespace prefix bug, and the exact <code>WMS_UI_Wrappers.cls</code> blocker that got caught on PR #503's first review pass).</p>
+<p>The later a defect is caught, the more expensive it is to fix — that's the entire reason review exists as a gate at all, rather than trusting tests and CI alone.</p>
+
+<h2>3. How it actually runs — the pipeline</h2>
+<div class="pipeline">
+  <div class="step"><span class="n">1 · Gather</span>Ticket + diff. What does the PR <em>claim</em> to do?</div>
+  <div class="arrow">&rarr;</div>
+  <div class="step"><span class="n">2 · Find</span>Multiple independent "angles" scan in parallel — bugs, removed behavior, cross-file breakage, reuse, simplification.</div>
+  <div class="arrow">&rarr;</div>
+  <div class="step"><span class="n">3 · Verify</span>Each candidate finding gets a separate adversarial pass whose only job is to try to refute it.</div>
+  <div class="arrow">&rarr;</div>
+  <div class="step"><span class="n">4 · Output</span>Severity-labeled, file:line-cited, in a fixed section order.</div>
+</div>
+<p>Step 3 is the direct fix for "single-pass bias" above — a finder that talks itself into a false positive gets checked by a separate pass whose entire incentive is to prove it wrong, and returns exactly one of <span class="mono">CONFIRMED</span>, <span class="mono">PLAUSIBLE</span>, or <span class="mono">REFUTED</span>. Nothing reaches you unverified. <a href="https://google.github.io/eng-practices/review/reviewer/">(Google's own reviewer guidance</a> makes the same point about human reviewers: don't approve on a first-pass gut feeling.)</p>
+
+<h2>4. Why the output is shaped the way it is (the psychology)</h2>
+<p>This is the part that's easy to miss: the output format isn't a style choice, it's fighting specific cognitive failure modes.</p>
+<table>
+<tr><th>Design choice</th><th>What it's fighting</th></tr>
+<tr><td>Fixed section order (Bugs → Silent Failures → Dead Branches → ... → Kudos)</td><td>Cognitive load. A wall of undifferentiated prose forces the reader to build their own mental filing system every time; a fixed structure means they already know where to look.</td></tr>
+<tr><td>Three-tier severity: <span class="severity-blocker">BLOCKER</span> / <span class="severity-warning">WARNING</span> / <span class="severity-suggestion">SUGGESTION</span> — "one finding, one severity," no hedging</td><td>Alert fatigue. If everything is flagged with equal urgency, the reader stops trusting the flags at all (see: the "cry wolf" effect in alerting design generally).</td></tr>
+<tr><td>Every finding cited as <code>file:line</code></td><td>Unverifiable authority. A claim you can't check is a claim you either blindly trust or blindly ignore — citing the exact line lets the reader verify in seconds instead of taking it on faith.</td></tr>
+<tr><td>"Ask, Don't Assume" — uncertain findings become <strong>questions</strong>, not confident-sounding guesses</td><td>False certainty. A wrong, confidently-worded blocker is worse than an honest question — it burns trust and wastes the author's time pushing back on a phantom.</td></tr>
+<tr><td>Kudos section, specific and line-cited</td><td>Defensiveness. A review that's 100% criticism reads as an attack; calling out something done well (specifically, not generically) keeps the author receptive to the criticism that follows.</td></tr>
+</table>
+<p>You already felt some of this first-hand: when you posted the review comment on PR #503's <code>ci.yml</code> hunk, you led with "overall this is a solid feature" before the critical finding — that's the Kudos principle, applied instinctively.</p>
+
+<h2>Quick check</h2>
+<div class="quiz" data-answer="A">
+  <div class="q">1. What does the adversarial verify step (CONFIRMED / PLAUSIBLE / REFUTED) protect against?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">Finder agents' false positives reaching you unchecked</button>
+    <button class="choice" data-key="B">Finder agents' true positives getting quietly dropped</button>
+    <button class="choice" data-key="C">Reviewer agents' slow response times during long reviews</button>
+    <button class="choice" data-key="D">Reviewer agents' style opinions overriding repo hard rules</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="B">
+  <div class="q">2. Why does every finding cite a file:line instead of general prose feedback?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">To make the review feel more official and formal to management</button>
+    <button class="choice" data-key="B">To let the reader verify each claim against real code, not trust it</button>
+    <button class="choice" data-key="C">To satisfy a legal requirement for engineering documentation</button>
+    <button class="choice" data-key="D">To make automated tools count findings for team performance</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="A">
+  <div class="q">3. Per the peer-review study cited above, why does an automated finder pass matter structurally, not just stylistically?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">Human review effectiveness drops sharply past a certain LOC-per-hour rate</button>
+    <button class="choice" data-key="B">Human reviewers legally require automated tools for compliance</button>
+    <button class="choice" data-key="C">Automated tools are cheaper than human reviewers per PR reviewed</button>
+    <button class="choice" data-key="D">Automated tools produce better code style than human reviewers do</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="recall">
+<strong>Retrieval practice — no peeking above.</strong> In one sentence, from memory: what problem does <code>/code-review</code> solve that an unstructured PR comment doesn't?
+<textarea placeholder="Write your answer here, then scroll up to check yourself."></textarea>
+</div>
+
+<h2>Your memory hook</h2>
+<div class="mnemonic">
+<span class="label">The pipeline</span>
+<div class="big"><span class="letter">G</span>ather &rarr; <span class="letter">F</span>ind &rarr; <span class="letter">V</span>erify &rarr; <span class="letter">O</span>utput</div>
+<p style="margin:0 0 1.2rem;color:#d8d3c4;font-size:0.9rem;">Say it as one phrase: <em>"Good Finders Verify Output."</em> Ticket context in, many independent eyes hunting, one skeptic checking each hit, one fixed-shape report out.</p>
+<span class="label">Why the output can be trusted — F.A.C.T.</span>
+<div class="big" style="font-size:1.3rem;">
+<span class="letter">F</span>ocus first &middot; <span class="letter">A</span>sk, don't assume &middot; <span class="letter">C</span>ite file:line &middot; <span class="letter">T</span>ier by severity
+</div>
+<p style="margin:0;color:#d8d3c4;font-size:0.9rem;">High-impact decisions get read before nits. Uncertainty becomes a question, not a guess. Every claim points at real code. Every finding gets exactly one severity — no hedging.</p>
+</div>
+
+<p><strong>If someone asks you "what's actually in a <code>/code-review</code> output":</strong> it's Bugs, Silent Failures, Dead Branches, Dead Code, Debug Statements, Naming Violations, Questions, Kudos, Summary — but you don't need to memorize that list. Say <em>"G-F-V-O pipeline, F.A.C.T. output"</em> and you can reconstruct the reasoning for any section from there. The full section list lives in the <a href="cheat-sheet.html">cheat sheet</a> for when you need the exact names.</p>
+
+<h2>Primary source</h2>
+<p>Read <a href="https://google.github.io/eng-practices/review/reviewer/">Google's "How to do a code review"</a> — it's short, and it's the direct ancestor of half the design choices in section 4 above. For the empirical grounding on fatigue and LOC/hour, see the <a href="https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/">SmartBear peer-review study</a>. For this repo specifically, <code>CODE-REVIEW.md</code> at the repo root is the ground truth — everything above is an explanation of choices made there.</p>
+
+<p class="ask-agent">Anything above unclear, or want to go deeper on a specific piece (e.g. how the effort-scaling from low/medium/high/max changes what gets checked)? Just ask — that's what this session is for.</p>
+
+<div class="footer-nav">
+  <span>&larr; Start of course</span>
+  <span><a href="cheat-sheet.html">Cheat sheet: full section list &amp; severity rules &rarr;</a></span>
+</div>
+
+<script>
+// Reusable retrieval-practice quiz widget. Markup contract:
+// <div class="quiz" data-answer="B">
+//   <div class="q">Question text</div>
+//   <div class="choices">
+//     <button class="choice" data-key="A">...</button>
+//     <button class="choice" data-key="B">...</button>
+//   </div>
+//   <div class="feedback"></div>
+// </div>
+(function () {
+  function initQuizzes() {
+    document.querySelectorAll(".quiz").forEach(function (quiz) {
+      var answer = quiz.getAttribute("data-answer");
+      var feedback = quiz.querySelector(".feedback");
+      var buttons = quiz.querySelectorAll(".choice");
+      var answered = false;
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var picked = btn.getAttribute("data-key");
+          buttons.forEach(function (b) {
+            if (b.getAttribute("data-key") === answer) {
+              b.classList.add("correct");
+            } else if (b === btn) {
+              b.classList.add("incorrect");
+            }
+          });
+          if (feedback) {
+            if (picked === answer) {
+              feedback.textContent = "Correct.";
+              feedback.classList.add("show-correct");
+            } else {
+              feedback.textContent = "Not quite — the highlighted option is correct.";
+              feedback.classList.add("show-incorrect");
+            }
+          }
+        });
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuizzes);
+  } else {
+    initQuizzes();
+  }
+})();
+</script>
+</body>
+</html>

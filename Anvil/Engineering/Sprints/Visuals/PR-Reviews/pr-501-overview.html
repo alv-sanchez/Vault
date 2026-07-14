@@ -1,0 +1,131 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR #501 — /productize-demo skill</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --be:#3fb950;--ui:#f0883e;--data:#a371f7;--test:#d29922;--accent:#58a6ff;--warn:#d29922;--danger:#f85149}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:940px;background:var(--bg);color:var(--txt);padding:32px 22px 60px;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:22px;margin:0 0 4px}.pr{color:var(--accent);text-decoration:none}
+  .stamp{color:var(--dim);font-size:12.5px;margin:0 0 14px}.stamp code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 6px}
+  .keys{margin:2px 0 16px}.keys span{display:inline-block;background:#1f2634;color:#9ecbff;border-radius:6px;padding:2px 9px;font-size:12.5px;font-weight:600;margin-right:6px}
+  .thesis{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:12px;padding:15px 18px;margin:12px 0 18px;font-size:16px;line-height:1.5}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-width:82px}
+  .sc .n{font-size:20px;font-weight:700}.sc .l{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+  .sc .n.add{color:var(--be)}.sc .n.del{color:var(--danger)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin:26px 0 10px;color:var(--accent)}
+  code.f{background:#141a24;color:#9ecbff;border-radius:4px;padding:0 5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+  .cmd{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#9ecbff;margin:8px 0}
+
+  /* 5-phase pipeline */
+  .phases{display:flex;flex-direction:column;gap:0;margin:10px 0}
+  .phase{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);position:relative}
+  .phase:last-child{border-bottom:none}
+  .phase .num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent)}
+  .phase .num.gate{background:rgba(210,153,34,.16);border-color:var(--warn);color:#f0c674}
+  .phase h3{margin:0 0 4px;font-size:14.5px;color:#e7e9f0}
+  .phase p{margin:0;font-size:13.5px;color:#a9b1c3;line-height:1.55}
+  .phase .tag{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    background:rgba(210,153,34,.16);color:#f0c674;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
+  .layer{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 15px}
+  .layer h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:7px}
+  .layer.r1 h3{color:var(--test)}.layer.r2 h3{color:var(--ui)}.layer.r3 h3{color:var(--be)}
+  .layer ul{margin:0;padding-left:2px;list-style:none}.layer li{margin:6px 0;padding-left:14px;position:relative;font-size:13.5px;color:#d7dce8}
+  .layer li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+
+  .note{background:var(--card2);border-left:3px solid var(--warn);border-radius:8px;padding:9px 14px;margin:9px 0;font-size:13.5px;color:#e7e9f0}
+  .note b{color:#f0c674}
+  .note.ok{border-left-color:var(--be)}.note.ok b{color:#7ee08b}
+  .foot{color:var(--dim);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
+</style></head><body>
+
+<h1>🏭 PR <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/501">#501</a> — <code class="f">/productize-demo</code> skill</h1>
+<p class="stamp">feat(skills) · <b>OPEN</b> · <code>feature/productize-demo-skill</code> → <code>main</code> · author jk-ohanafy · 4 commits</p>
+<div class="keys"><span>Tooling — no BMS ticket</span></div>
+
+<div class="thesis">A new project-local skill that takes a <b>Sales-Demos</b> branch/PR URL and productizes the feature into OHFY-Split — porting a proof-of-concept demo into a real, convention-compliant managed-package feature, end to end, in one command. Not a product feature itself: this PR ships the <em>tool</em> that will help build future product features out of sales demos.</div>
+
+<div class="stats">
+  <div class="sc"><div class="n add">+358</div><div class="l">added</div></div>
+  <div class="sc"><div class="n del">−2</div><div class="l">removed</div></div>
+  <div class="sc"><div class="n">3</div><div class="l">files</div></div>
+  <div class="sc"><div class="n">5</div><div class="l">phases</div></div>
+  <div class="sc"><div class="n">11</div><div class="l">findings fixed</div></div>
+</div>
+
+<h2>▶️ How to use it</h2>
+<div class="cmd">/productize-demo &lt;Sales-Demos PR or branch URL&gt; [BMS-XXXX]</div>
+<div class="cmd">/productize-demo https://github.com/Ohanafy/Sales-Demos/pull/2</div>
+<div class="cmd">/productize-demo https://github.com/Ohanafy/Sales-Demos/tree/feature/route-planner-full-deploy BMS-1234</div>
+<p style="color:var(--dim);font-size:13.5px">The BMS ticket key is optional — pass it and the skill cross-checks its ACs during mapping and cites AC coverage in the PR. It never creates tickets itself.</p>
+
+<h2>🧭 The five-phase pipeline</h2>
+<div class="phases">
+  <div class="phase">
+    <div class="num">1</div>
+    <div><h3>Acquire</h3>
+      <p>Paginated PR file listing (plain <code class="f">gh pr view --json files</code> truncates at 100 files — a real problem, since the validation PR itself had 956 changed files). Partitions feature code from retrieve-noise, walks the schema dependency closure, and classifies schema that exists in <b>neither</b> repo as org-only. Checks for in-flight/completed overlap — if a prior port already exists on <code class="f">main</code>, pivots to a <b>delta port</b> (gap-fill only, never regresses product-ahead code).</p></div>
+  </div>
+  <div class="phase">
+    <div class="num gate">2</div>
+    <div><h3>Productization Map <span class="tag">Hard approval gate</span></h3>
+      <p>The one checkpoint that blocks all code. Reuse-first data-model mapping with a field-level rename table (e.g. demo <code class="f">ohfy__Active__c</code> ≠ product <code class="f">Is_Active__c</code> — same-looking field, different reality), component-mapping with namespace-wide class-name collision checks, and platform risk flags (Visualforce, external libraries, CSP, secrets sitting in Custom Metadata). Nothing is written until this map is explicitly approved.</p></div>
+  </div>
+  <div class="phase">
+    <div class="num">3</div>
+    <div><h3>Port</h3>
+      <p>Follows <code class="f">references/translation-guide.md</code>: routes all reads/writes through <code class="f">QueryService</code>/<code class="f">DmlService</code>, wires into the trigger framework, generates <code class="f">_T</code>/Jest tests, hoists DTOs per ADR-0007, builds the UI-wrapper facade, mirrors both org-metadata folders, and sets up Named Credentials for any callouts — the demo's shortcuts become the product's conventions.</p></div>
+  </div>
+  <div class="phase">
+    <div class="num">4</div>
+    <div><h3>Deploy &amp; verify</h3>
+      <p>Claims a <b>pool org</b> (never a raw scratch org), deploys in tier order, cascade-selects which Apex tests to run, walks the feature's behavior live via Chrome DevTools, and — when a demo org is connected — runs a read-only side-by-side parity check against it. Playwright is now <b>required</b>, not conditional, for any Tier-4 (UI) touch.</p></div>
+  </div>
+  <div class="phase">
+    <div class="num">5</div>
+    <div><h3>Pre-PR gate &amp; PR</h3>
+      <p>Runs the full CLAUDE.md check suite, commits in tier order with conventional-commit + ticket-key messages, and opens a single <b>draft</b> PR.</p></div>
+  </div>
+</div>
+
+<h2>🔬 Validated in three rounds against a real demo</h2>
+<div class="grid">
+  <div class="layer r1"><h3>① Baseline — no skill</h3><ul>
+    <li>Ran the port manually first, no skill, to see what a human/agent misses unaided</li>
+    <li>Surfaced gaps the skill now covers: demo-org parity verification, class-name collisions, component reuse, platform risk flags</li>
+  </ul></div>
+  <div class="layer r2"><h3>② Dry-run — with skill</h3><ul>
+    <li>Caught 3 derailing bugs before they'd have silently corrupted a real port: the 100-file <code class="f">gh</code> truncation, a prefix-strip that produced nonexistent field names, and mishandled org-only schema</li>
+  </ul></div>
+  <div class="layer r3"><h3>③ Full live run — real port</h3><ul>
+    <li>Executed end-to-end on Sales-Demos PR #2 (<b>TBM Dispatch Route Planner, 956 changed files</b>) — a delta port of the dispatch map layer</li>
+    <li>Surfaced <b>8 more findings</b>, all fixed: positional <code class="f">claim-dev.sh</code> alias arg, delta-port mode, pre-flight org-pool credential check + throttle-response messaging, dependency-freshness check, lint/Jest baselining, draft-PR/DoD alignment, Playwright made unconditional for Tier-4</li>
+  </ul></div>
+</div>
+
+<h2>🔨 What's in the diff</h2>
+<div class="grid">
+  <div class="layer"><h3>📄 <code class="f">.claude/skills/productize-demo/SKILL.md</code></h3><ul>
+    <li><b>+188 lines</b> — the 5-phase workflow definition, invocation syntax, prerequisites (GitHub access, org-pool creds, optional connected demo org, optional feature-specific creds, optional BMS ticket), and the interactive checkpoints to expect</li>
+  </ul></div>
+  <div class="layer"><h3>📄 <code class="f">references/translation-guide.md</code></h3><ul>
+    <li><b>+168 lines</b> — the concrete demo→product conversion rules Phase 3 follows: QueryService/DmlService routing, trigger framework wiring, DTO hoisting, dual org-metadata mirroring, Named Credentials for callouts</li>
+  </ul></div>
+  <div class="layer"><h3>📄 <code class="f">CLAUDE.md</code></h3><ul>
+    <li><b>+2/−2</b> — hardens the root Definition of Done: Playwright specs passing on chromium are now <b>required</b> (not "as applicable") for every PR touching <code class="f">OHFY-*-UI/</code>, exemption only via the existing skip policy</li>
+  </ul></div>
+</div>
+
+<h2>⚠️ Notes &amp; decisions</h2>
+<div class="note"><b>The Productization Map gate is the load-bearing safety mechanism here.</b> Everything before it (acquire) is read-only analysis; everything after it (port/deploy/PR) is automated. The field-level rename table specifically exists because a demo field and a product field can share a name while meaning different things — skipping this gate is exactly how a demo's shortcuts leak into the managed package.</div>
+<div class="note ok"><b>This PR quietly raises the bar for every future Tier-4 PR</b>, not just ones built by this skill — the CLAUDE.md change makes Playwright non-optional org-wide. Worth knowing if you're mid-flight on a UI PR without Playwright coverage.</div>
+<div class="note" style="border-color:var(--dim)"><b>One feature per invocation by design.</b> If a Sales-Demos PR bundles several features, the skill asks which one to port rather than trying to do all of them — a large demo PR is already a long run on its own.</div>
+
+<p class="foot">Overview of PR #501 as of its current head · generated from GitHub PR metadata + commit history. This PR ships a skill and a CLAUDE.md policy change, not application code — no screenshots to capture.</p>
+</body></html>

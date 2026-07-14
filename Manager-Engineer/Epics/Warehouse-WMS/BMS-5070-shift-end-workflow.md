@@ -5,24 +5,21 @@ title: "[REQ-143] Shift-End Workflow"
 domain: "WMS picking / inventory"
 user: "Warehouse managers · incoming shift crews · finance/ops reporting"
 impact: "Lost crew-to-crew context; informal breakage + cycle counts untied to the shift → dirty finance/ops close data"
-build_status: "Built · feat/shift-end-workflow-bms-4078 · needs org deploy+tests"
-awaiting_ui_direction: true   # backend artifact built; shift-close checklist/pass-down screen pending your UX direction + mockup
-demo_review: true             # 🎬 in the demo bucket — review to catch a wrong-direction build early
+build_status: "Done · all 4 children shipped (per Jira)"
 demo_pitch: "One shift-end checklist turns scattered breakage reports into a single shrinkage number."
-org:                          # ohfy-val-4078 EXPIRED (auto-expired) — reclaim on resume; branch feat/shift-end-workflow-bms-4078
-status: In Progress
+status: Done
 audit_verdict: Slice
-polish_verdict: Incomplete
+polish_verdict: Complete
 score: 3
 stream: S6-Warehouse
 phase: 1
 locked_down: true
 due: 2026-06-30
-eod_realistic: false
-executable_children: []
+eod_realistic: true
+executable_children: [BMS-4077, BMS-4078, BMS-4079, BMS-4080]
 blockers: []
 build_order: [BMS-4077, BMS-4078, BMS-4079, BMS-4080]
-updated: 2026-06-29
+updated: 2026-07-13
 jira: https://ohanafy.atlassian.net/browse/BMS-5070
 tags:
   - manager-engineer
@@ -32,7 +29,7 @@ tags:
 # BMS-5070 — [REQ-143] Shift-End Workflow
 
 > [!summary] Verdict
-> **Slice / add-AC** · score 3 · stream S6-Warehouse. `/polish-epic`: **Incomplete** — all four children **lack acceptance criteria**, and the spike (4077) assumes greenfield when breakage + cycle-count primitives already exist on main. Safe to **start** (the reconciliation spike); not finishable as written.
+> **Done** · score 3 · stream S6-Warehouse. All four children (BMS-4077, 4078, 4079, 4080) are **Done in Jira**, and the epic itself is **Done**. AC/data-model concerns from the 2026-06-29 `/polish-epic` pass were resolved (see [[BMS-5070-shift-end-data-model]]) and the build shipped against that plan.
 
 ## 🎯 Phase-One brief (locked down · due 2026-06-30)
 - **The issue:** Gulf warehouse managers close shifts with **no standardized handoff** — breakage is noted informally, cycle counts aren't tied to shift records, and pass-down context is lost between crews.
@@ -42,8 +39,8 @@ tags:
 - **EOD-realistic? 🟡 Partly.** You can *start* the 4077 spike today (re-scoped around existing breakage/cycle-count schema) and write AC, but the build (checklist + pass-down objects) won't land by EOD.
 
 ## Audit
-- **Children:** 4 total · 0 executable as written (all missing AC).
-- **Blocked by:** none live (old blocker BMS-3793 is Done).
+- **Children:** 4 total · 4/4 Done (per Jira, confirmed 2026-07-13).
+- **Blocked by:** none (old blocker BMS-3793 is Done).
 - **Shared substrate / overlap:** WMS-picking — reads `Pick_Event__c` / `Pick_Performance_Summary__c` / `Inventory_Log_Group__c`. ⚠ coordinate with other picking work; not the INV-LOCK.
 
 ## Executable children — live (auto-updates from ticket notes)
@@ -68,16 +65,17 @@ views:
       ui: 70
 ```
 
-## Not-yet-executable children
-| Ticket | Why skipped |
+## Children — status (per Jira, confirmed 2026-07-13)
+| Ticket | Status |
 |---|---|
-| BMS-4077 — Spike: checklist + breakage model | **Incomplete** — no AC. Re-scope: must reconcile new checklist schema with existing `Pick_Event__c.Breakage_Quantity__c` + `Inventory_Log_Group__c.Is_Cycle_Count__c`, not greenfield. **Safe to start.** |
-| BMS-4078 — Ph1: checklist + breakage review | **Incomplete** — no AC. Breakage capture exists; needs a `Checklist__c` object + shift-end aggregation. |
-| BMS-4079 — Ph2: cycle counts + pass-down | **Incomplete** — no AC. Cycle-count flag exists; **pass-down/handoff is greenfield.** |
-| BMS-4080 — Ph3: submission + finance roll-up | **Unverifiable** — no AC; depends on entities 4077/4078 must create; no GL/shrinkage target named. |
+| BMS-4077 — Spike: checklist + breakage model | Done |
+| BMS-4078 — Ph1: checklist + breakage review | Done |
+| BMS-4079 — Ph2: cycle counts + pass-down | Done |
+| BMS-4080 — Ph3: submission + finance roll-up | Done |
 
 ## Open questions for PO / architect
-- Add acceptance criteria to all four children; re-scope BMS-4077 around the existing `Pick_Event__c` / `Inventory_Log_Group__c` schema. Define the `Checklist__c` + pass-down objects.
+- None open — AC/data-model gaps resolved 2026-06-29 (see [[BMS-5070-shift-end-data-model]]); all children shipped.
 
 ## Run history
 - 2026-06-29 — `/polish-epic` on main: **Incomplete** (no AC anywhere; spike must reconcile existing primitives). Locked into Phase One. Read-only, no writes.
+- 2026-07-13 — `/pulse`: Jira confirms epic + all 4 children **Done**. Note refreshed to match (was stale at "In Progress" / "Incomplete").

@@ -23,7 +23,7 @@ Ten custom Claude Code skills powering the BMS pipeline. Live in `~/.claude/skil
 ## 🔨 Execution
 | Skill | Invoke | What it does |
 |-------|--------|--------------|
-| **build-overview-scaffold** 🗂️ | `/build-overview-scaffold` · "make the build folder for BMS-XXXX" | On epic pickup, auto-creates `Build-Overview/BMS-<epic>-<slug>/` (SESSION.md + overview.md + overview.html). Takes epic OR ticket key (ticket → parent epic folder). Idempotent. |
+| **build-overview-scaffold** 🗂️ | `/build-overview-scaffold` · "make the build folder for BMS-XXXX" | On epic pickup, auto-creates `Build-Overview/Sprint-<N>/BMS-<epic>-<slug>/` (SESSION.md + overview.md + overview.html) inside the current sprint's folder. Takes epic OR ticket key (ticket → parent epic folder). Idempotent — searches every `Sprint-N/` for an existing folder before creating one. |
 | **engineering-notes** | starting/logging a ticket | Writes/updates the `Tickets/BMS-XXXX` note from live Jira. |
 | **ticket-create** | "create a ticket" | Scaffolds a new BMS ticket. |
 

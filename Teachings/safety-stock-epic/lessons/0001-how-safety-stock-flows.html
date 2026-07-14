@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — How Safety Stock Flows Through the System</title>
+<style>
+/* Shared stylesheet for the "Safety Stock Epic (BMS-5068)" teaching set.
+   Same Tufte-ish visual identity as the code-review set so the two courses feel
+   like one shelf. Quiet, readable, generous margins; theme-aware. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #2e5d8a;          /* inventory/blue — distinct from code-review's rust */
+  --accent-soft: #e0eaf4;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #a1720b;
+  --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #7fa8d6;
+    --accent-soft: #202c38; --muted: #a39a86; --code-bg: #2a251d;
+    --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #7fa8d6;
+  --accent-soft: #202c38; --muted: #a39a86; --code-bg: #2a251d;
+  --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+}
+:root[data-theme="light"] {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4; --accent: #2e5d8a;
+  --accent-soft: #e0eaf4; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.3rem; font-weight: 600; }
+.kicker {
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 2rem;
+}
+h2 {
+  font-size: 1.3rem; margin: 2.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem;
+}
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.5rem; color: var(--accent); }
+p { margin: 0.9rem 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+a:hover { text-decoration-color: var(--accent); }
+.lede {
+  font-size: 1.15rem; color: var(--muted);
+  border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0 2rem;
+}
+.callout {
+  background: var(--accent-soft); border-radius: 6px;
+  padding: 1rem 1.3rem; margin: 1.3rem 0; font-size: 0.95rem;
+}
+.callout .label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.3rem;
+}
+code, .mono {
+  font-family: var(--mono); font-size: 0.85em; background: var(--code-bg);
+  color: var(--ink); padding: 0.1em 0.35em; border-radius: 3px;
+}
+pre { background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; }
+pre code { background: none; padding: 0; }
+
+/* Horizontal pipeline (stories/phases) */
+.pipeline { display: flex; gap: 0.5rem; align-items: stretch; margin: 1.5rem 0; flex-wrap: wrap; }
+.pipeline .step { flex: 1; min-width: 130px; background: var(--code-bg); border-radius: 6px; padding: 0.8rem 0.9rem; font-size: 0.85rem; }
+.pipeline .step .n { font-family: var(--mono); color: var(--accent); font-weight: 700; display: block; margin-bottom: 0.2rem; }
+.pipeline .arrow { align-self: center; color: var(--muted); font-size: 1.2rem; }
+
+/* Vertical data-flow ladder — one runtime step per rung */
+.flow { margin: 1.5rem 0; }
+.flow .rung { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
+.flow .rung:last-child { border-bottom: none; }
+.flow .rung .badge {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--paper);
+  background: var(--accent); border-radius: 5px; padding: 0.25rem 0.5rem; white-space: nowrap; margin-top: 0.15rem;
+}
+.flow .rung .body { flex: 1; font-size: 0.92rem; }
+.flow .rung .body strong { color: var(--accent); }
+.flow .rung .body .src { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* Story→seam mapping cards */
+.seams { display: grid; gap: 0.6rem; margin: 1.5rem 0; }
+.seam { border: 1px solid var(--rule); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.9rem; }
+.seam .key { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.seam .extends { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+.severity-blocker { color: var(--blocker); font-weight: 600; }
+.severity-warning { color: var(--warning); font-weight: 600; }
+.severity-suggestion { color: var(--suggestion); font-weight: 600; }
+
+table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+/* Quiz widget */
+.quiz { border: 1px solid var(--rule); border-radius: 8px; padding: 1.3rem 1.4rem; margin: 1.5rem 0; background: var(--paper); }
+.quiz .q { font-weight: 600; margin-bottom: 0.8rem; }
+.quiz .choices { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz button.choice {
+  font-family: var(--serif); font-size: 0.95rem; text-align: left; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink);
+  cursor: pointer; transition: background 0.15s;
+}
+.quiz button.choice:hover { background: var(--accent-soft); }
+.quiz button.choice.correct { background: #e3ecdf; border-color: var(--suggestion); color: #1a1a1a; }
+.quiz button.choice.incorrect { background: #f3e0dc; border-color: var(--blocker); color: #1a1a1a; }
+.quiz .feedback { margin-top: 0.8rem; font-size: 0.9rem; min-height: 1.2rem; }
+.quiz .feedback.show-correct { color: var(--suggestion); }
+.quiz .feedback.show-incorrect { color: var(--blocker); }
+
+.recall { border: 1px dashed var(--rule); border-radius: 8px; padding: 1.2rem 1.4rem; margin: 1.5rem 0; }
+.recall textarea {
+  width: 100%; min-height: 3.5rem; font-family: var(--serif); font-size: 0.95rem;
+  border: 1px solid var(--rule); border-radius: 6px; padding: 0.6rem; margin-top: 0.5rem;
+  background: var(--paper); color: var(--ink);
+}
+.recall button {
+  margin-top: 0.6rem; font-family: var(--mono); font-size: 0.8rem; padding: 0.4rem 0.9rem;
+  border-radius: 5px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--ink); cursor: pointer;
+}
+
+.mnemonic { background: #1f1c16; color: #f3efe6; border-radius: 10px; padding: 1.6rem 1.8rem; margin: 2rem 0; }
+.mnemonic .label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: #c4bbaa; margin-bottom: 0.6rem; display: block; }
+.mnemonic .big { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.8rem; }
+.mnemonic .letter { color: #f0a860; }
+
+.footer-nav {
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+}
+.ask-agent { margin-top: 2.5rem; font-size: 0.85rem; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 0001 &middot; Safety Stock Epic (BMS-5068)</p>
+<h1>How Safety Stock Actually Flows Through the System</h1>
+
+<p class="lede">You own this epic and can run it — but the piece that stays fuzzy is the <em>chain</em>: how does a planner deciding &ldquo;hold more of this SKU&rdquo; turn into a bigger purchase order? This lesson walks that one chain, end to end, using the real classes in the repo. One tangible win: by the end you can narrate the flow out loud without notes.</p>
+
+<h2>1. First, what &ldquo;safety stock&rdquo; even <em>is</em> here</h2>
+<p>The trap is imagining a stored &ldquo;safety stock quantity&rdquo; sitting on a record. There isn't one. In this system, <strong>safety stock is an upward adjustment to the <em>target Days-on-Hand (DOH)</em></strong> — the number of days of forward demand you want the inventory to cover.</p>
+<p>Standard target might be 10 days. A planner worried about a supplier says &ldquo;make it 16 for this SKU.&rdquo; That 16 isn't a new concept bolted on — it's the <em>same</em> target DOH the replenishment engine already reads, just resolved to a higher value. That single reframing is why the whole epic could reuse existing plumbing (Lesson 2).</p>
+
+<div class="callout">
+<span class="label">Say it in one sentence</span>
+Safety stock = a <strong>higher target DOH</strong>, resolved per (item, location, supplier) at calculation time — never a separately stored buffer quantity.
+</div>
+
+<h2>2. The chain, one rung at a time</h2>
+<p>Every rung is a real thing in the repo. The badge is the component that owns that step.</p>
+
+<div class="flow">
+  <div class="rung">
+    <span class="badge">SET</span>
+    <div class="body"><strong>A planner creates an override.</strong> A row in <code>SKU_Override__c</code> — scoped to a SKU (item+location) or to a whole supplier (Account) — carrying <code>Target_DOH_Override__c</code>, effective dates, a reason, and a status.
+    <span class="src">SKU_Override__c &middot; scope + lifecycle added by BMS-5636</span></div>
+  </div>
+  <div class="rung">
+    <span class="badge">RESOLVE</span>
+    <div class="body"><strong>The resolver picks the effective target.</strong> <code>S_InventoryThresholds.resolve(itemId, locationId, accountId)</code> walks a waterfall and returns a <code>Result</code> with <code>targetDOH</code> and a <code>resolutionSource</code> label. Precedence: <em>active SKU override → active supplier override → static baseline tiers → system default</em>. First non-null field wins, per field.
+    <span class="src">S_InventoryThresholds.cls — the precedence is in the class header comment</span></div>
+  </div>
+  <div class="rung">
+    <span class="badge">SIZE</span>
+    <div class="body"><strong>The target becomes a case quantity.</strong> <code>S_ReplenishmentOrderSizing.size(...)</code> computes <code>targetCases = round(targetDOH × Average_Daily_Depletion__c ÷ Units_Per_Case__c)</code>, then rounds to the nearest layer/pallet boundary. A higher target DOH ⇒ more cases ordered. <em>This</em> is where the planner's decision becomes purchasing behavior.
+    <span class="src">S_ReplenishmentOrderSizing.cls (BMS-4217) — the DOH engine</span></div>
+  </div>
+  <div class="rung">
+    <span class="badge">FREEZE</span>
+    <div class="body"><strong>The number and its origin get stamped on the task.</strong> <code>Effective_Target_DOH__c</code> and <code>Resolution_Source__c</code> are written onto <code>Replenishment_Task__c</code> at generation time, so the audit record says &ldquo;we ordered to 16 days because of a SKU Override&rdquo; — and stays true even after the override expires.
+    <span class="src">Replenishment_Task__c fields (BMS-5639)</span></div>
+  </div>
+  <div class="rung">
+    <span class="badge">CLOSE</span>
+    <div class="body"><strong>The override ends and the target reverts.</strong> A nightly batch flips <em>Scheduled→Active→Expired</em> on the dates; a planner can also close early with a reason. On expiry/approach the creator is notified. Next calculation resolves back to the standard target — no code change, no manual cleanup.
+    <span class="src">BA_SKUOverride_ExpirationProcessor + S_SafetyStockNotifier (BMS-5638)</span></div>
+  </div>
+</div>
+
+<h2>3. The safety valve you should remember</h2>
+<p>The sizing engine has an explicit <strong>fallback contract</strong>: if <code>targetDOH</code> or velocity is null or non-positive — an unconfigured SKU, or one with no depletion data — <code>size()</code> returns the pre-existing <em>capacity-fill</em> quantity <em>unchanged</em>. So the DOH path is purely <em>additive</em>: SKUs nobody has touched size exactly as they did before this epic. That's why shipping it couldn't regress existing replenishment.</p>
+
+<div class="callout">
+<span class="label">Grounded in the code</span>
+The <code>SizingResult</code> even carries a <code>dohDriven</code> boolean — <em>true</em> when the target drove the number, <em>false</em> when it fell back. The system tells you which path it took.
+</div>
+
+<h2>4. Check yourself</h2>
+<div class="quiz" data-answer="C">
+  <div class="q">A planner raises a SKU's target DOH from 10 to 16. Where does that decision turn into a larger purchase order?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">In SKU_Override__c, the moment the override row is saved to the database</button>
+    <button class="choice" data-key="B">In the nightly batch that flips the override status to Active</button>
+    <button class="choice" data-key="C">In S_ReplenishmentOrderSizing, when targetDOH is multiplied by daily depletion into cases</button>
+    <button class="choice" data-key="D">In Replenishment_Task__c, when Effective_Target_DOH is frozen onto the task</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="B">
+  <div class="q">A SKU has no override and no velocity data. What order quantity does the sizing engine produce?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">Zero cases, because the target DOH cannot be resolved to a number</button>
+    <button class="choice" data-key="B">The existing capacity-fill quantity, unchanged, via the fallback contract</button>
+    <button class="choice" data-key="C">The system-default DOH multiplied by an assumed average depletion</button>
+    <button class="choice" data-key="D">An error is thrown so the planner is forced to configure the SKU</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="recall">
+<strong>Retrieval — no peeking.</strong> Write the five rungs of the chain in order, one word each (SET, then…), and name the class that owns the third rung.
+<textarea placeholder="SET → RESOLVE → …  ; rung 3 class = …"></textarea>
+<button onclick="this.previousElementSibling.previousElementSibling; this.parentElement.querySelector('.rev').style.display='block';">Reveal</button>
+<div class="rev" style="display:none; margin-top:0.8rem; font-size:0.9rem;">SET → RESOLVE → SIZE → FREEZE → CLOSE. Rung 3 (SIZE) = <code>S_ReplenishmentOrderSizing</code>.</div>
+</div>
+
+<div class="mnemonic">
+<span class="label">Carry this out of the lesson</span>
+<div class="big"><span class="letter">S</span>et &middot; <span class="letter">R</span>esolve &middot; <span class="letter">S</span>ize &middot; <span class="letter">F</span>reeze &middot; <span class="letter">C</span>lose</div>
+<div>&ldquo;<strong>S</strong>afety stock <strong>R</strong>eally <strong>S</strong>izes, then <strong>F</strong>reezes and <strong>C</strong>loses.&rdquo; Five rungs. The middle S — <em>Size</em> — is the only one that touches money; the rest just decide, record, and unwind the number it uses.</div>
+</div>
+
+<h2>Read next</h2>
+<p><strong>Primary source:</strong> open <code>S_InventoryThresholds.cls</code> and read only the class-header comment — the precedence waterfall is spelled out there in plain English. Then skim the header of <code>S_ReplenishmentOrderSizing.cls</code> for the one-line formula. Fifteen minutes, and rungs 2–3 are locked in.</p>
+
+<p class="ask-agent">Stuck on any rung — e.g. how a supplier-scope override cascades to sibling SKUs, or what &ldquo;warehouse ancestor&rdquo; means in the baseline lookup? Ask me. I'm your teacher for this; that's what I'm here for.</p>
+
+<div class="footer-nav">
+  <span>Safety Stock Epic &middot; Lesson 1 of 2</span>
+  <span><a href="0002-why-the-epic-is-tidy.html">Next: Why the epic builds everything tidily →</a></span>
+</div>
+
+<script>
+// Reusable retrieval-practice quiz widget, shared across lessons.
+// Markup contract:
+// <div class="quiz" data-answer="B">
+//   <div class="q">Question text</div>
+//   <div class="choices">
+//     <button class="choice" data-key="A">...</button>
+//     <button class="choice" data-key="B">...</button>
+//   </div>
+//   <div class="feedback"></div>
+// </div>
+(function () {
+  function initQuizzes() {
+    document.querySelectorAll(".quiz").forEach(function (quiz) {
+      var answer = quiz.getAttribute("data-answer");
+      var feedback = quiz.querySelector(".feedback");
+      var buttons = quiz.querySelectorAll(".choice");
+      var answered = false;
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var picked = btn.getAttribute("data-key");
+          buttons.forEach(function (b) {
+            if (b.getAttribute("data-key") === answer) {
+              b.classList.add("correct");
+            } else if (b === btn) {
+              b.classList.add("incorrect");
+            }
+          });
+          if (feedback) {
+            if (picked === answer) {
+              feedback.textContent = "Correct.";
+              feedback.classList.add("show-correct");
+            } else {
+              feedback.textContent = "Not quite — the highlighted option is correct.";
+              feedback.classList.add("show-incorrect");
+            }
+          }
+        });
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuizzes);
+  } else {
+    initQuizzes();
+  }
+})();
+</script>
+</body>
+</html>

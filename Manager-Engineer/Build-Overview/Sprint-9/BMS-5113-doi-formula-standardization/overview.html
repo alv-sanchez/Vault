@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5113 — DOI Formula Standardization</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:920px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
+  .sub{color:var(--dim);margin:0 0 20px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(210,153,34,.16);color:#d29922}
+  .badge.risk{background:rgba(248,81,73,.16);color:#f85149}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:660px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:14px 16px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
+  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
+  .box p{margin:0;color:#d7dce8}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  a{color:var(--accent)}
+  ul{padding-left:20px}
+  .num{font-weight:700;color:#3fb950}
+  .warn{color:#f0883e}
+</style></head><body>
+  <h1><span class="key">BMS-5113</span> — DOI Formula Standardization</h1>
+  <p class="sub">Purchasing &amp; Supply Planning · <a href="https://ohanafy.atlassian.net/browse/BMS-5113">Jira</a> · <span class="badge">BUILD IN PROGRESS</span> <span class="badge risk">HIGH RISK — reconciliation gate</span></p>
+  <div class="meta">Branch <code>feat/doi-invoiced-source-bms-3742</code> · Org <code>bms-5113-doi</code> · Sprint 9 · updated 2026-07-13 · <a href="orientation.html">code-verified architecture brief →</a></div>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Purchasing/warehouse planners across Gulf's 5 warehouses who use Days-on-Inventory to decide when to reorder or flag overstock.</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Inconsistent DOI formulas across departments produced conflicting signals — one warehouse sees a SKU overstocked, another sees it critically low — causing duplicated POs and missed replenishment.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Extends the shipped <code>S_InventoryDOI</code>/<code>B_InventoryDOI</code> (BMS-3779) — swaps the sales-rate source to completed invoiced quantity, adds 30/60/90-day windows.</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p>Live before/after DOI reconciliation against real data + PO sign-off before BMS-3742 goes ready-for-review.</p></div>
+  </div>
+  <h2>What it is</h2>
+  <p>A single, authoritative DOI calculation, computed once and read everywhere — replacing a distorted on-hand-decrease proxy with the BMS-3817 spike's specified source: completed invoiced quantity.</p>
+
+  <h2>Status / what's built</h2>
+  <ul>
+    <li><strong>BMS-3822</strong> (Inventory Threshold baseline) — merged before this session</li>
+    <li><strong>BMS-3742</strong> (core formula switch) — draft PR <a href="https://github.com/Ohanafy/OHFY-Split/pull/513">#513</a>, <span class="num">21/21</span> tests passing, before/after proof included (old: DOI 24 → new: DOI 48)</li>
+    <li>Live-demonstrated in <code>bms-5113-doi</code>: Riverbend IPA at Montgomery AL DC → <span class="num">DOI 48 / 64 / 72</span> (30/60/90d), via the real nightly batch</li>
+    <li>BMS-4543/4544/4545 — not started; largely pre-answered/pre-delivered per code audit</li>
+  </ul>
+
+  <h2>Demo</h2>
+  <p>Open <code>bms-5113-doi</code> → <strong>Riverbend IPA: 1/2 BBL</strong> at <strong>Montgomery AL Distribution Center</strong> → <code>Current_DOI__c = 48</code>, <code>Current_DOI_60__c = 64</code>, <code>Current_DOI_90__c = 72</code>, Status "In Range".</p>
+  <p class="warn">Don't say: this is validated against production-scale data — it's proof-of-mechanism on seeded fixture data, not the pending live reconciliation.</p>
+</body></html>

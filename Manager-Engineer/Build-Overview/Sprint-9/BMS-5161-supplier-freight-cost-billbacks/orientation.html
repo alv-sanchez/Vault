@@ -1,0 +1,126 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orientation — BMS-5161 Supplier Freight Cost Billbacks</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --why:#f0883e;--exist:#58a6ff;--delta:#3fb950;--warn:#d29922;--accent:#58a6ff;--infer:#d29922}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:920px;background:var(--bg);color:var(--txt);padding:32px 22px;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:22px;margin:0 0 4px}.key{color:var(--accent)}.key a{color:var(--accent);text-decoration:none}
+  .stamp{color:var(--dim);font-size:12px;margin:0 0 8px}.stamp code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 6px}
+  .pkgs{margin:0 0 4px}.pkgs code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 7px;font-size:12px;margin-right:5px}
+  .thesis{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:12px;padding:15px 18px;margin:12px 0 18px;font-size:17px;line-height:1.5}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin:22px 0 9px}
+  h2.why{color:var(--why)}h2.exist{color:var(--exist)}h2.delta{color:var(--delta)}h2.shape{color:var(--accent)}h2.warn{color:var(--warn)}h2.kids{color:var(--txt)}
+  h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+  h4.why{color:var(--why)}h4.exist{color:var(--exist)}h4.delta{color:var(--delta)}h4.shape{color:var(--accent)}h4.warn{color:var(--warn)}
+  ul{margin:6px 0;padding-left:2px;list-style:none}
+  li{margin:6px 0;padding-left:15px;position:relative}
+  li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+  .exist-block li{color:#aab2c6}.exist-block li::before{background:var(--exist)}
+  .cite{background:#141a24;color:#7fb0e6;border-radius:4px;padding:1px 6px;font-size:11.5px;font-family:ui-monospace,Menlo,monospace}
+  .uncited{background:rgba(248,81,73,.14);color:#f8968f;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600}
+  .tk{color:var(--dim);text-decoration:none;font-size:12px}
+  .delta-block li{color:#e7e9f0}.delta-block li::before{background:var(--delta);width:6px;height:6px;top:8px}
+  .delta-block b{color:#fff}
+  .vd{display:inline-block;border-radius:5px;padding:0 7px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-right:6px}
+  .vd-build{background:rgba(63,185,80,.18);color:#6fe08a}.vd-extend{background:rgba(88,166,255,.16);color:#89bcff}.vd-reuse{background:rgba(136,145,165,.16);color:#aab2c6}
+  .srctag{display:inline-block;border-radius:5px;padding:0 6px;font-size:10.5px;font-weight:600;margin-left:5px}
+  .src-jira{background:rgba(88,166,255,.14);color:#89bcff}.src-commit{background:rgba(163,113,247,.16);color:#c4a5f5}
+  .src-code{background:rgba(63,185,80,.14);color:#6fe08a}.src-infer{background:rgba(210,153,34,.16);color:#e3b95f}
+  .shape{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-family:ui-monospace,Menlo,monospace;font-size:13.5px;color:#9ecbff;overflow-x:auto}
+  .ledger{background:rgba(88,166,255,.05);border:1px dashed #2c3346;border-radius:9px;padding:8px 14px;margin-top:8px}
+  .ledger .lh{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .nav{position:sticky;top:0;background:rgba(13,16,23,.92);backdrop-filter:blur(6px);padding:9px 0;margin:6px 0 4px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);z-index:5}
+  .nav a{font-size:11.5px;color:var(--dim);text-decoration:none;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+  .nav a:hover{color:var(--accent);border-color:#3b4a6b}
+  section.child{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .chead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .cnum{width:22px;height:22px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);flex-shrink:0}
+  .ckey{color:var(--accent);text-decoration:none;font-weight:700;font-variant-numeric:tabular-nums}
+  .ctitle{font-weight:600}
+  .cthesis{background:#12151d;border-left:3px solid var(--accent);border-radius:7px;padding:8px 12px;margin:2px 0 11px;font-size:14.5px;color:#dbe2f0}
+  .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.cgrid{grid-template-columns:1fr}}
+  .cbox{margin-top:10px}.cgrid .cbox{margin-top:0}
+  .stt{display:inline-block;padding:1px 8px;border-radius:11px;font-size:11px;font-weight:600}
+  .st-inprogress{background:rgba(210,153,34,.18);color:var(--warn)}.st-review{background:rgba(163,113,247,.18);color:#c4a5f5}
+  .st-done{background:rgba(63,185,80,.18);color:var(--delta)}.st-backlog,.st-todo,.st-needsrefinement{background:rgba(136,145,165,.14);color:var(--dim)}
+  .honesty{margin-top:22px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:12px;line-height:1.5}
+  .honesty code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 5px}
+</style></head><body>
+  <h1>🪨 Orientation · epic — <span class="key"><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></span> Supplier Freight Cost Billbacks</h1>
+  <p class="stamp">Code-verified against <code>OHFY-Split</code> @ <code>97777425c</code> · 2026-07-13 15:30 · 4 children</p>
+  <p class="pkgs"><code>OHFY-Data-Model</code><code>OHFY-OMS</code><code>OHFY-WMS</code><code>OHFY-Service-Locator</code></p>
+
+  <div class="thesis">BMS-5161 adds a freight-cost source (from cross-state transfers and PO reconciliation) into the already-shipped, mature billback pipeline (BMS-4141) — because the epic's original premise (that no billback rails existed) was stale, this shrank from 'build a recovery subsystem' to 'extend a pipeline with a source.'</div>
+
+  <h2 class="why">🎯 Why now</h2>
+  <ul><li>When Gulf moves product across state lines, freight costs incurred for supplier benefit should be recoverable through billback so Gulf doesn't absorb costs that contractually belong to suppliers. <span class="srctag src-jira">jira</span></li><li>The epic's 2026-06-12 code snapshot claimed Billback__c had only 6 fields and no supplier-agreement object existed — both false on main; BMS-4141 had already shipped a 14-field counterparty-generic ledger, Billback_Line__c, and Supplier_Funding_Agreement__c. <span class="srctag src-code">code</span></li></ul>
+
+  <h2 class="exist">🏛️ Bedrock — what already exists (shared across the epic)</h2>
+  <ul class="exist-block"><li><b style="color:#c9d4e8">Billback__c (14 fields: Account__c counterparty-generic, Type__c, Status__c, Coverage_Percent__c, Total_Recoverable_Amount__c) + Billback_Line__c already ship</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4141" class="tk">BMS-4141</a> <span class="cite">OHFY-Data-Model/force-app/main/default/objects/Billback__c</span></li><li><b style="color:#c9d4e8">S_BillbackCalculation idempotent recompute pattern (deterministic External_Id upsert, stale-line retraction, status preservation) already ships</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4141" class="tk">BMS-4141</a> <span class="cite">OHFY-OMS/force-app/main/default/classes/services/billback/S_BillbackCalculation.cls</span></li><li><b style="color:#c9d4e8">Supplier_Funding_Agreement__c + S_SupplierFundingAgreement coverage cascade (agreement → account default → 100% cap) already ships</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4141" class="tk">BMS-4141</a> <span class="cite">OHFY-OMS/force-app/main/default/classes/services/billback/S_SupplierFundingAgreement.cls</span></li></ul>
+  
+
+  <h2 class="shape">🧭 Shape</h2><div class="shape">Transfer_Group__c (Complete + cross-state + freight populated) → TransferGroupTriggerService afterUpdate hook → FreightBillbackService (Tier-1, Service-Locator) → S_FreightBillbackCalculation → Billback__c/Billback_Line__c (Type=Freight) — mirrored for Purchase_Order__c (Supplier_Owes_Freight__c flag transition) via POFreightBillbackService</div>
+
+  <h2 class="kids">🧱 The children — understood one by one</h2><div class="nav"><a href="#c-BMS-5789">1·BMS-5789</a><a href="#c-BMS-5790">2·BMS-5790</a><a href="#c-BMS-5791">3·BMS-5791</a><a href="#c-BMS-5792">4·BMS-5792</a></div><section class="child" id="c-BMS-5789">
+    <div class="chead"><span class="cnum">1</span>
+      <a class="ckey" href="https://ohanafy.atlassian.net/browse/BMS-5789">BMS-5789</a>
+      <b class="ctitle">Source-agnostic freight cost capture on cross-state transfers</b><span class="stt st-reviewdraftpr">Review (draft PR #511)</span></div>
+    <div class="cthesis">Foundation story — lands the 4 fields everything else builds on.</div>
+    <div class="cgrid">
+      <div class="cbox"><h4 class="delta">🔨 Delta — what this child adds</h4><ul class="delta-block"><li><span class="vd vd-build">build</span><b>4 new fields on Transfer_Group__c</b> — Low risk, additive schema only</li></ul></div>
+      <div class="cbox"><h4 class="why">🎯 Why</h4><ul><li>Nothing downstream can exist until this capture point exists. <span class="srctag src-jira">jira</span></li></ul></div>
+    </div>
+    <div class="cbox"><h4 class="exist">🏛️ Child-specific prior art</h4><ul class="exist-block"><li><b style="color:#c9d4e8">Precedent for a group-level cost field: Transfer_Group__c.Total_Transfer_Tax__c</b> <span class="cite">OHFY-Data-Model/force-app/main/default/objects/Transfer_Group__c/fields/Total_Transfer_Tax__c.field-meta.xml</span></li></ul></div>
+    <div class="cbox"><h4 class="shape">🧭 Shape</h4><div class="shape">See epic shape</div></div>
+    
+  </section><section class="child" id="c-BMS-5790">
+    <div class="chead"><span class="cnum">2</span>
+      <a class="ckey" href="https://ohanafy.atlassian.net/browse/BMS-5790">BMS-5790</a>
+      <b class="ctitle">Freight billback generation</b><span class="stt st-reviewdraftprdependson">Review (draft PR #514, depends on #511)</span></div>
+    <div class="cthesis">Feeds captured freight cost into the existing billback rails via a new generator service.</div>
+    <div class="cgrid">
+      <div class="cbox"><h4 class="delta">🔨 Delta — what this child adds</h4><ul class="delta-block"><li><span class="vd vd-extend">extend</span><b>S_FreightBillbackCalculation + Tier-1 FreightBillbackService cross-tier hook</b> — Med risk — new automation on a shared object, but additive/guarded/idempotent</li></ul></div>
+      <div class="cbox"><h4 class="why">🎯 Why</h4><ul><li>PO decision (2026-06-12): this epic is a freight-specific source feeding the existing rails, no parallel credit path. <span class="srctag src-jira">jira</span></li></ul></div>
+    </div>
+    
+    <div class="cbox"><h4 class="shape">🧭 Shape</h4><div class="shape">See epic shape</div></div>
+    <div class="cbox"><h4 class="warn">⚠️ Watch out</h4><ul><li>Audit surface for freight-vs-claim overlap shipped as list-view only, not a matched cross-object report — flagged to PO</li></ul></div>
+  </section><section class="child" id="c-BMS-5791">
+    <div class="chead"><span class="cnum">3</span>
+      <a class="ckey" href="https://ohanafy.atlassian.net/browse/BMS-5791">BMS-5791</a>
+      <b class="ctitle">PO-side optional billback</b><span class="stt st-reviewdraftprdependson">Review (draft PR #516, depends on #514)</span></div>
+    <div class="cthesis">Second origination path for freight-scoped PO reconciliation (supplier owes Gulf).</div>
+    <div class="cgrid">
+      <div class="cbox"><h4 class="delta">🔨 Delta — what this child adds</h4><ul class="delta-block"><li><span class="vd vd-extend">extend</span><b>POFreightBillbackService + Purchase_Order__c.Supplier_Owes_Freight__c/Recoverable_Freight_Cost__c</b> — Med risk, same proven cross-tier pattern as BMS-5790</li></ul></div>
+      <div class="cbox"><h4 class="why">🎯 Why</h4><ul><li>Scope resolved: freight-scoped PO origination only — general PO-reconciliation engine belongs to BMS-4951. <span class="srctag src-jira">jira</span></li></ul></div>
+    </div>
+    
+    <div class="cbox"><h4 class="shape">🧭 Shape</h4><div class="shape">See epic shape</div></div>
+    
+  </section><section class="child" id="c-BMS-5792">
+    <div class="chead"><span class="cnum">4</span>
+      <a class="ckey" href="https://ohanafy.atlassian.net/browse/BMS-5792">BMS-5792</a>
+      <b class="ctitle">Design / Prototype / Demo</b><span class="stt st-backlogawaitingui">Backlog (Awaiting-UI)</span></div>
+    <div class="cthesis">Mockup done, 4 design decisions resolved (quick-action modal, no invented lifecycle stepper, multi-row breakdown, field-locking post-Accrued) — parked pending PO approval before any LWC build.</div>
+    <div class="cgrid">
+      <div class="cbox"><h4 class="delta">🔨 Delta — what this child adds</h4><ul class="delta-block"><li><span class="vd vd-build">build</span><b>Not started (build)</b> — Blocked on PO sign-off, not on code</li></ul></div>
+      <div class="cbox"><h4 class="why">🎯 Why</h4><ul><li>No LWC should ship without a PO-approved mockup per project convention. <span class="srctag src-infer">inferred · not in code</span></li></ul></div>
+    </div>
+    
+    
+    
+  </section>
+
+  <h2 class="warn">⚠️ Watch out (epic-level)</h2>
+  <ul><li>Freight-vs-claim double-recovery boundary (vs. BMS-5118 Receiving Compliance / BMS-5200 Transfer Claims) resolved via Type-partition (Freight = transportation cost only), not a technical dedupe guard — audit list view surfaces overlaps for manual review</li><li>BMS-5792 (UI) is correctly parked at Awaiting-UI pending PO approval of the mockup — no LWC exists yet</li><li>Live-validated end-to-end this session: $1,200 cross-state freight @ 40% coverage → $480 recoverable; $300 PO freight @ 40% → $120 recoverable, both auto-generated by the real trigger hooks (not direct service calls)</li></ul>
+
+  <div class="honesty">
+    <b>Honesty contract.</b> Reports only what was searched — <b>packages:</b> OHFY-Data-Model, OHFY-OMS, OHFY-WMS, OHFY-Service-Locator · <b>terms:</b> Billback__c, S_BillbackCalculation, Supplier_Funding_Agreement, Transfer_Group__c, FreightBillbackService, Purchase_Order__c.
+    Absence = <b>not searched</b>, not <b>doesn't exist</b>. Every prior-art claim is cited to <code>file:line</code>/SHA or flagged <span class="uncited">⚠ uncited</span>. "Why" is tagged by source; <span class="srctag src-infer">inferred</span> = not confirmed in code.
+    Pinned to <code>97777425c</code> — <b>regenerate, don't trust stale.</b>
+  </div>
+</body></html>

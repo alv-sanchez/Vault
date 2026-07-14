@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"legend","type":"text","text":"# 🗺️ OHFY — Practical DOH / Safety-Stock\n\n**Waterfall:** `B_InventoryDOI` stamps `Current_DOI__c` + `Effective_Target_DOH__c` nightly on each `Inventory__c` (Item × Location). `Effective_Target_DOH__c` is resolved by `S_InventoryThresholds`: **SKU_Override__c → Inventory_Threshold__c (supplier+warehouse / warehouse) → Account default.** BMS-3816 formulas compare Current_DOI vs Effective_Target_DOH → the variance signal. Edges = foreign keys.","x":-520,"y":-820,"width":900,"height":150,"color":"6"},
+		{"id":"item","type":"text","text":"## 🟢 Item__c\n_The product / SKU_\n\n- **Id** varchar 🔑\n- Name varchar\n- SKU_Number__c varchar\n- Units_Per_Case__c number\n- Average_Case_Cost__c currency\n- Last_Landed_Case_Cost__c currency\n  _· cost FLS-gated (cost/margin)_\n- Quantity_On_Hand__c number _· rollup_\n- Is_Active__c boolean","x":-520,"y":-520,"width":340,"height":300,"color":"4"},
+		{"id":"acct","type":"text","text":"## 🟣 Account\n_Standard object — used here as the **Supplier**_\n\n- **Id** varchar 🔑\n- Name varchar","x":820,"y":-180,"width":260,"height":150,"color":"6"},
+		{"id":"inv","type":"text","text":"## 🟠 Inventory__c\n_One row per Item × Location — the heart of DOH_\n\n- **Id** varchar 🔑\n- Item__c → Item__c _· master-detail_\n- Location__c → Location__c _· lookup_\n- Quantity_On_Hand__c number\n- Average_Daily_Depletion__c number _· velocity_\n- Current_DOI__c number\n  _· actual DOH · nightly B_InventoryDOI_\n- Effective_Target_DOH__c number\n  _· resolved benchmark (waterfall) · nightly_\n- DOI_Status__c varchar\n- Target_DOH_Variance__c number\n  _· formula (BMS-3816): Current_DOI - Effective_Target_DOH_\n- Target_DOH_Variance_Pct__c percent _· formula_\n- Target_Variance_Status__c text\n  _· Above / At / Below / No Benchmark Set / No Velocity Data_","x":-160,"y":-160,"width":460,"height":470,"color":"2"},
+		{"id":"thr","type":"text","text":"## 🟡 Inventory_Threshold__c\n_Baseline benchmark storage — supplier / warehouse / supplier@warehouse grain_\n\n- **Id** varchar 🔑\n- Account__c → Account _· supplier grain_\n- Location__c → Location__c _· warehouse grain_\n- Target_DOH__c number\n  _· leadership benchmark (the \"practical\" DOH)_\n- Min_DOH__c number\n- Max_DOH__c number\n- Lead_Time__c number","x":-600,"y":260,"width":380,"height":280,"color":"3"},
+		{"id":"sku","type":"text","text":"## 🔴 SKU_Override__c\n_Dated per-SKU/location override — beats the threshold baseline while active_\n\n- **Id** varchar 🔑\n- Item__c → Item__c\n- Location__c → Location__c\n- Account__c → Account _· supplier scope_\n- Scope__c varchar _· SKU / Supplier_\n- Target_DOH_Override__c number\n- Min_DOH_Override__c number\n- Max_DOH_Override__c number\n- Start_Date__c date\n- End_Date__c date\n- Status__c varchar _· Scheduled / Active / Expired_","x":420,"y":380,"width":380,"height":380,"color":"1"},
+		{"id":"loc","type":"text","text":"## 🔵 Location__c\n_Warehouse / bin / zone / truck — hierarchy via Parent_Location__c_\n\n- **Id** varchar 🔑\n- Name varchar\n- Type__c varchar\n  _· Warehouse / Zone / Bin / Truck / Dock_\n- Parent_Location__c → Location__c\n  _· self-ref, walks to Warehouse ancestor_\n- Location_State__c varchar _· FL / AL_\n- Is_Truck__c boolean\n- Is_Dock__c boolean","x":680,"y":-670,"width":360,"height":300,"color":"5"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"inv","fromSide":"top","toNode":"item","toSide":"bottom","color":"2","label":"Item__c (master-detail)"},
+		{"id":"e2","fromNode":"inv","fromSide":"top","toNode":"loc","toSide":"bottom","color":"2","label":"Location__c (lookup)"},
+		{"id":"e4","fromNode":"thr","fromSide":"right","toNode":"acct","toSide":"left","color":"3","label":"Account (supplier)"},
+		{"id":"e5","fromNode":"thr","fromSide":"top","toNode":"loc","toSide":"bottom","color":"3","label":"Location__c (warehouse)"},
+		{"id":"e6","fromNode":"sku","fromSide":"top","toNode":"item","toSide":"bottom","color":"1","label":"Item__c"},
+		{"id":"e7","fromNode":"sku","fromSide":"left","toNode":"loc","toSide":"bottom","color":"1","label":"Location__c"},
+		{"id":"e8","fromNode":"sku","fromSide":"right","toNode":"acct","toSide":"bottom","color":"1","label":"Account (supplier)"},
+		{"id":"e3","fromNode":"loc","fromSide":"right","toNode":"loc","toSide":"top","color":"5","label":"Parent_Location__c (self)"}
+	]
+}

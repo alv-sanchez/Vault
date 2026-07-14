@@ -1,0 +1,90 @@
+// OHFY — Practical DOH / Safety-Stock data model
+// Curated to the DOH + safety-stock cluster (not every field). Grounded in
+// OHFY-Data-Model object metadata. Paste into https://dbdiagram.io to render.
+//
+// The story: B_InventoryDOI stamps Current_DOI__c + Effective_Target_DOH__c nightly
+// on each Inventory__c (Item × Location). Effective_Target_DOH__c is RESOLVED by the
+// S_InventoryThresholds waterfall: SKU_Override__c → Inventory_Threshold__c
+// (supplier+warehouse / warehouse) → Account default. BMS-3816 formulas then compare
+// Current_DOI__c vs Effective_Target_DOH__c → the variance signal.
+
+Project OHFY_DOH {
+  database_type: 'Salesforce (2GP, ns: ohfy)'
+  Note: 'Practical Days-on-Hand & Safety Stock — Inventory / Replenishment domain'
+}
+
+Table Item__c [headercolor: #3fb950] {
+  Id varchar [pk]
+  Name varchar
+  SKU_Number__c varchar
+  Units_Per_Case__c number
+  Average_Case_Cost__c number [note: 'currency']
+  Last_Landed_Case_Cost__c number [note: 'currency · cost FLS-gated (cost/margin)']
+  Quantity_On_Hand__c number [note: 'rollup summary']
+  Is_Active__c boolean
+  Note: 'The product / SKU'
+}
+
+Table Location__c [headercolor: #58a6ff] {
+  Id varchar [pk]
+  Name varchar
+  Type__c varchar [note: 'Warehouse / Zone / Bin / Truck / Dock']
+  Parent_Location__c varchar [ref: > Location__c.Id, note: 'self-ref — walks to the Warehouse ancestor']
+  Location_State__c varchar [note: 'FL / AL']
+  Is_Truck__c boolean
+  Is_Dock__c boolean
+  Note: 'Warehouse / bin / zone / truck (hierarchy via Parent_Location__c)'
+}
+
+Table Account [headercolor: #a371f7] {
+  Id varchar [pk]
+  Name varchar
+  Note: 'Standard object — used here as the Supplier'
+}
+
+Table Inventory__c [headercolor: #d29922] {
+  Id varchar [pk]
+  Item__c varchar [ref: > Item__c.Id, note: 'master-detail']
+  Location__c varchar [ref: > Location__c.Id, note: 'lookup']
+  Quantity_On_Hand__c number
+  Average_Daily_Depletion__c number [note: 'velocity input']
+  Current_DOI__c number [note: 'actual DOH · stamped nightly by B_InventoryDOI']
+  Effective_Target_DOH__c number [note: 'resolved benchmark (waterfall) · stamped nightly']
+  DOI_Status__c varchar
+  Target_DOH_Variance__c number [note: 'formula (BMS-3816): Current_DOI − Effective_Target_DOH']
+  Target_DOH_Variance_Pct__c number [note: 'formula % of target']
+  Target_Variance_Status__c varchar [note: 'formula: Above / At / Below / No Benchmark Set / No Velocity Data']
+  Note: 'One row per Item × Location — the heart of DOH'
+}
+
+Table Inventory_Threshold__c [headercolor: #f0883e] {
+  Id varchar [pk]
+  Account__c varchar [ref: > Account.Id, note: 'supplier grain']
+  Location__c varchar [ref: > Location__c.Id, note: 'warehouse grain']
+  Target_DOH__c number [note: 'leadership benchmark (the "practical" DOH)']
+  Min_DOH__c number
+  Max_DOH__c number
+  Lead_Time__c number
+  Note: 'Baseline benchmark storage — supplier / warehouse / supplier@warehouse grain'
+}
+
+Table SKU_Override__c [headercolor: #f85149] {
+  Id varchar [pk]
+  Item__c varchar [ref: > Item__c.Id]
+  Location__c varchar [ref: > Location__c.Id]
+  Account__c varchar [ref: > Account.Id, note: 'supplier scope']
+  Scope__c varchar [note: 'SKU / Supplier']
+  Target_DOH_Override__c number
+  Min_DOH_Override__c number
+  Max_DOH_Override__c number
+  Start_Date__c date
+  End_Date__c date
+  Status__c varchar [note: 'Scheduled / Active / Expired']
+  Note: 'Dated per-SKU/location override — beats the threshold baseline while active'
+}
+
+TableGroup "Safety Stock / DOH resolution" {
+  Inventory__c
+  Inventory_Threshold__c
+  SKU_Override__c
+}

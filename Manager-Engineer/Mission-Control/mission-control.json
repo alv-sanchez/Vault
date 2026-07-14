@@ -1,694 +1,25 @@
 {
-  "generated": "2026-07-10 11:52",
-  "stampFile": "2026-07-10-1152",
+  "generated": "2026-07-13 16:20",
+  "stampFile": "2026-07-13-1620",
   "epics": [
-    {
-      "key": "BMS-4936",
-      "title": "Launch Planning Coordination",
-      "domain": "Allocation & Launch Planning",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "One shared plan to sequence a new-product launch across teams. Foundation story (5592) in review; epic just picked up.",
-      "user": "Gulf new-product launch coordinator + purchasing, warehouse, marketing & sales.",
-      "impact": "Stops promos firing before product lands and POS arriving late — one plan so nothing slips at launch.",
-      "solution": "Launch Plan record + 4-track readiness checklist (purchasing/warehouse/POS/sales), owners & due-dates back-counted from launch day.",
-      "tickets": [
-        {
-          "key": "BMS-5592",
-          "type": "Story",
-          "title": "New-Product Launch Plan record + cross-functional readiness checklist",
-          "status": "Build",
-          "statusCategory": "In Progress",
-          "build": "Both",
-          "note": "Foundation of launch planning — one launch-plan record + 4-track readiness checklist (purchasing/warehouse/POS/sales); the later 'don't launch dry' + 'don't promote early' guards read this.",
-          "polished": false,
-          "pr": {
-            "number": 488,
-            "state": "open",
-            "draft": false,
-            "createdAt": "2026-07-08T16:15:19Z"
-          },
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-4965",
-      "title": "Short Pay Automation",
-      "domain": "Delivery",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "Driver short-pay detection → FL/AL compliance escalation → resolution/reporting. Ph2 & Ph3 in progress; Ph4+ backlog.",
-      "tickets": [
-        {
-          "key": "BMS-4057",
-          "type": "Story",
-          "title": "Short Pay Automation — Spike: Data Model & Compliance Rules",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Spike",
-          "note": "define data model + FL/AL compliance rules",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4058",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 1: Driver Detection & Reason Coding",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Both",
-          "note": "driver flags short-pay at delivery w/ reason codes",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4059",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 2: Compliance Escalation (FL/AL)",
-          "status": "In Progress",
-          "statusCategory": "In Progress",
-          "polished": false,
-          "build": "Backend",
-          "note": "auto-escalate per FL/AL market rules",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4060",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 3: Resolution, Reporting & History",
-          "status": "In Progress",
-          "statusCategory": "In Progress",
-          "polished": false,
-          "build": "Both",
-          "note": "resolution workflow + history & reporting",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4784",
-          "type": "Story",
-          "title": "Design / Prototype / Demo — Short Pay Automation",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "UI",
-          "note": "design/prototype for customer demo",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4785",
-          "type": "SPIKE",
-          "title": "Reporting Spike — Short Pay Automation",
-          "status": "To Do",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Spike",
-          "note": "scope the reporting model",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4786",
-          "type": "Story",
-          "title": "Reporting Build — Short Pay Automation",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Backend",
-          "note": "build the short-pay reports",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5561",
-          "type": "Story",
-          "title": "Returns mismatch detection with recon credit hold",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Backend",
-          "note": "detect returns mismatch, hold recon credit",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5625",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
-          "status": "Needs Refinement",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Both",
-          "note": "Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.",
-          "pr": {
-            "number": 439,
-            "state": "open",
-            "draft": false,
-            "createdAt": "2026-07-01T17:57:16Z"
-          },
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5626",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 5: EFT Short Pay Detection via Bank Reconciliation",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Backend",
-          "note": "detect EFT short-pays via bank reconciliation",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5627",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 6: AR Aging Visibility (Net-30 Not-Yet-Due) [Pending Product Confirmation]",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Backend",
-          "note": "surface Net-30 not-yet-due AR aging (pending product)",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5631",
-          "type": "Story",
-          "title": "Short Pay Automation — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Both",
-          "note": "stateful multi-layer approve/reject workflow",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "user": "Gulf delivery drivers + AR/finance and FL/AL compliance teams.",
-      "impact": "Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant.",
-      "solution": "Driver-side detection with reason coding → FL/AL escalation rules → resolution, reporting & history."
-    },
-    {
-      "key": "BMS-5070",
-      "title": "Shift-End Workflow",
-      "domain": "Inventory Management",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "Ph1 (4078) back in CI/Build; Ph2 & Ph3 (4079/4080) in Review; spike + umbrella backlog.",
-      "tickets": [
-        {
-          "key": "BMS-3831",
-          "type": "Story",
-          "title": "Shift-End Workflow",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Both",
-          "note": "umbrella story for the workflow",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4077",
-          "type": "Story",
-          "title": "Shift-End Workflow — Spike: Checklist Schema & Breakage Model",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Spike",
-          "note": "checklist schema + breakage data model",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4078",
-          "type": "Story",
-          "title": "Shift-End Workflow — Ph 1: Checklist & Breakage Review",
-          "status": "Build",
-          "statusCategory": "In Progress",
-          "polished": false,
-          "build": "Both",
-          "note": "shift-end checklist + breakage review",
-          "pr": {
-            "number": 431,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T05:28:15Z"
-          },
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4079",
-          "type": "Story",
-          "title": "Shift-End Workflow — Ph 2: Cycle Counts & Pass-Down Notes",
-          "status": "Review",
-          "statusCategory": "In Progress",
-          "polished": false,
-          "build": "Both",
-          "note": "Shift-End Ph2 — ties cycle counts + categorized pass-down notes to the shift record, replacing the informal handoff.",
-          "pr": {
-            "number": 470,
-            "state": "open",
-            "draft": false,
-            "createdAt": "2026-07-06T21:14:14Z"
-          },
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4080",
-          "type": "Story",
-          "title": "Shift-End Workflow — Ph 3: Submission & Finance Reporting",
-          "status": "Review",
-          "statusCategory": "In Progress",
-          "polished": false,
-          "build": "Backend",
-          "note": "Shift-End Ph3 — submission flow + breakage→shrinkage rollup feeding finance/ops reporting.",
-          "pr": {
-            "number": 470,
-            "state": "open",
-            "draft": false,
-            "createdAt": "2026-07-06T21:14:14Z"
-          },
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "user": "Gulf warehouse supervisors + finance (shrinkage reporting).",
-      "impact": "Ends lost breakage/pass-down context between shifts and gives finance shift-attributed shrinkage without manual VIP keying.",
-      "solution": "Structured shift-end checklist — breakage review, cycle counts, pass-down notes → finance roll-up."
-    },
-    {
-      "key": "BMS-5067",
-      "title": "Practical Days on Hand",
-      "domain": "Inventory Management",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "MERGED — variance surfacing (3816) + spike-doc merge (5702) both Done. Benchmark storage + DOI calc already shipped; epic effectively complete.",
-      "tickets": [
-        {
-          "key": "BMS-3816",
-          "type": "Story",
-          "title": "Practical DOH — target-vs-actual variance at warehouse and location grain",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": true,
-          "build": "Backend",
-          "note": "variance fields + report columns + 'No Benchmark' state",
-          "pr": {
-            "number": 481,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-07T17:20:54Z"
-          },
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5702",
-          "type": "Story",
-          "title": "Merge DOH/DOI spike docs from refactor/3817-doi-doh-spike to main",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": true,
-          "build": "Docs",
-          "note": "merge DOI/DOH spike docs to main",
-          "pr": {
-            "number": 481,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-07T17:20:54Z"
-          },
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "user": "Gulf inventory analysts & purchasing (warehouse and location grain).",
-      "impact": "Turns the already-shipped DOH benchmarks into actionable over/understock signals without spreadsheets.",
-      "solution": "Surface target-vs-actual variance on inventory + reports; benchmark storage & DOI calc already shipped."
-    },
-    {
-      "key": "BMS-5068",
-      "title": "Safety Stock Controls",
-      "domain": "Inventory Management",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "Core epic MERGED (PR #442): clone + 5 hardening stories all Done. New story 5754 (extra-inventory $ on impact report) now In Progress.",
-      "tickets": [
-        {
-          "key": "BMS-4025",
-          "type": "Demo",
-          "title": "Safety Stock Controls [Demo April 17]",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Both",
-          "note": "April 17 demo baseline",
-          "pr": null,
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-4217",
-          "type": "Demo",
-          "title": "CLONE - Safety Stock Controls [Production Ready]",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Both",
-          "note": "hardened production clone",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5636",
-          "type": "Story",
-          "title": "Safety Stock: supplier-scope override + Scheduled/Manually-Closed lifecycle",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Backend",
-          "note": "supplier-scope override + scheduled/closed lifecycle",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5638",
-          "type": "Story",
-          "title": "Safety Stock: override expiry & approaching-expiry notifications",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Backend",
-          "note": "override expiry + approaching-expiry alerts",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5639",
-          "type": "Story",
-          "title": "Safety Stock: freeze effective DOI + resolution source on replenishment task",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Backend",
-          "note": "freeze effective DOI + resolution source on task",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5640",
-          "type": "Story",
-          "title": "Safety Stock: planning & management UI + impact preview",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "UI",
-          "note": "planning/management UI + impact preview",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5641",
-          "type": "Story",
-          "title": "Safety Stock: override audit history + impact reporting",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "build": "Backend",
-          "note": "override audit history + impact reporting",
-          "pr": {
-            "number": 442,
-            "state": "merged",
-            "draft": false,
-            "createdAt": "2026-07-01T21:19:58Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        },
-        {
-          "key": "BMS-5754",
-          "type": "Story",
-          "title": "Surface estimated additional inventory value ($) on the override impact report",
-          "status": "Review",
-          "statusCategory": "In Progress",
-          "build": "Backend",
-          "note": "Adds the estimated additional-inventory $ value to the safety-stock override impact report (the missing dollar figure flagged in 5068 QA / BMS-5641).",
-          "polished": true,
-          "pr": {
-            "number": 492,
-            "state": "open",
-            "draft": false,
-            "createdAt": "2026-07-08T21:40:27Z"
-          },
-          "org": "shortStock4",
-          "orgLive": false
-        }
-      ],
-      "user": "Gulf demand planners raising buffers for specific suppliers/SKUs.",
-      "impact": "Protects service levels during supply disruption without touching system-wide reorder defaults.",
-      "solution": "Production-ready clone + hardened supplier/SKU override lifecycle, expiry, UI, audit & reporting."
-    },
-    {
-      "key": "BMS-4935",
-      "title": "Red Bull Allocation Import Automation",
-      "domain": "Allocation & Launch Planning",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "Ph1 import/validation/warehouse-split in progress.",
-      "tickets": [
-        {
-          "key": "BMS-3735",
-          "type": "Story",
-          "title": "Red Bull Allocation Import Automation",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Both",
-          "note": "umbrella story",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4119",
-          "type": "Story",
-          "title": "Red Bull Allocation Import — Spike: File Format & Validation Rules",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Spike",
-          "note": "file format + validation rules",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4120",
-          "type": "Story",
-          "title": "Red Bull Allocation Import — Ph 1: Import, Validation & Warehouse Split",
-          "status": "In Progress",
-          "statusCategory": "In Progress",
-          "polished": true,
-          "build": "Both",
-          "note": "import + validation + 5-warehouse split",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4121",
-          "type": "Story",
-          "title": "Red Bull Allocation Import — Ph 2: Account Mapping, Seasonality & Audit",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Backend",
-          "note": "account mapping, seasonality & audit",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "user": "Gulf purchasing team processing Red Bull's weekly allocation files.",
-      "impact": "Eliminates manual entry/reconciliation and prevents over-ordering against supplier limits across 5 warehouses.",
-      "solution": "Automated import + validation + warehouse split, with account mapping, seasonality & audit trail."
-    },
-    {
-      "key": "BMS-5113",
-      "title": "DOI Formula Standardization",
-      "domain": "Purchasing & Supply Planning",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Resolver baseline done; spike + build + demo remain.",
-      "tickets": [
-        {
-          "key": "BMS-3742",
-          "type": "Story",
-          "title": "DOI Formula Standardization",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Both",
-          "note": "the core standardized DOI calc across teams/locations",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-3822",
-          "type": "Story",
-          "title": "Inventory Threshold — Baseline Object & Resolver",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": true,
-          "build": "Backend",
-          "note": "baseline threshold object + resolver waterfall (shipped)",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4543",
-          "type": "Story",
-          "title": "Design / Prototype / Demo — DOI Formula Standardization",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "UI",
-          "note": "clickable demo for Gulf feedback",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4544",
-          "type": "SPIKE",
-          "title": "Reporting Spike — DOI Formula Standardization",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "build": "Spike",
-          "note": "scope DOI reporting + audit-log needs",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4545",
-          "type": "Story",
-          "title": "Reporting Build — DOI Formula Standardization",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Backend",
-          "note": "build the DOI reports/dashboards",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "impact": "One authoritative DOI calc across Purchasing/Warehouse/Finance — kills conflicting over/understock signals. Org bms-5113-doi live."
-    },
-    {
-      "key": "BMS-5161",
-      "title": "Supplier Freight Cost Billbacks",
-      "domain": "Transfers & Regulatory Compliance",
-      "phase": "crawl",
-      "pinned": false,
-      "summary": "No child stories yet.",
-      "tickets": [
-        {
-          "key": "BMS-5789",
-          "type": "Story",
-          "title": "Source-agnostic freight cost capture on cross-state transfers",
-          "status": "In Progress",
-          "statusCategory": "In Progress",
-          "build": "Backend",
-          "note": "freight-cost fields on Transfer_Group__c — the capture point every billback reads (child A of 4)",
-          "polished": false,
-          "pr": {
-            "number": 511,
-            "state": "open",
-            "draft": true,
-            "createdAt": "2026-07-10T15:50:46Z"
-          },
-          "org": null,
-          "orgLive": null
-        }
-      ],
-      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them. Foundation story 5789 started (org bms-5789-freight)."
-    }
-  ],
-  "todoEpics": [
     {
       "key": "BMS-5576",
       "title": "Ecom — Phase 2: Pricing/Promo Completion & Checkout",
       "domain": "E-Commerce & Ordering",
       "phase": "walk",
       "pinned": false,
-      "summary": "Closes the storefront ordering loop; several stories already in review/in-progress.",
+      "summary": "Checkout/tax/order (4052) + promo pricing (4051) still Needs Refinement; product card Ph1/Ph2 (4053/4054) in progress.",
+      "user": "Gulf retailer self-service storefront shoppers",
+      "impact": "Closes the storefront ordering loop post-MVP — checkout/tax/order + full promo pricing.",
       "tickets": [
         {
           "key": "BMS-3926",
           "type": "Story",
           "title": "E-Commerce — Gulf login page (passwordless) + registration placeholder",
-          "status": "Review",
-          "statusCategory": "In Progress",
-          "polished": false,
+          "status": "Build",
+          "statusCategory": "To Do",
           "note": "Ecom storefront auth — passwordless Gulf login + a registration entry point.",
+          "polished": false,
           "pr": {
             "number": 458,
             "state": "merged",
@@ -704,8 +35,8 @@
           "title": "Self-service account management (address, contacts)",
           "status": "Review",
           "statusCategory": "In Progress",
-          "polished": true,
           "note": "Ecom self-service — retailers manage their own addresses + contacts in the portal.",
+          "polished": true,
           "pr": {
             "number": 388,
             "state": "open",
@@ -721,6 +52,7 @@
           "title": "Cart & Checkout with Gulf Pricing — Ph 1: Cart + Basic Pricing",
           "status": "Won't Do",
           "statusCategory": "Done",
+          "build": "Both",
           "polished": true,
           "pr": {
             "number": 294,
@@ -737,6 +69,7 @@
           "title": "Cart & Checkout with Gulf Pricing — Ph 2: Volume Tiers + Promos",
           "status": "Needs Refinement",
           "statusCategory": "To Do",
+          "build": "Both",
           "polished": true,
           "pr": null,
           "org": null,
@@ -748,7 +81,9 @@
           "title": "Cart & Checkout with Gulf Pricing — Ph 3: Checkout + Tax + Order",
           "status": "Needs Refinement",
           "statusCategory": "To Do",
-          "polished": false,
+          "build": "Both",
+          "note": "Crucial path — full-waterfall total + entity-aware FL/AL tax + order lineage.",
+          "polished": true,
           "pr": null,
           "org": null,
           "orgLive": null
@@ -759,6 +94,7 @@
           "title": "Retailer Portal Product Card — Ph 1: Card Component",
           "status": "In Progress",
           "statusCategory": "In Progress",
+          "build": "UI",
           "polished": true,
           "pr": {
             "number": 293,
@@ -775,6 +111,7 @@
           "title": "Retailer Portal Product Card — Ph 2: Grid Layout + Reuse",
           "status": "In Progress",
           "statusCategory": "In Progress",
+          "build": "UI",
           "polished": true,
           "pr": {
             "number": 296,
@@ -791,6 +128,7 @@
           "title": "E-Commerce — segmented promotional banners at login (retailer group, promos, seasonality)",
           "status": "To Do",
           "statusCategory": "To Do",
+          "build": "UI",
           "polished": true,
           "pr": null,
           "org": null,
@@ -800,10 +138,11 @@
           "key": "BMS-5344",
           "type": "Bug",
           "title": "Reorder - Updated-pricing banner unreadable (blue-on-blue) in themed storefronts",
-          "status": "Review",
-          "statusCategory": "In Progress",
-          "polished": false,
+          "status": "Done",
+          "statusCategory": "Done",
+          "build": "UI",
           "note": "Ecom fix — the updated-pricing banner renders blue-on-blue (unreadable) in themed storefronts; fix the contrast.",
+          "polished": false,
           "pr": {
             "number": 302,
             "state": "merged",
@@ -816,152 +155,80 @@
       ]
     },
     {
-      "key": "BMS-5577",
-      "title": "Ecom — Post-MVP: Credit, Self-Service v2, Allocation, Availability, Reporting",
-      "domain": "E-Commerce & Ordering",
-      "phase": "run",
+      "key": "BMS-5113",
+      "title": "DOI Formula Standardization",
+      "domain": "Purchasing & Supply Planning",
+      "phase": "walk",
       "pinned": false,
-      "summary": "Deferred / dependency-gated ecom work beyond Ph1/Ph2.",
+      "summary": "Resolver baseline done; spike now In Progress, build + demo remain.",
+      "user": "Purchasing / warehouse / finance planners",
+      "impact": "One authoritative DOI calc across Purchasing/Warehouse/Finance — kills conflicting over/understock signals. Org bms-5113-doi live.",
       "tickets": [
         {
-          "key": "BMS-3920",
+          "key": "BMS-3742",
           "type": "Story",
-          "title": "E-Commerce — supplier allocation constraints & case-pack rounding on storefront orders",
-          "status": "Needs Refinement",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
+          "title": "DOI Formula Standardization",
+          "status": "Review",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "note": "Backend Apex-only: S_InventoryDOI sales-rate switch + B_InventoryDOI batch + 6 additive Inventory__c fields. No UI in this ticket — that's BMS-4543.",
+          "polished": true,
+          "pr": {
+            "number": 513,
+            "state": "open",
+            "draft": true,
+            "createdAt": "2026-07-10T16:10:01Z"
+          },
           "org": null,
           "orgLive": null
         },
         {
-          "key": "BMS-3925",
+          "key": "BMS-3822",
           "type": "Story",
-          "title": "Product Catalog & Availability for Retailers",
-          "status": "Needs Refinement",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4494",
-          "type": "SPIKE",
-          "title": "Reporting Spike — Retailer Online Ordering Experience",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "build": "Spike",
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4495",
-          "type": "Story",
-          "title": "Reporting Build — Retailer Online Ordering Experience",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4525",
-          "type": "Story",
-          "title": "Retailer credit terms — Ph 2: AR sync, invoice list & payment history (Gulf)",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "title": "Inventory Threshold — Baseline Object & Resolver",
+          "status": "Done",
+          "statusCategory": "Done",
+          "build": "Backend",
+          "note": "Backend baseline threshold object + resolver waterfall (shipped)",
           "polished": true,
           "pr": null,
           "org": null,
           "orgLive": null
         },
         {
-          "key": "BMS-5322",
+          "key": "BMS-4543",
           "type": "Story",
-          "title": "Self-service account management v2 — zone model, address validation, change-approval process (deferred from BMS-3932)",
+          "title": "Design / Prototype / Demo — DOI Formula Standardization",
           "status": "Backlog",
           "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-4996",
-      "title": "Retailer Engagement Notifications",
-      "domain": "E-Commerce & Ordering",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Rep-notify done; abandoned-cart, order-status, spike + design remain.",
-      "tickets": [
-        {
-          "key": "BMS-3921",
-          "type": "Story",
-          "title": "Retailer Engagement Notifications",
-          "status": "To Do",
-          "statusCategory": "To Do",
-          "polished": false,
+          "build": "UI",
+          "note": "UI clickable demo for Gulf feedback",
+          "polished": true,
           "pr": null,
           "org": null,
           "orgLive": null
         },
         {
-          "key": "BMS-3931",
-          "type": "Story",
-          "title": "Order status tracking & delivery notifications",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4073",
-          "type": "Story",
-          "title": "E-Commerce - Notification Services: Abandoned Cart Reminder & Order Confirmation",
-          "status": "To Do",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4192",
-          "type": "Story",
-          "title": "Sales rep notifications on order confirmation (rep contact in retailer email + new rep-facing email)",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4534",
+          "key": "BMS-4544",
           "type": "SPIKE",
-          "title": "Discovery Spike — Retailer Engagement Notifications",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
+          "title": "Reporting Spike — DOI Formula Standardization",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Spike",
+          "note": "Investigation: confirmed BMS-3742 resolves the missing consumption-rate gap; 3 PO decisions (supplier/brand grain, report surface, SKU_Override audit) block further progress.",
+          "polished": true,
           "pr": null,
           "org": null,
           "orgLive": null
         },
         {
-          "key": "BMS-4535",
+          "key": "BMS-4545",
           "type": "Story",
-          "title": "Design / Prototype / Demo — Retailer Engagement Notifications",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "title": "Reporting Build — DOI Formula Standardization",
+          "status": "Review",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "note": "Backend build of the DOI reports/dashboards.",
           "polished": false,
           "pr": null,
           "org": null,
@@ -970,117 +237,323 @@
       ]
     },
     {
-      "key": "BMS-5062",
-      "title": "Inter-Warehouse Inventory Visibility",
-      "domain": "Inventory Management",
+      "key": "BMS-5161",
+      "title": "Supplier Freight Cost Billbacks",
+      "domain": "Transfers & Regulatory Compliance",
       "phase": "crawl",
       "pinned": false,
-      "summary": "Base story + draft-transfer netting.",
+      "summary": "4 children linked via Relates (not native Jira parent) — A/B in Review with open PRs, C in Review, D (UI) parked at Backlog awaiting design approval.",
+      "user": "AP / supplier-accounting team",
+      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them.",
       "tickets": [
         {
-          "key": "BMS-3823",
+          "key": "BMS-5789",
           "type": "Story",
-          "title": "Inter-Warehouse Inventory Visibility",
+          "title": "Source-agnostic freight cost capture on cross-state transfers",
+          "status": "Review",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "note": "Foundation: adds Freight_Cost__c/source/account fields to Transfer_Group__c. PR #511 open.",
+          "polished": false,
+          "pr": {
+            "number": 511,
+            "state": "open",
+            "draft": true,
+            "createdAt": "2026-07-10T15:50:46Z"
+          },
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5790",
+          "type": "Story",
+          "title": "Freight billback generation — feed cross-state freight into the existing billback rails",
+          "status": "Review",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "note": "Generates Billback__c/Billback_Line__c off completed cross-state transfers via the shared billback pipeline. PR #514 open, depends on #511.",
+          "polished": false,
+          "pr": {
+            "number": 514,
+            "state": "open",
+            "draft": true,
+            "createdAt": "2026-07-10T16:20:43Z"
+          },
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5791",
+          "type": "Story",
+          "title": "PO-side optional billback — freight-scoped supplier-owes-distributor origination",
+          "status": "Review",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "note": "Second origination path into the same billback pipeline for PO-reconciled freight. PR #516 open, depends on #514.",
+          "polished": false,
+          "pr": {
+            "number": 516,
+            "state": "open",
+            "draft": true,
+            "createdAt": "2026-07-10T16:51:55Z"
+          },
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5792",
+          "type": "Story",
+          "title": "Design / Prototype / Demo — Supplier Freight Cost Billbacks",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "note": "Mockup done, 4 design decisions resolved — parked at Awaiting-UI pending PO approval before any LWC build.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-4965",
+      "title": "Short Pay Automation",
+      "domain": "Delivery",
+      "phase": "crawl",
+      "pinned": false,
+      "summary": "Ph2 (4059) & Ph3 (4060) in progress; Ph4 approval gate (5625) Needs Refinement; Ph5/Ph6 + returns-mismatch backlog.",
+      "user": "Delivery drivers / AR / compliance (FL/AL)",
+      "impact": "Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant.",
+      "tickets": [
+        {
+          "key": "BMS-4057",
+          "type": "Story",
+          "title": "Short Pay Automation — Spike: Data Model & Compliance Rules",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Spike",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4058",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 1: Driver Detection & Reason Coding",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4059",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 2: Compliance Escalation (FL/AL)",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4060",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 3: Resolution, Reporting & History",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
+          "build": "Both",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4784",
+          "type": "Story",
+          "title": "Design / Prototype / Demo — Short Pay Automation",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4785",
+          "type": "SPIKE",
+          "title": "Reporting Spike — Short Pay Automation",
           "status": "To Do",
           "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5567",
-          "type": "Story",
-          "title": "Forecast: draft transfers netted in",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-5060",
-      "title": "Days of Inventory (DOI)",
-      "domain": "Inventory Management",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Spike done; forecast warehouse-space constraint remains.",
-      "tickets": [
-        {
-          "key": "BMS-3817",
-          "type": "Story",
-          "title": "Days on Hand / Days of Inventory - Spike",
-          "status": "Done",
-          "statusCategory": "Done",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5566",
-          "type": "Story",
-          "title": "Forecast: warehouse-space constraint",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-5155",
-      "title": "DOT-Aware Transfer Scheduling Logic",
-      "domain": "Transfers & Regulatory Compliance",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Base story + design + reporting spike/build.",
-      "tickets": [
-        {
-          "key": "BMS-3788",
-          "type": "Story",
-          "title": "DOT-Aware Transfer Scheduling Logic",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4738",
-          "type": "Story",
-          "title": "Design / Prototype / Demo — DOT-Aware Transfer Scheduling Logic",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-4739",
-          "type": "SPIKE",
-          "title": "Reporting Spike — DOT-Aware Transfer Scheduling Logic",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": true,
           "build": "Spike",
+          "polished": false,
           "pr": null,
           "org": null,
           "orgLive": null
         },
         {
-          "key": "BMS-4740",
+          "key": "BMS-4786",
           "type": "Story",
-          "title": "Reporting Build — DOT-Aware Transfer Scheduling Logic",
+          "title": "Reporting Build — Short Pay Automation",
           "status": "Backlog",
           "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5561",
+          "type": "Story",
+          "title": "Returns mismatch detection with recon credit hold",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5625",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
+          "status": "Needs Refinement",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "note": "Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.",
+          "polished": true,
+          "pr": {
+            "number": 439,
+            "state": "open",
+            "draft": false,
+            "createdAt": "2026-07-01T17:57:16Z"
+          },
+          "org": "ohfy-val-5625",
+          "orgLive": true
+        },
+        {
+          "key": "BMS-5626",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 5: EFT Short Pay Detection via Bank Reconciliation",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5627",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 6: AR Aging Visibility (Net-30 Not-Yet-Due) [Pending Product Confirmation]",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5631",
+          "type": "Story",
+          "title": "Short Pay Automation — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-4935",
+      "title": "Red Bull Allocation Import Automation",
+      "domain": "Allocation & Launch Planning",
+      "phase": "crawl",
+      "pinned": false,
+      "summary": "Ph1 import/validation/warehouse-split in progress; spike + Ph2 in Backlog.",
+      "user": "Purchasing analysts; warehouse teams",
+      "impact": "Eliminates manual entry/reconciliation and prevents over-ordering against supplier limits across 5 warehouses.",
+      "tickets": [
+        {
+          "key": "BMS-3735",
+          "type": "Story",
+          "title": "Red Bull Allocation Import Automation",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4119",
+          "type": "Story",
+          "title": "Red Bull Allocation Import — Spike: File Format & Validation Rules",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Spike",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4120",
+          "type": "Story",
+          "title": "Red Bull Allocation Import — Ph 1: Import, Validation & Warehouse Split",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
+          "build": "Both",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4121",
+          "type": "Story",
+          "title": "Red Bull Allocation Import — Ph 2: Account Mapping, Seasonality & Audit",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    }
+  ],
+  "todoEpics": [
+    {
+      "key": "BMS-5481",
+      "title": "Picker Incentive Engine",
+      "domain": "Warehouse / Labor Ops",
+      "phase": "crawl",
+      "summary": "New onsite scope (Jun 2026) — gated on Bryson confirming the go-live cutover scope (scan task model first vs incentive engine too).",
+      "impact": "Payroll-integrated picker bonus visibility — HR-sensitive, fast-follow after the base scan-in/scan-out task model.",
+      "tickets": [
+        {
+          "key": "BMS-5529",
+          "type": "Story",
+          "title": "Picker incentive engine and bonus visibility",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Both",
           "polished": true,
           "pr": null,
           "org": null,
@@ -1093,45 +566,25 @@
       "title": "FL Transfer Certificate Automation",
       "domain": "Transfers & Regulatory Compliance",
       "phase": "crawl",
-      "pinned": false,
-      "summary": "No child stories yet.",
+      "summary": "No child stories yet — pending grooming; expected to mirror BMS-5160's (AL) spike → Ph1-3 breakdown.",
+      "impact": "FL law requires transfer certificates on every inter-warehouse shipment crossing into the state — currently manual.",
       "tickets": []
     },
     {
-      "key": "BMS-5139",
-      "title": "Supplier Portal: Payment Method Capture",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Single story.",
+      "key": "BMS-5768",
+      "title": "Return Pre-Visibility — Production Hardening (post-demo)",
+      "domain": "OMS — Delivery",
+      "phase": "crawl",
+      "summary": "Single child (BMS-5399) now In Progress — replacing demo scaffolding with real data sources.",
+      "impact": "Gated on Gulf product decisions (ETA source, return-status lifecycle, bay/dock model, branding).",
       "tickets": [
         {
-          "key": "BMS-3738",
+          "key": "BMS-5399",
           "type": "Story",
-          "title": "Supplier Portal: Payment Method Capture",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-5148",
-      "title": "Supplier Portal: Automated Order Recommendations",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "pinned": false,
-      "summary": "Single story.",
-      "tickets": [
-        {
-          "key": "BMS-3737",
-          "type": "Story",
-          "title": "Supplier Portal: Automated Order Recommendations",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "title": "Return Pre-Visibility — Remove hardcoded / demo values and wire real backend",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
+          "build": "Both",
           "polished": false,
           "pr": null,
           "org": null,
@@ -1144,8 +597,8 @@
       "title": "Call Center Order Visibility",
       "domain": "OMS / Delivery",
       "phase": "crawl",
-      "pinned": false,
-      "summary": "Give call-center agents promo + account-pricing + order-history context in one view. Two backlog stories, unpolished.",
+      "summary": "Two backlog stories, unpolished.",
+      "impact": "Gives call-center agents promo + account-pricing + order-history context in one view.",
       "tickets": [
         {
           "key": "BMS-3858",
@@ -1153,6 +606,7 @@
           "title": "Call Center Order Visibility",
           "status": "Backlog",
           "statusCategory": "To Do",
+          "build": "UI",
           "polished": false,
           "pr": null,
           "org": null,
@@ -1161,10 +615,345 @@
         {
           "key": "BMS-3922",
           "type": "Story",
-          "title": "Call Center Order Visibility (retailer view)",
+          "title": "Call Center Order Visibility",
           "status": "Backlog",
           "statusCategory": "To Do",
+          "build": "UI",
           "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5060",
+      "title": "Days of Inventory (DOI)",
+      "domain": "Inventory Management",
+      "phase": "walk",
+      "summary": "Spike done; forecast warehouse-space constraint remains.",
+      "impact": "Multi-level DOI thresholds (supplier/SKU/location) give planners precision instead of one system-wide setting.",
+      "tickets": [
+        {
+          "key": "BMS-3817",
+          "type": "Story",
+          "title": "Days on Hand / Days of Inventory - Spike",
+          "status": "Done",
+          "statusCategory": "Done",
+          "build": "Spike",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5566",
+          "type": "Story",
+          "title": "Forecast: warehouse-space constraint",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5062",
+      "title": "Inter-Warehouse Inventory Visibility",
+      "domain": "Inventory Management",
+      "phase": "crawl",
+      "summary": "Base story (3823) To Do; forecast draft-transfer netting in Backlog.",
+      "impact": "Real-time cross-site stock view + in-transit trucks — stops overselling from depleted warehouses.",
+      "tickets": [
+        {
+          "key": "BMS-3823",
+          "type": "Story",
+          "title": "Inter-Warehouse Inventory Visibility",
+          "status": "To Do",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5567",
+          "type": "Story",
+          "title": "Forecast: draft transfers netted in",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-4996",
+      "title": "Retailer Engagement Notifications",
+      "domain": "E-Commerce & Ordering",
+      "phase": "walk",
+      "summary": "Rep-notify done; abandoned-cart, order-status, spike + design remain.",
+      "impact": "Cart abandonment + missed ordering windows are a revenue leak — automated nudges reduce manual rep follow-up.",
+      "tickets": [
+        {
+          "key": "BMS-3921",
+          "type": "Story",
+          "title": "Retailer Engagement Notifications",
+          "status": "To Do",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-3931",
+          "type": "Story",
+          "title": "Order status tracking & delivery notifications",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4073",
+          "type": "Story",
+          "title": "E-Commerce - Notification Services: Abandoned Cart Reminder & Order Confirmation",
+          "status": "To Do",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4192",
+          "type": "Story",
+          "title": "Sales rep notifications on order confirmation (rep contact in retailer email + new rep-facing email)",
+          "status": "Done",
+          "statusCategory": "Done",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4534",
+          "type": "SPIKE",
+          "title": "Discovery Spike — Retailer Engagement Notifications",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Spike",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4535",
+          "type": "Story",
+          "title": "Design / Prototype / Demo — Retailer Engagement Notifications",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5577",
+      "title": "Ecom — Post-MVP: Credit, Self-Service v2, Allocation, Availability, Reporting",
+      "domain": "E-Commerce & Ordering",
+      "phase": "run",
+      "summary": "Deferred / dependency-gated ecom work beyond Ph1/Ph2.",
+      "impact": "Post-MVP bucket — none of these block the Phase 1/2 storefront build.",
+      "tickets": [
+        {
+          "key": "BMS-3920",
+          "type": "Story",
+          "title": "E-Commerce — supplier allocation constraints & case-pack rounding on storefront orders",
+          "status": "Needs Refinement",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-3925",
+          "type": "Story",
+          "title": "Product Catalog & Availability for Retailers",
+          "status": "Needs Refinement",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4494",
+          "type": "SPIKE",
+          "title": "Reporting Spike — Retailer Online Ordering Experience",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Spike",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4495",
+          "type": "Story",
+          "title": "Reporting Build — Retailer Online Ordering Experience",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4525",
+          "type": "Story",
+          "title": "Retailer credit terms — Ph 2: AR sync, invoice list & payment history (Gulf)",
+          "status": "To Do",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5322",
+          "type": "Story",
+          "title": "Self-service account management v2 — zone model, address validation, change-approval process (deferred from BMS-3932)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Both",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5139",
+      "title": "Supplier Portal: Payment Method Capture",
+      "domain": "Supplier Management",
+      "phase": "walk",
+      "summary": "Single story, Backlog awaiting sprint assignment.",
+      "impact": "Suppliers register payment methods for direct settlement disbursement once Payments module is live.",
+      "tickets": [
+        {
+          "key": "BMS-3738",
+          "type": "Story",
+          "title": "Supplier Portal: Payment Method Capture",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5148",
+      "title": "Supplier Portal: Automated Order Recommendations",
+      "domain": "Supplier Management",
+      "phase": "walk",
+      "summary": "Single story, Backlog awaiting sprint assignment.",
+      "impact": "Supplier-driven suggested POs (from their own sell-through data) reduce PO back-and-forth.",
+      "tickets": [
+        {
+          "key": "BMS-3737",
+          "type": "Story",
+          "title": "Supplier Portal: Automated Order Recommendations",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        }
+      ]
+    },
+    {
+      "key": "BMS-5155",
+      "title": "DOT-Aware Transfer Scheduling Logic",
+      "domain": "Transfers & Regulatory Compliance",
+      "phase": "walk",
+      "summary": "Base story + design + reporting spike/build, all Backlog.",
+      "impact": "Flags DOT hours-of-service violations before dispatch instead of at the dock — prevents stranded trucks + cascading stockouts.",
+      "tickets": [
+        {
+          "key": "BMS-3788",
+          "type": "Story",
+          "title": "DOT-Aware Transfer Scheduling Logic",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4738",
+          "type": "Story",
+          "title": "Design / Prototype / Demo — DOT-Aware Transfer Scheduling Logic",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4739",
+          "type": "SPIKE",
+          "title": "Reporting Spike — DOT-Aware Transfer Scheduling Logic",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Spike",
+          "polished": true,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-4740",
+          "type": "Story",
+          "title": "Reporting Build — DOT-Aware Transfer Scheduling Logic",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": true,
           "pr": null,
           "org": null,
           "orgLive": null
@@ -1172,43 +961,99 @@
       ]
     }
   ],
+  "doneEpics": [
+    {
+      "key": "BMS-5163",
+      "title": "[REQ-236] Transfer Dock Optimization",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5162",
+      "title": "[REQ-235] Minimum Transfer Quantity Thresholds",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5081",
+      "title": "[REQ-154] Restrictions",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5078",
+      "title": "[REQ-151] Supplier Lead Time Management",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5075",
+      "title": "[REQ-148] Data Governance",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5074",
+      "title": "[REQ-147] Crane SKU Flagging",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5070",
+      "title": "[REQ-143] Shift-End Workflow",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5068",
+      "title": "[REQ-141] Safety Stock Controls",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5067",
+      "title": "[REQ-140] Practical Days on Hand",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5066",
+      "title": "[REQ-139] Negative Inventory Control",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5058",
+      "title": "[REQ-131] Code Date Management",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-5057",
+      "title": "[REQ-130] Seasonal DOI Adjustments",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4995",
+      "title": "Ecom — Phase 1: Retailer Storefront MVP — Catalog · Cart · Reorder · Credit View · Branding [REQ-068]",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4973",
+      "title": "[REQ-046] Driver Manager View",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4972",
+      "title": "[REQ-045] Driver View",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4971",
+      "title": "[REQ-044] Delivery Check-In Process",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4963",
+      "title": "[REQ-036] Delivery Truck Visibility",
+      "doneAt": null
+    },
+    {
+      "key": "BMS-4936",
+      "title": "[REQ-009] Launch Planning Coordination",
+      "doneAt": null
+    }
+  ],
   "scratchOrgs": [
-    {
-      "alias": "4079",
-      "username": "test-q36iiq7foson@example.com",
-      "expirationDate": "2026-08-06",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-4079",
-        "epicKey": "BMS-5070",
-        "title": "Shift-End Workflow — Ph 2: Cycle Counts & Pass-Down Notes",
-        "status": "Review"
-      }
-    },
-    {
-      "alias": "bms5754",
-      "username": "test-vvaoopn9kfbr@example.com",
-      "expirationDate": "2026-08-07",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5754",
-        "epicKey": "BMS-5068",
-        "title": "Surface estimated additional inventory value ($) on the override impact report",
-        "status": "Review"
-      }
-    },
-    {
-      "alias": "ohfy-bms5592",
-      "username": "test-y5ckigkp0dle@example.com",
-      "expirationDate": "2026-08-07",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5592",
-        "epicKey": "BMS-4936",
-        "title": "New-Product Launch Plan record + cross-functional readiness checklist",
-        "status": "Build"
-      }
-    },
     {
       "alias": "bms-3932-fix",
       "username": "test-sc0pfljenlzt@example.com",
@@ -1219,6 +1064,18 @@
         "epicKey": "BMS-5576",
         "title": "Self-service account management (address, contacts)",
         "status": "Review"
+      }
+    },
+    {
+      "alias": "bms-5113-5161-integration",
+      "username": "test-c8wjbhba5qdd@example.com",
+      "expirationDate": "2026-08-09",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5113",
+        "epicKey": "BMS-5113",
+        "title": "DOI Formula Standardization (epic)",
+        "status": ""
       }
     },
     {
@@ -1242,8 +1099,298 @@
         "key": "BMS-5789",
         "epicKey": "BMS-5161",
         "title": "Source-agnostic freight cost capture on cross-state transfers",
+        "status": "Review"
+      }
+    },
+    {
+      "alias": "bms-5790-freight-billback",
+      "username": "test-rnpetl1mbbls@example.com",
+      "expirationDate": "2026-08-09",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5790",
+        "epicKey": "BMS-5161",
+        "title": "Freight billback generation — feed cross-state freight into the existing billback rails",
+        "status": "Review"
+      }
+    },
+    {
+      "alias": "bms-5791-po-billback",
+      "username": "test-3avbsfyaryws@example.com",
+      "expirationDate": "2026-08-09",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5791",
+        "epicKey": "BMS-5161",
+        "title": "PO-side optional billback — freight-scoped supplier-owes-distributor origination",
+        "status": "Review"
+      }
+    },
+    {
+      "alias": "ohfy-val-5625",
+      "username": "test-5ys6vnrfrqcp@example.com",
+      "expirationDate": "2026-08-09",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5625",
+        "epicKey": "BMS-4965",
+        "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
+        "status": "Needs Refinement"
+      }
+    },
+    {
+      "alias": "bms-5481-picker-incentive",
+      "username": "test-9kyuihzck17v@example.com",
+      "expirationDate": "2026-08-12",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5481",
+        "epicKey": "BMS-5481",
+        "title": "Picker Incentive Engine (epic)",
+        "status": ""
+      }
+    },
+    {
+      "alias": "ohfy-5576",
+      "username": "test-scvjid86c69i@example.com",
+      "expirationDate": "2026-08-12",
+      "devHub": "product@ohanafy.com",
+      "tie": {
+        "key": "BMS-5576",
+        "epicKey": "BMS-5576",
+        "title": "Ecom — Phase 2: Pricing/Promo Completion & Checkout (epic)",
+        "status": ""
+      }
+    }
+  ],
+  "worktrees": [
+    {
+      "name": "OHFY-Split",
+      "path": "/Users/alvarosanchez_1/OHFY-Split",
+      "branch": "main",
+      "bms": null,
+      "primary": true,
+      "dirty": 1,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": null
+    },
+    {
+      "name": "agent-a105153cce532e4ba",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba",
+      "branch": "feat/safety-stock-doh-sizing-bms-4217",
+      "bms": "BMS-4217",
+      "primary": false,
+      "dirty": 4,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": null
+    },
+    {
+      "name": "agent-a860fb80c977e2daf",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf",
+      "branch": "feat/redbull-allocation-import-bms-4120",
+      "bms": "BMS-4120",
+      "primary": false,
+      "dirty": 1,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": {
+        "key": "BMS-4120",
+        "title": "Red Bull Allocation Import — Ph 1: Import, Validation & Warehouse Split",
         "status": "In Progress"
       }
+    },
+    {
+      "name": "mumbai",
+      "path": "/Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai",
+      "branch": "alv-sanchez/mumbai",
+      "bms": null,
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": null
+    },
+    {
+      "name": "OHFY-Split-BMS-3742",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-3742",
+      "branch": "feat/doi-invoiced-source-bms-3742",
+      "bms": "BMS-3742",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-3742",
+        "title": "DOI Formula Standardization",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-3932",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-3932",
+      "branch": "feat/self-service-account-mgmt-bms-3932",
+      "bms": "BMS-3932",
+      "primary": false,
+      "dirty": 12,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-3932",
+        "title": "Self-service account management (address, contacts)",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-3932-fix",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix",
+      "branch": "fix/bms-3932-review-findings",
+      "bms": "BMS-3932",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-3932",
+        "title": "Self-service account management (address, contacts)",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-4051",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-4051",
+      "branch": "feat/cart-volume-tiers-promos-bms-4051",
+      "bms": "BMS-4051",
+      "primary": false,
+      "dirty": 10,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-4051",
+        "title": "Cart & Checkout with Gulf Pricing — Ph 2: Volume Tiers + Promos",
+        "status": "Needs Refinement"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-5481",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5481",
+      "branch": "feat/picker-incentive-engine-bms-5481",
+      "bms": "BMS-5481",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": null
+    },
+    {
+      "name": "OHFY-Split-BMS-5592",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5592",
+      "branch": "feat/launch-plan-checklist-bms-5592",
+      "bms": "BMS-5592",
+      "primary": false,
+      "dirty": 1,
+      "merged": true,
+      "prunable": false,
+      "agent": false,
+      "tie": null
+    },
+    {
+      "name": "OHFY-Split-BMS-5625",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5625",
+      "branch": "feat/driver-finalize-approval-gate-bms-5625",
+      "bms": "BMS-5625",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-5625",
+        "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
+        "status": "Needs Refinement"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-5789",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5789",
+      "branch": "feat/freight-cost-capture-bms-5789",
+      "bms": "BMS-5789",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-5789",
+        "title": "Source-agnostic freight cost capture on cross-state transfers",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-5790",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5790",
+      "branch": "feat/freight-billback-generation-bms-5790",
+      "bms": "BMS-5790",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-5790",
+        "title": "Freight billback generation — feed cross-state freight into the existing billback rails",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-BMS-5791",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5791",
+      "branch": "feat/po-freight-billback-bms-5791",
+      "bms": "BMS-5791",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-5791",
+        "title": "PO-side optional billback — freight-scoped supplier-owes-distributor origination",
+        "status": "Review"
+      }
+    },
+    {
+      "name": "OHFY-Split-integration-5113",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-integration-5113",
+      "branch": "integration/bms-5113-validation",
+      "bms": "BMS-5113",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": null
+    },
+    {
+      "name": "OHFY-Split-integration-5161",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-integration-5161",
+      "branch": "integration/bms-5161-validation",
+      "bms": "BMS-5161",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": null
     }
   ]
 }

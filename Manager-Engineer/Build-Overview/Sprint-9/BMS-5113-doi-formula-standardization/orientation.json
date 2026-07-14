@@ -1,0 +1,59 @@
+{
+  "key": "BMS-5113",
+  "title": "DOI Formula Standardization",
+  "domain": "Purchasing & Supply Planning",
+  "repo": "OHFY-Split",
+  "sha": "97777425c",
+  "generated": "2026-07-13 15:30",
+  "packages": ["OHFY-Data-Model", "OHFY-WMS"],
+  "thesis": "BMS-5113 standardizes the Days-on-Inventory calculation to a single authoritative source (completed invoiced quantity) and propagates it as 30/60/90-day windows, because Gulf's five warehouses were reading inconsistent DOI signals off a distorted proxy.",
+  "why": [
+    {"text": "Gulf's warehouses interpret 'days on inventory' differently, leading to duplicated purchase orders or missed replenishment windows.", "source": "jira"},
+    {"text": "The BMS-3817 DOI/DOH spike mandates completed invoiced quantity as the sales-rate source at 30/60/90-day windows, not the on-hand-decrease proxy.", "source": "code"}
+  ],
+  "standingOn": [
+    {"cap": "S_InventoryDOI.calculate() + nightly B_InventoryDOI batch already stamp Current_DOI__c / DOI_Status__c on Inventory__c", "cite": "OHFY-WMS/force-app/main/default/classes/batchJobs/B_InventoryDOI.cls", "ticket": "BMS-3779"},
+    {"cap": "Inventory_Threshold__c object + resolver (min/target/max DOH per warehouse/SKU) already ship, feeding classify()", "cite": "OHFY-Data-Model/force-app/main/default/objects/Inventory_Threshold__c", "ticket": "BMS-3822"},
+    {"cap": "Days_of_Inventory report type + permission set already ship, covering most of the Reporting Build intent", "cite": "OHFY-WMS/force-app/main/default/reportTypes/Days_of_Inventory.reportType-meta.xml", "ticket": "BMS-3779"}
+  ],
+  "delta": [
+    {"change": "Switch sales-rate source from day-over-day on-hand-decrease proxy to completed invoiced quantity (base units) at item×warehouse grain", "verdict": "extend", "impact": "Every DOI figure org-wide shifts — proven via a before/after test on identical fixture data (old proxy: DOI 24, new source: DOI 48). Flagged High risk pending a live reconciliation pass with real invoice data."},
+    {"change": "Add 30/60/90-day lookback windows (6 additive Inventory__c fields: Current_DOI_60/90__c, DOI_Status_60/90__c, Average_Daily_Depletion_60/90__c)", "verdict": "extend", "impact": "Unlocks trend reporting without a new object or released-field rename"}
+  ],
+  "shape": "Invoice_Item__c (Status=Complete) → S_InventoryDOI.calculateStandardWindows() aggregate query (per item×warehouse, 3 windows in one pass) → nightly B_InventoryDOI batch stamps Current_DOI__c/_60/_90 + DOI_Status__c/_60/_90 on Inventory__c → Days_of_Inventory report type",
+  "watchOut": [
+    "High risk: org-wide DOI shift — needs a live before/after reconciliation against real invoice/inventory data before this draft PR is marked ready for review (the build org had no seed data to prove it against)",
+    "Units_Per_Case__c is a formula field and can't sit in a GROUP BY — fetched per-item via a separate query instead",
+    "Sales rate resolved at warehouse grain (both inventory and fulfillment locations walked to their warehouse ancestor) since invoiced quantity only exists at that grain"
+  ],
+  "searched": {"packages": ["OHFY-WMS", "OHFY-Data-Model"], "terms": ["S_InventoryDOI", "B_InventoryDOI", "Current_DOI", "Inventory_Threshold", "Invoice_Item"]},
+  "ledgerHits": [
+    "OHFY-Data-Model · Current DOI — live actual days-on-hand, stamped nightly by B_InventoryDOI (BMS-3779)",
+    "OHFY-Data-Model · Effective Target DOH — resolved leadership benchmark on each Inventory row (BMS-3779)",
+    "OHFY-WMS · Days of Inventory report type — the inventory-health reporting surface (BMS-3779)"
+  ],
+  "children": [
+    {"key": "BMS-3822", "title": "Inventory threshold baseline object + resolver", "status": "Done",
+     "thesis": "Delivered the Inventory_Threshold__c object + resolver this epic's DOI classification reads.",
+     "why": [{"text": "Already merged before this session — nothing to build.", "source": "code"}],
+     "delta": [], "watchOut": []},
+    {"key": "BMS-3742", "title": "DOI Formula Standardization (core story)", "status": "Review (draft PR #513)",
+     "thesis": "The one real remaining build — switches the sales-rate source and adds 30/60/90-day windows.",
+     "why": [{"text": "BMS-3817 spike is unambiguous that invoiced quantity is the correct source.", "source": "jira"}],
+     "delta": [{"change": "Sales-rate source swap + 30/60/90 windows", "verdict": "extend", "impact": "High risk, org-wide DOI shift"}],
+     "standingOn": [{"cap": "S_InventoryDOI/B_InventoryDOI shipped structure reused verbatim, only the query changes", "cite": "OHFY-WMS/force-app/main/default/classes/services/inventoryDOI/S_InventoryDOI.cls"}],
+     "watchOut": ["Needs live reconciliation before ready-for-review"], "shape": "See epic shape"},
+    {"key": "BMS-4543", "title": "Design / Prototype / Demo", "status": "Backlog",
+     "thesis": "UI surface for the standardized DOI figures — depends on BMS-3742's new fields landing.",
+     "why": [{"text": "Cannot mock up fields that don't exist yet.", "source": "inferred"}],
+     "delta": [{"change": "Not started", "verdict": "build", "impact": "Blocked on BMS-3742 merging"}], "watchOut": []},
+    {"key": "BMS-4544", "title": "Reporting Spike", "status": "Backlog",
+     "thesis": "Largely pre-answered by the BMS-3817 spike, which already defines the reporting requirements this ticket would investigate.",
+     "why": [{"text": "BMS-3817 (Done) already established the formula logic and multi-level threshold data model.", "source": "code"}],
+     "delta": [{"change": "Confirm BMS-3817 covers this spike's questions rather than re-investigating", "verdict": "reuse", "impact": "Likely a fast close, not new work"}], "watchOut": []},
+    {"key": "BMS-4545", "title": "Reporting Build", "status": "Backlog",
+     "thesis": "Partly pre-delivered — the Days_of_Inventory report type + permission set already ship; depends on BMS-3742's new 60/90-day fields for full coverage.",
+     "why": [{"text": "Report type and perm set already exist per the ledger.", "source": "code"}],
+     "delta": [{"change": "Extend existing report type with 60/90-day columns once BMS-3742 lands", "verdict": "extend", "impact": "Small incremental build, not greenfield"}], "watchOut": []}
+  ]
+}

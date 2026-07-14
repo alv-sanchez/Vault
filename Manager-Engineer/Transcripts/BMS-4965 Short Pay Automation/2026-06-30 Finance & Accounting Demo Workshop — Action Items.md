@@ -48,7 +48,7 @@ These aren't from the transcript but are live decisions on this epic and its chi
 
 **Scope gaps in current tickets ([BMS-4059](https://ohanafy.atlassian.net/browse/BMS-4059) / [BMS-4060](https://ohanafy.atlassian.net/browse/BMS-4060)):** written around the driver in-person case. Not yet covered — likely new reqs/tickets:
 - **Driver hard-block** — driver can't leave the stop until management approves (current flow only escalates/warns).
-- **EFT short pays** (Publix / Bank Rec sync) — not covered.
+- **EFT short pays** (Publix / Bank Rec sync) — not covered. The disputed amount is **mostly a discount the customer took**, so this is an **AR-team review/dispute flow** (no driver in the loop), separate from the driver finalize-stop case. Review queue should surface the discounted/disputed amount for AR to accept or dispute.
 - **AR aging / net-30 view** for non-alc outstanding balances — not covered.
 
 **Design input to resolve for the reusable asset:** where the approver lives — `User.ManagerId` vs a new route/territory field (open question flagged on [BMS-4396](https://ohanafy.atlassian.net/browse/BMS-4396)); plus how many layers. Bryson also wants to eventually own a central approval component — coordinate to avoid duplicate work.

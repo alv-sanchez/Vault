@@ -25,7 +25,7 @@ tags:
 
 ## Build status (BMS-3816)
 - 3 formula fields on `Inventory__c` (`Target_DOH_Variance__c`, `Target_DOH_Variance_Pct__c`, `Target_Variance_Status__c`) + Days-of-Inventory report columns + docs. Committed locally (`09cb2b35`), **deployed + validated clean to `ohfy-val-5067`** (4/4 components, 0 errors).
-- Full build detail + decisions: `Build-Overview/BMS-5067-practical-days-on-hand/SESSION.md`.
+- Full build detail + decisions: `Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/SESSION.md`.
 - Pending: Chrome smoke (report shows variance columns + blank states) → open PR.
 
 ## 🖥️ Claimed orgs (kept until merge)

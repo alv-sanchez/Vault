@@ -6,6 +6,9 @@ relates: []
 branch: {{BRANCH}}
 org: {{ORG}}
 status: BUILD IN PROGRESS
+sprint: TBD               # active sprint of the CURRENTLY-live child ticket, e.g. "Sprint 9" — "none" if nothing in this folder is in an open sprint
+sprint_status: active      # active | dormant — dormant = no child ticket currently in an open sprint
+sprint_history: []          # prior sprints this folder saw live work in, e.g. ["Sprint 7", "Sprint 8"] — append the old value here whenever `sprint` changes
 po: Elliot Flores
 updated: {{DATE}}
 tags:
