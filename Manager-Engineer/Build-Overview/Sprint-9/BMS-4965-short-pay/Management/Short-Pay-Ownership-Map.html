@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay — Ownership Map (BMS-4965)</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --eng:#1a7f47; --eng-bg:#e7f5ee; --eng-line:#bfe3cf;
+    --intg:#9a6a00; --intg-bg:#fbf1d9; --intg-line:#ecd9a6;
+    --miss:#b3261e; --miss-bg:#fbe6e4; --miss-line:#f0c7c3;
+    --blue:#2f6df6; --blue-bg:#e9f0ff;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+      --eng:#5fd08a; --eng-bg:#12251a; --eng-line:#1f4230;
+      --intg:#e6b85c; --intg-bg:#2a2210; --intg-line:#4a3c18;
+      --miss:#f2938c; --miss-bg:#2a1513; --miss-line:#4d2420;
+      --blue:#6ea0ff; --blue-bg:#17233d;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --eng:#1a7f47; --eng-bg:#e7f5ee; --eng-line:#bfe3cf;
+    --intg:#9a6a00; --intg-bg:#fbf1d9; --intg-line:#ecd9a6;
+    --miss:#b3261e; --miss-bg:#fbe6e4; --miss-line:#f0c7c3;
+    --blue:#2f6df6; --blue-bg:#e9f0ff;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+    --eng:#5fd08a; --eng-bg:#12251a; --eng-line:#1f4230;
+    --intg:#e6b85c; --intg-bg:#2a2210; --intg-line:#4a3c18;
+    --miss:#f2938c; --miss-bg:#2a1513; --miss-line:#4d2420;
+    --blue:#6ea0ff; --blue-bg:#17233d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:30px 20px 70px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+  h1{font-size:25px;margin:6px 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:13.5px;}
+  .sub a{color:var(--blue);text-decoration:none;} .sub a:hover{text-decoration:underline;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .lg{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);display:flex;align-items:center;gap:6px;}
+  .sw{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+  @media(max-width:900px){.cols{grid-template-columns:1fr;}}
+  .lane{border-radius:14px;border:1px solid var(--line);overflow:hidden;background:var(--card);}
+  .lane .lhead{padding:14px 16px;border-bottom:1px solid var(--line);}
+  .lane .lhead h2{margin:0;font-size:15px;display:flex;align-items:center;gap:9px;}
+  .lane .lhead p{margin:6px 0 0;font-size:12.5px;color:var(--muted);}
+  .lane .body{padding:12px;display:flex;flex-direction:column;gap:10px;}
+  .lane.eng{border-color:var(--eng-line);} .lane.eng .lhead{background:var(--eng-bg);}
+  .lane.intg{border-color:var(--intg-line);} .lane.intg .lhead{background:var(--intg-bg);}
+  .lane.miss{border-color:var(--miss-line);} .lane.miss .lhead{background:var(--miss-bg);}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .eng .dot{background:var(--eng);} .intg .dot{background:var(--intg);} .miss .dot{background:var(--miss);}
+  .item{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:var(--bg);}
+  .item .top-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+  .key{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;font-weight:700;color:var(--blue);text-decoration:none;}
+  .key:hover{text-decoration:underline;}
+  .icode{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:700;color:var(--intg);}
+  .title{font-weight:600;font-size:13.5px;display:block;margin-bottom:4px;}
+  .desc{font-size:12.5px;color:var(--muted);}
+  .desc b{color:var(--ink);}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.02em;white-space:nowrap;}
+  .b-built{background:var(--eng-bg);color:var(--eng);}
+  .b-next{background:var(--blue-bg);color:var(--blue);}
+  .b-consume{background:var(--intg-bg);color:var(--intg);}
+  .b-hold{background:var(--soft);color:var(--muted);}
+  .b-excl{background:var(--miss-bg);color:var(--miss);}
+  .b-status{background:var(--soft);color:var(--muted);font-weight:600;}
+  .note{margin-top:6px;font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px;}
+  .note b{color:var(--ink);}
+  .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
+  .closebox{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--card);}
+  .closebox h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{font-size:12px;padding:3px 9px;border-radius:8px;background:var(--soft);color:var(--ink);border:1px solid var(--line);}
+  .chip a{color:var(--ink);text-decoration:none;font-family:ui-monospace,monospace;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Short Pay Automation · Ownership Map</div>
+    <h1>Who owns what — BMS-4965</h1>
+    <div class="sub">Live children of <a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> split by ownership. Grounded in the epic's ownership comment (58671) + re-scope (54842). · <b>2026-07-15</b></div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--eng)"></span>Engineer-owned (Salesforce/Apex/LWC)</span>
+      <span class="lg"><span class="sw" style="background:var(--intg)"></span>Integration-owned (engineer consumes)</span>
+      <span class="lg"><span class="sw" style="background:var(--miss)"></span>Missing / unticketed</span>
+    </div>
+  </header>
+
+  <div class="cols">
+
+    <!-- ENGINEER-OWNED -->
+    <section class="lane eng">
+      <div class="lhead">
+        <h2><span class="dot"></span>Engineer owns &amp; builds</h2>
+        <p>Salesforce screens, Apex, LWC, CMDT. The team ships these.</p>
+      </div>
+      <div class="body">
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-3844">BMS-3844</a><span class="badge b-built">Shipped</span></div>
+          <span class="title">Short-pay capture (sibling foundation)</span>
+          <span class="desc"><code>Invoice__c.Short_Pay_Reason__c</code>, <code>E_DriverHome</code>, <code>driverHomePage</code>. Finalize gated until a reason is chosen.</span>
+        </div>
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a><span class="badge b-built">Built · PR #439</span></div>
+          <span class="title">Ph 4a — Driver Finalize-Stop approval gate</span>
+          <span class="desc">Any short blocks Finalize; N-layer chain via <code>Short_Pay_Approval_Layer__mdt</code>. <b>Confirmed a SF screen — no handheld hand-off.</b></span>
+          <div class="note"><b>Finish:</b> UI deploy + live smoke → land. Clear stale "Needs Refinement" status.</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a><span class="badge b-next">Next buildable</span></div>
+          <span class="title">Ph 4b — Multi-layer approve/reject workflow</span>
+          <span class="desc">Stateful sequential approve/reject in the back-office queue. Depends on 5625 landing.</span>
+        </div>
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a><span class="badge b-built">On parked branch</span></div>
+          <span class="title">Ph 2 — FL/AL compliance escalation</span>
+          <span class="desc">Per-state <code>Short_Pay_Threshold__mdt</code> + escalation batch. Built; finish = seed-skew fix + tests + PR.</span>
+        </div>
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a><span class="badge b-built">On parked branch</span></div>
+          <span class="title">Ph 3 — Resolution, reporting &amp; history</span>
+          <span class="desc">Review queue on <code>Invoice__c</code> + reuse <code>Credit__c</code>; reuses 5625 approval engine. Native EOD report.</span>
+        </div>
+        <div class="item">
+          <div class="top-row"><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626</a><span class="badge b-consume">Consume slice only</span></div>
+          <span class="title">Ph 5 — EFT short pay (engineer part)</span>
+          <span class="desc">Engineer <b>consumes</b> the synced signal: <code>Amount_Paid &lt; Total_Due → Short_Pay_Status = Open</code> in the same queue; amount/aging escalation, no hard block.</span>
+          <div class="note"><b>Unlocks when</b> the bank-rec feed lands the signal (the pipe itself is integration-owned →).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTEGRATION-OWNED -->
+    <section class="lane intg">
+      <div class="lhead">
+        <h2><span class="dot"></span>Integration owns the pipe</h2>
+        <p>Vendor / EDI / bank feed / OCR. Engineer consumes the output — never builds it in Apex.</p>
+      </div>
+      <div class="body">
+        <div class="item">
+          <div class="top-row"><span class="icode">I-1</span><span class="badge b-consume">Feeds BMS-5626</span></div>
+          <span class="title">Bank Reconciliation sync / bank feed</span>
+          <span class="desc">Lands EFT payment + open-balance data in SF, and <i>possibly</i> flags the short at sync. <b>The exact "already flags it vs must build detection" line is the BMS-5626 open question.</b></span>
+          <div class="note"><b>Decision → Product:</b> consume the synced flag, or does Ph 5 build detection?</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><span class="icode">I-2</span><span class="badge b-consume">Prevention lever</span></div>
+          <span class="title">Publix DEX/DSD invoice-sync</span>
+          <span class="desc">Xerecistech-style vendor/EDI sync of Gulf invoice ↔ Publix DSD so amounts match <b>at source</b>. No Apex fixes a mismatch that originates in the retailer's system.</span>
+          <div class="note"><b>Decision → Product:</b> build the DSD-sync integration, or keep consuming from bank rec?</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><span class="icode">I-4</span><span class="badge b-excl">Epic-excluded</span></div>
+          <span class="title">Check-scan image capture + OCR/AI</span>
+          <span class="desc">Reading a check off a device image = device + OCR/AI integration. <b>Out of scope for this epic (decided 07-15).</b> Detection stays the manual driver-flag.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MISSING -->
+    <section class="lane miss">
+      <div class="lhead">
+        <h2><span class="dot"></span>Missing — no ticket / no AC</h2>
+        <p>Engineer-owned work the on-site raised that isn't captured yet. Not lost — not built.</p>
+      </div>
+      <div class="body">
+        <div class="item">
+          <div class="top-row"><span class="badge b-status">Needs AC</span></div>
+          <span class="title">Roll short-pay → next invoice</span>
+          <span class="desc">FL 10-day window; driver collects last delivery's short on the next visit. Only <b>vaguely folded into 4060</b> — no named AC.</span>
+          <div class="note"><b>→ add AC to</b> BMS-4060.</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><span class="badge b-status">Needs AC</span></div>
+          <span class="title">Sales-rep collection of outstanding balance</span>
+          <span class="desc">Resolution outcome (sales rep collects the short later) <b>not called out</b> in the resolution set.</span>
+          <div class="note"><b>→ add AC to</b> BMS-4060.</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><span class="badge b-status">Needs AC</span></div>
+          <span class="title">Short-pay escalation notification</span>
+          <span class="desc">How a finalize-with-short-pay is surfaced + to whom. Channel undecided (push/bell + dashboard demoed; Chatter never named). Posted as open Q (comment 58672).</span>
+          <div class="note"><b>→ add AC to</b> BMS-5631 (LWC/notification behavior).</div>
+        </div>
+        <div class="item">
+          <div class="top-row"><span class="badge b-excl">No ticket</span></div>
+          <span class="title">Non-deliverable enforcement until paid</span>
+          <span class="desc">Block delivery to an account until the short is cleared. <b>Unticketed</b> — Gulf flagged caution ("often our own fault").</span>
+          <div class="note"><b>→ keep/drop decision</b> before ticketing.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="closebox">
+    <h3>Existing children to close / hold (not engineer work now)</h3>
+    <div class="chips">
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-4057">BMS-4057</a> spike — superseded (model decided)</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-4058">BMS-4058</a> detection — shipped via 3844</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-4784">BMS-4784</a> design/demo — empty</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-4785">BMS-4785</a> reporting spike — empty</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-4786">BMS-4786</a> reporting build — empty/blocked</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-5561">BMS-5561</a> returns mismatch — needs info</span>
+      <span class="chip"><a href="https://ohanafy.atlassian.net/browse/BMS-5627">BMS-5627</a> AR aging — hold (Product)</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    Source: live BMS-4965 children (Jira, 2026-07-15) + ownership comment 58671, re-scope 54842, open-questions 56551, audit 58613.
+    Engineer-owned confirmed = the driver Finalize-Stop gate is a Salesforce screen. Integration-owned = engineer consumes the output, does not build the pipe.
+  </div>
+</div>
+</body>
+</html>

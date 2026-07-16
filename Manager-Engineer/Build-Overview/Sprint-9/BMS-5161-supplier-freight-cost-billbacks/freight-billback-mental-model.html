@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freight Billback — Mental Model (Transfers &amp; Inbound POs)</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --paper:#fdfcf9; --rule:#e0dccf; --accent:#2f6b4f; --accent-soft:#e6f1ea;
+    --denim:#4a5fb0; --denim-soft:#eaeefb; --forest:#0f6e56; --crimson:#a8321f; --crimson-soft:#f6e6e2;
+    --yellow:#e4f223; --black:#0b0b0c; --muted:#6b6558; --code-bg:#f1efe6;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){:root{--ink:#e9e4d8;--paper:#1b1a16;--rule:#3b352a;--accent:#7fc79c;--accent-soft:#1e2c24;--denim:#93a6e8;--denim-soft:#1e2436;--forest:#7fc79c;--crimson:#e2695a;--crimson-soft:#331f1b;--muted:#a39a86;--code-bg:#26221b;}}
+  :root[data-theme="dark"]{--ink:#e9e4d8;--paper:#1b1a16;--rule:#3b352a;--accent:#7fc79c;--accent-soft:#1e2c24;--denim:#93a6e8;--denim-soft:#1e2436;--forest:#7fc79c;--crimson:#e2695a;--crimson-soft:#331f1b;--muted:#a39a86;--code-bg:#26221b;}
+  :root[data-theme="light"]{--ink:#1a1a1a;--paper:#fdfcf9;--rule:#e0dccf;--accent:#2f6b4f;--accent-soft:#e6f1ea;--denim:#4a5fb0;--denim-soft:#eaeefb;--forest:#0f6e56;--crimson:#a8321f;--crimson-soft:#f6e6e2;--muted:#6b6558;--code-bg:#f1efe6;}
+  *{box-sizing:border-box;}
+  html,body{background:var(--paper);scroll-behavior:smooth;}
+  body{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 6rem;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;}
+  a{color:var(--accent);}
+  h1{font-size:1.9rem;margin:0 0 .3rem;font-weight:700;}
+  .kick{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 1.4rem;}
+  h2{font-size:1.3rem;margin:2.6rem 0 .8rem;padding-top:.6rem;border-top:2px solid var(--rule);}
+  h3{font-size:1.02rem;color:var(--accent);margin:1.4rem 0 .5rem;}
+  p{margin:.7rem 0;}
+  code,.mono{font-family:var(--mono);font-size:.85em;background:var(--code-bg);padding:.08em .35em;border-radius:4px;}
+  .lede{font-size:1.1rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:1rem;margin:1.2rem 0 1.8rem;}
+  /* TOC */
+  .toc{background:var(--accent-soft);border:1px solid var(--rule);border-radius:12px;padding:1rem 1.3rem;margin:1.5rem 0;}
+  .toc .t{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+  .toc ol{margin:0;padding-left:1.2rem;columns:2;column-gap:2rem;}
+  @media(max-width:640px){.toc ol{columns:1;}}
+  .toc li{margin:.25rem 0;}
+  .toc a{text-decoration:none;}
+  .toc a:hover{text-decoration:underline;}
+  /* callouts */
+  .callout{border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;font-size:.95rem;}
+  .callout.key{background:var(--denim-soft);border-left:4px solid var(--denim);}
+  .callout.warn{background:var(--crimson-soft);border-left:4px solid var(--crimson);}
+  .callout .lbl{font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+  .callout.key .lbl{color:var(--denim);} .callout.warn .lbl{color:var(--crimson);}
+  /* step ladder */
+  .flow{margin:1.2rem 0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+  .flow .hd{background:var(--black);color:#fff;padding:.7rem 1rem;font-weight:700;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+  .flow .hd .pill{background:var(--yellow);color:#000;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .5rem;border-radius:999px;}
+  .rung{display:flex;gap:.8rem;padding:.8rem 1rem;border-bottom:1px solid var(--rule);}
+  .rung:last-child{border-bottom:none;}
+  .rung .n{flex:0 0 1.7rem;height:1.7rem;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:.8rem;}
+  .rung .b{flex:1;font-size:.93rem;}
+  .rung .b b{color:var(--accent);}
+  .rung .b .src{display:block;font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.2rem;}
+  .auto{color:var(--forest);font-weight:700;} .man{color:var(--crimson);font-weight:700;}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+  th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+  th{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  pre{background:var(--code-bg);padding:1rem;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.5;}
+  .money{color:var(--forest);font-weight:700;}
+  .back{font-size:.75rem;color:var(--muted);text-decoration:none;float:right;margin-top:.9rem;}
+  footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.8rem;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<p class="kick">Mental Model &middot; Supplier Freight Cost Billbacks (BMS-5161)</p>
+<h1>Freight Billback — the full picture</h1>
+<p class="lede">How freight cost flows from a cross-state transfer or an inbound PO into a recoverable supplier billback — what's automatic, what AR does by hand, and how the amount is calculated once all criteria are met. Code-verified against OHFY-Split.</p>
+
+<div class="toc">
+  <div class="t">Contents</div>
+  <ol>
+    <li><a href="#big">The big picture (two doors, one engine)</a></li>
+    <li><a href="#transfer">Flow A — Cross-state transfer</a></li>
+    <li><a href="#po">Flow B — Inbound PO</a></li>
+    <li><a href="#calc">How the freight cost is calculated</a></li>
+    <li><a href="#ar">What the AR team does (step by step)</a></li>
+    <li><a href="#gotchas">Key facts that trip people up</a></li>
+    <li><a href="#objects">Objects &amp; fields reference</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<h2 id="big">1 · The big picture — two doors, one engine</h2>
+<p>Gulf pays freight that, by contract, a <b>supplier</b> owes. This feature captures that cost and turns it into a <b>recoverable billback</b> against the supplier — through the <b>existing</b> billback ledger, not a new system.</p>
+<p>Freight arrives through <b>two doors</b>, and both walk into the <b>same engine</b>:</p>
+<div class="callout key">
+  <span class="lbl">The model in one line</span>
+  <b>Door A</b> (cross-state transfer) and <b>Door B</b> (inbound PO) each capture a <b>gross freight $</b> → the engine resolves the supplier's <b>coverage %</b> → creates a <b>Freight billback</b> (<code>gross × coverage%</code>) → AR invoices &amp; collects it manually.
+</div>
+<pre>  Door A: Transfer_Group__c  ─(Complete)──┐
+                                          ├─►  ENGINE  ──►  Billback__c (Type=Freight, Accrued)
+  Door B: Purchase_Order__c  ─(reconciled)┘   coverage       + Billback_Line__c  ──►  AR: Invoice → Collect
+                                              × gross</pre>
+<p><span class="auto">Green = automatic (the system).</span> &nbsp; <span class="man">Red = manual (AR/finance).</span></p>
+
+<!-- 2 -->
+<h2 id="transfer">2 · Flow A — Cross-state transfer</h2>
+<div class="flow">
+  <div class="hd">Cross-state transfer <span class="pill">Door A</span></div>
+  <div class="rung"><div class="n">1</div><div class="b"><b class="man">Capture freight (manual/assisted).</b> On the Transfer Group, freight is entered via the <b>"Enter Freight Cost"</b> quick action — or auto-populated by the Truck Builder. Sets <code>Freight_Cost__c</code> (gross), <code>Freight_Cost_Source__c</code> (Manual / Truck Builder / Import / API), <code>Recoverable_Freight_Account__c</code> (the supplier).<span class="src">LWC freightCostEntry → FreightBillbackUIController.saveFreight</span></div></div>
+  <div class="rung"><div class="n">2</div><div class="b"><b>Cross-state check (auto).</b> <code>Is_Cross_State__c</code> is a formula: origin state ≠ destination state. Same-state → no freight billback, ever.</div></div>
+  <div class="rung"><div class="n">3</div><div class="b"><b class="man">Complete the transfer.</b> User sets <code>Status__c → Complete</code>. <b class="auto">This is the trigger.</b><span class="src">TransferGroupTriggerService.generateFreightBillbacks (afterUpdate)</span></div></div>
+  <div class="rung"><div class="n">4</div><div class="b"><b class="auto">Gate + hand-off (auto).</b> Fires only when <code>Status=='Complete' &amp;&amp; old!='Complete'</code>, cross-state, with freight cost + recoverable account present → resolves the Tier-1 service via Service-Locator → enqueues the async generator.<span class="src">ServiceLocator → FreightBillbackService → Q_FreightBillbackGeneration → S_FreightBillbackCalculation</span></div></div>
+  <div class="rung"><div class="n">5</div><div class="b"><b class="auto">Billback created</b> — see §4 for the math. Backstop: nightly <code>B_FreightBillbackDetection</code> regenerates if the trigger ever errored.</div></div>
+</div>
+
+<!-- 3 -->
+<h2 id="po">3 · Flow B — Inbound PO</h2>
+<div class="flow">
+  <div class="hd">Inbound PO <span class="pill">Door B</span></div>
+  <div class="rung"><div class="n">1</div><div class="b"><b>PO received.</b> A Purchase Order exists against a supplier. Freight is untouched: <code>Supplier_Owes_Freight__c</code> = unchecked, <code>Recoverable_Freight_Cost__c</code> = blank. <b>No billback yet.</b></div></div>
+  <div class="rung"><div class="n">2</div><div class="b"><b class="man">Reconciliation (manual, AR).</b> AR determines the supplier owes inbound freight and edits the PO's standard fields: check <code>Supplier_Owes_Freight__c</code>, enter <code>Recoverable_Freight_Cost__c</code> (the <b>gross</b> carrier freight), confirm <code>Supplier__c</code>. <b>No custom UI</b> — plain field edit.</div></div>
+  <div class="rung"><div class="n">3</div><div class="b"><b class="auto">Gate (auto, on Save).</b> Fires when <b>all three</b> are populated (<code>eligibleNow</code>) <b>and at least one just changed</b> (<code>changed</code>). Note: fires on a PO <b>update</b>, and <b>not</b> on <code>Status=Complete</code> — it's the freight signal, not PO closure.<span class="src">PurchaseOrderTriggerService.generateFreightBillbacks (afterUpdate)</span></div></div>
+  <div class="rung"><div class="n">4</div><div class="b"><b class="auto">Hand-off (auto).</b> Resolves the PO service via Service-Locator → async generator.<span class="src">ServiceLocator → POFreightBillbackService → Q_POFreightBillbackGeneration → S_POFreightBillbackCalculation</span></div></div>
+  <div class="rung"><div class="n">5</div><div class="b"><b class="auto">Billback created</b> — same engine, same math (§4). Backstop: nightly <code>B_POFreightBillbackDetection</code>.</div></div>
+</div>
+<div class="callout warn">
+  <span class="lbl">Gotcha</span>
+  It's an <b>update</b> trigger. A PO <b>created</b> with the box already checked (e.g. via import) does <b>not</b> fire in real time — only the nightly batch catches it. Real-time creation needs the fields set via an <b>edit</b> to an existing PO.
+</div>
+
+<!-- 4 -->
+<h2 id="calc">4 · How the freight cost is calculated (once criteria are met)</h2>
+<p>Both doors converge here. The engine never invents the freight — it takes the captured <b>gross</b> and computes the recoverable share:</p>
+<div class="flow">
+  <div class="hd">The engine — S_FreightBillbackCalculation / S_POFreightBillbackCalculation</div>
+  <div class="rung"><div class="n">1</div><div class="b"><b>Start with the gross.</b> The captured freight amount (<code>Freight_Cost__c</code> or <code>Recoverable_Freight_Cost__c</code>). This is an <b>input</b> — the system does not calculate it.</div></div>
+  <div class="rung"><div class="n">2</div><div class="b"><b>Resolve coverage % (the calculated part).</b> From the supplier's <b>Supplier Funding Agreement</b>, via a most-specific cascade:<br>&nbsp;&nbsp;• most-specific active agreement (a <b>brand-scoped</b> agreement beats a supplier-wide one) →<br>&nbsp;&nbsp;• else the account's default coverage →<br>&nbsp;&nbsp;• else <b>100%</b> (supplier owes the full freight). &nbsp;An explicit <b>0% → no billback</b> (distributor-funded).<span class="src">S_SupplierFundingAgreement.mostSpecific(...)</span></div></div>
+  <div class="rung"><div class="n">3</div><div class="b"><b>Compute recoverable.</b> <code>recoverable = gross × coverage%</code>.</div></div>
+  <div class="rung"><div class="n">4</div><div class="b"><b>Upsert idempotently</b> (deterministic External_Id → re-runs never duplicate): a <code>Billback__c</code> (Type=<b>Freight</b>, Account=the supplier, Status=<b>Accrued</b>) with a <code>Billback_Line__c</code> pointing back at the source (Transfer Group <b>or</b> PO), carrying the gross, coverage %, and recoverable.</div></div>
+</div>
+<p><b>Worked examples (live-verified):</b></p>
+<table>
+  <thead><tr><th>Source</th><th>Gross</th><th>Coverage</th><th>Recoverable</th></tr></thead>
+  <tbody>
+    <tr><td>Cross-state transfer</td><td>$1,200</td><td>40%</td><td class="money">$480</td></tr>
+    <tr><td>Inbound PO</td><td>$650</td><td>40%</td><td class="money">$260</td></tr>
+  </tbody>
+</table>
+<div class="callout key"><span class="lbl">Precisely</span> Gross freight is <b>sourced</b> (entered, or fed by Truck Builder / receipt fees); the recoverable, coverage, billback and roll-up are all <b>calculated</b> from it.</div>
+
+<!-- 5 -->
+<h2 id="ar">5 · What the AR team does (step by step)</h2>
+<p>The system <b>accrues</b> the recoverable automatically; AR <b>recovers</b> it manually. There is no dunning or auto-collection.</p>
+<div class="flow">
+  <div class="hd">AR / finance — the manual lifecycle</div>
+  <div class="rung"><div class="n">1</div><div class="b"><b>Trigger the accrual.</b> Transfer: complete a cross-state transfer that has freight + a recoverable account. PO: reconcile — check <b>Supplier Owes Freight</b> and enter the <b>gross</b> freight. <span class="auto">→ system auto-creates the Accrued billback.</span></div></div>
+  <div class="rung"><div class="n">2</div><div class="b"><b>Review the billback.</b> Transfer: the <b>Supplier Freight Billback</b> panel on the record. PO: the <code>Billback__c</code> record (no PO panel). Confirm supplier, coverage %, recoverable $.</div></div>
+  <div class="rung"><div class="n">3</div><div class="b"><b>Check for double-recovery.</b> If <code>Has_Related_Claim__c</code> is flagged, a claim already exists on the same shipment — review before recovering freight on top of it. (Nightly overlap audit stamps this.)</div></div>
+  <div class="rung"><div class="n">4</div><div class="b"><b class="man">Invoice the supplier</b> → move the billback <code>Status</code>: <b>Accrued → Invoiced</b>.</div></div>
+  <div class="rung"><div class="n">5</div><div class="b"><b class="man">Record payment</b> → <b>Invoiced → Collected</b> (or <b>Written_Off</b> if uncollectable). <b>This is where the money is "collected."</b></div></div>
+</div>
+<div class="callout warn"><span class="lbl">Scope</span> Steps 4–5 are <b>manual status changes</b> on the standard billback lifecycle. There is <b>no</b> auto-invoicing, payment integration, or dunning in this epic — that would be new scope (Billback Automation, BMS-4951).</div>
+
+<!-- 6 -->
+<h2 id="gotchas">6 · Key facts that trip people up</h2>
+<h3>Gross, not net</h3>
+<p><code>Recoverable_Freight_Cost__c</code> / <code>Freight_Cost__c</code> hold the <b>GROSS</b> freight (the full carrier charge). Coverage % is applied <b>downstream</b>. Entering the supplier's net share would double-discount. (The PO field's help text has been corrected to say "gross.")</p>
+<h3>Isolated from any invoice total</h3>
+<p>Freight is <b>not</b> summed into any invoice / PO / transfer total. It lives only in its own supplier <b>billback</b> ledger — <code>Billback__c</code> has no invoice lookup, and freight billback lines carry no <code>Invoice_Item__c</code>. The only total it feeds is its own <code>Billback__c.Total_Recoverable_Amount__c</code>.</p>
+<h3>"Invoiced" is a billback status, not a sales invoice</h3>
+<p>The <code>Invoiced</code> lifecycle stage means "AR has billed the supplier" — it is not a sales <code>Invoice</code> record and has no invoice-total linkage.</p>
+<h3>Where the gross comes from</h3>
+<p>An input, not computed. Transfers: Truck Builder can set it (or Manual / Import / API). POs: the real freight usually already lives on an <code>Inventory_Receipt_Fee__c</code> (<code>Cost_Type</code> = Freight / Shipping / Fuel Surcharge) at receiving — today it's hand-keyed on the PO; a future receipt-fee source would pull it in automatically.</p>
+
+<!-- 7 -->
+<h2 id="objects">7 · Objects &amp; fields reference</h2>
+<table>
+  <thead><tr><th>Object</th><th>Key fields</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>Transfer_Group__c</code></td><td><code>Freight_Cost__c</code>, <code>Freight_Cost_Source__c</code>, <code>Recoverable_Freight_Account__c</code>, <code>Is_Cross_State__c</code>, <code>Status__c</code></td><td>Door A capture point</td></tr>
+    <tr><td><code>Purchase_Order__c</code></td><td><code>Supplier_Owes_Freight__c</code>, <code>Recoverable_Freight_Cost__c</code> (gross), <code>Supplier__c</code></td><td>Door B capture point</td></tr>
+    <tr><td><code>Supplier_Funding_Agreement__c</code></td><td><code>Coverage_Default__c</code>, <code>Brand__c</code>, <code>State__c</code>, dates, <code>Is_Active__c</code></td><td>Sets coverage %</td></tr>
+    <tr><td><code>Billback__c</code></td><td><code>Type__c</code>=Freight, <code>Status__c</code>, <code>Account__c</code>, <code>Total_Recoverable_Amount__c</code>, <code>Has_Related_Claim__c</code></td><td>The recovery record (header)</td></tr>
+    <tr><td><code>Billback_Line__c</code></td><td><code>Transfer_Group__c</code> / <code>Purchase_Order__c</code> (source), <code>Amount__c</code> (gross), <code>Coverage_Percent__c</code>, <code>Recoverable_Amount__c</code></td><td>The line detail / math</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Freight Billback mental model · BMS-5161 (Supplier Freight Cost Billbacks). Automatic = trigger + engine; manual = AR lifecycle (Accrued → Invoiced → Collected). Code-verified against OHFY-Split; this is a reference, not shipped documentation.
+</footer>
+
+<script>
+  document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{
+    const el=document.querySelector(a.getAttribute('href')); if(el){e.preventDefault();el.scrollIntoView();}
+  }));
+</script>
+</body>
+</html>

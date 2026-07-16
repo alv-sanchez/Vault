@@ -45,6 +45,8 @@
   .expd.soon{color:#f0b429;font-weight:600}
   .wt-dirty{color:#f0b429;font-size:11.5px;font-weight:600}
   .wt-prune{background:rgba(136,145,165,.16);color:#8891a5;border-radius:6px;padding:0 7px;font-size:11px;font-weight:600}
+  .wt-servescell{max-width:280px}
+  .wt-serves{color:#9aa3b8;font-size:12px;line-height:1.4}
   .prune-hd{color:#8891a5;font-weight:600;font-size:12px;text-transform:none;letter-spacing:0}
   details.done-epics{background:linear-gradient(180deg,#101710,#111722);border:1px solid #234023;border-radius:12px;padding:10px 18px;margin-bottom:22px}
   details.done-epics>summary{font-size:13px;color:#3fb950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;font-weight:600;list-style:none}
@@ -128,7 +130,7 @@
     <div class="sc"><div class="n">5</div><div class="l">Active epics</div></div>
     <div class="sc"><div class="n">34</div><div class="l">Tickets</div></div>
     <div class="sc prog"><div class="n">12</div><div class="l">In progress</div></div>
-    <div class="sc review"><div class="n">7</div><div class="l">In review / PR</div></div>
+    <div class="sc review"><div class="n">8</div><div class="l">In review / PR</div></div>
     <div class="sc done"><div class="n">3</div><div class="l">Done</div></div>
     <div class="sc todo"><div class="n">11</div><div class="l">To-do epics</div></div>
   </div>
@@ -137,7 +139,7 @@
     <div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a>
       <span class="st st-review">Review</span>
       <span class="t">Self-service account management (address, contacts)</span>
-      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">PR #388</a><span class="prage stale" title="PR opened 17 days ago">2w old ⏳</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">PR #388</a><span class="prage stale" title="PR opened 18 days ago">2w old ⏳</span>
       <span class="ep">· BMS-5576</span><div class="bnote">Ecom self-service — retailers manage their own addresses + contacts in the portal.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a>
       <span class="st st-review">Review</span>
       <span class="t">DOI Formula Standardization</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
@@ -162,7 +164,11 @@
       <span class="st st-refine">Needs Refinement</span>
       <span class="t">Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)</span> <span class="tag bd bd-both" title="what gets built">Both</span>
       <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/439">PR #439</a><span class="prage stale" title="PR opened 12 days ago">12d old ⏳</span>
-      <span class="ep">· BMS-4965</span><div class="bnote">Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.</div></div>
+      <span class="ep">· BMS-4965</span><div class="bnote">Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3823">BMS-3823</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Inter-Warehouse Inventory Visibility</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      
+      <span class="ep">· BMS-5062</span><div class="bnote">Moved to Review (checked 2026-07-14) — no PR or branch found yet; verify how it got there before treating as build-ready.</div></div>
   </div>
 
   <section class="orgs">
@@ -229,100 +235,132 @@
   <section class="orgs">
     <h2>🌳 Active worktrees &amp; branches · 16</h2>
     <div class="twrap"><table class="tix orgtbl">
-      <thead><tr><th>Branch</th><th>Ticket</th><th>State</th><th>Worktree</th></tr></thead>
+      <thead><tr><th>Branch</th><th>Ticket</th><th>Epic</th><th>Serves</th><th>State</th><th>Worktree</th></tr></thead>
       <tbody><tr>
-        <td><code>main</code></td>
-        <td><span class='dim'>—</span></td>
-        <td><span class="tag pin">primary</span> <span class="wt-dirty">● 1 uncommitted</span></td>
+        <td><code>feat/ecom-phase2-pricing-checkout-bms-5576</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Closes the storefront ordering loop post-MVP — checkout/tax/order + full promo pricing.</span></td>
+        <td><span class="tag pin">primary</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split" title="Open /Users/alvarosanchez_1/OHFY-Split in VS Code (code /Users/alvarosanchez_1/OHFY-Split)">OHFY-Split <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/safety-stock-doh-sizing-bms-4217</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-4217">BMS-4217</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
         <td><span class="tag draft">agent</span> <span class="wt-dirty">● 4 uncommitted</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba)">agent-a105153cce532e4ba <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/redbull-allocation-import-bms-4120</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-4120">BMS-4120</a> <span class="st st-prog">In Progress</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4935">BMS-4935</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Eliminates manual entry/reconciliation and prevents over-ordering against supplier limits across 5 warehouses.</span></td>
         <td><span class="tag draft">agent</span> <span class="wt-dirty">● 1 uncommitted</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf)">agent-a860fb80c977e2daf <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>alv-sanchez/mumbai</code></td>
         <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai" title="Open /Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai in VS Code (code /Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai)">mumbai <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/doi-invoiced-source-bms-3742</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Backend Apex-only: S_InventoryDOI sales-rate switch + B_InventoryDOI batch + 6 additive Inventory__c fields. No UI in this ticket — that's BMS-4543.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3742" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3742 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3742)">OHFY-Split-BMS-3742 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/self-service-account-mgmt-bms-3932</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Ecom self-service — retailers manage their own addresses + contacts in the portal.</span></td>
         <td><span class="wt-dirty">● 12 uncommitted</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3932" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3932 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3932)">OHFY-Split-BMS-3932 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>fix/bms-3932-review-findings</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Ecom self-service — retailers manage their own addresses + contacts in the portal.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix)">OHFY-Split-BMS-3932-fix <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/cart-volume-tiers-promos-bms-4051</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-4051">BMS-4051</a> <span class="st st-refine">Needs Refinement</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Closes the storefront ordering loop post-MVP — checkout/tax/order + full promo pricing.</span></td>
         <td><span class="wt-dirty">● 10 uncommitted</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-4051" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-4051 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-4051)">OHFY-Split-BMS-4051 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/picker-incentive-engine-bms-5481</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5481">BMS-5481</a> <span class="st st-todo"></span></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5481">BMS-5481</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Payroll-integrated picker bonus visibility — HR-sensitive, fast-follow after the base scan-in/scan-out task model.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5481" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5481 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5481)">OHFY-Split-BMS-5481 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/launch-plan-checklist-bms-5592</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5592">BMS-5592</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
         <td><span class="wt-dirty">● 1 uncommitted</span> <span class="tag merged">merged</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5592" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5592 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5592)">OHFY-Split-BMS-5592 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/driver-finalize-approval-gate-bms-5625</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a> <span class="st st-refine">Needs Refinement</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5625" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5625 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5625)">OHFY-Split-BMS-5625 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/freight-cost-capture-bms-5789</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5789">BMS-5789</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Foundation: adds Freight_Cost__c/source/account fields to Transfer_Group__c. PR #511 open.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5789" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5789 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5789)">OHFY-Split-BMS-5789 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/freight-billback-generation-bms-5790</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5790">BMS-5790</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Generates Billback__c/Billback_Line__c off completed cross-state transfers via the shared billback pipeline. PR #514 open, depends on #511.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5790" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5790 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5790)">OHFY-Split-BMS-5790 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>feat/po-freight-billback-bms-5791</code></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5791">BMS-5791</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Second origination path into the same billback pipeline for PO-reconciled freight. PR #516 open, depends on #514.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5791" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5791 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5791)">OHFY-Split-BMS-5791 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>integration/bms-5113-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a> <span class="st st-todo"></span></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a></td>
+        <td class="wt-servescell"><span class="wt-serves">One authoritative DOI calc across Purchasing/Warehouse/Finance — kills conflicting over/understock signals. Org bms-5113-doi live.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-integration-5113" title="Open /Users/alvarosanchez_1/OHFY-Split-integration-5113 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-integration-5113)">OHFY-Split-integration-5113 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr>
 <tr>
         <td><code>integration/bms-5161-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a> <span class="st st-todo"></span></td>
         <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them.</span></td>
         <td><span class="dim">active</span></td>
         <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-integration-5161" title="Open /Users/alvarosanchez_1/OHFY-Split-integration-5161 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-integration-5161)">OHFY-Split-integration-5161 <span class="wt-openico">↗ VS Code</span></a></td>
       </tr></tbody>
@@ -838,8 +876,8 @@
         
         
         <span class="dom">Inventory Management · crawl</span></div>
-      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 2 to do of 2">
-    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 1 in progress · 1 to do of 2">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:50%"></span><span class="seg todo" style="width:50%"></span></div><span class="pnum"><b>0%</b> done · 50% started</span></div>
     </div>
     <div class="esum">Base story (3823) To Do; forecast draft-transfer netting in Backlog.</div>
     <div class="ectx">
@@ -847,14 +885,14 @@
       <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Real-time cross-site stock view + in-transit trucks — stops overselling from depleted warehouses.</span></div>
       
     </div>
-    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">2 to do</span><span class="pill tot">2 total</span></div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">1 in progress</span><span class="pill todo">1 to do</span><span class="pill tot">2 total</span></div>
     <div class="twrap"><table class="tix">
       <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
       <tbody><tr>
       <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3823">BMS-3823</a></td>
       <td class="ty"><span class="tag ty-story">Story</span></td>
-      <td class="tt">Inter-Warehouse Inventory Visibility <span class="tag bd bd-be" title="what gets built">Backend</span></td>
-      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="tt">Inter-Warehouse Inventory Visibility <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">Moved to Review (checked 2026-07-14) — no PR or branch found yet; verify how it got there before treating as build-ready.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
       <td class="org"><span class='dim'>—</span></td>
       <td class="prc"><span class='dim'>—</span></td>
     </tr>

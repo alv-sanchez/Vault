@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay — Child Ticket Approvals (BMS-4965)</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --yes:#1a7f47; --yes-bg:#e7f5ee; --no:#b3261e; --no-bg:#fbe6e4;
+    --blue:#2f6df6; --blue-bg:#e9f0ff; --amber:#9a6a00; --amber-bg:#fbf1d9;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+      --yes:#5fd08a; --yes-bg:#12251a; --no:#f2938c; --no-bg:#2a1513;
+      --blue:#6ea0ff; --blue-bg:#17233d; --amber:#e6b85c; --amber-bg:#2a2210;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --yes:#1a7f47; --yes-bg:#e7f5ee; --no:#b3261e; --no-bg:#fbe6e4;
+    --blue:#2f6df6; --blue-bg:#e9f0ff; --amber:#9a6a00; --amber-bg:#fbf1d9;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+    --yes:#5fd08a; --yes-bg:#12251a; --no:#f2938c; --no-bg:#2a1513;
+    --blue:#6ea0ff; --blue-bg:#17233d; --amber:#e6b85c; --amber-bg:#2a2210;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:30px 20px 70px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+  h1{font-size:25px;margin:6px 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:13.5px;}
+  .sub a{color:var(--blue);text-decoration:none;} .sub a:hover{text-decoration:underline;}
+  .tally{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .t{font-size:13px;font-weight:700;padding:6px 12px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:7px;}
+  .t.y{background:var(--yes-bg);color:var(--yes);} .t.n{background:var(--no-bg);color:var(--no);}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card);}
+  table{width:100%;border-collapse:collapse;min-width:720px;}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:var(--soft);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;position:sticky;top:0;}
+  tr:last-child td{border-bottom:none;}
+  tr.yes td:first-child{box-shadow:inset 4px 0 0 var(--yes);}
+  tr.no td:first-child{box-shadow:inset 4px 0 0 var(--no);}
+  .key{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;white-space:nowrap;}
+  .key:hover{text-decoration:underline;}
+  .ph{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+  .title{font-weight:600;font-size:13.5px;}
+  .status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap;}
+  .verdict{font-size:20px;line-height:1;text-align:center;}
+  .vlabel{display:block;font-size:10px;font-weight:700;margin-top:3px;letter-spacing:.03em;}
+  .yes .vlabel{color:var(--yes);} .no .vlabel{color:var(--no);}
+  .reason{font-size:12.5px;color:var(--muted);}
+  .reason b{color:var(--ink);}
+  .flag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--amber-bg);color:var(--amber);margin-top:5px;}
+  .posted{display:block;margin-top:7px;font-size:10.5px;font-weight:700;color:var(--yes);}
+  .posted a{color:inherit;text-decoration:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .posted a:hover{text-decoration:underline;}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:28px 0 10px;display:flex;align-items:center;gap:8px;}
+  .box{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 18px;}
+  .box.go{border-color:var(--yes);}
+  .golist{display:flex;flex-wrap:wrap;gap:8px;}
+  .gochip{font-size:13px;font-weight:600;padding:5px 11px;border-radius:9px;background:var(--yes-bg);color:var(--yes);border:1px solid var(--line);}
+  .gochip a{color:inherit;text-decoration:none;font-family:ui-monospace,monospace;}
+  ol.miss{margin:4px 0 0;padding-left:20px;}
+  ol.miss li{margin:7px 0;font-size:13.5px;}
+  ol.miss li b{color:var(--ink);}
+  .arrow{color:var(--blue);font-weight:700;}
+  .notgap{margin-top:12px;padding:10px 12px;background:var(--soft);border-radius:9px;font-size:12.5px;color:var(--muted);}
+  .notgap b{color:var(--ink);}
+  .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Short Pay Automation · Child-Ticket Approval Run</div>
+    <h1>What to work — BMS-4965 children</h1>
+    <div class="sub">All 12 live children of <a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a>, one-by-one. ✅ = pick up now (engineer-owned &amp; executable) · ❌ = don't work now. Grounded in epic comments 54842, 56551, 58613, 58671. · <b>2026-07-15</b></div>
+    <div class="tally">
+      <span class="t y">✅ 4 approved</span>
+      <span class="t n">❌ 8 not now</span>
+    </div>
+  </header>
+
+  <div class="tblwrap">
+    <table>
+      <thead>
+        <tr><th>Ticket</th><th>Status</th><th>Verdict</th><th>Reason / action</th></tr>
+      </thead>
+      <tbody>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4057">BMS-4057</a><span class="ph">Spike: Data Model &amp; Compliance Rules</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">CLOSE</span></td>
+          <td class="reason"><b>Superseded.</b> Model decision already made (extend <code>Invoice__c</code> + reuse <code>Credit__c</code>, zero new objects). Spike asserts an invented <code>Short_Pay__c</code>.<span class="posted">✓ disposition comment posted → <a href="https://ohanafy.atlassian.net/browse/BMS-4057?focusedCommentId=58728">58728</a></span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4058">BMS-4058</a><span class="ph">Ph 1: Driver Detection &amp; Reason Coding</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">CLOSE</span></td>
+          <td class="reason"><b>Already shipped</b> under sibling BMS-3844 (<code>Invoice__c.Short_Pay_Reason__c</code>, <code>E_DriverHome</code>, <code>driverHomePage</code>). Close as delivered.<span class="posted">✓ disposition comment posted → <a href="https://ohanafy.atlassian.net/browse/BMS-4058?focusedCommentId=58729">58729</a></span></td>
+        </tr>
+        <tr class="yes">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a><span class="ph">Ph 2: Compliance Escalation (FL/AL)</span></td>
+          <td><span class="status">In Progress</span></td>
+          <td class="yes"><div class="verdict">✅</div><span class="vlabel">WORK</span></td>
+          <td class="reason"><b>Built on the parked branch.</b> Finish = seed-skew fix + tests + PR. <span class="flag">FL/AL threshold values = open Gulf config, build past with defaults</span></td>
+        </tr>
+        <tr class="yes">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a><span class="ph">Ph 3: Resolution, Reporting &amp; History</span></td>
+          <td><span class="status">In Progress</span></td>
+          <td class="yes"><div class="verdict">✅</div><span class="vlabel">WORK</span></td>
+          <td class="reason"><b>Back-office queue built on the parked branch</b>, reuses the 5625 approval engine. Finish/land. <span class="flag">needs 2 ACs added (see missing)</span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4784">BMS-4784</a><span class="ph">Design / Prototype / Demo</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">NOT NOW</span></td>
+          <td class="reason"><b>Empty</b> AC/Technical, and the demo already exists live via 5625. Not executable as written.<span class="posted">✓ disposition comment posted → <a href="https://ohanafy.atlassian.net/browse/BMS-4784?focusedCommentId=58730">58730</a></span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4785">BMS-4785</a><span class="ph">Reporting Spike</span></td>
+          <td><span class="status">To Do</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">NOT NOW</span></td>
+          <td class="reason"><b>Empty fields;</b> reporting is folded into 4060's native EOD report. Revisit only if Product wants dedicated reporting.<span class="posted">✓ disposition comment posted → <a href="https://ohanafy.atlassian.net/browse/BMS-4785?focusedCommentId=58731">58731</a></span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-4786">BMS-4786</a><span class="ph">Reporting Build</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">NOT NOW</span></td>
+          <td class="reason"><b>Empty</b> + depends on 4785 (also not ready).</td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5561">BMS-5561</a><span class="ph">Returns mismatch + recon credit hold</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">NEEDS INFO</span></td>
+          <td class="reason">On-site <b>"need more info,"</b> no code. Separate returns workstream — needs scoping before it's executable.<span class="posted">✓ disposition comment posted → <a href="https://ohanafy.atlassian.net/browse/BMS-5561?focusedCommentId=58732">58732</a></span></td>
+        </tr>
+        <tr class="yes">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a><span class="ph">Ph 4a: Driver Finalize-Stop Approval Gate</span></td>
+          <td><span class="status">Needs Refinement</span></td>
+          <td class="yes"><div class="verdict">✅</div><span class="vlabel">FINISH</span></td>
+          <td class="reason"><b>Built, PR #439.</b> Confirmed engineer-owned (SF screen, no handheld hand-off). Finish = UI deploy + live smoke → land. <span class="flag">"Needs Refinement" status is stale on a built ticket — clear it</span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626</a><span class="ph">Ph 5: EFT Detection via Bank Reconciliation</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">NOT YET</span></td>
+          <td class="reason">🚩 <b>Integration task, not Apex</b> — the bank-rec feed (I-1) is integration-owned; engineer only consumes. Gated on Product's consume-vs-build + Publix DEX decision. Engineer consume slice (<code>Amount_Paid &lt; Total_Due → Status=Open</code>) unlocks once the bank-rec signal lands.<span class="posted">✓ disposition comment posted (flagged integration) → <a href="https://ohanafy.atlassian.net/browse/BMS-5626?focusedCommentId=58733">58733</a></span></td>
+        </tr>
+        <tr class="no">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5627">BMS-5627</a><span class="ph">Ph 6: AR Aging Visibility (Net-30)</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="no"><div class="verdict">❌</div><span class="vlabel">SPLIT</span></td>
+          <td class="reason"><b>Split (engineer judgment).</b> Short-pay aging is <b>already covered</b> by 4059/4060's configurable per-state aging (FL 7-day buffer / AL 0) — no separate build. The <i>general</i> net-30 "not-yet-due" AR view = <b>separate, configurable AR scope</b> (metadata aging buckets, reuse per-state aging-day config). → confirm split w/ Product (Emily).<span class="posted">✓ recommendation posted → <a href="https://ohanafy.atlassian.net/browse/BMS-5627?focusedCommentId=58734">58734</a></span></td>
+        </tr>
+        <tr class="yes">
+          <td><a class="key" href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a><span class="ph">Ph 4b: Multi-Layer Approve/Reject Workflow</span></td>
+          <td><span class="status">Backlog</span></td>
+          <td class="yes"><div class="verdict">✅</div><span class="vlabel">NEXT</span></td>
+          <td class="reason"><b>Next buildable lane</b>, engineer-owned; depends on 5625 landing. <span class="flag">real approver roles per layer = open config, build past</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>✅ Approved to work now <span style="font-weight:400;text-transform:none;letter-spacing:0;">— dependency-safe, disjoint</span></h2>
+  <div class="box go">
+    <div class="golist">
+      <span class="gochip"><a href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a> + <a href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a> — finish/land the parked branch</span>
+      <span class="gochip"><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a> — smoke + land PR #439</span>
+      <span class="gochip"><a href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a> — next, after 5625 merges</span>
+    </div>
+  </div>
+
+  <h2>🚩 Missing on the engineer-owned side <span style="font-weight:400;text-transform:none;letter-spacing:0;">— no ticket / no AC, surfaced by the on-site</span></h2>
+  <div class="box">
+    <ol class="miss">
+      <li><b>Roll short-pay → next invoice</b> (FL 10-day window) — only vaguely folded into 4060, no named AC. <span class="arrow">→ add AC to BMS-4060.</span></li>
+      <li><b>Sales-rep collection of outstanding balance</b> — resolution outcome not called out in 4060. <span class="arrow">→ add AC to BMS-4060.</span></li>
+      <li><b>Notification surfacing</b> (finalize-short-pay channel/recipient — Q4, comment 58672) — engineer-owned LWC behavior, no AC. <span class="arrow">→ attach to BMS-5631.</span></li>
+      <li><b>Non-deliverable enforcement until paid</b> — unticketed; needs a keep/drop decision (Gulf flagged caution — "often our own fault").</li>
+    </ol>
+    <div class="notgap"><b>Explicitly NOT engineer gaps</b> (so they don't land on you by default): Publix DEX sync (I-2), bank-rec detection feed (I-1), check-scan/OCR (I-4, epic-excluded).</div>
+  </div>
+
+  <div class="foot">
+    Source: live BMS-4965 children (Jira, 2026-07-15) + epic comments — re-scope 54842, open-questions 56551, on-site audit 58613, ownership boundary 58671.<br>
+    <b>Update 2026-07-15:</b> disposition-rationale comments posted to Jira on the 7 ❌ tickets (58728–58734); the O-1 approval-threshold decision (58678) and Q4 notification question (58672) are also on the epic. <b>Verdicts + these comments are the engineer's build-order call — statuses are NOT transitioned</b> (no close/hold applied; 5625's stale "Needs Refinement" not yet cleared).
+  </div>
+</div>
+</body>
+</html>

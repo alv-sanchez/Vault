@@ -4,153 +4,217 @@
     "type": "split",
     "children": [
       {
-        "id": "c2c7655802ee6d55",
+        "id": "2edd7c88a451897a",
         "type": "split",
         "children": [
           {
-            "id": "319916869b306be2",
+            "id": "45b279e259f34102",
             "type": "tabs",
-            "dimension": 59.03438185808339,
+            "dimension": 61.33156966490299,
             "children": [
               {
-                "id": "632064e7032aaf0f",
+                "id": "93f1b127dc85dd70",
                 "type": "leaf",
+                "pinned": true,
                 "state": {
                   "type": "html-view",
                   "state": {
-                    "file": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
+                    "file": "Manager-Engineer/Mission-Control/mission-control.html"
                   },
+                  "pinned": true,
                   "icon": "code-glyph",
-                  "title": "0002-why-the-epic-is-tidy"
+                  "title": "mission-control"
                 }
               },
               {
-                "id": "6a0fa6a92a0404c9",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Teachings/code-review/lesson-1-what-it-solves.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "lesson-1-what-it-solves"
-                }
-              },
-              {
-                "id": "98fd224c0e99294a",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-489-overview.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "pr-489-overview"
-                }
-              },
-              {
-                "id": "e7426eb0bfd3fe71",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Manager-Engineer/Build-Overview/Build-Overview.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "Build-Overview"
-                }
-              },
-              {
-                "id": "7172277f5776f671",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "pr-503-overview"
-                }
-              },
-              {
-                "id": "e299f5208467a891",
+                "id": "710aef302925885f",
                 "type": "leaf",
                 "state": {
                   "type": "markdown",
                   "state": {
-                    "file": "Manager-Engineer/Diagrams/dbml-render-test.md",
+                    "file": "Transcripts/Gulf On-site - Short Pays/Transcript July 14th - Afternoon meeting.md",
                     "mode": "source",
                     "source": false
                   },
                   "icon": "lucide-file",
-                  "title": "dbml-render-test"
+                  "title": "Transcript July 14th - Afternoon meeting"
                 }
               },
               {
-                "id": "09f740ab16f2617a",
+                "id": "3e2a57f353319178",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
+                    "mode": "source",
+                    "source": false
+                  },
+                  "icon": "lucide-file",
+                  "title": "2026-06-30 Finance & Accounting Demo Workshop — Action Items"
+                }
+              },
+              {
+                "id": "17f90d23357a906b",
                 "type": "leaf",
                 "state": {
                   "type": "html-view",
                   "state": {
-                    "file": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
+                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/demo.html"
                   },
                   "icon": "code-glyph",
-                  "title": "pr-503-overview"
+                  "title": "demo"
+                }
+              },
+              {
+                "id": "e3b159abcffeef44",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/proposal.md",
+                    "mode": "source",
+                    "source": false
+                  },
+                  "icon": "lucide-file",
+                  "title": "proposal"
+                }
+              },
+              {
+                "id": "bcd893d49a2abc49",
+                "type": "leaf",
+                "state": {
+                  "type": "excalidraw",
+                  "state": {
+                    "file": "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md"
+                  },
+                  "icon": "excalidraw-icon",
+                  "title": "Drawing 2026-07-16 09.02.24.excalidraw"
+                }
+              },
+              {
+                "id": "5b0e8c7cf71c94ae",
+                "type": "leaf",
+                "state": {
+                  "type": "html-view",
+                  "state": {
+                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html"
+                  },
+                  "icon": "code-glyph",
+                  "title": "Short-Pay-Ownership-Map"
                 }
               }
             ]
           },
           {
-            "id": "45b279e259f34102",
-            "type": "tabs",
-            "dimension": 40.96561814191661,
+            "id": "26417d0c1e2e3c33",
+            "type": "split",
+            "dimension": 38.66843033509701,
             "children": [
               {
-                "id": "178d83c8a8398acd",
-                "type": "leaf",
-                "pinned": true,
-                "state": {
-                  "type": "terminal:terminal",
-                  "state": {
-                    "terminal:terminal": {
-                      "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
-                      "focus": false,
-                      "profile": {
-                        "args": [
-                          "--login"
-                        ],
-                        "environment": [],
-                        "executable": "/bin/zsh",
-                        "followTheme": true,
-                        "name": "",
-                        "platforms": {
-                          "darwin": true
-                        },
-                        "pythonExecutable": "python3",
-                        "restoreHistory": false,
-                        "rightClickAction": "copyPaste",
-                        "successExitCodes": [
-                          "0",
-                          "SIGINT",
-                          "SIGTERM"
-                        ],
-                        "terminalOptions": {
-                          "documentOverride": null
-                        },
-                        "type": "integrated",
-                        "useWin32Conhost": true
+                "id": "8c8a7cad65d40b08",
+                "type": "tabs",
+                "children": [
+                  {
+                    "id": "178d83c8a8398acd",
+                    "type": "leaf",
+                    "pinned": true,
+                    "state": {
+                      "type": "terminal:terminal",
+                      "state": {
+                        "terminal:terminal": {
+                          "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
+                          "focus": false,
+                          "profile": {
+                            "args": [
+                              "--login"
+                            ],
+                            "environment": [],
+                            "executable": "/bin/zsh",
+                            "followTheme": true,
+                            "name": "",
+                            "platforms": {
+                              "darwin": true
+                            },
+                            "pythonExecutable": "python3",
+                            "restoreHistory": false,
+                            "rightClickAction": "copyPaste",
+                            "successExitCodes": [
+                              "0",
+                              "SIGINT",
+                              "SIGTERM"
+                            ],
+                            "terminalOptions": {
+                              "documentOverride": null
+                            },
+                            "type": "integrated",
+                            "useWin32Conhost": true
+                          },
+                          "profileSourceId": "darwinIntegratedDefault",
+                          "serial": null,
+                          "userTitle": ""
+                        }
                       },
-                      "profileSourceId": "darwinIntegratedDefault",
-                      "serial": null,
-                      "userTitle": ""
+                      "pinned": true,
+                      "icon": "terminal",
+                      "title": "Terminal: ✳ Update child tickets with correct status"
                     }
-                  },
-                  "pinned": true,
-                  "icon": "terminal",
-                  "title": "Terminal: ✳ Update child tickets with correct status"
-                }
+                  }
+                ]
+              },
+              {
+                "id": "9c70ef7b160f6122",
+                "type": "tabs",
+                "children": [
+                  {
+                    "id": "e68774ce56343cb3",
+                    "type": "leaf",
+                    "pinned": true,
+                    "state": {
+                      "type": "terminal:terminal",
+                      "state": {
+                        "terminal:terminal": {
+                          "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
+                          "focus": false,
+                          "profile": {
+                            "args": [
+                              "--login"
+                            ],
+                            "environment": [],
+                            "executable": "/bin/zsh",
+                            "followTheme": true,
+                            "name": "",
+                            "platforms": {
+                              "darwin": true
+                            },
+                            "pythonExecutable": "python3",
+                            "restoreHistory": false,
+                            "rightClickAction": "copyPaste",
+                            "successExitCodes": [
+                              "0",
+                              "SIGINT",
+                              "SIGTERM"
+                            ],
+                            "terminalOptions": {
+                              "documentOverride": null
+                            },
+                            "type": "integrated",
+                            "useWin32Conhost": true
+                          },
+                          "profileSourceId": "darwinIntegratedDefault",
+                          "serial": null,
+                          "userTitle": ""
+                        }
+                      },
+                      "pinned": true,
+                      "icon": "terminal",
+                      "title": "Terminal: ✳ Gather short pay handling direction from Gulf on-site"
+                    }
+                  }
+                ]
               }
-            ]
+            ],
+            "direction": "vertical"
           }
         ],
         "direction": "horizontal"
@@ -186,7 +250,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "accuracy",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -228,7 +292,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 417.50418853759766
+    "width": 377.5124969482422
   },
   "right": {
     "id": "65035a2562b2b34e",
@@ -371,46 +435,48 @@
       "markdown-table-editor:Open Markdown Table Editor": false
     }
   },
-  "active": "178d83c8a8398acd",
+  "active": "93f1b127dc85dd70",
   "lastOpenFiles": [
-    "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html",
-    "Teachings/safety-stock-epic/lessons/0001-how-safety-stock-flows.html",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Child-Ticket-Approvals.html",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html",
     "Manager-Engineer/Mission-Control/mission-control.html",
-    "Teachings/safety-stock-epic/learning-records/0001-starting-point-owns-epic-but-lacks-whole-picture.md",
-    "Teachings/safety-stock-epic/reference/data-flow-and-seams.html",
-    "Teachings/safety-stock-epic/RESOURCES.md",
-    "Teachings/safety-stock-epic/MISSION.md",
-    "Teachings/safety-stock-epic/assets/quiz.js",
-    "Teachings/safety-stock-epic/assets/lesson.css",
-    "Teachings/safety-stock-epic/reference",
-    "Teachings/safety-stock-epic/lessons",
-    "Teachings/safety-stock-epic/learning-records",
-    "Teachings/safety-stock-epic/assets",
-    "Teachings/safety-stock-epic",
-    "Teachings/code-review/learning-records/0001-prior-hands-on-code-review-exposure.md",
-    "Teachings/NOTES.md",
-    "Teachings/code-review/RESOURCES.md",
-    "Teachings/code-review/MISSION.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-14-2239.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-14-2233.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/BMS-5481-feedback.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/SESSION.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5481-picker-incentive-engine/orientation.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5754-impact-value/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/diagram.excalidraw.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5083-pick-location-capacity/SESSION.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/demo.html",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/freight-billback-mental-model.html",
+    "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md",
+    "Images/Screenshot 2026-07-16 at 9.03.07 AM.png",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-16-0735.md",
+    "Manager-Engineer/Mission-Control/Snapshots/2026-07-16-0900.html",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/diagram.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/build-status-2026-07-15.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.md",
+    "Transcripts/Gulf On-site - Short Pays/Short-Pay-Publix-EFT Extraction.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/audit-vs-onsite-jul14.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
+    "Transcripts/Gulf On-site - Short Pays/Transcript July 14th - Afternoon meeting.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/proposal.md",
+    "Manager-Engineer/The-Corner/2026-07-15-1200.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/mockup.html",
+    "Transcripts/BMS-4965 Short Pay Automation/Finance&Accounting - Demo Workshop.md",
+    "Manager-Engineer/Tickets/BMS-5903-supplier-owed-dashboard-lwc.md",
+    "Manager-Engineer/Tickets/BMS-5902-supplier-agreement-terms-lwc.md",
+    "Manager-Engineer/Tickets/BMS-5901-receipt-fee-billback-source.md",
+    "Manager-Engineer/Tickets/BMS-5900-agreement-terms-coverage-cascade.md",
+    "Manager-Engineer/Tickets/BMS-5899-charge-type-dimension.md",
+    "Manager-Engineer/Tickets/supplier-owed-03-receipt-fee-billback-source.md",
+    "Manager-Engineer/Tickets/supplier-owed-04-supplier-agreement-terms-lwc.md",
+    "Manager-Engineer/Tickets/supplier-owed-05-supplier-owed-dashboard-lwc.md",
+    "Manager-Engineer/Tickets/supplier-owed-01-charge-type-dimension.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/ASSUMPTIONS.md",
+    "Transcripts/Gulf On-site - Short Pays/_HANDOFF-SUMMARY.md",
+    "Transcripts/Gulf On-site",
+    "Transcripts/Gulf On-site.zip",
+    "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.html",
+    "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.md",
+    "Manager-Engineer/Mission-Control/README.md",
+    "Untitled.canvas",
     "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/verify-bms-4078-fixed.png",
     "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/diagram.excalidraw.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/SESSION.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/notebooklm-video-transcript.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/diagram.excalidraw.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/breakout-and-overlap.md",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5068-safety-stock/SESSION.md",
     "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
     "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/02-off-target-only.png",
     "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/01-warehouse-grouped.png",
@@ -419,13 +485,11 @@
     "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas",
     "Images/Screenshot 2026-07-13 at 10.31.46 AM.png",
     "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
-    "Manager-Engineer/Mission-Control/Snapshots/todo-epics-preview.png",
     "Anvil/Engineering/Visualizer/Untitled.canvas",
     "Anvil/Engineering/Planning/Canvases/Sprint 4 Board.canvas",
     "Anvil/Engineering/Planning/Canvases/E-Commerce Sprints 3-5 Dependencies.canvas",
     "Anvil/Engineering/planning/Canvases/E-Commerce Sprints 3-5 Dependencies.canvas",
     "Anvil/Engineering/planning/Canvases/Sprint 4 Board.canvas",
-    "Untitled.canvas",
     "Anvil/Engineering/planning/E-Commerce Sprints 3-5 Dependencies.canvas",
     "Anvil/Engineering/planning/Sprint 4/Sprint 4 Board.canvas",
     "Anvil/Engineering/Working On/Development/splrint3/E-Commerce -> OHFY-SPLIT/Migration.canvas"

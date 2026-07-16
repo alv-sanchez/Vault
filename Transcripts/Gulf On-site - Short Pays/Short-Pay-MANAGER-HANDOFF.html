@@ -1,0 +1,217 @@
+<title>Short Pay (Publix EFT) — Manager Handoff</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff;
+    --green:#1a7f47; --green-soft:#e5f4ec; --amber:#9a6a00; --amber-soft:#fbf1d9;
+    --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+      --accent:#6ea0ff; --accent-soft:#1a2740;
+      --green:#5fd08a; --green-soft:#12251a; --amber:#e6b85c; --amber-soft:#2a2210;
+      --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff;
+    --green:#1a7f47; --green-soft:#e5f4ec; --amber:#9a6a00; --amber-soft:#fbf1d9;
+    --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+    --accent:#6ea0ff; --accent-soft:#1a2740;
+    --green:#5fd08a; --green-soft:#12251a; --amber:#e6b85c; --amber-soft:#2a2210;
+    --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 64px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px;}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+  h1{font-size:26px;line-height:1.2;margin:6px 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px;}
+  .meta b{color:var(--ink);font-weight:600;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--ink);border:1px solid var(--line);}
+  .pill.amber{background:var(--amber-soft);color:var(--amber);border-color:transparent;}
+  .pill.green{background:var(--green-soft);color:var(--green);border-color:transparent;}
+  .pill.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent;}
+  h2{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    margin:34px 0 12px;display:flex;align-items:center;gap:8px;}
+  h2 .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+  .tldr{background:var(--accent-soft);border:1px solid transparent;border-radius:12px;padding:18px 20px;font-size:15px;}
+  .tldr b{color:var(--ink);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+  .grid .card h3{margin:0 0 6px;font-size:14px;font-weight:700;}
+  .grid .card p{margin:0;color:var(--muted);font-size:13.5px;}
+  ul{margin:8px 0 0;padding-left:18px;}
+  li{margin:5px 0;}
+  li .lbl{font-weight:600;}
+  .qa{display:flex;flex-direction:column;gap:10px;}
+  .q{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);}
+  .q .qhead{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;}
+  .q .qnum{flex:0 0 auto;font-weight:700;font-size:13px;color:var(--muted);margin-top:1px;}
+  .q .qtext{flex:1;font-weight:600;font-size:14px;}
+  .status{flex:0 0 auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .status.part{background:var(--amber-soft);color:var(--amber);}
+  .status.done{background:var(--green-soft);color:var(--green);}
+  .q .qbody{padding:0 16px 14px 42px;color:var(--muted);font-size:13.5px;}
+  .q .qbody b{color:var(--ink);}
+  .table{width:100%;border-collapse:collapse;font-size:13.5px;overflow:hidden;border-radius:12px;border:1px solid var(--line);}
+  .tblwrap{overflow-x:auto;}
+  .table th,.table td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .table th{background:var(--chip);font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .table tr:last-child td{border-bottom:none;}
+  .table td b{color:var(--ink);}
+  .owner{font-weight:600;white-space:nowrap;}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+  .steps li{counter-increment:s;position:relative;padding:12px 16px 12px 48px;background:var(--card);border:1px solid var(--line);border-radius:12px;}
+  .steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:22px;height:22px;border-radius:50%;
+    background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Engineering Handoff · For visibility</div>
+    <h1>Short Pay (Publix EFT) — Direction from the Gulf On-site</h1>
+    <div class="meta">
+      <span>Prepared by <b>Alvaro Sanchez</b></span>
+      <span><b>2026-07-15</b></span>
+      <span>Source: <b>Gulf Onsite — Accounting (Jul 14, 3h 46m)</b></span>
+      <span>Epic <a href="https://ohanafy.atlassian.net/browse/BMS-4965"><b>BMS-4965</b></a> · Ph 5 <a href="https://ohanafy.atlassian.net/browse/BMS-5626"><b>BMS-5626</b></a></span>
+    </div>
+    <div class="pills">
+      <span class="pill accent">Already in pipeline</span>
+      <span class="pill green">Direction captured</span>
+      <span class="pill amber">Open decisions to route</span>
+      <span class="pill">No new build committed</span>
+    </div>
+  </header>
+
+  <div class="tldr">
+    I isolated and compiled Gulf's direction on <b>Short Pay</b> from the July 14 on-site.
+    It's the <b>Publix-EFT</b> problem (payment doesn't match the invoice), and it's <b>broader than Publix</b>:
+    any time amount&nbsp;paid&nbsp;≠&nbsp;total&nbsp;due after the money moves (EFT, checks, DEX/DSD, net-30).
+    <b>Gulf's real ambition is to prevent short pays at the source — not just handle them better.</b> But by
+    their own statement they <b>can't eliminate them on EFT</b> (it settles asynchronously through the bank),
+    so a handling path still has to exist for the residual. The work already lives in our pipeline as epic
+    <b>BMS-4965</b>, with <b>BMS-5626</b> as <b>Phase 5</b>. <b>Several decisions still need owners</b> before it's buildable.
+  </div>
+
+  <h2><span class="dot"></span>The core ask: prevent first, handle the rest</h2>
+  <div class="card">
+    <p style="margin:0 0 12px;">Gulf's framing was <b>"go to the source of the problem"</b> — make the discrepancy never happen, rather than get better at cleaning it up. But that hits a hard limit they stated themselves, so the honest model is two tracks:</p>
+    <div class="grid">
+      <div class="card" style="border-left:3px solid var(--green);">
+        <h3>① Prevent at source <span style="font-weight:500;color:var(--muted);">— the goal</span></h3>
+        <p>Make the invoice correct <b>at delivery</b> so what Publix EFTs later <b>matches</b>: (a) let the driver/DEX reconcile qty &amp; price at the stop; (b) a <b>Publix/DEX integration</b> that syncs the invoice in real time. <b>Aspirational</b> — gated on the still-undecided "can drivers edit the invoice" question.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber);">
+        <h3>② Handle the residual <span style="font-weight:500;color:var(--muted);">— unavoidable</span></h3>
+        <p>EFT settles async — <b>can't be reconciled at the stop</b> — so some shorts always land at bank rec (late discounts, disputes, Publix-side adjustments). Approval gate, reason codes, collection, roll-to-next-invoice, write-off. This is where <b>most of the concrete discussion actually was.</b></p>
+      </div>
+    </div>
+    <p style="margin:14px 0 0;padding:11px 14px;background:var(--red-soft);border-radius:8px;color:var(--ink);font-size:13.5px;">
+      <b>The constraint, in Gulf's words:</b> <i>"we can't stop it from happening if they're paying for EFT — it only gets us by the time we're doing a bank reconciliation."</i> So the target is <b>minimize + handle the rest</b>, not zero.
+    </p>
+  </div>
+
+  <h2><span class="dot"></span>Where this sits in the build</h2>
+  <div class="card">
+    Short Pay is a <b>phased epic (BMS-4965)</b> with two entry points converging on one back-office review queue:
+    <ul>
+      <li><span class="lbl">Ph 4a — Driver approval gate (BMS-5625):</span> <b>built &amp; demoed</b> (PR #439). Driver can't finalize a short stop without approval.</li>
+      <li><span class="lbl">Ph 4b — Approve/reject workflow (BMS-5631):</span> multi-layer sequential approval. Backlog.</li>
+      <li><span class="lbl">Ph 5 — EFT (BMS-5626):</span> <b>this on-site's topic.</b> Currently scoped as "detection"; the on-site pushes it toward <b>prevention</b> (invoice accuracy at delivery + Publix sync), with detection as the residual net. Scoping.</li>
+      <li><span class="lbl">Ph 6 — AR aging (BMS-5627):</span> hold pending Product direction.</li>
+    </ul>
+    Capture already shipped earlier under <b>BMS-3844</b>; back-office escalation/resolution is built on a parked branch. <b>No parallel objects — we extend <code>Invoice__c</code> + reuse <code>Credit__c</code>.</b>
+  </div>
+
+  <h2><span class="dot"></span>What Gulf wants (their direction)</h2>
+  <div class="grid">
+    <div class="card"><h3>Define it</h3><p>Amount paid ≠ total due, found <b>after</b> the sale. "There is no such thing as a no-pay — that's a short pay." Not Publix-only.</p></div>
+    <div class="card"><h3>Root causes</h3><p>(1) Pricing mismatch, Gulf vs retailer. (2) Qty/item change at delivery — broken case, didn't scan, wrong item. Plus driver-training gaps.</p></div>
+    <div class="card"><h3>Prevent, not just detect</h3><p>Today caught only at <b>bank reconciliation</b> (too late). Gulf wants the invoice <b>right at delivery</b> so it matches what Publix pays — detection becomes the fallback, not the goal.</p></div>
+    <div class="card"><h3>Alert &amp; own</h3><p>Fire the moment a stop finalizes short → <b>AR team + driver's manager</b>, on the dashboard (not just email). Every short needs an owner.</p></div>
+    <div class="card"><h3>Gate the stop</h3><p>Driver can't complete until they collect in full <b>or</b> get approval. Approver = delivery mgr / assistant / senior driver (configurable group).</p></div>
+    <div class="card"><h3>Resolve it</h3><p>Collect difference · correct/credit invoice · dispute · <b>roll balance to next invoice</b> (preferred) · write-off. <b>Mandatory reason code</b> on every accepted short.</p></div>
+  </div>
+  <p style="color:var(--muted);font-size:13px;margin-top:10px;">Current pain (the "why now"): no gate today — "you just accept it" — and <b>~1,000 short pays sit on the books, never properly followed up.</b></p>
+
+  <h2><span class="dot"></span>Did the on-site answer our open questions?</h2>
+  <div class="qa">
+    <div class="q">
+      <div class="qhead">
+        <span class="qnum">Q1</span>
+        <span class="qtext">How do we learn a Publix EFT came in short — does Bank Rec flag it, or do we detect it? (consume vs build)</span>
+        <span class="status part">Partial</span>
+      </div>
+      <div class="qbody">Today: caught <b>only at bank rec</b> — confirmed too late. But Gulf's real want is to <b>prevent it</b>: get the invoice right at delivery (driver/DEX edit) + a <b>Publix/DEX integration</b> to sync at source. Caveat they stated: EFT is async, so it <b>can't be fully prevented</b> — a bank-rec catch stays as the residual net. Build-vs-consume on the integration is <b>still open.</b></div>
+    </div>
+    <div class="q">
+      <div class="qhead">
+        <span class="qnum">Q2</span>
+        <span class="qtext">Who can modify/resolve a Publix invoice, and at what step?</span>
+        <span class="status part">Partial</span>
+      </div>
+      <div class="qbody">Resolve/approve: delivery mgr / assistant / senior driver at finalize-stop; AR + AR manager (Terry) own post-stop. Modifying the invoice line itself (a "cut") — <b>who authorizes it is deferred</b> to Jimmy/Ashton in the Thursday pricing call.</div>
+    </div>
+    <div class="q">
+      <div class="qhead">
+        <span class="qnum">Q3</span>
+        <span class="qtext">What resolution outcomes does Publix need — credit, rebill, dispute, write-off?</span>
+        <span class="status done">Mostly answered</span>
+      </div>
+      <div class="qbody">Named: collect difference · correct/credit invoice · dispute · roll to next invoice (preferred) · write-off · sales-rep collection · <b>mandatory reason code.</b> Not settled: a formal <b>"rebill"</b> outcome, and the <b>$/% approval threshold</b> that routes which path applies.</div>
+    </div>
+    <div class="q">
+      <div class="qhead">
+        <span class="qnum">Q4</span>
+        <span class="qtext">How does Gulf want to be notified when a driver finalizes a stop with a short pay — and who receives it? <span style="font-weight:500;color:var(--muted);">(engineer-added)</span></span>
+        <span class="status" style="background:var(--red-soft);color:var(--red);">Not captured</span>
+      </div>
+      <div class="qbody">Needed for the <b>BMS-5625</b> approval-gate LWC. Gulf leaned max-visibility but <b>picked no channel and no single recipient.</b> Demoed a <b>push/bell notification + dashboard queue</b>; email alone deemed insufficient; <b>Chatter never named</b>; SMS wanted but Twilio off (engine offers task/event/record/email/text/push). Recipient candidates: <b>driver's manager / delivery manager</b> (immediate, dashboard-first) vs. a <b>shared AR queue</b>. → Ops + AR; confirm Product.</div>
+    </div>
+  </div>
+
+  <h2><span class="dot"></span>Open decisions that need an owner</h2>
+  <div class="tblwrap">
+    <table class="table">
+      <thead><tr><th>Decision</th><th>Why it matters</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><b>Approval threshold</b> ($/% for auto-accept vs route)</td><td>Gates which short pays stop the driver vs pass through</td><td class="owner">Ops (Josh / Dom / Ashton)</td></tr>
+        <tr><td><b>Can drivers cut/edit the invoice — who authorizes?</b></td><td><b>Critical path for prevention</b> — without it, discrepancies can't be fixed at delivery</td><td class="owner">Jimmy / Ashton — Thu pricing call</td></tr>
+        <tr><td><b>Publix EFT/DEX integration — build or consume?</b></td><td><b>Central scope call</b> — the real-time sync that stops shorts at source</td><td class="owner">Product / Bank-Rec owner</td></tr>
+        <tr><td><b>"Rebill" as a formal outcome?</b></td><td>Confirm vs fold into correct-invoice / next-invoice</td><td class="owner">Product (Emily)</td></tr>
+        <tr><td><b>Short-pay escalation notification — channel + recipient</b></td><td>The <b>BMS-5625</b> approval-gate LWC needs how to surface a finalize-with-short-pay, and to whom (Chatter never named; push/bell + dashboard demoed)</td><td class="owner">Ops + AR · confirm Product</td></tr>
+        <tr><td><b>Manual check-key fallback</b> (# failed scans)</td><td>Bailout when scan is illegible</td><td class="owner">Accounting + Ops</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2><span class="dot"></span>Recommended next steps</h2>
+  <ol class="steps">
+    <li>Route the <b>3 open decisions</b> above to their owners (threshold → Ops; invoice-cut → Jimmy/Ashton Thursday; EFT integration → Product).</li>
+    <li><b>Reframe BMS-5626 from "EFT detection" to "EFT prevention + residual net"</b> and fold this direction into the BMS-4965 epic so it can be sized for build.</li>
+    <li>Because the design is <b>configurable</b> (thresholds, approver roles, reason codes), we can <b>build past the open values</b> and let the team ratify them in refinement — no hard blocker on starting Phase 5.</li>
+  </ol>
+
+  <div class="foot">
+    Full detail: isolated transcript + compiled direction in <code>Transcripts/Gulf On-site - Short Pays/Short-Pay-Publix-EFT Extraction.md</code>.
+    Jira: <a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965 (epic)</a> ·
+    <a href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626 (Ph5 EFT)</a> ·
+    <a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625 (Ph4a, built)</a>.
+    Bracketed terms in the transcript are cleanups of an auto-generated recording (e.g. "public"→Publix, "golf"→Gulf).
+  </div>
+</div>

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-13 16:20",
-  "stampFile": "2026-07-13-1620",
+  "generated": "2026-07-16 09:00",
+  "stampFile": "2026-07-16-0900",
   "epics": [
     {
       "key": "BMS-5576",
@@ -242,9 +242,9 @@
       "domain": "Transfers & Regulatory Compliance",
       "phase": "crawl",
       "pinned": false,
-      "summary": "4 children linked via Relates (not native Jira parent) — A/B in Review with open PRs, C in Review, D (UI) parked at Backlog awaiting design approval.",
+      "summary": "4 legacy children linked via Relates (not native parent) — A/B/C in Review with open PRs, D (UI) parked at Backlog. Plus 6 new native-child stories (added 2026-07-16) generalizing freight-only recovery into a multi-charge-type Supplier-Owed Recovery Program — all Backlog, unpolished.",
       "user": "AP / supplier-accounting team",
-      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them.",
+      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them; generalizing to a full multi-charge-type (freight/tax/receipt-fee) supplier-owed program.",
       "tickets": [
         {
           "key": "BMS-5789",
@@ -312,6 +312,84 @@
           "pr": null,
           "org": null,
           "orgLive": null
+        },
+        {
+          "key": "BMS-5899",
+          "type": "Story",
+          "title": "Charge Type dimension on Billback Line — supplier-owed foundation",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Foundation: adds Charge_Type__c to Billback_Line__c so freight/tax/receipt-fee lines are distinguishable. Freight backfill deferred until BMS-5789/5790/5791 merge to main. Dependency-free otherwise — unblocks 5900/5901/5903.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5900",
+          "type": "Story",
+          "title": "Supplier Agreement Term + per-charge-type coverage cascade",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "New Supplier_Agreement_Term__c (child of Supplier_Funding_Agreement__c) lets coverage % vary per charge type instead of one flat default; behavior-preserving no-op when no terms exist. Depends on BMS-5899.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5901",
+          "type": "Story",
+          "title": "Receipt-fee billback source — Inventory Receipt Fee → supplier-owed",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Adds Inventory_Receipt_Fee__c as a third billback source (alongside transfers/POs), mapping Cost_Type__c to Charge_Type__c. Package-disjoint from the agreement-terms LWC. Depends on BMS-5899 + agreement-terms story.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5902",
+          "type": "Story",
+          "title": "Supplier Agreement Terms LWC — per-charge-type split editor",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "note": "AR/finance-facing editor for per-charge-type coverage % per supplier. UI needed — mockup exists, PO approval gate before build. Depends on the agreement-terms story.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5903",
+          "type": "Story",
+          "title": "Supplier Owed Dashboard LWC — calculated owed rollup",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "note": "One place showing what a supplier owes across transfers/POs/receipts, itemized by charge type with a grand total. UI needed — mockup exists. Depends on the agreement-terms + receipt-fee-source stories.",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-5909",
+          "type": "Story",
+          "title": "Multi-supplier freight attribution & cost allocation on cross-state transfers",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Generalizes the shipped single-supplier freight recovery (BMS-5790) to auto-split freight across multiple suppliers on one transfer via Item_Line__c.Supplier__c attribution + largest-remainder allocation. Two PO decisions open (receive-variance basis, remainder coverage). Depends on the shipped freight engine (BMS-5790).",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
         }
       ]
     },
@@ -357,7 +435,12 @@
           "statusCategory": "In Progress",
           "build": "Backend",
           "polished": false,
-          "pr": null,
+          "pr": {
+            "number": 557,
+            "state": "open",
+            "draft": false,
+            "createdAt": "2026-07-15T19:51:31Z"
+          },
           "org": null,
           "orgLive": null
         },
@@ -369,7 +452,12 @@
           "statusCategory": "In Progress",
           "build": "Both",
           "polished": false,
-          "pr": null,
+          "pr": {
+            "number": 557,
+            "state": "open",
+            "draft": false,
+            "createdAt": "2026-07-15T19:51:31Z"
+          },
           "org": null,
           "orgLive": null
         },
@@ -436,8 +524,8 @@
             "draft": false,
             "createdAt": "2026-07-01T17:57:16Z"
           },
-          "org": "ohfy-val-5625",
-          "orgLive": true
+          "org": null,
+          "orgLive": null
         },
         {
           "key": "BMS-5626",
@@ -471,7 +559,12 @@
           "statusCategory": "To Do",
           "build": "Both",
           "polished": false,
-          "pr": null,
+          "pr": {
+            "number": 561,
+            "state": "open",
+            "draft": false,
+            "createdAt": "2026-07-15T22:42:47Z"
+          },
           "org": null,
           "orgLive": null
         }
@@ -627,40 +720,6 @@
       ]
     },
     {
-      "key": "BMS-5060",
-      "title": "Days of Inventory (DOI)",
-      "domain": "Inventory Management",
-      "phase": "walk",
-      "summary": "Spike done; forecast warehouse-space constraint remains.",
-      "impact": "Multi-level DOI thresholds (supplier/SKU/location) give planners precision instead of one system-wide setting.",
-      "tickets": [
-        {
-          "key": "BMS-3817",
-          "type": "Story",
-          "title": "Days on Hand / Days of Inventory - Spike",
-          "status": "Done",
-          "statusCategory": "Done",
-          "build": "Spike",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5566",
-          "type": "Story",
-          "title": "Forecast: warehouse-space constraint",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
       "key": "BMS-5062",
       "title": "Inter-Warehouse Inventory Visibility",
       "domain": "Inventory Management",
@@ -672,22 +731,11 @@
           "key": "BMS-3823",
           "type": "Story",
           "title": "Inter-Warehouse Inventory Visibility",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "Review",
+          "statusCategory": "In Progress",
           "build": "Backend",
           "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
-          "key": "BMS-5567",
-          "type": "Story",
-          "title": "Forecast: draft transfers netted in",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false,
+          "note": "Moved to Review (checked 2026-07-14) — no PR or branch found yet; verify how it got there before treating as build-ready.",
           "pr": null,
           "org": null,
           "orgLive": null
@@ -859,50 +907,6 @@
       ]
     },
     {
-      "key": "BMS-5139",
-      "title": "Supplier Portal: Payment Method Capture",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "summary": "Single story, Backlog awaiting sprint assignment.",
-      "impact": "Suppliers register payment methods for direct settlement disbursement once Payments module is live.",
-      "tickets": [
-        {
-          "key": "BMS-3738",
-          "type": "Story",
-          "title": "Supplier Portal: Payment Method Capture",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
-      "key": "BMS-5148",
-      "title": "Supplier Portal: Automated Order Recommendations",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "summary": "Single story, Backlog awaiting sprint assignment.",
-      "impact": "Supplier-driven suggested POs (from their own sell-through data) reduce PO back-and-forth.",
-      "tickets": [
-        {
-          "key": "BMS-3737",
-          "type": "Story",
-          "title": "Supplier Portal: Automated Order Recommendations",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        }
-      ]
-    },
-    {
       "key": "BMS-5155",
       "title": "DOT-Aware Transfer Scheduling Logic",
       "domain": "Transfers & Regulatory Compliance",
@@ -983,11 +987,6 @@
       "doneAt": null
     },
     {
-      "key": "BMS-5075",
-      "title": "[REQ-148] Data Governance",
-      "doneAt": null
-    },
-    {
       "key": "BMS-5074",
       "title": "[REQ-147] Crane SKU Flagging",
       "doneAt": null
@@ -1005,11 +1004,6 @@
     {
       "key": "BMS-5067",
       "title": "[REQ-140] Practical Days on Hand",
-      "doneAt": null
-    },
-    {
-      "key": "BMS-5066",
-      "title": "[REQ-139] Negative Inventory Control",
       "doneAt": null
     },
     {
@@ -1033,11 +1027,6 @@
       "doneAt": null
     },
     {
-      "key": "BMS-4972",
-      "title": "[REQ-045] Driver View",
-      "doneAt": null
-    },
-    {
       "key": "BMS-4971",
       "title": "[REQ-044] Delivery Check-In Process",
       "doneAt": null
@@ -1055,18 +1044,6 @@
   ],
   "scratchOrgs": [
     {
-      "alias": "bms-3932-fix",
-      "username": "test-sc0pfljenlzt@example.com",
-      "expirationDate": "2026-08-08",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-3932",
-        "epicKey": "BMS-5576",
-        "title": "Self-service account management (address, contacts)",
-        "status": "Review"
-      }
-    },
-    {
       "alias": "bms-5113-5161-integration",
       "username": "test-c8wjbhba5qdd@example.com",
       "expirationDate": "2026-08-09",
@@ -1076,66 +1053,6 @@
         "epicKey": "BMS-5113",
         "title": "DOI Formula Standardization (epic)",
         "status": ""
-      }
-    },
-    {
-      "alias": "bms-5113-doi",
-      "username": "test-xpl7xsytzzca@example.com",
-      "expirationDate": "2026-08-09",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5113",
-        "epicKey": "BMS-5113",
-        "title": "DOI Formula Standardization (epic)",
-        "status": ""
-      }
-    },
-    {
-      "alias": "bms-5789-freight",
-      "username": "test-b3lzqysqigdv@example.com",
-      "expirationDate": "2026-08-09",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5789",
-        "epicKey": "BMS-5161",
-        "title": "Source-agnostic freight cost capture on cross-state transfers",
-        "status": "Review"
-      }
-    },
-    {
-      "alias": "bms-5790-freight-billback",
-      "username": "test-rnpetl1mbbls@example.com",
-      "expirationDate": "2026-08-09",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5790",
-        "epicKey": "BMS-5161",
-        "title": "Freight billback generation — feed cross-state freight into the existing billback rails",
-        "status": "Review"
-      }
-    },
-    {
-      "alias": "bms-5791-po-billback",
-      "username": "test-3avbsfyaryws@example.com",
-      "expirationDate": "2026-08-09",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5791",
-        "epicKey": "BMS-5161",
-        "title": "PO-side optional billback — freight-scoped supplier-owes-distributor origination",
-        "status": "Review"
-      }
-    },
-    {
-      "alias": "ohfy-val-5625",
-      "username": "test-5ys6vnrfrqcp@example.com",
-      "expirationDate": "2026-08-09",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-5625",
-        "epicKey": "BMS-4965",
-        "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
-        "status": "Needs Refinement"
       }
     },
     {
@@ -1152,7 +1069,7 @@
     },
     {
       "alias": "ohfy-5576",
-      "username": "test-scvjid86c69i@example.com",
+      "username": "test-vdxwf5lkt1rf@example.com",
       "expirationDate": "2026-08-12",
       "devHub": "product@ohanafy.com",
       "tie": {
@@ -1161,20 +1078,34 @@
         "title": "Ecom — Phase 2: Pricing/Promo Completion & Checkout (epic)",
         "status": ""
       }
+    },
+    {
+      "alias": "ohfy-val-shortPay",
+      "username": "test-hukqsmvfh9sh@example.com",
+      "expirationDate": "2026-08-13",
+      "devHub": "product@ohanafy.com",
+      "tie": null
     }
   ],
   "worktrees": [
     {
       "name": "OHFY-Split",
       "path": "/Users/alvarosanchez_1/OHFY-Split",
-      "branch": "main",
-      "bms": null,
+      "branch": "feat/ecom-phase2-pricing-checkout-bms-5576",
+      "bms": "BMS-5576",
       "primary": true,
-      "dirty": 1,
+      "dirty": 0,
       "merged": false,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": {
+        "key": "BMS-5576",
+        "epicKey": "BMS-5576",
+        "title": "Ecom — Phase 2: Pricing/Promo Completion & Checkout (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-5576",
+      "serves": "Closes the storefront ordering loop post-MVP — checkout/tax/order + full promo pricing."
     },
     {
       "name": "agent-a105153cce532e4ba",
@@ -1186,7 +1117,56 @@
       "merged": false,
       "prunable": false,
       "agent": true,
-      "tie": null
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
+      "name": "agent-a5464025ea0502ef4",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a5464025ea0502ef4",
+      "branch": "(detached)",
+      "bms": null,
+      "primary": false,
+      "dirty": 20,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
+      "name": "agent-a56cb35b56b5dacc2",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a56cb35b56b5dacc2",
+      "branch": "feat/short-pay-approval-workflow-bms-5631",
+      "bms": "BMS-5631",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": {
+        "key": "BMS-5631",
+        "epicKey": "BMS-4965",
+        "title": "Short Pay Automation — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow",
+        "status": "Backlog"
+      },
+      "epicKey": "BMS-4965",
+      "serves": "Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant."
+    },
+    {
+      "name": "agent-a7c058ba6230654b8",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a7c058ba6230654b8",
+      "branch": "worktree-agent-a7c058ba6230654b8",
+      "bms": "BMS-058",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "name": "agent-a860fb80c977e2daf",
@@ -1200,9 +1180,45 @@
       "agent": true,
       "tie": {
         "key": "BMS-4120",
+        "epicKey": "BMS-4935",
         "title": "Red Bull Allocation Import — Ph 1: Import, Validation & Warehouse Split",
         "status": "In Progress"
-      }
+      },
+      "epicKey": "BMS-4935",
+      "serves": "Eliminates manual entry/reconciliation and prevents over-ordering against supplier limits across 5 warehouses."
+    },
+    {
+      "name": "agent-ab12d88f178a1a799",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ab12d88f178a1a799",
+      "branch": "feat/short-pay-backoffice-bms-4965",
+      "bms": "BMS-4965",
+      "primary": false,
+      "dirty": 0,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": {
+        "key": "BMS-4965",
+        "epicKey": "BMS-4965",
+        "title": "Short Pay Automation (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-4965",
+      "serves": "Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant."
+    },
+    {
+      "name": "agent-ac18097f1ce3eb453",
+      "path": "/Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ac18097f1ce3eb453",
+      "branch": "(detached)",
+      "bms": null,
+      "primary": false,
+      "dirty": 1,
+      "merged": false,
+      "prunable": false,
+      "agent": true,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "name": "mumbai",
@@ -1214,7 +1230,9 @@
       "merged": false,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "name": "OHFY-Split-BMS-3742",
@@ -1228,9 +1246,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-3742",
+        "epicKey": "BMS-5113",
         "title": "DOI Formula Standardization",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5113",
+      "serves": "Backend Apex-only: S_InventoryDOI sales-rate switch + B_InventoryDOI batch + 6 additive Inventory__c fields. No UI in this ticket — that's BMS-4543."
     },
     {
       "name": "OHFY-Split-BMS-3932",
@@ -1244,9 +1265,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-3932",
+        "epicKey": "BMS-5576",
         "title": "Self-service account management (address, contacts)",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5576",
+      "serves": "Ecom self-service — retailers manage their own addresses + contacts in the portal."
     },
     {
       "name": "OHFY-Split-BMS-3932-fix",
@@ -1260,9 +1284,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-3932",
+        "epicKey": "BMS-5576",
         "title": "Self-service account management (address, contacts)",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5576",
+      "serves": "Ecom self-service — retailers manage their own addresses + contacts in the portal."
     },
     {
       "name": "OHFY-Split-BMS-4051",
@@ -1276,21 +1303,26 @@
       "agent": false,
       "tie": {
         "key": "BMS-4051",
+        "epicKey": "BMS-5576",
         "title": "Cart & Checkout with Gulf Pricing — Ph 2: Volume Tiers + Promos",
         "status": "Needs Refinement"
-      }
+      },
+      "epicKey": "BMS-5576",
+      "serves": "Closes the storefront ordering loop post-MVP — checkout/tax/order + full promo pricing."
     },
     {
       "name": "OHFY-Split-BMS-5481",
       "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-5481",
-      "branch": "feat/picker-incentive-engine-bms-5481",
-      "bms": "BMS-5481",
+      "branch": "main'",
+      "bms": null,
       "primary": false,
       "dirty": 0,
       "merged": false,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "name": "OHFY-Split-BMS-5592",
@@ -1302,7 +1334,9 @@
       "merged": true,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "name": "OHFY-Split-BMS-5625",
@@ -1316,9 +1350,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-5625",
+        "epicKey": "BMS-4965",
         "title": "Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
         "status": "Needs Refinement"
-      }
+      },
+      "epicKey": "BMS-4965",
+      "serves": "Short Pay Ph4 — configurable N-layer approval gate: a short pay over threshold can't be finalized at the truck without sign-off."
     },
     {
       "name": "OHFY-Split-BMS-5789",
@@ -1332,9 +1369,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-5789",
+        "epicKey": "BMS-5161",
         "title": "Source-agnostic freight cost capture on cross-state transfers",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5161",
+      "serves": "Foundation: adds Freight_Cost__c/source/account fields to Transfer_Group__c. PR #511 open."
     },
     {
       "name": "OHFY-Split-BMS-5790",
@@ -1348,9 +1388,12 @@
       "agent": false,
       "tie": {
         "key": "BMS-5790",
+        "epicKey": "BMS-5161",
         "title": "Freight billback generation — feed cross-state freight into the existing billback rails",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5161",
+      "serves": "Generates Billback__c/Billback_Line__c off completed cross-state transfers via the shared billback pipeline. PR #514 open, depends on #511."
     },
     {
       "name": "OHFY-Split-BMS-5791",
@@ -1364,9 +1407,31 @@
       "agent": false,
       "tie": {
         "key": "BMS-5791",
+        "epicKey": "BMS-5161",
         "title": "PO-side optional billback — freight-scoped supplier-owes-distributor origination",
         "status": "Review"
-      }
+      },
+      "epicKey": "BMS-5161",
+      "serves": "Second origination path into the same billback pipeline for PO-reconciled freight. PR #516 open, depends on #514."
+    },
+    {
+      "name": "OHFY-Split-demo-shortpay",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-demo-shortpay",
+      "branch": "demo/short-pay-epic-bms-4965",
+      "bms": "BMS-4965",
+      "primary": false,
+      "dirty": 1,
+      "merged": false,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-4965",
+        "epicKey": "BMS-4965",
+        "title": "Short Pay Automation (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-4965",
+      "serves": "Replaces a manual, error-prone short-pay exception process — recovers revenue and keeps FL/AL compliant."
     },
     {
       "name": "OHFY-Split-integration-5113",
@@ -1378,7 +1443,14 @@
       "merged": false,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": {
+        "key": "BMS-5113",
+        "epicKey": "BMS-5113",
+        "title": "DOI Formula Standardization (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-5113",
+      "serves": "One authoritative DOI calc across Purchasing/Warehouse/Finance — kills conflicting over/understock signals. Org bms-5113-doi live."
     },
     {
       "name": "OHFY-Split-integration-5161",
@@ -1386,11 +1458,18 @@
       "branch": "integration/bms-5161-validation",
       "bms": "BMS-5161",
       "primary": false,
-      "dirty": 0,
+      "dirty": 24,
       "merged": false,
       "prunable": false,
       "agent": false,
-      "tie": null
+      "tie": {
+        "key": "BMS-5161",
+        "epicKey": "BMS-5161",
+        "title": "Supplier Freight Cost Billbacks (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-5161",
+      "serves": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them; generalizing to a full multi-charge-type (freight/tax/receipt-fee) supplier-owed program."
     }
   ]
 }

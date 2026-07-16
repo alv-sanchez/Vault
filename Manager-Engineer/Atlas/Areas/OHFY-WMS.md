@@ -1,21 +1,23 @@
 ---
 tags: [atlas, area]
 area: OHFY-WMS
-ticket_count: 2
+ticket_count: 3
 ---
 # 🗺️ OHFY-WMS
 > Warehouse — picking, shift-end, breakage, capacity
 
 **Repo:** `OHFY-Split/OHFY-WMS` · rules + DoD live in `OHFY-WMS/CLAUDE.md`.
 
-## 🎟️ Tickets that touch this area (2)
+## 🎟️ Tickets that touch this area (3)
 - [BMS-3742](https://ohanafy.atlassian.net/browse/BMS-3742) DOI Formula Standardization — `Review` · [#513](https://github.com/Ohanafy/OHFY-Split/pull/513)
 - [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791) PO-side optional billback — freight-scoped supplier-owes-distributor origination — `Review` · [#516](https://github.com/Ohanafy/OHFY-Split/pull/516)
+- [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901) Receipt-fee billback source — Inventory Receipt Fee → supplier-owed — `Backlog`
 
 ## 🔗 Logged notes here
 - [[orientation]]
 - [[BMS-3742-doi-formula-standardization]]
 - [[BMS-5791-po-freight-billback]]
+- [[BMS-5901-receipt-fee-billback-source]]
 
 ## 🧱 Capabilities already built here (3)
 _Reach for these before building — the anti-reinvention catalog (cited + shipped). Full table: [[Ledger/OHFY-WMS]]._

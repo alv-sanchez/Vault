@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS-5576 — Ecom — Phase 2: Pricing/Promo Completion & Checkout</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:920px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
+  h2{font-size:16px;margin:26px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .sub{color:var(--dim);margin:0 0 20px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(63,185,80,.16);color:#3fb950}
+  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:660px){.quad{grid-template-columns:1fr}}
+  .box{background:var(--card2);border-radius:10px;padding:14px 16px}
+  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
+  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
+  .box p{margin:0;color:#d7dce8}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8}
+  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  ul{margin:6px 0 0;padding-left:20px}li{margin:3px 0}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}th{background:#1f2634;color:#9ecbff}
+  .ok{color:#3fb950;font-weight:700}.warn{color:#d29922;font-weight:700}
+  a{color:var(--accent)}
+</style></head><body>
+  <h1><span class="key">BMS-5576</span> — Ecom — Phase 2: Pricing/Promo Completion &amp; Checkout</h1>
+  <p class="sub">e-commerce-ordering · <a href="https://ohanafy.atlassian.net/browse/BMS-5576">Jira</a> · <span class="badge">BUILD — 3/3 tickets review-clean &amp; green</span></p>
+  <div class="meta">Branch <code>feat/ecom-phase2-pricing-checkout-bms-5576</code> (21 commits, 4 packages) · Org <code>ohfy-5576</code> · Sprint 9 · updated 2026-07-14. Pricing precedence detailed in <code>front-line-pricing.md</code>.</div>
+  <div class="quad">
+    <div class="box user"><h3>👤 User</h3><p>Gulf retailers ordering through the self-service storefront; Gulf marketing (segmented banners).</p></div>
+    <div class="box impact"><h3>💥 Business impact</h3><p>Closes the Phase-1 ordering loop — correct promo/volume pricing, entity-aware tax, order creation, min-order enforcement. Wrong pricing/tax = invoice disputes + compliance risk.</p></div>
+    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Draft <code>Invoice__c</code> flow via <code>DraftInvoiceController</code> + the <code>S_PriceResolver → S_FrontLinePricing</code> waterfall. No <code>Order__c</code>/<code>Cart__c</code> (stale-AC corrected).</p></div>
+    <div class="box next"><h3>🚀 Next phase</h3><p>Per-domain split → per-package PRs; BMS-3932 PR #388 review+merge; Playwright + /document; banner FlexiPage wiring; escalate 3 infra items.</p></div>
+  </div>
+
+  <h2>What it is</h2>
+  <p>Phase 2 of the retailer e-commerce build. (1) <b>Checkout</b> — warehouse-jurisdiction tax + draft-Invoice order + minimum-order gate (BMS-4052). (2) <b>Cart/PDP reactive pricing</b> — server-resolved volume-tier + promo pricing (BMS-4051). (3) <b>Segmented banners</b> by retailer group (BMS-5321).</p>
+
+  <h2>Status</h2>
+  <table>
+    <tr><th>Ticket</th><th>State</th><th>Tests</th></tr>
+    <tr><td>BMS-4052 — checkout tax + min-order</td><td class="ok">reviewed · 3 blockers fixed · committed</td><td>CartController_T + DraftInvoiceController_T + Jest ✅</td></tr>
+    <tr><td>BMS-4051 — cart/PDP reactive pricing</td><td class="ok">reviewed · fixed · committed</td><td>Jest 9/9 ✅</td></tr>
+    <tr><td>BMS-5321 — segmented banners</td><td class="ok">reviewed · 2 blockers fixed · committed</td><td>Apex 11/11 (97%) + Jest 5/5 ✅</td></tr>
+    <tr><td>BMS-4053 — product card (branch base)</td><td>merged forward; rule-8 Fieldset deferred + logged</td><td>—</td></tr>
+    <tr><td>BMS-3932 — self-service acct</td><td>in open PR #388 (plan-of-record)</td><td>review + merge pending</td></tr>
+    <tr><td>BMS-3926 — passwordless login</td><td>disregarded (already merged PR #458)</td><td>—</td></tr>
+  </table>
+
+  <h2>Pricing precedence (summary — full tables in front-line-pricing.md)</h2>
+  <p><b>Your Price = FLP base − winning-promotion discount.</b> FLP picks the <em>most specific</em> row (ACCOUNT_ITEM → ITEM → ITEM_TYPE_PKG → ITEM_LINE_PKG → ITEM_DEFAULT → NONE). Promotions then pick <em>one</em> winner per line: scope-match → Active+in-window → QD highest tier ≤ qty → priority-winnow → <b>deepest per-case discount wins</b> (no stacking in v1). Label: tier → "Volume Price", flat → "Promo Price".</p>
+
+  <h2>Demo</h2>
+  <p>Storefront <code>…canal-lagoon-5885…my.site.com/vforcesite/login</code> · retailer <code>ecomtest_00drt00000t5buf@example.com</code> / <code>Ecomtest1!</code> → Customer Account 0.</p>
+  <ul>
+    <li><span class="ok">✅ live</span> — Shop/PDP FLP pricing: Wave Splitter 1/2 BBL <b>$160</b>, 1/4 BBL <b>$80</b>, 1/6 BBL <b>$69</b>.</li>
+    <li><span class="ok">✅ seeded Active</span> — Post-off (1/6 BBL $69→<b>$59</b>) + tiered QD (Boats Float 1/2 BBL: 10+ →−$3, 50+ →−$6). Refresh to see badges.</li>
+    <li><span class="ok">✅ live</span> — Cart/PDP reprice on qty; Checkout: Subtotal / <b>FL Sales Tax</b> / Order Total (total includes tax).</li>
+    <li><span class="warn">⚠️ don't demo</span> — min-order gate (field absent from this clone's runtime describe — feature verified by tests) &amp; segmented banner (not yet on a page). Infra/seed gaps, not code.</li>
+  </ul>
+</body></html>

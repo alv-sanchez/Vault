@@ -37,5 +37,23 @@
       "cite": "OHFY-WMS/force-app/main/default/classes/services/transferAlert/S_TransferAlerts.cls:9",
       "added": "2026-07-10"
     }
+  ],
+  "test-automation": [
+    {
+      "cap": "Worker subset-lock support for Playwright specs — registerSubsetLock(test, subset) serializes parallel workers touching the same shared org-data subset, preventing cross-test data collisions",
+      "ticket": "BMS-3768",
+      "sha": "cf37cc150",
+      "cite": "test-automation/support/subsets.ts:49",
+      "added": "2026-07-14"
+    }
+  ],
+  "OHFY-OMS-UI": [
+    {
+      "cap": "getLastSoldPrice(accountId, itemId) — cacheable @AuraEnabled lookup of the last invoice price an account paid for an item (Placement__c.Last_Invoice_Price__c), race-safe via an Id DESC tiebreaker on the ordering",
+      "ticket": "BMS-5431",
+      "sha": "6e8834204",
+      "cite": "OHFY-OMS-UI/force-app/main/default/classes/wrappers/OMS_UI_Wrappers.cls:2247",
+      "added": "2026-07-14"
+    }
   ]
 }

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — What You're Solving (BMS-5161)</title>
+<style>
+:root {
+  --ink:#1a1a1a; --paper:#fdfcf9; --rule:#d8d3c4; --accent:#2f6b4f;
+  --accent-soft:#e0f0e6; --muted:#6b6558; --code-bg:#f1efe6;
+  --blocker:#a8321f; --warning:#a1720b; --suggestion:#4a6b57;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{--ink:#e9e4d8;--paper:#1c1a16;--rule:#40392c;--accent:#7fc79c;--accent-soft:#1e2c24;--muted:#a39a86;--code-bg:#2a251d;--blocker:#e2695a;--warning:#d9a441;--suggestion:#7fae8f;}}
+:root[data-theme="dark"]{--ink:#e9e4d8;--paper:#1c1a16;--rule:#40392c;--accent:#7fc79c;--accent-soft:#1e2c24;--muted:#a39a86;--code-bg:#2a251d;--blocker:#e2695a;--warning:#d9a441;--suggestion:#7fae8f;}
+:root[data-theme="light"]{--ink:#1a1a1a;--paper:#fdfcf9;--rule:#d8d3c4;--accent:#2f6b4f;--accent-soft:#e0f0e6;--muted:#6b6558;--code-bg:#f1efe6;--blocker:#a8321f;--warning:#a1720b;--suggestion:#4a6b57;}
+*{box-sizing:border-box;}
+html,body{background:var(--paper);}
+body{max-width:820px;margin:0 auto;padding:4rem 2rem 6rem;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.55;}
+h1{font-size:2rem;line-height:1.2;margin:0 0 .3rem;font-weight:600;}
+.kicker{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2rem;}
+h2{font-size:1.3rem;margin:2.6rem 0 .8rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;}
+h3{font-size:1.05rem;margin:1.6rem 0 .5rem;color:var(--accent);}
+p{margin:.9rem 0;}
+.lede{font-size:1.15rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:1rem;margin:1.5rem 0 2rem;}
+.callout{background:var(--accent-soft);border-radius:6px;padding:1rem 1.3rem;margin:1.3rem 0;font-size:.95rem;}
+.callout .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.3rem;}
+code,.mono{font-family:var(--mono);font-size:.85em;background:var(--code-bg);color:var(--ink);padding:.1em .35em;border-radius:3px;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;}
+th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+th{font-family:var(--mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.quiz{border:1px solid var(--rule);border-radius:8px;padding:1.3rem 1.4rem;margin:1.5rem 0;}
+.quiz .q{font-weight:600;margin-bottom:.8rem;}
+.quiz .choices{display:flex;flex-direction:column;gap:.5rem;}
+.quiz button.choice{font-family:var(--serif);font-size:.95rem;text-align:left;padding:.55rem .8rem;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer;}
+.quiz button.choice:hover{background:var(--accent-soft);}
+.quiz button.choice.correct{background:#e3ecdf;border-color:var(--suggestion);color:#1a1a1a;}
+.quiz button.choice.incorrect{background:#f3e0dc;border-color:var(--blocker);color:#1a1a1a;}
+.quiz .feedback{margin-top:.8rem;font-size:.9rem;min-height:1.2rem;}
+.mnemonic{background:#14211a;color:#eaf3ee;border-radius:10px;padding:1.6rem 1.8rem;margin:2.5rem 0;}
+.mnemonic .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#9dc7b0;margin-bottom:.6rem;display:block;}
+.mnemonic .big{font-size:1.5rem;font-weight:700;margin-bottom:.8rem;}
+.mnemonic .letter{color:#6fd39c;}
+.footer-nav{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.footer-nav a{color:var(--accent);}
+@media print{body{padding:1rem;font-size:15px;}.footer-nav{display:none;}}
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 1 &middot; Epic BMS-5161 — Supplier Freight Cost Billbacks</p>
+<h1>What you're actually solving</h1>
+<p class="lede">Before any code: the business hole this closes, in a sentence you can say to a PO, a warehouse lead, or Gulf's CFO without looking anything up.</p>
+
+<h2>The leak</h2>
+<p>Gulf moves a lot of beer. Two ways it pays <strong>freight</strong>:</p>
+<ul>
+<li><strong>Cross-state transfers</strong> — hauling product between its own warehouses in different states.</li>
+<li><strong>Inbound POs</strong> — bringing product in from a supplier.</li>
+</ul>
+<p>By contract, a large share of that freight <strong>belongs to the supplier</strong>, not Gulf. But the trucking cost lands on Gulf's books, and there was <strong>no place to capture it and no path to bill it back</strong>. So Gulf quietly absorbed money it was owed. That's the leak.</p>
+
+<div class="callout">
+  <span class="label">One sentence</span>
+  Stop Gulf from absorbing freight costs that suppliers contractually owe — by capturing them and routing them into recovery.
+</div>
+
+<h2>What "solved" looks like</h2>
+<table>
+<thead><tr><th>Before</th><th>After (this epic)</th></tr></thead>
+<tbody>
+<tr><td>Freight cost has nowhere to live on a transfer/PO</td><td>Freight is captured at the moment it's incurred</td></tr>
+<tr><td>No path from a transfer or PO to a recovery</td><td>Capture auto-becomes a supplier billback at the right coverage %</td></tr>
+<tr><td>Gulf eats the cost</td><td>$1,200 freight @ 40% → <strong>$480</strong> recovered; $300 PO freight @ 40% → <strong>$120</strong></td></tr>
+<tr><td>No audit trail; risk of double-charging</td><td>Every charge traces to its source; a guard flags freight-vs-claim overlap</td></tr>
+</tbody>
+</table>
+
+<h2>The move that made it small</h2>
+<p>The epic was <em>written</em> assuming Gulf had no billback infrastructure — its own description still says <code>Billback__c</code> "has only 6 fields" and there's "no freight-cost field." <strong>That snapshot was stale.</strong> A code audit found a mature billback pipeline (BMS-4141) had already shipped: a 14-field counterparty-generic ledger, line detail, supplier funding agreements, an idempotent recompute engine.</p>
+<p>So the epic shrank from <strong>"build a recovery subsystem"</strong> to <strong>"add freight as a new source into rails that already exist."</strong> That reframe is the most important decision in the whole epic — it's why it's three small stories, not a quarter-long build.</p>
+
+<div class="callout">
+  <span class="label">Principle — you did this, name it</span>
+  <strong>Verify the premise against the code before you build.</strong> The ticket's stated "code reality" was wrong; the repo was the source of truth. Reuse-don't-rebuild only works if you check what already shipped first.
+</div>
+
+<div class="quiz" id="quiz">
+  <div class="q">A teammate says "so we built a new freight-recovery system." What's the correct correction?</div>
+  <div class="choices">
+    <button class="choice" data-correct="false">Yes — a parallel system just for freight.</button>
+    <button class="choice" data-correct="true">No — freight is a new <em>type</em> + two new <em>sources</em> feeding the billback ledger we already had.</button>
+    <button class="choice" data-correct="false">No — freight recovery is handled by the claims system.</button>
+  </div>
+  <div class="feedback" id="fb"></div>
+</div>
+
+<div class="mnemonic">
+<span class="label">Say this and you've got the whole "why"</span>
+<div class="big">"Gulf was <span class="letter">eating freight suppliers owe</span> — we route it into the ledger we already had."</div>
+<div>Leak → capture → recover. Two doors, one ledger. The win was <em>reuse</em>, not rebuild.</div>
+</div>
+
+<div class="footer-nav">
+  <span>Next → <a href="0002-two-doors-one-ledger.html">Lesson 2: Two Doors, One Ledger (how it works)</a></span>
+  <span><a href="../reference/erd-and-flows.html">Reference: ERD &amp; Flows</a></span>
+</div>
+
+<script>
+document.querySelectorAll('#quiz .choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const ok=btn.dataset.correct==='true';
+    btn.classList.add(ok?'correct':'incorrect');
+    const fb=document.getElementById('fb');
+    fb.textContent=ok?'Right — one ledger, two doors, freight is just a Type. That reframe is the epic.':'Not quite — reread "The move that made it small." It reuses BMS-4141, not a parallel system.';
+    fb.style.color=ok?'var(--suggestion)':'var(--blocker)';
+  });
+});
+</script>
+</body>
+</html>

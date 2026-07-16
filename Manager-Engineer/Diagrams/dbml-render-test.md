@@ -44,7 +44,8 @@ Table SKU_Override {
   Target_DOH_Override float
   Status varchar
 }
-// @view 225 51 0.570
+// @pos Location 365 275
+// @view 152 32 0.664
 ```
 
 _Clean/simple DBML on purpose (no dbdiagram-only extras like `headercolor`/`Note:`/`TableGroup`, which the v2 parser may reject). This is the DOH/safety-stock cluster in plugin-safe form._

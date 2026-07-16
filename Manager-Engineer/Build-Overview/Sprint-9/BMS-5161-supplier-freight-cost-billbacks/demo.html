@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo — Supplier Freight Cost Billbacks (BMS-5161)</title>
+<style>
+  :root{
+    --black:#0b0b0c; --paper:#f4f2f0; --white:#fff; --ink:#1a1a1a;
+    --yellow:#e4f223; --denim:#4a5fb0; --denim-soft:#eef1fa;
+    --forest:#0f6e56; --forest-soft:#e4f0eb; --crimson:#a32d2d; --crimson-soft:#f6e5e5;
+    --muted:#6b6558; --rule:#e3ded6; --cork:#f4f2f0;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--paper);}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.5;}
+  .wrap{max-width:960px;margin:0 auto;padding:3rem 1.5rem 6rem;}
+  header.hero{background:var(--black);color:var(--white);border-radius:16px;padding:2.4rem 2.2rem;margin-bottom:2rem;}
+  .hero .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);}
+  .hero h1{font-size:2rem;margin:.5rem 0 .6rem;font-weight:700;}
+  .hero p{font-size:1.15rem;color:#d9d5cc;margin:0;max-width:60ch;}
+  .hero .pill{display:inline-block;background:var(--yellow);color:#000;font-weight:700;font-size:.85rem;padding:.3rem .8rem;border-radius:999px;margin-top:1.2rem;}
+  h2{font-size:1.35rem;margin:2.8rem 0 1rem;padding-bottom:.4rem;border-bottom:2px solid var(--rule);}
+  h3{font-size:1rem;color:var(--denim);margin:1.4rem 0 .5rem;text-transform:uppercase;letter-spacing:.03em;font-size:.8rem;}
+  p{margin:.7rem 0;}
+  .lead{font-size:1.1rem;color:var(--muted);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr;}}
+  .card{background:var(--white);border:1px solid var(--rule);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:1rem 0;}
+  .steps li{counter-increment:s;position:relative;padding:.7rem 0 .7rem 3rem;border-bottom:1px solid var(--rule);}
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:.6rem;width:1.9rem;height:1.9rem;background:var(--black);color:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;font-family:var(--mono);}
+  .steps b{color:var(--denim);}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.95rem;}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);}
+  th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  td .rec{color:var(--forest);font-weight:700;}
+  .callout{background:var(--denim-soft);border-left:4px solid var(--denim);border-radius:8px;padding:1rem 1.2rem;margin:1.2rem 0;}
+  .callout b{color:var(--denim);}
+  .mono{font-family:var(--mono);font-size:.85em;background:#efeadf;padding:.1em .4em;border-radius:4px;}
+
+  /* ── LWC mockups ── */
+  .lwc{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--white);}
+  .lwc .bar{background:var(--black);color:var(--white);padding:.8rem 1rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;justify-content:space-between;}
+  .lwc .bar .l{display:flex;align-items:center;gap:.6rem;}
+  .lwc .bar strong{font-size:.95rem;}
+  .badge-y{background:var(--yellow);color:#000;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .5rem;border-radius:999px;}
+  .badge-mut{color:#c9c4ba;font-size:.75rem;}
+  .lwc .body{padding:1.1rem;}
+  .field{margin-bottom:.9rem;}
+  .field label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:.25rem;}
+  .field .inp{border:1px solid #b1c7eb;border-radius:8px;padding:.5rem .7rem;font-size:.95rem;background:#fff;color:#111;}
+  .field .inp.focus{border-color:var(--denim);box-shadow:0 0 0 2px rgba(74,95,176,.2);}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:.8rem;}
+  @media(max-width:720px){.row3{grid-template-columns:1fr;}}
+  .btns{display:flex;justify-content:flex-end;gap:.6rem;padding:.9rem 1.1rem;border-top:1px solid var(--rule);}
+  .btn-y{background:var(--yellow);color:#000;border:none;border-radius:8px;padding:.5rem 1.3rem;font-weight:700;font-size:.9rem;}
+  .btn-o{background:#fff;color:var(--muted);border:1px solid #b1c7eb;border-radius:8px;padding:.5rem 1.1rem;font-weight:600;font-size:.9rem;}
+  .summary{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:1rem;background:var(--cork);padding:.9rem 1rem;}
+  @media(max-width:720px){.summary{grid-template-columns:1fr 1fr;}}
+  .summary .m{font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:.2rem;}
+  .summary .v{font-size:1rem;font-weight:600;}
+  .pill-acc{display:inline-block;background:#eceae4;color:var(--muted);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .55rem;border-radius:999px;}
+  .pill-inv{display:inline-block;background:var(--denim-soft);color:var(--denim);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .55rem;border-radius:999px;}
+  .ltable{width:100%;border-collapse:collapse;font-size:.85rem;}
+  .ltable th{font-size:.62rem;color:var(--muted);padding:.6rem 1rem;border-bottom:1px solid var(--rule);}
+  .ltable td{padding:.6rem 1rem;border-bottom:1px solid var(--cork);}
+  .num{text-align:right;}
+  .note-mut{margin:0 1rem 1rem;padding:.6rem .9rem;font-size:.8rem;color:var(--muted);}
+  .note-warn{margin:0 1rem 1rem;padding:.6rem .9rem;font-size:.8rem;color:var(--crimson);background:var(--crimson-soft);border-left:3px solid var(--crimson);border-radius:6px;}
+  .flow{display:flex;align-items:stretch;gap:.5rem;flex-wrap:wrap;margin:1rem 0;}
+  .flow .n{flex:1;min-width:120px;background:#fff;border:1px solid var(--rule);border-radius:10px;padding:.7rem .8rem;font-size:.82rem;}
+  .flow .n b{color:var(--denim);display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem;}
+  .flow .arr{align-self:center;color:var(--muted);font-weight:700;}
+  footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--muted);}
+
+  /* ── scenario visuals ── */
+  .scene{background:var(--white);border:1px solid var(--rule);border-radius:14px;padding:1.3rem 1.4rem;margin:1.2rem 0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .scene .head{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;}
+  .scene .head .k{font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--black);color:var(--yellow);padding:.2rem .55rem;border-radius:6px;}
+  .scene .head h3{margin:0;color:var(--ink);text-transform:none;letter-spacing:0;font-size:1.05rem;}
+  .lane{display:flex;align-items:stretch;gap:.5rem;flex-wrap:wrap;}
+  .node{flex:1;min-width:130px;border:1px solid var(--rule);border-radius:12px;padding:.9rem;text-align:center;background:var(--cork);}
+  .node .icon{font-size:1.8rem;line-height:1;}
+  .node .t{font-weight:700;font-size:.9rem;margin-top:.3rem;}
+  .node .s{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
+  .node.supplier{background:var(--denim-soft);border-color:#c9d3f2;}
+  .node.gulf{background:#eef7f2;border-color:#c7e4d6;}
+  .leg{align-self:center;text-align:center;min-width:110px;padding:0 .4rem;}
+  .leg .truck{font-size:1.6rem;}
+  .leg .cost{display:inline-block;background:var(--black);color:#fff;font-family:var(--mono);font-size:.8rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;margin-top:.2rem;}
+  .leg .lbl{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.2rem;}
+  .arrow-lane{align-self:center;color:var(--denim);font-size:1.4rem;font-weight:700;}
+  .outcome{margin-top:1rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;background:var(--forest-soft);border-left:4px solid var(--forest);border-radius:8px;padding:.7rem 1rem;}
+  .outcome .lead{font-size:.9rem;color:#123;flex:1;min-width:200px;}
+  .outcome .amt{font-family:var(--mono);font-weight:700;color:var(--forest);font-size:1.15rem;background:#fff;border:1px solid #c7e4d6;border-radius:8px;padding:.3rem .7rem;}
+  .cross{display:inline-block;background:var(--yellow);color:#000;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.12rem .5rem;border-radius:999px;margin-left:.4rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="tag">Demo &middot; Epic BMS-5161</div>
+  <h1>Supplier Freight Cost Billbacks</h1>
+  <p>Gulf pays freight that suppliers are supposed to pay. There was no way to get that money back — now there is.</p>
+  <div class="pill">Stop absorbing freight suppliers owe → capture it → bill it back</div>
+</header>
+
+<!-- ── THE PITCH ── -->
+<h2>What we're solving (say this)</h2>
+<p class="lead">Three sentences — the whole story:</p>
+<ol class="steps">
+  <li>When Gulf ships product — <b>across state lines</b>, or <b>inbound from a supplier</b> — it often pays the freight, but by contract the <b>supplier owes it</b>.</li>
+  <li>Before, that cost just sat on Gulf's books and got <b>absorbed</b> — money quietly lost.</li>
+  <li>Now we <b>capture the freight where it happens</b> and <b>automatically bill it back</b> to the supplier, at the coverage % from their funding agreement.</li>
+</ol>
+<div class="callout">
+  <b>The smart part:</b> we didn't build a new recovery system. Gulf already had a billback ledger (rebates, co-op, MDF). Freight is just a new <b>type</b> of billback fed by two new <b>sources</b>. <b>One ledger, two doors.</b>
+</div>
+
+<!-- ── THE TWO SCENARIOS, VISUALLY ── -->
+<h2>The two scenarios, visually</h2>
+<p class="lead">Both are freight Gulf pays but the supplier owes. Same result — a recoverable billback.</p>
+
+<div class="scene">
+  <div class="head"><span class="k">Door 1</span><h3>Cross-state transfer <span class="cross">Cross-State</span></h3></div>
+  <div class="lane">
+    <div class="node gulf"><div class="icon">🏭</div><div class="t">Gulf — Mobile, AL</div><div class="s">Origin warehouse</div></div>
+    <div class="leg"><div class="truck">🚚</div><div class="cost">$1,200</div><div class="lbl">Gulf pays freight</div></div>
+    <div class="node gulf"><div class="icon">🏭</div><div class="t">Gulf — Gulfport, MS</div><div class="s">Destination warehouse</div></div>
+  </div>
+  <div class="outcome">
+    <div class="lead">Transfer set to <b>Complete</b> → freight is recoverable from the supplier at their agreement's coverage (40%).</div>
+    <div class="amt">→ $480 billback</div>
+  </div>
+</div>
+
+<div class="scene">
+  <div class="head"><span class="k">Door 2</span><h3>Inbound supplier PO</h3></div>
+  <div class="lane">
+    <div class="node supplier"><div class="icon">🏢</div><div class="t">Supplier</div><div class="s">Riverbend Brewing Co.</div></div>
+    <div class="leg"><div class="truck">🚚</div><div class="cost">$300</div><div class="lbl">Gulf charged inbound freight</div></div>
+    <div class="node gulf"><div class="icon">🏭</div><div class="t">Gulf warehouse</div><div class="s">Receiving</div></div>
+  </div>
+  <div class="outcome">
+    <div class="lead">PO <b>reconciled</b> (Supplier Owes Freight checked) → the supplier owes that inbound freight, recovered at 40%.</div>
+    <div class="amt">→ $120 billback</div>
+  </div>
+</div>
+
+<div class="callout" style="margin-top:1rem;"><b>Same destination:</b> both arrows land in one place — a <b>Freight</b> billback in Gulf's existing ledger, at the coverage % from the supplier's funding agreement.</div>
+
+<!-- ── HOW IT FLOWS ── -->
+<h2>How it flows — two doors, one ledger</h2>
+<div class="flow">
+  <div class="n"><b>Door 1 — Transfer</b>Cross-state transfer set to <b>Complete</b></div>
+  <div class="arr">＋</div>
+  <div class="n"><b>Door 2 — PO</b>Supplier PO <b>reconciled</b> (owes-freight checked)</div>
+  <div class="arr">→</div>
+  <div class="n"><b>Coverage</b>Supplier Funding Agreement sets the % Gulf recovers</div>
+  <div class="arr">→</div>
+  <div class="n"><b>Billback</b>A <b>Freight</b> billback lands in the existing ledger</div>
+</div>
+<p class="lead" style="font-size:.98rem;">The supplier "contracts" that set the recovery % are called <b>Supplier Funding Agreements</b>.</p>
+
+<!-- ── THE TWO SCREENS ── -->
+<h2>The two screens (LWCs)</h2>
+<p><b>One screen to put freight cost in, one to see the billback that comes out.</b></p>
+
+<h3>1 · Enter Freight Cost — the input</h3>
+<div class="lwc">
+  <div class="bar">
+    <div class="l"><strong>Enter Freight Cost</strong><span class="badge-y">Cross-State</span></div>
+    <span class="badge-mut">TG-00000001</span>
+  </div>
+  <div class="body">
+    <div class="row3">
+      <div class="field"><label>Freight Cost</label><div class="inp">$ 1,200.00</div></div>
+      <div class="field"><label>Freight Cost Source</label><div class="inp focus">Manual ▾</div></div>
+      <div class="field"><label>Recoverable Freight Account</label><div class="inp">🏢 Riverbend Brewing Co.</div></div>
+    </div>
+  </div>
+  <div class="btns"><span class="btn-o">Cancel</span><span class="btn-y">Save</span></div>
+</div>
+<p style="font-size:.9rem;color:var(--muted);">Discrete quick-action button on the record. Locks read-only once the billback has been invoiced — so a billed amount can't drift.</p>
+
+<h3>2 · Supplier Freight Billback — the result</h3>
+<div class="lwc">
+  <div class="bar"><div class="l"><strong>Supplier Freight Billback</strong><span class="badge-y">Type: Freight</span></div></div>
+  <div class="summary">
+    <div><div class="m">Account</div><div class="v">Riverbend Brewing Co.</div></div>
+    <div><div class="m">Status</div><span class="pill-acc">Accrued</span></div>
+    <div><div class="m">Coverage %</div><div class="v">40%</div></div>
+    <div><div class="m">Recoverable</div><div class="v" style="color:var(--forest);font-weight:700;">$480.00</div></div>
+  </div>
+  <table class="ltable">
+    <thead><tr><th>Source</th><th class="num">Freight Cost</th><th class="num">Coverage %</th><th class="num">Recoverable</th></tr></thead>
+    <tbody><tr><td>Transfer Group TG-00000001</td><td class="num">$1,200.00</td><td class="num">40%</td><td class="num" style="color:var(--forest);font-weight:600;">$480.00</td></tr></tbody>
+  </table>
+  <div class="note-mut">No overlapping claim-type billback found — this freight billback covers transportation cost only; product loss/damage is handled separately via Transfer Claims.</div>
+</div>
+<p style="font-size:.9rem;color:var(--muted);">Single status pill (not a lifecycle stepper). Multi-row when a load carries product for multiple suppliers. Turns crimson if a damage claim overlaps the same shipment.</p>
+
+<!-- ── THE MONEY ── -->
+<h2>The money (your proof)</h2>
+<table>
+  <thead><tr><th>Scenario</th><th>Freight</th><th>Coverage</th><th>Recovered</th></tr></thead>
+  <tbody>
+    <tr><td>Cross-state transfer → Complete</td><td>$1,200</td><td>40%</td><td><span class="rec">$480</span></td></tr>
+    <tr><td>Supplier PO → reconciled</td><td>$300</td><td>40%</td><td><span class="rec">$120</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ── LIVE DEMO SCRIPT ── -->
+<h2>Live demo script</h2>
+<ol class="steps">
+  <li><b>Frame it</b> — "Gulf was eating freight that suppliers owe. Watch us capture it and bill it back."</li>
+  <li><b>Door 1 — Transfer:</b> open a cross-state transfer, click <span class="mono">Enter Freight Cost</span>, enter the cost + supplier, Save, then set <b>Status → Complete</b>. The <b>Supplier Freight Billback</b> panel shows the recovered amount at the agreement's coverage %.</li>
+  <li><b>Door 2 — PO:</b> open a supplier PO, check <span class="mono">Supplier Owes Freight</span> with a recoverable amount → the same freight billback appears from the PO side.</li>
+  <li><b>Land it</b> — "Same billback rails Gulf already uses for rebates. Freight's just a new source. Real dollars back, fully audited, and it won't double-recover against a claim."</li>
+</ol>
+<div class="callout"><b>If you blank:</b> "We stop Gulf from eating freight suppliers owe — we capture it and bill it back automatically." + the two numbers ($480, $120).</div>
+
+<footer>
+  BMS-5161 · Supplier Freight Cost Billbacks · demo reference. Stories: BMS-5789 (capture) · BMS-5790 (generation + overlap audit) · BMS-5791 (PO path) · BMS-5792 (these two LWCs). Live org: <span class="mono">bms-5113-5161-integration</span>.
+</footer>
+
+</div>
+</body>
+</html>

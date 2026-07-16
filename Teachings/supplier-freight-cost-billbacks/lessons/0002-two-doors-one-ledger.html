@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 — Two Doors, One Ledger (BMS-5161)</title>
+<style>
+:root{--ink:#1a1a1a;--paper:#fdfcf9;--rule:#d8d3c4;--accent:#2f6b4f;--accent-soft:#e0f0e6;--muted:#6b6558;--code-bg:#f1efe6;--blocker:#a8321f;--warning:#a1720b;--suggestion:#4a6b57;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--mono:"SF Mono",Menlo,Consolas,monospace;}
+@media (prefers-color-scheme: dark){:root{--ink:#e9e4d8;--paper:#1c1a16;--rule:#40392c;--accent:#7fc79c;--accent-soft:#1e2c24;--muted:#a39a86;--code-bg:#2a251d;--blocker:#e2695a;--warning:#d9a441;--suggestion:#7fae8f;}}
+:root[data-theme="dark"]{--ink:#e9e4d8;--paper:#1c1a16;--rule:#40392c;--accent:#7fc79c;--accent-soft:#1e2c24;--muted:#a39a86;--code-bg:#2a251d;--blocker:#e2695a;--warning:#d9a441;--suggestion:#7fae8f;}
+:root[data-theme="light"]{--ink:#1a1a1a;--paper:#fdfcf9;--rule:#d8d3c4;--accent:#2f6b4f;--accent-soft:#e0f0e6;--muted:#6b6558;--code-bg:#f1efe6;--blocker:#a8321f;--warning:#a1720b;--suggestion:#4a6b57;}
+*{box-sizing:border-box;}
+html,body{background:var(--paper);}
+body{max-width:820px;margin:0 auto;padding:4rem 2rem 6rem;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.55;}
+h1{font-size:2rem;line-height:1.2;margin:0 0 .3rem;font-weight:600;}
+.kicker{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2rem;}
+h2{font-size:1.3rem;margin:2.6rem 0 .8rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;}
+h3{font-size:1.05rem;margin:1.6rem 0 .5rem;color:var(--accent);}
+p{margin:.9rem 0;}
+.lede{font-size:1.15rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:1rem;margin:1.5rem 0 2rem;}
+.callout{background:var(--accent-soft);border-radius:6px;padding:1rem 1.3rem;margin:1.3rem 0;font-size:.95rem;}
+.callout .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.3rem;}
+code,.mono{font-family:var(--mono);font-size:.85em;background:var(--code-bg);color:var(--ink);padding:.1em .35em;border-radius:3px;}
+.flow{margin:1.5rem 0;}
+.flow .rung{display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--rule);}
+.flow .rung:last-child{border-bottom:none;}
+.flow .rung .badge{font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--paper);background:var(--accent);border-radius:5px;padding:.25rem .5rem;white-space:nowrap;margin-top:.15rem;}
+.flow .rung .body{flex:1;font-size:.92rem;}
+.flow .rung .body strong{color:var(--accent);}
+.flow .rung .body .src{display:block;font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.2rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;}
+th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+th{font-family:var(--mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.quiz{border:1px solid var(--rule);border-radius:8px;padding:1.3rem 1.4rem;margin:1.5rem 0;}
+.quiz .q{font-weight:600;margin-bottom:.8rem;}
+.quiz .choices{display:flex;flex-direction:column;gap:.5rem;}
+.quiz button.choice{font-family:var(--serif);font-size:.95rem;text-align:left;padding:.55rem .8rem;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer;}
+.quiz button.choice:hover{background:var(--accent-soft);}
+.quiz button.choice.correct{background:#e3ecdf;border-color:var(--suggestion);color:#1a1a1a;}
+.quiz button.choice.incorrect{background:#f3e0dc;border-color:var(--blocker);color:#1a1a1a;}
+.quiz .feedback{margin-top:.8rem;font-size:.9rem;min-height:1.2rem;}
+.mnemonic{background:#14211a;color:#eaf3ee;border-radius:10px;padding:1.6rem 1.8rem;margin:2.5rem 0;}
+.mnemonic .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#9dc7b0;margin-bottom:.6rem;display:block;}
+.mnemonic .big{font-size:1.5rem;font-weight:700;margin-bottom:.8rem;}
+.mnemonic .letter{color:#6fd39c;}
+.footer-nav{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.footer-nav a{color:var(--accent);}
+@media print{body{padding:1rem;font-size:15px;}.footer-nav{display:none;}}
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 2 &middot; Epic BMS-5161 — Supplier Freight Cost Billbacks</p>
+<h1>Two doors, one ledger</h1>
+<p class="lede">Now the mechanism. Freight enters through two doors; both walk the same hallway into the same billback ledger. Learn the hallway once and you know both paths.</p>
+
+<h2>The two doors (where freight enters)</h2>
+<table>
+<thead><tr><th>Door</th><th>Object</th><th>What arms it</th><th>Story</th></tr></thead>
+<tbody>
+<tr><td><strong>Door 1 — Transfer</strong></td><td><code>Transfer_Group__c</code></td><td>Status goes to <strong>Complete</strong> (cross-state, freight + account set)</td><td>BMS-5789 / 5790</td></tr>
+<tr><td><strong>Door 2 — PO</strong></td><td><code>Purchase_Order__c</code></td><td><code>Supplier_Owes_Freight__c</code> checked at reconciliation (+ amount + supplier)</td><td>BMS-5791</td></tr>
+</tbody>
+</table>
+<p><strong>Why two different triggers?</strong> Freight on a transfer is known when the move <em>completes</em>. Freight on a PO is discovered when finance <em>reconciles</em> it — a separate act from the PO closing. Same outcome, different real-world moment.</p>
+
+<h2>The hallway (what both doors walk)</h2>
+<div class="flow">
+  <div class="rung"><span class="badge">GATE</span><div class="body">The trigger on the source object checks eligibility (right transition / freight-owed signal).<span class="src">TransferGroupTriggerService · PurchaseOrderTriggerService — afterUpdate</span></div></div>
+  <div class="rung"><span class="badge">RESOLVE</span><div class="body">Resolve the billback service through the Tier-1 <strong>Service-Locator</strong> interface — WMS never calls OMS directly.<span class="src">ServiceLocator.resolve('FreightBillbackService' / 'POFreightBillbackService')</span></div></div>
+  <div class="rung"><span class="badge">ENQUEUE</span><div class="body">Hand off to an async queueable so the user's save returns instantly.<span class="src">Q_FreightBillbackGeneration · Q_POFreightBillbackGeneration</span></div></div>
+  <div class="rung"><span class="badge">CALCULATE</span><div class="body">Pull the supplier's coverage %, compute recoverable, <strong>idempotently upsert</strong> the Billback + line (keyed by deterministic External_Id).<span class="src">S_FreightBillbackCalculation · S_POFreightBillbackCalculation → S_SupplierFundingAgreement</span></div></div>
+</div>
+
+<div class="callout">
+  <span class="label">The destination</span>
+  A <code>Billback__c</code> with <strong>Type = Freight</strong> (+ a <code>Billback_Line__c</code> pointing back at the source). It lands in the <em>same</em> BMS-4141 ledger as rebates, co-op, MDF. Freight is a value in the <code>Type__c</code> picklist — not a new object.
+</div>
+
+<h2>The money, worked</h2>
+<p><code>$1,200</code> cross-state freight, supplier funding agreement at 40% → <strong>$480 recoverable</strong>. <code>$300</code> PO freight at 40% → <strong>$120</strong>. The coverage % cascades: agreement → account default → capped at 100%.</p>
+
+<h2>Two guardrails you built in</h2>
+<ul>
+<li><strong>Field-lock after Accrued</strong> — once a freight billback is Invoiced/Collected/Written-Off, the source freight fields go read-only (UI <em>and</em> server) so a transfer can't drift from an already-billed amount.</li>
+<li><strong>Freight-vs-claim overlap audit</strong> — a nightly check stamps <code>Has_Related_Claim__c</code> when the same shipment also has a damage claim, so Gulf reviews before double-recovering (freight = transportation cost only).</li>
+</ul>
+
+<div class="quiz" id="quiz">
+  <div class="q">A PO already has <code>Supplier_Owes_Freight__c = true</code>. Someone flips its Status to Complete but touches no freight field. Does a billback generate?</div>
+  <div class="choices">
+    <button class="choice" data-correct="false">Yes — Status = Complete always triggers it.</button>
+    <button class="choice" data-correct="true">No — the PO door fires on the freight signal changing, not on Status. Nothing freight-related changed.</button>
+    <button class="choice" data-correct="false">Yes — because the flag is still true.</button>
+  </div>
+  <div class="feedback" id="fb"></div>
+</div>
+
+<div class="mnemonic">
+<span class="label">Recover both paths from four letters</span>
+<div class="big"><span class="letter">G · R · E · C</span> &nbsp;—&nbsp; through two doors</div>
+<div><strong>G</strong>ate → <strong>R</strong>esolve (Service-Locator) → <strong>E</strong>nqueue → <strong>C</strong>alculate. &nbsp;Door 1 = Transfer <em>on Complete</em>; Door 2 = PO <em>on reconciliation</em>. Same hallway, one Freight-type billback.</div>
+</div>
+
+<div class="footer-nav">
+  <span><a href="0001-what-youre-solving.html">← Lesson 1: What You're Solving</a></span>
+  <span><a href="../reference/erd-and-flows.html">Reference: ERD &amp; Flows</a></span>
+</div>
+
+<script>
+document.querySelectorAll('#quiz .choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const ok=btn.dataset.correct==='true';
+    btn.classList.add(ok?'correct':'incorrect');
+    const fb=document.getElementById('fb');
+    fb.textContent=ok?'Correct — the PO door listens for the freight signal (flag/amount/supplier) changing, not Status. This is the #1 thing people get wrong about this epic.':'Reread "The two doors." The PO path is armed by the freight-owed signal, not by Status = Complete.';
+    fb.style.color=ok?'var(--suggestion)':'var(--blocker)';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-13 16:20",
-  "stampFile": "2026-07-13-1620",
+  "generated": "2026-07-16 09:00",
+  "stampFile": "2026-07-16-0900",
   "epics": [
     {
       "key": "BMS-5576",
@@ -165,9 +165,9 @@
       "domain": "Transfers & Regulatory Compliance",
       "phase": "crawl",
       "pinned": false,
-      "summary": "4 children linked via Relates (not native Jira parent) \u2014 A/B in Review with open PRs, C in Review, D (UI) parked at Backlog awaiting design approval.",
+      "summary": "4 legacy children linked via Relates (not native parent) \u2014 A/B/C in Review with open PRs, D (UI) parked at Backlog. Plus 6 new native-child stories (added 2026-07-16) generalizing freight-only recovery into a multi-charge-type Supplier-Owed Recovery Program \u2014 all Backlog, unpolished.",
       "user": "AP / supplier-accounting team",
-      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them.",
+      "impact": "Recover cross-state freight costs owed by suppliers instead of Gulf absorbing them; generalizing to a full multi-charge-type (freight/tax/receipt-fee) supplier-owed program.",
       "tickets": [
         {
           "key": "BMS-5789",
@@ -207,6 +207,66 @@
           "statusCategory": "To Do",
           "build": "UI",
           "note": "Mockup done, 4 design decisions resolved \u2014 parked at Awaiting-UI pending PO approval before any LWC build.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5899",
+          "type": "Story",
+          "title": "Charge Type dimension on Billback Line \u2014 supplier-owed foundation",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Foundation: adds Charge_Type__c to Billback_Line__c so freight/tax/receipt-fee lines are distinguishable. Freight backfill deferred until BMS-5789/5790/5791 merge to main. Dependency-free otherwise \u2014 unblocks 5900/5901/5903.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5900",
+          "type": "Story",
+          "title": "Supplier Agreement Term + per-charge-type coverage cascade",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "New Supplier_Agreement_Term__c (child of Supplier_Funding_Agreement__c) lets coverage % vary per charge type instead of one flat default; behavior-preserving no-op when no terms exist. Depends on BMS-5899.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5901",
+          "type": "Story",
+          "title": "Receipt-fee billback source \u2014 Inventory Receipt Fee \u2192 supplier-owed",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Adds Inventory_Receipt_Fee__c as a third billback source (alongside transfers/POs), mapping Cost_Type__c to Charge_Type__c. Package-disjoint from the agreement-terms LWC. Depends on BMS-5899 + agreement-terms story.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5902",
+          "type": "Story",
+          "title": "Supplier Agreement Terms LWC \u2014 per-charge-type split editor",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "note": "AR/finance-facing editor for per-charge-type coverage % per supplier. UI needed \u2014 mockup exists, PO approval gate before build. Depends on the agreement-terms story.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5903",
+          "type": "Story",
+          "title": "Supplier Owed Dashboard LWC \u2014 calculated owed rollup",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "UI",
+          "note": "One place showing what a supplier owes across transfers/POs/receipts, itemized by charge type with a grand total. UI needed \u2014 mockup exists. Depends on the agreement-terms + receipt-fee-source stories.",
+          "polished": false
+        },
+        {
+          "key": "BMS-5909",
+          "type": "Story",
+          "title": "Multi-supplier freight attribution & cost allocation on cross-state transfers",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "note": "Generalizes the shipped single-supplier freight recovery (BMS-5790) to auto-split freight across multiple suppliers on one transfer via Item_Line__c.Supplier__c attribution + largest-remainder allocation. Two PO decisions open (receive-variance basis, remainder coverage). Depends on the shipped freight engine (BMS-5790).",
           "polished": false
         }
       ]
@@ -458,34 +518,6 @@
       ]
     },
     {
-      "key": "BMS-5060",
-      "title": "Days of Inventory (DOI)",
-      "domain": "Inventory Management",
-      "phase": "walk",
-      "summary": "Spike done; forecast warehouse-space constraint remains.",
-      "impact": "Multi-level DOI thresholds (supplier/SKU/location) give planners precision instead of one system-wide setting.",
-      "tickets": [
-        {
-          "key": "BMS-3817",
-          "type": "Story",
-          "title": "Days on Hand / Days of Inventory - Spike",
-          "status": "Done",
-          "statusCategory": "Done",
-          "build": "Spike",
-          "polished": false
-        },
-        {
-          "key": "BMS-5566",
-          "type": "Story",
-          "title": "Forecast: warehouse-space constraint",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false
-        }
-      ]
-    },
-    {
       "key": "BMS-5062",
       "title": "Inter-Warehouse Inventory Visibility",
       "domain": "Inventory Management",
@@ -497,19 +529,11 @@
           "key": "BMS-3823",
           "type": "Story",
           "title": "Inter-Warehouse Inventory Visibility",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "Review",
+          "statusCategory": "In Progress",
           "build": "Backend",
-          "polished": false
-        },
-        {
-          "key": "BMS-5567",
-          "type": "Story",
-          "title": "Forecast: draft transfers netted in",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false
+          "polished": false,
+          "note": "Moved to Review (checked 2026-07-14) \u2014 no PR or branch found yet; verify how it got there before treating as build-ready."
         }
       ]
     },
@@ -642,44 +666,6 @@
       ]
     },
     {
-      "key": "BMS-5139",
-      "title": "Supplier Portal: Payment Method Capture",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "summary": "Single story, Backlog awaiting sprint assignment.",
-      "impact": "Suppliers register payment methods for direct settlement disbursement once Payments module is live.",
-      "tickets": [
-        {
-          "key": "BMS-3738",
-          "type": "Story",
-          "title": "Supplier Portal: Payment Method Capture",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false
-        }
-      ]
-    },
-    {
-      "key": "BMS-5148",
-      "title": "Supplier Portal: Automated Order Recommendations",
-      "domain": "Supplier Management",
-      "phase": "walk",
-      "summary": "Single story, Backlog awaiting sprint assignment.",
-      "impact": "Supplier-driven suggested POs (from their own sell-through data) reduce PO back-and-forth.",
-      "tickets": [
-        {
-          "key": "BMS-3737",
-          "type": "Story",
-          "title": "Supplier Portal: Automated Order Recommendations",
-          "status": "Backlog",
-          "statusCategory": "To Do",
-          "build": "Backend",
-          "polished": false
-        }
-      ]
-    },
-    {
       "key": "BMS-5155",
       "title": "DOT-Aware Transfer Scheduling Logic",
       "domain": "Transfers & Regulatory Compliance",
@@ -748,11 +734,6 @@
       "doneAt": null
     },
     {
-      "key": "BMS-5075",
-      "title": "[REQ-148] Data Governance",
-      "doneAt": null
-    },
-    {
       "key": "BMS-5074",
       "title": "[REQ-147] Crane SKU Flagging",
       "doneAt": null
@@ -773,11 +754,6 @@
       "doneAt": null
     },
     {
-      "key": "BMS-5066",
-      "title": "[REQ-139] Negative Inventory Control",
-      "doneAt": null
-    },
-    {
       "key": "BMS-5058",
       "title": "[REQ-131] Code Date Management",
       "doneAt": null
@@ -795,11 +771,6 @@
     {
       "key": "BMS-4973",
       "title": "[REQ-046] Driver Manager View",
-      "doneAt": null
-    },
-    {
-      "key": "BMS-4972",
-      "title": "[REQ-045] Driver View",
       "doneAt": null
     },
     {

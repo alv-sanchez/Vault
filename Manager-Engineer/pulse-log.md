@@ -24,3 +24,6 @@
 | 2026-07-13 15:30 | 4 in-progress / 11 to-do / 18 done | 25 | 6 | 0 | BMS-4088 (blocks BMS-5164), freight-vs-claim audit surface (BMS-5790) |
 | 2026-07-14 22:33 | 5 in-progress + 11 to-do + 18 done | 34 | 7 | 0 | 16 |
 | 2026-07-14 22:39 | 5 in-progress + 11 to-do + 18 done | 34 | 7 | 0 | 16 |
+| 2026-07-14 09:48 | 5 in-progress + 11 to-do + 18 done | 34 | 8 | 0 | 16 |
+| 2026-07-15 09:10 | 5 in-progress + 8 to-do + 15 done | 34 | 8 | 0 (10 PR tickets have no org — none previously claimed, not expired) | 16 · base reconciled: dropped 3 reassigned to-do epics (5060/5139/5148) + 3 reassigned done epics (5075/5066/4972), dropped BMS-5567 (reparented off BMS-5062) |
+| 2026-07-16 09:00 | 5 in-progress + 8 to-do + 15 done | 40 | 11 | 1 orphan (ohfy-val-shortPay, no branch) | 0 new · BMS-5161 grew 6 native-child stories (Supplier-Owed Recovery Program generalization, all Backlog/unpolished) · new open PRs: #557 (BMS-4059/4060), #561 (BMS-5631) |

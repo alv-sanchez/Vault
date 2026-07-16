@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supplier-Owed Recovery Program — Mockup</title>
+<style>
+  :root {
+    --ink: #0b0b0c;
+    --paper: #ffffff;
+    --cork: #F4F2F0;
+    --yellow: #E4F223;
+    --denim: #4A5FB0;
+    --forest: #0F6E56;
+    --crimson: #A32D2D;
+    --muted: #545454;
+    --card: #ffffff;
+    --line: #e6e2dd;
+    --line-soft: #efece8;
+    --input-bg: #ffffff;
+    --forest-tint: #eaf4f0;
+    --denim-tint: #eef1fa;
+    --shadow: 0 1px 2px rgba(11,11,12,.05), 0 8px 24px rgba(11,11,12,.07);
+    --shadow-sm: 0 1px 2px rgba(11,11,12,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f2f1ee;
+      --paper: #121214;
+      --cork: #1a1a1d;
+      --card: #202024;
+      --line: #34343a;
+      --line-soft: #2b2b30;
+      --muted: #a3a19c;
+      --input-bg: #2a2a2f;
+      --forest: #3fbf97;
+      --crimson: #e07a7a;
+      --denim: #8b9de0;
+      --forest-tint: #16302a;
+      --denim-tint: #1f2434;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"] {
+    --ink: #0b0b0c; --paper: #ffffff; --cork: #F4F2F0; --card: #ffffff;
+    --line: #e6e2dd; --line-soft: #efece8; --muted: #545454; --input-bg: #ffffff;
+    --forest: #0F6E56; --crimson: #A32D2D; --denim: #4A5FB0;
+    --forest-tint: #eaf4f0; --denim-tint: #eef1fa;
+    --shadow: 0 1px 2px rgba(11,11,12,.05), 0 8px 24px rgba(11,11,12,.07);
+    --shadow-sm: 0 1px 2px rgba(11,11,12,.06);
+  }
+  :root[data-theme="dark"] {
+    --ink: #f2f1ee; --paper: #121214; --cork: #1a1a1d; --card: #202024;
+    --line: #34343a; --line-soft: #2b2b30; --muted: #a3a19c; --input-bg: #2a2a2f;
+    --forest: #3fbf97; --crimson: #e07a7a; --denim: #8b9de0;
+    --forest-tint: #16302a; --denim-tint: #1f2434;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--cork);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 15px;
+  }
+  .page { max-width: 1040px; margin: 0 auto; padding: 0 24px 64px; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    background: #0b0b0c;
+    color: #fff;
+    border-radius: 0 0 20px 20px;
+    padding: 56px 40px 52px;
+    margin: 0 -24px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    right: -120px; top: -120px;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(228,242,35,.14) 0%, rgba(228,242,35,0) 70%);
+    pointer-events: none;
+  }
+  .hero .kicker {
+    font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
+    color: #E4F223; font-weight: 700; margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4.5vw, 42px);
+    font-weight: 800; letter-spacing: -0.02em; line-height: 1.12;
+    margin-bottom: 14px; max-width: 640px;
+  }
+  .hero p.lede {
+    font-size: 17px; color: rgba(255,255,255,.78);
+    max-width: 620px; margin-bottom: 24px;
+  }
+  .pill {
+    display: inline-block;
+    background: #E4F223; color: #0b0b0c;
+    font-weight: 700; font-size: 13px;
+    padding: 8px 18px; border-radius: 999px;
+    letter-spacing: .01em;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section { margin-bottom: 44px; }
+  .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .section-num {
+    background: var(--ink); color: var(--paper);
+    font-size: 12px; font-weight: 800;
+    width: 24px; height: 24px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: none; transform: translateY(3px);
+  }
+  :root[data-theme="dark"] .section-num, .dark-num { color: #0b0b0c; }
+  .section h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.015em; }
+  .section .sub { color: var(--muted); font-size: 14.5px; margin: 0 0 20px 36px; max-width: 680px; }
+
+  /* ---------- CARDS ---------- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-bar {
+    background: #0b0b0c; color: #fff;
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .card-bar .title { font-weight: 700; font-size: 15px; }
+  .card-bar .obj { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); font-weight: 600; }
+  .card-bar .spacer { flex: 1; }
+  .badge-yellow {
+    background: var(--yellow); color: #0b0b0c;
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge-outline {
+    border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.85);
+    font-size: 11.5px; font-weight: 600;
+    padding: 3.5px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  .card-body { padding: 20px; }
+
+  /* supplier row */
+  .supplier-row { display: flex; align-items: center; gap: 14px; padding: 18px 20px; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 10px; flex: none;
+    background: var(--denim); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; letter-spacing: .02em;
+  }
+  .supplier-row .name { font-weight: 700; font-size: 16.5px; }
+  .supplier-row .meta { color: var(--muted); font-size: 13px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--forest); margin-right: 6px; }
+
+  /* ---------- TABLES ---------- */
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+  thead th {
+    text-align: left; font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700;
+    padding: 10px 16px; border-bottom: 1px solid var(--line);
+    background: var(--cork);
+    white-space: nowrap;
+  }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th.num { text-align: right; }
+
+  .chip {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    padding: 3px 11px; border-radius: 999px; white-space: nowrap;
+  }
+  .chip-type { background: var(--denim-tint); color: var(--denim); }
+  .chip-scope { background: var(--cork); color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
+  .chip-scope.al { background: var(--denim-tint); color: var(--denim); border-color: transparent; font-weight: 700; }
+
+  .pct-input {
+    display: inline-flex; align-items: center; gap: 2px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--input-bg);
+    padding: 5px 10px 5px 12px;
+    box-shadow: var(--shadow-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .pct-input .val { font-weight: 700; font-size: 14.5px; min-width: 34px; text-align: right; color: var(--forest); }
+  .pct-input .unit { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .dist-covers { color: var(--muted); font-weight: 600; }
+
+  .add-term {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    color: var(--denim); font-weight: 700; font-size: 14px;
+    border-top: 1px dashed var(--line);
+    cursor: default;
+  }
+  .add-term .plus {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 1.5px dashed var(--denim);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px; line-height: 1;
+  }
+  .config-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 20px;
+    background: var(--cork);
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .helper { color: var(--muted); font-size: 13px; max-width: 560px; }
+  .helper strong { color: var(--ink); }
+  .btn-row { display: flex; gap: 10px; flex: none; }
+  .btn {
+    font-weight: 700; font-size: 14px;
+    padding: 9px 22px; border-radius: 9px;
+    border: 1px solid transparent; cursor: default; white-space: nowrap;
+  }
+  .btn-save { background: var(--yellow); color: #0b0b0c; box-shadow: var(--shadow-sm); }
+  .btn-ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+
+  /* ---------- STAT TILES ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 720px) { .stats { grid-template-columns: 1fr; } }
+  .stat {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; box-shadow: var(--shadow);
+    padding: 20px 22px;
+    position: relative; overflow: hidden;
+  }
+  .stat .label { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+  .stat .value { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat .detail { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .stat.owed { border-top: 3px solid var(--forest); background: linear-gradient(180deg, var(--forest-tint) 0%, var(--card) 55%); }
+  .stat.owed .value { color: var(--forest); }
+  .stat.billbacks { border-top: 3px solid var(--denim); }
+  .stat.sources { border-top: 3px solid #0b0b0c; }
+  .stat .tick { display: inline-block; font-size: 12px; font-weight: 700; color: var(--forest); background: var(--forest-tint); border-radius: 999px; padding: 2px 10px; margin-top: 8px; }
+  .src-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .src-chips .chip { background: var(--cork); border: 1px solid var(--line); color: var(--ink); font-weight: 600; }
+
+  /* rollup table specifics */
+  .src { display: flex; flex-direction: column; gap: 1px; }
+  .src .kind { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+  .src .rec { font-weight: 700; color: var(--denim); font-size: 13.5px; }
+  .money-pos { color: var(--forest); font-weight: 700; }
+  tr.subtotal td {
+    background: var(--cork);
+    font-weight: 700; font-size: 13.5px;
+    border-top: 1px solid var(--line);
+  }
+  tr.subtotal td.num { color: var(--forest); }
+  tr.grand td {
+    background: #0b0b0c; color: #fff;
+    font-weight: 800; font-size: 15px;
+    padding: 16px;
+  }
+  tr.grand td.num { color: var(--yellow); font-size: 17px; }
+  .pct-cell { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .note {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 16px;
+    background: var(--denim-tint);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--denim);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--muted); font-size: 13.5px;
+    max-width: 780px;
+  }
+  .note .icon { flex: none; font-weight: 800; color: var(--denim); font-size: 14px; }
+  .note strong { color: var(--ink); }
+  .note code {
+    background: var(--cork); border: 1px solid var(--line);
+    border-radius: 5px; padding: 1px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+    color: var(--ink); white-space: nowrap;
+  }
+
+  footer.mock-foot {
+    margin-top: 48px; text-align: center;
+    color: var(--muted); font-size: 12.5px;
+  }
+  footer.mock-foot .tag {
+    display: inline-block; border: 1px dashed var(--line);
+    border-radius: 999px; padding: 6px 16px;
+    background: var(--card);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ 1. HERO ============ -->
+  <header class="hero">
+    <div class="kicker">Ohanafy · Warehouse &amp; Order Management</div>
+    <h1>Supplier-Owed Recovery Program</h1>
+    <p class="lede">Everything a supplier owes the distributor — freight, taxes, and fees — captured, split per your agreement, and totaled automatically.</p>
+    <span class="pill">Per-charge-type coverage &nbsp;·&nbsp; calculated, not manual</span>
+  </header>
+
+  <!-- ============ 2. AGREEMENT CONFIG ============ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num dark-num">1</span>
+      <h2>Set the agreement once</h2>
+    </div>
+    <p class="sub">Define what each supplier covers, per charge type — with optional scopes for state-specific terms. Every downstream billback line calculates itself from these splits.</p>
+
+    <div class="card">
+      <div class="card-bar">
+        <span class="obj">Supplier Funding Agreement</span>
+        <span class="title">Riverbend Brewing Co. — FY26 Terms</span>
+        <span class="spacer"></span>
+        <span class="badge-outline">Draft edits</span>
+        <span class="badge-yellow">Active</span>
+      </div>
+
+      <div class="supplier-row">
+        <div class="avatar">RB</div>
+        <div>
+          <div class="name">Riverbend Brewing Co.</div>
+          <div class="meta"><span class="status-dot"></span>Supplier Account · Effective Jan 1, 2026 – Dec 31, 2026</div>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Charge Type</th>
+              <th>Scope</th>
+              <th class="num">Coverage % <span style="font-weight:600; text-transform:none; letter-spacing:0;">(supplier owes)</span></th>
+              <th class="num">Distributor covers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="chip chip-type">Freight</span></td>
+              <td><span class="chip chip-scope">All</span></td>
+              <td class="num"><span class="pct-input"><span class="val">40</span><span class="unit">%</span></span></td>
+              <td class="num dist-covers">60%</td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-type">Pallet Tax</span></td>
+              <td><span class="chip chip-scope">All</span></td>
+              <td class="num"><span class="pct-input"><span class="val">100</span><span class="unit">%</span></span></td>
+              <td class="num dist-covers">0%</td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-type">State-Line Tax</span></td>
+              <td><span class="chip chip-scope al">Alabama (AL)</span></td>
+              <td class="num"><span class="pct-input"><span class="val">100</span><span class="unit">%</span></span></td>
+              <td class="num dist-covers">0%</td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-type">State-Line Tax</span></td>
+              <td><span class="chip chip-scope">All others</span></td>
+              <td class="num"><span class="pct-input"><span class="val">50</span><span class="unit">%</span></span></td>
+              <td class="num dist-covers">50%</td>
+            </tr>
+            <tr>
+              <td><span class="chip chip-type">Other Taxes</span></td>
+              <td><span class="chip chip-scope">All</span></td>
+              <td class="num"><span class="pct-input"><span class="val">25</span><span class="unit">%</span></span></td>
+              <td class="num dist-covers">75%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="add-term"><span class="plus">+</span> Add charge term</div>
+
+      <div class="config-foot">
+        <div class="helper">Any split from <strong>0–100%</strong> is allowed per charge type. Scoped terms (e.g., a specific state) win over the general term for the same charge type.</div>
+        <div class="btn-row">
+          <span class="btn btn-ghost">Cancel</span>
+          <span class="btn btn-save">Save Agreement</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. ROLLUP DASHBOARD ============ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num dark-num">2</span>
+      <h2>See what this supplier owes — automatically</h2>
+    </div>
+    <p class="sub">Every freight charge, tax, and fee captured on transfers, purchase orders, and receipts rolls up here — already split per the agreement above.</p>
+
+    <div class="stats">
+      <div class="stat owed">
+        <div class="label">Total Owed by Riverbend</div>
+        <div class="value">$2,145.00</div>
+        <span class="tick">Recoverable · auto-calculated</span>
+      </div>
+      <div class="stat billbacks">
+        <div class="label">Open Billbacks</div>
+        <div class="value">4</div>
+        <div class="detail">3 pending review · 1 ready to invoice</div>
+      </div>
+      <div class="stat sources">
+        <div class="label">Sources</div>
+        <div class="value">4</div>
+        <div class="src-chips">
+          <span class="chip">2 Transfers</span>
+          <span class="chip">1 PO</span>
+          <span class="chip">1 Receipt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-bar">
+        <span class="obj">Supplier-Owed Rollup</span>
+        <span class="title">Riverbend Brewing Co. — Open Recoverables</span>
+        <span class="spacer"></span>
+        <span class="badge-outline">Grouped by charge type</span>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Charge Type</th>
+              <th>Source</th>
+              <th class="num">Gross Amount</th>
+              <th class="num">Coverage %</th>
+              <th class="num">Recoverable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Freight -->
+            <tr>
+              <td><span class="chip chip-type">Freight</span></td>
+              <td><div class="src"><span class="kind">Transfer</span><span class="rec">TG-00000001</span></div></td>
+              <td class="num">$1,200.00</td>
+              <td class="num pct-cell">40%</td>
+              <td class="num money-pos">$480.00</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><div class="src"><span class="kind">Purchase Order</span><span class="rec">PO-00000045</span></div></td>
+              <td class="num">$850.00</td>
+              <td class="num pct-cell">40%</td>
+              <td class="num money-pos">$340.00</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">Freight subtotal</td>
+              <td class="num">$820.00</td>
+            </tr>
+
+            <!-- Pallet Tax -->
+            <tr>
+              <td><span class="chip chip-type">Pallet Tax</span></td>
+              <td><div class="src"><span class="kind">Purchase Order</span><span class="rec">PO-00000045</span></div></td>
+              <td class="num">$385.00</td>
+              <td class="num pct-cell">100%</td>
+              <td class="num money-pos">$385.00</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">Pallet Tax subtotal</td>
+              <td class="num">$385.00</td>
+            </tr>
+
+            <!-- State-Line Tax -->
+            <tr>
+              <td><span class="chip chip-type">State-Line Tax</span> <span class="chip chip-scope al">AL</span></td>
+              <td><div class="src"><span class="kind">Transfer</span><span class="rec">TG-00000002</span></div></td>
+              <td class="num">$640.00</td>
+              <td class="num pct-cell">100%</td>
+              <td class="num money-pos">$640.00</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">State-Line Tax subtotal</td>
+              <td class="num">$640.00</td>
+            </tr>
+
+            <!-- Other Taxes -->
+            <tr>
+              <td><span class="chip chip-type">Other Taxes</span></td>
+              <td><div class="src"><span class="kind">Inventory Receipt</span><span class="rec">IR-00000012</span></div></td>
+              <td class="num">$1,200.00</td>
+              <td class="num pct-cell">25%</td>
+              <td class="num money-pos">$300.00</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">Other Taxes subtotal</td>
+              <td class="num">$300.00</td>
+            </tr>
+
+            <!-- Grand total -->
+            <tr class="grand">
+              <td colspan="4">Grand total — owed by Riverbend Brewing Co.</td>
+              <td class="num">$2,145.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="icon">ⓘ</span>
+      <span>This view rolls up from <code>Billback</code> → <code>Billback Line</code>. Each line's recoverable amount is <strong>auto-calculated</strong> from the Supplier Funding Agreement — never keyed in by hand — so the total always reconciles to source records.</span>
+    </div>
+  </section>
+
+  <footer class="mock-foot">
+    <span class="tag">Generated mockup — not final design · BMS-5161 · Supplier-Owed Recovery Program</span>
+  </footer>
+
+</div>
+</body>
+</html>

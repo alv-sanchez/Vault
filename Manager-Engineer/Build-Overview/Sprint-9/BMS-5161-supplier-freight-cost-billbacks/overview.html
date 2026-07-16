@@ -1,54 +1,182 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BMS-5161 — Supplier Freight Cost Billbacks</title>
+<title>BMS-5161 — Supplier-Owed Recovery (whole picture)</title>
 <style>
   :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
-    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff}
+    --user:#58a6ff;--impact:#f0883e;--sol:#3fb950;--next:#a371f7;--accent:#58a6ff;
+    --freight:#58a6ff;--fee:#3fb950;--tax:#d29922;--danger:#f85149}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:920px;margin:0 auto}
-  h1{font-size:24px;margin:0 0 2px} .key{color:var(--accent)}
-  .sub{color:var(--dim);margin:0 0 20px}
-  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(210,153,34,.16);color:#d29922}
-  .badge.ui{background:rgba(163,113,247,.16);color:#a371f7}
-  .quad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
-  @media(max-width:660px){.quad{grid-template-columns:1fr}}
-  .box{background:var(--card2);border-radius:10px;padding:14px 16px}
-  .box h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
-  .box.user h3{color:var(--user)}.box.impact h3{color:var(--impact)}.box.sol h3{color:var(--sol)}.box.next h3{color:var(--next)}
-  .box p{margin:0;color:#d7dce8}
-  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px;color:#c4cad8}
-  .meta code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px;max-width:960px;margin:0 auto}
+  h1{font-size:25px;margin:0 0 2px} .key{color:var(--accent)}
+  h2{font-size:19px;margin:36px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:14px;margin:0 0 6px}
+  .sub{color:var(--dim);margin:0 0 16px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(63,185,80,.16);color:#3fb950}
+  .badge.wip{background:rgba(210,153,34,.16);color:#d29922}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13px;color:#c4cad8;margin-bottom:6px}
+  .meta code,p code,li code,td code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:.88em}
   a{color:var(--accent)}
-  ul{padding-left:20px}
-  .num{font-weight:700;color:#3fb950}
-  .warn{color:#f0883e}
+  .lead{background:var(--card2);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:15.5px}
+  .lead b{color:#fff}
+  .pipe{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:18px 0}
+  .col{flex:1;min-width:150px;display:flex;flex-direction:column;gap:8px}
+  .srcbox{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .srcbox .t{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin-bottom:4px}
+  .srcbox .n{font-weight:700;font-size:14px}
+  .srcbox small{color:var(--dim);display:block;margin-top:4px;font-size:12.5px}
+  .arrow{align-self:center;color:var(--dim);font-size:22px;padding:0 2px}
+  .ledger{background:linear-gradient(180deg,#1c2333,#161b28);border:1px solid #2d3650;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center}
+  .dash{background:linear-gradient(180deg,#1a2b22,#152018);border:1px solid #2b4636;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin:2px 3px 0 0}
+  .c-freight{background:rgba(88,166,255,.16);color:var(--freight)}
+  .c-fee{background:rgba(63,185,80,.16);color:var(--fee)}
+  .c-tax{background:rgba(210,153,34,.16);color:var(--tax)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .box{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .box.blue{border-left:3px solid var(--freight)}.box.green{border-left:3px solid var(--fee)}
+  .box.gold{border-left:3px solid var(--tax)}.box.purple{border-left:3px solid var(--next)}
   table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
-  th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
-  th{color:var(--dim);font-weight:600}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  .num{font-weight:700;color:#3fb950}
+  ul{padding-left:20px;margin:8px 0}li{margin:3px 0}
+  .split{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+  .splitbox{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .splitbox .hd{font-weight:700;margin-bottom:6px}
+  .bar{height:8px;border-radius:6px;background:var(--freight);margin:8px 0 4px}
+  .lump{text-align:center;background:var(--card2);border:1px dashed #3d465c;border-radius:10px;padding:14px;min-width:130px}
+  .callout{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:12px 16px;margin:12px 0}
+  .callout.ok{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3)}
+  .callout.warn{background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.3)}
+  .toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0}
+  @media(max-width:680px){.toggle{grid-template-columns:1fr}}
+  .toggle>div{padding:14px 16px}
+  .toggle .man{background:var(--card2)}.toggle .part{background:#141d16;border-left:1px solid var(--line)}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:4px}
+  .man .lbl{color:var(--dim)}.part .lbl{color:var(--fee)}
+  .tiny{font-size:12.5px;color:var(--dim)}
+  .v{color:var(--fee);font-weight:700}
 </style></head><body>
-  <h1><span class="key">BMS-5161</span> — Supplier Freight Cost Billbacks</h1>
-  <p class="sub">Transfers &amp; Regulatory Compliance · <a href="https://ohanafy.atlassian.net/browse/BMS-5161">Jira</a> · <span class="badge">BUILD IN PROGRESS</span> <span class="badge ui">UI awaiting approval</span></p>
-  <div class="meta">Branch <code>feat/po-freight-billback-bms-5791</code> · Org <code>bms-5113-5161-integration</code> · Sprint 9 · updated 2026-07-13 · <a href="orientation.html">code-verified architecture brief →</a></div>
-  <div class="quad">
-    <div class="box user"><h3>👤 User</h3><p>Gulf's AR/finance team, recovering freight costs from suppliers instead of Gulf absorbing them silently.</p></div>
-    <div class="box impact"><h3>💥 Business impact</h3><p>Cross-state freight incurred for supplier benefit had no capture point and no path into recovery — Gulf was absorbing costs that contractually belong to suppliers.</p></div>
-    <div class="box sol"><h3>🛠️ Intended solution</h3><p>Adds a freight source (transfer + PO) into the <em>existing</em> billback pipeline (BMS-4141) — not a new parallel system.</p></div>
-    <div class="box next"><h3>🚀 Next phase</h3><p>Merge #511 → #514 → #516 in order; PO approval needed on the BMS-5792 mockup before any LWC build.</p></div>
+
+<h1><span class="key">BMS-5161</span> — Supplier-Owed Recovery <span class="tiny">(freight + fees)</span></h1>
+<p class="sub">Transfers &amp; Regulatory Compliance · <a href="https://ohanafy.atlassian.net/browse/BMS-5161">Epic</a> · <span class="badge">V1 READY TO SHIP</span> <span class="badge wip">multi-supplier: built + live-verified, uncommitted</span></p>
+<div class="meta">Branch <code>integration/bms-5161-validation</code> · Org <code>bms-5113-5161-integration</code> · Sprint 9 · updated 2026-07-16 · siblings: <a href="freight-billback-mental-model.html">trigger mental model →</a> · <a href="orientation.html">architecture brief →</a></div>
+
+<div class="lead">
+<b>The whole thing in one sentence:</b> suppliers owe Gulf money (freight on moves, fees at receiving). The system <b>captures</b> that money from three places, turns each charge into a <b>billback</b> the supplier owes — tagged by charge type and reduced to the supplier's coverage % — and <b>rolls it all up per supplier</b> on one dashboard.
+</div>
+
+<h2>The pipeline — 3 sources → 1 ledger → 1 dashboard</h2>
+<div class="pipe">
+  <div class="col">
+    <div class="srcbox" style="border-left:3px solid var(--freight)"><div class="t">Source 1</div><div class="n">Cross-state transfer</div><small>Freight to move product across state lines. <b>Now multi-supplier.</b></small><div style="margin-top:6px"><span class="chip c-freight">Freight</span></div></div>
+    <div class="srcbox" style="border-left:3px solid var(--freight)"><div class="t">Source 2</div><div class="n">Inbound PO</div><small>Freight the supplier owes on a purchase order.</small><div style="margin-top:6px"><span class="chip c-freight">Freight</span></div></div>
+    <div class="srcbox" style="border-left:3px solid var(--fee)"><div class="t">Source 3</div><div class="n">Inventory receipt</div><small>Fees found at receiving — pallet, fuel surcharge, storage.</small><div style="margin-top:6px"><span class="chip c-fee">Pallet Tax</span><span class="chip c-fee">Receipt Fee</span></div></div>
   </div>
-  <h2>What it is</h2>
-  <p>Captures freight cost on cross-state transfers and on PO reconciliations where a supplier owes Gulf, routing both into Gulf's existing billback ledger. Reshaped from "build a subsystem" to "add a source" after code audit found the billback rails already shipped (BMS-4141).</p>
+  <div class="arrow">→</div>
+  <div class="col"><div class="ledger">
+    <h3>💵 Billback ledger</h3>
+    <p class="tiny" style="margin:0">One <b>Billback</b> per supplier (the tab) with <b>Billback Lines</b> (the items). Each line is tagged with a <b>Charge Type</b> and reduced by that supplier's <b>coverage %</b>.</p>
+    <div style="margin-top:8px"><span class="chip c-freight">Freight</span><span class="chip c-fee">Receipt Fee</span><span class="chip c-tax">State-Line Tax*</span></div>
+  </div></div>
+  <div class="arrow">→</div>
+  <div class="col"><div class="dash">
+    <h3>📊 Supplier Owed dashboard</h3>
+    <p class="tiny" style="margin:0">On each supplier's Account: everything they owe, <b>grouped by charge type</b>, subtotals + grand total. Claim-flagged rows excluded by default (double-recovery guard).</p>
+  </div></div>
+</div>
+<p class="tiny">*<span class="chip c-tax">State-Line Tax</span> the slot exists but nothing fills it yet — see <a href="#deferred">deferred</a>.</p>
 
-  <h2>Status / what's built</h2>
-  <table>
-    <tr><th>Ticket</th><th>What</th><th>PR</th><th>Risk</th></tr>
-    <tr><td>BMS-5789</td><td>Freight cost capture on Transfer_Group__c (source-agnostic)</td><td><a href="https://github.com/Ohanafy/OHFY-Split/pull/511">#511</a></td><td>Low</td></tr>
-    <tr><td>BMS-5790</td><td>Freight billback generation → existing pipeline</td><td><a href="https://github.com/Ohanafy/OHFY-Split/pull/514">#514</a></td><td>Med</td></tr>
-    <tr><td>BMS-5791</td><td>PO-side freight-scoped billback origination</td><td><a href="https://github.com/Ohanafy/OHFY-Split/pull/516">#516</a></td><td>Med</td></tr>
-    <tr><td>BMS-5792</td><td>Design/Prototype/Demo — mockup done</td><td>—</td><td>Awaiting-UI</td></tr>
-  </table>
-  <p>Live-demonstrated end-to-end: a $1,200 cross-state freight transfer (40% supplier coverage) → <span class="num">$480</span> recoverable billback; a $300 PO freight reconciliation → <span class="num">$120</span> recoverable billback. Both auto-generated by the real production trigger hooks, not a direct service call.</p>
+<h2>Glossary (so the rest reads clean)</h2>
+<div class="grid2">
+  <div class="box"><h3>Billback = the tab</h3><p class="tiny">One per supplier. Holds <em>who owes</em>, the <em>status</em> (Accrued → Invoiced → Collected), and the rolled-up <em>total</em>.</p></div>
+  <div class="box"><h3>Billback Line = an item on the tab</h3><p class="tiny">One per source charge. Holds the <em>amount</em>, the <em>charge type</em>, the <em>coverage %</em>, and the <em>recoverable</em>. Sum of lines = the tab total.</p></div>
+</div>
 
-  <h2>Demo</h2>
-  <p>Query <code>Billback__c</code> filtered to <code>Type = 'Freight'</code> in the validated org — two records, one sourced from a <code>Transfer_Group__c</code>, one from a <code>Purchase_Order__c</code>, both at 40% coverage from Riverbend Brewing Co.'s funding agreement.</p>
-  <p class="warn">Don't say: the UI is ready — there's no LWC yet, this is Apex/data-level proof of the pipeline.</p>
+<h2 id="transfers">① Cross-state transfers — the new multi-supplier split</h2>
+<p>Freight is a <b>single number typed in</b> (from the carrier invoice) — the system doesn't compute it, so it can't break it into components. What it <em>can</em> now do: figure out <b>whose product is on the truck</b> and split that number across those suppliers.</p>
+
+<div class="callout ok"><b>How the split works (auto):</b>
+<ul style="margin:6px 0 0">
+  <li><b>Attribute</b> — each transfer line's item → its <code>Item Line</code> → its <b>Supplier</b> (a real link, not a guess).</li>
+  <li><b>Allocate</b> — split the freight by <b>weight</b> (configurable: weight → value → equal), so heavier product carries more freight.</li>
+  <li><b>Cover</b> — apply <em>each</em> supplier's own coverage % to their slice.</li>
+</ul></div>
+
+<h3 style="margin-top:18px">Worked example — <span class="v">live-verified in the org</span></h3>
+<p class="tiny">One transfer, $1,000 freight, two suppliers' product on the truck:</p>
+<div class="split">
+  <div class="lump">
+    <div class="tiny">Freight (input)</div><div style="font-size:22px;font-weight:800">$1,000</div><div class="tiny">split by weight</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="splitbox">
+    <div class="hd">Ridgeline <span class="chip c-freight">60% by weight</span></div>
+    <div class="bar" style="width:60%"></div>
+    <div class="tiny">gross <b>$600</b> × coverage <b>50%</b> = <span class="v">$300 recoverable</span></div>
+  </div>
+  <div class="splitbox">
+    <div class="hd">Basecamp <span class="chip c-freight">40% by weight</span></div>
+    <div class="bar" style="width:40%;background:#3fb950"></div>
+    <div class="tiny">gross <b>$400</b> × coverage <b>100%</b> = <span class="v">$400 recoverable</span></div>
+  </div>
+</div>
+<p class="tiny">Gross shares sum to <b>$1,000</b> exactly (penny-accurate). Each supplier gets their own billback; each line records the basis (Weight), the driver (lbs), and the share % — so you can see <em>why</em> each got their slice.</p>
+
+<h3 style="margin-top:18px">The config decision — Manual vs Partial (per org)</h3>
+<p>Auto-split is only as good as the item→supplier data. So it's a <b>switch</b>, not a hard rule:</p>
+<div class="toggle">
+  <div class="man"><div class="lbl">Manual — safe default</div><p class="tiny" style="margin:0">You pick one <code>Recoverable Freight Account</code>; freight bills 100% to it. <b>Exactly today's behavior.</b> Use where item→supplier data isn't trusted yet.</p></div>
+  <div class="part"><div class="lbl">Partial — auto + safety net</div><p class="tiny" style="margin:0">Auto-attributes &amp; splits across suppliers; any items it <em>can't</em> resolve fall to the manual account (or are logged, never silently mis-billed). Flip to this where the data is clean.</p></div>
+</div>
+<div class="callout warn" style="margin-top:12px"><b>The v1 posture:</b> ship the capability, let the config decide per org. Start <b>Manual</b>, flip to <b>Partial</b> once item→supplier data is trusted. Nobody gets mis-billed in between. <span class="tiny">(A per-transfer override field lets AR force Manual on any single move.)</span></div>
+
+<h2 id="po">② Inbound POs — single supplier, simplest path</h2>
+<p>A PO already names its one supplier, so there's nothing to split. On the PO you set <b>Recoverable Freight Cost</b> and flip <b>Supplier Owes Freight</b> → a billback fires at that supplier's coverage %.</p>
+<table>
+  <tr><th>PO</th><th>Freight</th><th>Coverage</th><th>Recoverable</th></tr>
+  <tr><td>Northwind</td><td>$400</td><td>50%</td><td class="num">$200</td></tr>
+  <tr><td>Cascade</td><td>$900</td><td>100%</td><td class="num">$900</td></tr>
+</table>
+<p class="tiny">Both live-verified. Fires in real time when you flip the flag; nightly batch as backstop.</p>
+<p class="callout warn"><b>PO fees gap:</b> the PO only carries <em>freight</em> — one lump. It has no place for tolls, taxes, or other fees. Any non-freight charge on an inbound shipment only enters the system through the <b>receipt</b> (Source 3), not the PO. And like transfers, if a toll is bundled into the PO's freight number, it rides along invisibly.</p>
+
+<h2 id="receipt">③ Inventory receipt fees — where itemized fees live</h2>
+<p>Fees discovered at <b>receiving</b> (against an inbound shipment) — this is the <em>only</em> place fees come in itemized. Each <code>Inventory Receipt Fee</code> has a <b>Cost Type</b> that maps to a billback charge type:</p>
+<div class="grid2">
+  <div class="box green"><h3>Cost Type → Charge Type</h3><ul class="tiny" style="margin:4px 0">
+    <li>Freight / Shipping / Fuel Surcharge → <span class="chip c-freight">Freight</span></li>
+    <li>Pallet → <span class="chip c-fee">Pallet Tax</span></li>
+    <li>Storage / Service / Interest → <span class="chip c-fee">Receipt Fee</span></li>
+  </ul></div>
+  <div class="box green"><h3>How it fires</h3><p class="tiny" style="margin:4px 0">When a receipt is set to <b>Complete</b>, each fee becomes a billback line under the supplier — in real time, nightly batch as backstop. Live-verified: a receipt with 3 fees ($500 / $120 / $80) produced a 3-line billback.</p></div>
+</div>
+<p class="tiny">This is why "fee visibility" already exists on the inbound side — the fees arrive <em>itemized</em>, so each becomes its own line you can see. Note: there is <b>no "Toll" cost type</b> — a toll would land under Freight or Misc., not as its own line.</p>
+
+<h2>The rollup — Supplier Owed dashboard</h2>
+<p>On any supplier's Account, the <b>Supplier Owed</b> tab answers "what does this supplier owe us, and why?" — every open billback line, grouped by charge type, with subtotals and a grand total. Rows flagged as possible double-recovery (a claim on the same shipment) are dimmed and excluded from the total by default, with a toggle to include them.</p>
+<div class="callout ok"><b>Verified rollup:</b> Riverbend — Freight $1,060 · Pallet Tax $120 · Receipt Fee $40 → <span class="v">grand total $1,220</span>, calculated (never hand-keyed).</div>
+
+<h2 id="deferred">What ships in v1 — and what's deferred</h2>
+<div class="grid2">
+  <div class="box green"><h3>✅ In v1 (built + verified)</h3><ul class="tiny">
+    <li>Transfer freight — <b>multi-supplier split</b> (weight, per-supplier coverage)</li>
+    <li>Inbound PO freight (single supplier)</li>
+    <li>Receipt fees (itemized → charge types)</li>
+    <li>Per-charge-type coverage + agreement terms</li>
+    <li>Supplier Owed dashboard rollup</li>
+    <li>Real-time on all 3 doors + nightly backstop</li>
+    <li>Claim-overlap double-recovery guard</li>
+  </ul></div>
+  <div class="box gold"><h3>⏭️ Deferred (correctly)</h3>
+    <p class="tiny"><b>Freight composition / tolls</b> — <em>can't</em> be shown: freight is a lump input on both transfers and POs, so there's nothing to break down. Tolls are usually baked into the carrier's freight number already. Needs an SME to confirm invoices are itemized before it's even a feature.</p>
+    <p class="tiny"><b>State-Line Tax recovery</b> — a clean, <em>additive</em> next build. The tax is already computed on the transfer (<code>Transfer_Group_Adjustment__c.Tax__c</code>) and the billback slot is reserved — it just needs a generator wired in. Gated on one SME question: <b>do suppliers actually owe the state-line tax?</b></p>
+  </div>
+</div>
+
+<div class="callout" style="margin-top:16px"><b>Ship verdict:</b> v1 captures the real dollars (freight across transfers + POs, itemized receipt fees), handles the multi-supplier reality, and rolls it up per supplier. The deferrals are either impossible-without-new-input (freight composition) or a clean bolt-on later (state-line tax). <b>Not leaving recoverable money on the table.</b></div>
+
+<p class="tiny" style="margin-top:22px;color:var(--dim)">The multi-supplier build (BMS-5909) is deployed to the integration org and passing 72 tests; it is <b>uncommitted</b> pending sign-off. Two items logged for the SME/PO: freight-itemization confirmation, and the state-line-tax "do they owe it?" decision.</p>
+
 </body></html>

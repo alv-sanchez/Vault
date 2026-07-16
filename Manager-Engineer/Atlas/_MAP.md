@@ -10,12 +10,12 @@ tags: [atlas, moc]
 ## Areas
 | Area | What it is | Tickets |
 |------|------------|---------|
-| [[OHFY-Data-Model]] | objects, fields, schema (Tier-0, everything sits on it) | 4 |
+| [[OHFY-Data-Model]] | objects, fields, schema (Tier-0, everything sits on it) | 6 |
 | [[OHFY-PLTFM]] | inventory/replenishment, safety stock, thresholds | — |
 | [[OHFY-PLTFM-UI]] | inventory config screens | — |
-| [[OHFY-OMS]] | orders, delivery, AR / short-pay | 3 |
-| [[OHFY-OMS-UI]] | driver & sales-rep screens | 2 |
-| [[OHFY-WMS]] | picking, shift-end, breakage, capacity | 2 |
+| [[OHFY-OMS]] | orders, delivery, AR / short-pay | 5 |
+| [[OHFY-OMS-UI]] | driver & sales-rep screens | 4 |
+| [[OHFY-WMS]] | picking, shift-end, breakage, capacity | 3 |
 | [[OHFY-WMS-UI]] | supervisor & picker screens | — |
 | [[OHFY-eCommerce]] | storefront, cart, notifications | 1 |
 | [[OHFY-eCommerce-UI]] | storefront screens | — |

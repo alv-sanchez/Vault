@@ -10,3 +10,4 @@
 | 2026-07-06 13:00 | Land #442 (Safety Stock, green+QA'd, 6 tickets). Then: open 3816 PR, re-run #431's flaky Playwright. Fresh Sprint 8 — close, don't hold. |
 | 2026-07-08 14:00 | Land #481 (DOH 3816/5702), then #470 · #488 · #439. Closing week — 4 built PRs open, don't start a 5th. |
 | 2026-07-13 14:24 | Merge-review PR #439 (BMS-5625, Short Pay Ph4) — open 12 days, at Handoff · Med |
+| 2026-07-15 12:xx | BMS-5161: mark #511 ready → merge; start the merge train |

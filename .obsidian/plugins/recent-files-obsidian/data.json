@@ -1,128 +1,204 @@
 {
   "recentFiles": [
     {
-      "basename": "0002-why-the-epic-is-tidy",
-      "path": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
-    },
-    {
-      "basename": "0001-how-safety-stock-flows",
-      "path": "Teachings/safety-stock-epic/lessons/0001-how-safety-stock-flows.html"
-    },
-    {
       "basename": "mission-control",
       "path": "Manager-Engineer/Mission-Control/mission-control.html"
     },
     {
-      "basename": "Build-Overview",
-      "path": "Manager-Engineer/Build-Overview/Build-Overview.html"
+      "basename": "Short-Pay-Ownership-Map",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html"
     },
     {
-      "basename": "lesson-1-what-it-solves",
-      "path": "Teachings/code-review/lesson-1-what-it-solves.html"
+      "basename": "Short-Pay-Child-Ticket-Approvals",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Child-Ticket-Approvals.html"
     },
     {
-      "basename": "cheat-sheet",
-      "path": "Teachings/code-review/cheat-sheet.html"
+      "basename": "Short-Pay-Build-Direction",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html"
     },
     {
-      "basename": "0001-prior-hands-on-code-review-exposure",
-      "path": "Teachings/code-review/learning-records/0001-prior-hands-on-code-review-exposure.md"
+      "basename": "demo",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/demo.html"
     },
     {
-      "basename": "NOTES",
-      "path": "Teachings/NOTES.md"
+      "basename": "freight-billback-mental-model",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/freight-billback-mental-model.html"
     },
     {
-      "basename": "RESOURCES",
-      "path": "Teachings/code-review/RESOURCES.md"
+      "basename": "Drawing 2026-07-16 09.02.24.excalidraw",
+      "path": "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md"
     },
     {
-      "basename": "MISSION",
-      "path": "Teachings/code-review/MISSION.md"
+      "basename": "diagram.excalidraw",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/diagram.excalidraw.md"
     },
     {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5113-doi-formula-standardization/overview.html"
+      "basename": "Short-Pay-Build-Direction",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.md"
     },
     {
-      "basename": "overview",
-      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/overview.html"
+      "basename": "Short-Pay-Publix-EFT Extraction",
+      "path": "Transcripts/Gulf On-site - Short Pays/Short-Pay-Publix-EFT Extraction.md"
     },
     {
-      "basename": "Build-Overview",
-      "path": "Manager-Engineer/Build-Overview/Build-Overview.md"
+      "basename": "audit-vs-onsite-jul14",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/audit-vs-onsite-jul14.md"
+    },
+    {
+      "basename": "2026-06-30 Finance & Accounting Demo Workshop — Action Items",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md"
+    },
+    {
+      "basename": "Transcript July 14th - Afternoon meeting",
+      "path": "Transcripts/Gulf On-site - Short Pays/Transcript July 14th - Afternoon meeting.md"
+    },
+    {
+      "basename": "proposal",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/proposal.md"
+    },
+    {
+      "basename": "mockup",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/mockup.html"
+    },
+    {
+      "basename": "Finance&Accounting - Demo Workshop",
+      "path": "Transcripts/BMS-4965 Short Pay Automation/Finance&Accounting - Demo Workshop.md"
+    },
+    {
+      "basename": "ASSUMPTIONS",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/ASSUMPTIONS.md"
+    },
+    {
+      "basename": "_HANDOFF-SUMMARY",
+      "path": "Transcripts/Gulf On-site - Short Pays/_HANDOFF-SUMMARY.md"
+    },
+    {
+      "basename": "Short-Pay-MANAGER-HANDOFF",
+      "path": "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.html"
+    },
+    {
+      "basename": "Short-Pay-MANAGER-HANDOFF",
+      "path": "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.md"
+    },
+    {
+      "basename": "README",
+      "path": "Manager-Engineer/Mission-Control/README.md"
     },
     {
       "basename": "understand-TICKETS",
       "path": "Manager-Engineer/Build-Overview/understand-TICKETS/understand-TICKETS.html"
     },
     {
+      "basename": "BMS-5113-feedback",
+      "path": "Manager-Engineer/Feedback/BMS-5113-feedback.md"
+    },
+    {
+      "basename": "erd-and-flows",
+      "path": "Teachings/supplier-freight-cost-billbacks/reference/erd-and-flows.md"
+    },
+    {
+      "basename": "pr-491-overview",
+      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-491-overview.html"
+    },
+    {
+      "basename": "0001-what-youre-solving",
+      "path": "Teachings/supplier-freight-cost-billbacks/lessons/0001-what-youre-solving.html"
+    },
+    {
+      "basename": "lesson-1-what-it-solves",
+      "path": "Teachings/code-review/lesson-1-what-it-solves.html"
+    },
+    {
+      "basename": "0002-why-the-epic-is-tidy",
+      "path": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
+    },
+    {
+      "basename": "BMS-5060-feedback",
+      "path": "Manager-Engineer/Feedback/BMS-5060-feedback.md"
+    },
+    {
+      "basename": "BMS-4996-feedback",
+      "path": "Manager-Engineer/Feedback/BMS-4996-feedback.md"
+    },
+    {
+      "basename": "BMS-4935-feedback",
+      "path": "Manager-Engineer/Feedback/BMS-4935-feedback.md"
+    },
+    {
+      "basename": "All",
+      "path": "All.base"
+    },
+    {
+      "basename": "Skills",
+      "path": "Personal/Skills.md"
+    },
+    {
+      "basename": "erd-and-flows",
+      "path": "Teachings/supplier-freight-cost-billbacks/reference/erd-and-flows.html"
+    },
+    {
+      "basename": "overview",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/overview.html"
+    },
+    {
+      "basename": "RESOURCES",
+      "path": "Teachings/supplier-freight-cost-billbacks/RESOURCES.md"
+    },
+    {
+      "basename": "0002-two-doors-one-ledger",
+      "path": "Teachings/supplier-freight-cost-billbacks/lessons/0002-two-doors-one-ledger.html"
+    },
+    {
+      "basename": "0001-starting-point-can-run-it-wants-the-whole-picture",
+      "path": "Teachings/supplier-freight-cost-billbacks/learning-records/0001-starting-point-can-run-it-wants-the-whole-picture.md"
+    },
+    {
+      "basename": "orientation",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/orientation.md"
+    },
+    {
+      "basename": "overview",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/overview.md"
+    },
+    {
+      "basename": "orientation",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/orientation.html"
+    },
+    {
+      "basename": "BMS-4051 — Cart Ph 2 — Volume Tiers & Promos",
+      "path": "Anvil/Manager/Managing Tickets/Gulf Retailer Portal Epic Specfic/BMS-4051 — Cart Ph 2 — Volume Tiers & Promos.md"
+    },
+    {
+      "basename": "SESSION",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/SESSION.md"
+    },
+    {
       "basename": "pr-503-overview",
       "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-503-overview.html"
-    },
-    {
-      "basename": "doh-schema",
-      "path": "Manager-Engineer/Diagrams/doh-schema.md"
-    },
-    {
-      "basename": "dbml-render-test",
-      "path": "Manager-Engineer/Diagrams/dbml-render-test.md"
-    },
-    {
-      "basename": "pr-464-overview",
-      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-464-overview.html"
-    },
-    {
-      "basename": "Drawing 2026-07-13 10.31.58.excalidraw",
-      "path": "Excalidraw/Drawing 2026-07-13 10.31.58.excalidraw.md"
     },
     {
       "basename": "pr-489-overview",
       "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-489-overview.html"
     },
     {
-      "basename": "price-resolver-pr286",
-      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/price-resolver-pr286.html"
+      "basename": "overview",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5113-doi-formula-standardization/overview.html"
     },
     {
-      "basename": "ohfy-doh-safety-stock",
-      "path": "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas"
+      "basename": "dbml-render-test",
+      "path": "Manager-Engineer/Diagrams/dbml-render-test.md"
     },
     {
-      "basename": "ohfy-doh-safety-stock",
-      "path": "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.md"
+      "basename": "BMS-5161-supplier-freight-cost-billbacks",
+      "path": "Manager-Engineer/Epics/AR-Finance/BMS-5161-supplier-freight-cost-billbacks.md"
     },
     {
-      "basename": "claude-code-review-process",
-      "path": "Anvil/Engineering/Sprints/Visuals/Process-Tooling/claude-code-review-process.html"
+      "basename": "Build-Overview",
+      "path": "Manager-Engineer/Build-Overview/Build-Overview.html"
     },
     {
-      "basename": "refresh-log",
-      "path": "Manager-Engineer/Mission-Control/refresh-log.md"
-    },
-    {
-      "basename": "BMS-4936-launch-planning-coordination",
-      "path": "Manager-Engineer/Epics/Allocation-Launch-Planning/BMS-4936-launch-planning-coordination.md"
-    },
-    {
-      "basename": "SKILL",
-      "path": "Manager-Engineer/_skills-backup/strata/SKILL.md"
-    },
-    {
-      "basename": "ECOM-Ordering-Epic-Accomplishable-Analysis",
-      "path": "Anvil/Manager/Managing Tickets/Promotion Blockers/ECOM-Ordering-Epic-Accomplishable-Analysis.md"
-    },
-    {
-      "basename": "Alvaro Sanchez - Ticket Overview",
-      "path": "Anvil/Manager/Managing Tickets/Alvaro Sanchez - Ticket Overview.md"
-    },
-    {
-      "basename": "BMS-5067-practical-days-on-hand",
-      "path": "Manager-Engineer/Epics/Inventory-Replenishment/BMS-5067-practical-days-on-hand.md"
-    },
-    {
-      "basename": "BMS-5083-pick-location-capacity",
-      "path": "Manager-Engineer/Epics/Warehouse-WMS/BMS-5083-pick-location-capacity.md"
+      "basename": "0001-how-safety-stock-flows",
+      "path": "Teachings/safety-stock-epic/lessons/0001-how-safety-stock-flows.html"
     }
   ],
   "omittedPaths": [],

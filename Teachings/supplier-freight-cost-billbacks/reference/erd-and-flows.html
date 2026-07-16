@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Freight Billbacks: ERD &amp; Flows (BMS-5161)</title>
+<style>
+/* Shared visual identity with the Safety-Stock / Code-Review teaching sets, so
+   the courses feel like one shelf. Freight gets a green accent (recovered $$). */
+:root {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4;
+  --accent: #2f6b4f;            /* freight/recovery green */
+  --accent-soft: #e0f0e6; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink:#e9e4d8; --paper:#1c1a16; --rule:#40392c; --accent:#7fc79c;
+    --accent-soft:#1e2c24; --muted:#a39a86; --code-bg:#2a251d;
+    --blocker:#e2695a; --warning:#d9a441; --suggestion:#7fae8f; }
+}
+:root[data-theme="dark"] { --ink:#e9e4d8; --paper:#1c1a16; --rule:#40392c; --accent:#7fc79c;
+  --accent-soft:#1e2c24; --muted:#a39a86; --code-bg:#2a251d;
+  --blocker:#e2695a; --warning:#d9a441; --suggestion:#7fae8f; }
+:root[data-theme="light"] { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#d8d3c4; --accent:#2f6b4f;
+  --accent-soft:#e0f0e6; --muted:#6b6558; --code-bg:#f1efe6;
+  --blocker:#a8321f; --warning:#a1720b; --suggestion:#4a6b57; }
+
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body {
+  max-width: 860px; margin: 0 auto; padding: 4rem 2rem 6rem;
+  background: var(--paper); color: var(--ink);
+  font-family: var(--serif); font-size: 19px; line-height: 1.55;
+}
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 0.3rem; font-weight: 600; }
+.kicker { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 2rem; }
+h2 { font-size: 1.3rem; margin: 2.8rem 0 0.8rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem; }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.5rem; color: var(--accent); }
+p { margin: 0.9rem 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+.lede { font-size: 1.15rem; color: var(--muted); border-left: 3px solid var(--accent);
+  padding-left: 1rem; margin: 1.5rem 0 2rem; }
+.callout { background: var(--accent-soft); border-radius: 6px; padding: 1rem 1.3rem; margin: 1.3rem 0; font-size: 0.95rem; }
+.callout .label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.3rem; }
+code, .mono { font-family: var(--mono); font-size: 0.85em; background: var(--code-bg);
+  color: var(--ink); padding: 0.1em 0.35em; border-radius: 3px; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; line-height: 1.45; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.diagram { margin: 1.4rem 0; padding: 1rem; border: 1px solid var(--rule); border-radius: 8px; overflow-x: auto; background: var(--paper); }
+.mermaid { text-align: center; }
+.mnemonic { background: #14211a; color: #eaf3ee; border-radius: 10px; padding: 1.6rem 1.8rem; margin: 2.5rem 0; }
+.mnemonic .label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9dc7b0; margin-bottom: 0.6rem; display: block; }
+.mnemonic .big { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.01em; margin-bottom: 0.8rem; }
+.mnemonic .letter { color: #6fd39c; }
+.ask-agent { margin-top: 2.5rem; font-size: 0.85rem; color: var(--muted); font-style: italic; }
+@media print { body { padding: 1rem; font-size: 15px; } .ask-agent { display:none; } }
+</style>
+</head>
+<body>
+
+<p class="kicker">Quick Reference &middot; Epic BMS-5161 — Supplier Freight Cost Billbacks</p>
+<h1>ERD &amp; Flows — the whole picture</h1>
+<p class="lede">The data model and every control flow on one page. Code-verified against the <code>integration/bms-5161-validation</code> worktree.</p>
+
+<div class="callout">
+  <span class="label">The one idea</span>
+  Freight billback is <strong>not</strong> a new recovery system. It is a new <code>Type__c = 'Freight'</code> on the already-shipped <strong>BMS-4141</strong> <code>Billback__c</code> ledger, fed by <strong>two new source triggers</strong>: a completed cross-state <strong>Transfer</strong>, and a reconciled <strong>PO</strong>. Reuse the trunk; add two doors.
+</div>
+
+<h2>1. Data model — DBML</h2>
+<p>Paste into <a href="https://dbdiagram.io">dbdiagram.io</a> for an interactive render. All FKs verified in <code>OHFY-Data-Model/.../objects/*/fields</code>.</p>
+<pre><code>Table Account {
+  Id   varchar [pk]
+  Note: 'Standard. THREE roles: Billback counterparty, Transfer freight acct, PO supplier.'
+}
+
+Table Supplier_Funding_Agreement__c {
+  Id                  varchar [pk]
+  Supplier__c         varchar [ref: &gt; Account.Id]   // Lookup
+  Coverage_Default__c number                          // % recoverable -&gt; drives coverage
+  State__c            varchar
+  Is_Active__c        boolean
+  Note: 'BMS-4141. Cascade: agreement Coverage_Default__c -&gt; account default -&gt; 100% cap.'
+}
+
+Table Transfer_Group__c {                             // OHFY-WMS
+  Id                             varchar [pk]
+  Status__c                      varchar   // New -&gt; In Progress -&gt; Complete
+  // ── BMS-5789 / PR #511 ──
+  Freight_Cost__c                number    // Currency(18,2)
+  Freight_Cost_Source__c         varchar   // Truck Builder | Manual | Import | API
+  Recoverable_Freight_Account__c varchar [ref: &gt; Account.Id]  // Lookup
+  Is_Cross_State__c              boolean   // Formula: Origin state &lt;&gt; Dest state
+}
+
+Table Purchase_Order__c {                             // OHFY-WMS
+  Id                          varchar [pk]
+  Status__c                   varchar
+  Supplier__c                 varchar [ref: &gt; Account.Id]  // Master-Detail
+  // ── BMS-5791 / PR #516 ──
+  Supplier_Owes_Freight__c    boolean   // set at reconciliation = trigger signal
+  Recoverable_Freight_Cost__c number    // Currency(18,2)
+}
+
+Table Billback__c {                                   // BMS-4141 ledger
+  Id                          varchar [pk]
+  Account__c                  varchar [ref: &gt; Account.Id]  // Lookup (counterparty-generic)
+  Type__c                     varchar   // Billback|Rebate|...|MDF|FREIGHT
+  Status__c                   varchar
+  Coverage_Percent__c         number
+  Total_Recoverable_Amount__c number
+  Has_Related_Claim__c        boolean   // BMS-5790 AC4 (overlap audit)
+  External_Id__c              varchar [unique]  // deterministic -&gt; idempotent upsert
+}
+
+Table Billback_Line__c {
+  Id                    varchar [pk]
+  Billback__c           varchar [ref: &gt; Billback__c.Id]         // Master-Detail
+  Transfer_Group__c     varchar [ref: &gt; Transfer_Group__c.Id]   // Lookup (transfer source)
+  Purchase_Order__c     varchar [ref: &gt; Purchase_Order__c.Id]   // Lookup (PO source)
+  Amount__c             number
+  Recoverable_Amount__c number
+  Coverage_Percent__c   number
+  External_Id__c        varchar [unique]
+}</code></pre>
+
+<h3>The same ERD, rendered</h3>
+<div class="diagram"><pre class="mermaid">
+erDiagram
+  Account ||--o{ Supplier_Funding_Agreement__c : "supplier (Lookup)"
+  Account ||--o{ Billback__c                    : "counterparty (Lookup)"
+  Account ||--o{ Transfer_Group__c              : "freight acct (Lookup)"
+  Account ||--o{ Purchase_Order__c              : "supplier (M-D)"
+  Billback__c       ||--|{ Billback_Line__c     : "Master-Detail"
+  Transfer_Group__c ||--o{ Billback_Line__c     : "source (Lookup)"
+  Purchase_Order__c ||--o{ Billback_Line__c     : "source (Lookup)"
+</pre></div>
+<p>An <code>Account</code> shows up three ways. Its funding agreement says what % is recoverable. A completed <code>Transfer_Group__c</code> or a reconciled <code>Purchase_Order__c</code> becomes a <code>Billback__c</code> (Type = Freight) with a <code>Billback_Line__c</code> pointing <em>back</em> at whichever source created it.</p>
+
+<h2>2. Flow A — Transfer → Complete → Billback</h2>
+<div class="diagram"><pre class="mermaid">
+flowchart TD
+  A["Transfer_Group__c<br/>Status: New → Complete"] --&gt;|afterUpdate| B{"GATE<br/>Status=='Complete'<br/>&amp;&amp; old!='Complete'"}
+  B --&gt;|no| X[skip]
+  B --&gt;|yes| C["TransferGroupTriggerService<br/>.generateFreightBillbacks()"]
+  C --&gt; D["ServiceLocator.resolve<br/>('FreightBillbackService')<br/>Tier-1 interface"]
+  D --&gt; E["enqueue<br/>Q_FreightBillbackGeneration"]
+  E --&gt; F["S_FreightBillbackCalculation<br/>idempotent · deterministic External_Id<br/>· stale-line retraction"]
+  F --&gt; G[("Billback__c Type=Freight<br/>+ Billback_Line__c<br/>Transfer_Group__c FK")]
+  SFA["S_SupplierFundingAgreement<br/>coverage cascade"] --&gt; F
+  H["B_FreightBillbackDetection<br/>nightly sweep"] -.-&gt;|idempotent backstop| F
+</pre></div>
+<p><strong>Gate:</strong> fires only on the <code>→ Complete</code> transition (<code>Status__c == 'Complete' &amp;&amp; old != 'Complete'</code>) — the literal "set to complete" trigger. A billback-side error never fails the transfer save; the nightly sweep regenerates it.</p>
+
+<h2>3. Flow B — PO → Reconciliation → Billback</h2>
+<div class="diagram"><pre class="mermaid">
+flowchart TD
+  A["Purchase_Order__c<br/>reconciliation edit"] --&gt;|afterUpdate| B{"GATE<br/>Supplier_Owes_Freight__c==true<br/>&amp;&amp; Recoverable_Freight_Cost__c != null<br/>&amp;&amp; Supplier__c != null<br/>&amp;&amp; changed"}
+  B --&gt;|no| X[skip]
+  B --&gt;|yes| C["PurchaseOrderTriggerService<br/>.generateFreightBillbacks()"]
+  C --&gt; D["ServiceLocator.resolve<br/>('POFreightBillbackService')<br/>Tier-1 interface"]
+  D --&gt; E["enqueue<br/>Q_POFreightBillbackGeneration"]
+  E --&gt; F["S_POFreightBillbackCalculation<br/>idempotent upsert"]
+  F --&gt; G[("Billback__c Type=Freight<br/>+ Billback_Line__c<br/>Purchase_Order__c FK")]
+  H["B_POFreightBillbackDetection<br/>nightly sweep"] -.-&gt;|backstop| F
+</pre></div>
+<div class="callout">
+  <span class="label">The one difference from Flow A</span>
+  The PO path fires on the <strong>freight-owed reconciliation signal</strong> (<code>Supplier_Owes_Freight__c</code> set + amount/supplier present + changed), <strong>not</strong> on <code>Status = Complete</code>. Same end result — a freight <code>Billback__c</code> — different trigger point, by design (freight on a PO is <em>discovered at reconciliation</em>, a separate act from the PO closing).
+</div>
+
+<h2>4. Cross-tier architecture — why WMS never touches OMS directly</h2>
+<div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph WMS["OHFY-WMS · Tier 3"]
+    TG["TransferGroupTriggerService"]
+    PO["PurchaseOrderTriggerService"]
+  end
+  subgraph SL["OHFY-Service-Locator · Tier 1"]
+    I1[["FreightBillbackService (iface)"]]
+    I2[["POFreightBillbackService (iface)"]]
+  end
+  subgraph OMS["OHFY-OMS · Tier 3"]
+    S1["S_FreightBillbackService (impl)"]
+    S2["S_POFreightBillbackService (impl)"]
+    C1["S_FreightBillbackCalculation"]
+    C2["S_POFreightBillbackCalculation"]
+    SFA["S_SupplierFundingAgreement"]
+  end
+  TG --&gt; I1 --&gt; S1 --&gt; C1
+  PO --&gt; I2 --&gt; S2 --&gt; C2
+  C1 --&gt; SFA
+  C2 --&gt; SFA
+</pre></div>
+<p>WMS and OMS are <strong>sibling Tier-3 packages</strong> — WMS can't compile against an OMS concrete type. So the trigger resolves an <strong>interface registered in the Tier-1 Service-Locator</strong>, and OMS supplies the implementation at runtime. Same seam as the shipped <code>DeliveryUpdaterService</code>.</p>
+
+<h2>5. Overlap audit (BMS-5790 AC4)</h2>
+<div class="diagram"><pre class="mermaid">
+flowchart LR
+  A["B_FreightClaimOverlapAudit<br/>nightly · S_FreightClaimOverlapAudit"] --&gt; B{"Freight Billback's source<br/>Transfer_Group__c also<br/>has a Claim__c?"}
+  B --&gt;|yes| C["stamp Billback__c<br/>.Has_Related_Claim__c = true"]
+  B --&gt;|no| D["clear flag<br/>reflects current state"]
+  C --&gt; E["surfaced on<br/>Freight_Billbacks list view"]
+</pre></div>
+<p>Closes the freight-vs-claim <strong>double-recovery</strong> gap: if Gulf already filed a <code>Claim__c</code> on the same shipment, the freight billback is flagged for manual review rather than silently double-recovering. Idempotent.</p>
+
+<h2>6. The money, end to end (live-verified)</h2>
+<table>
+<thead><tr><th>Source</th><th>Cost</th><th>Coverage</th><th>Recoverable billback</th></tr></thead>
+<tbody>
+<tr><td>Cross-state Transfer</td><td>$1,200</td><td>40%</td><td><strong>$480</strong></td></tr>
+<tr><td>PO reconciliation</td><td>$300</td><td>40%</td><td><strong>$120</strong></td></tr>
+</tbody>
+</table>
+<p>Both generated by the <strong>real trigger hooks</strong> in <code>bms-5113-5161-integration</code>, not direct service calls.</p>
+
+<div class="mnemonic">
+<span class="label">Reload the whole picture in two lines</span>
+<div class="big">"Two doors, one ledger — freight is a <span class="letter">Type</span>, not a system."</div>
+<div><strong>Doors:</strong> Transfer <em>on Complete</em> · PO <em>on reconciliation</em>. &nbsp; <strong>The hallway both walk:</strong> <span class="letter">G</span>ate → <span class="letter">R</span>esolve (Service-Locator) → <span class="letter">E</span>nqueue → <span class="letter">C</span>alculate (idempotent upsert). &nbsp;<em>G·R·E·C.</em></div>
+</div>
+
+<p class="ask-agent">This page is the compressed technical essence of BMS-5161 — revisit it to reload the ERD and flows fast.</p>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches
+    || document.documentElement.getAttribute('data-theme') === 'dark';
+  mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'neutral', securityLevel: 'loose' });
+</script>
+</body>
+</html>

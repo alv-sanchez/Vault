@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Pay — Build Direction (BMS-4965)</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --yes:#1a7f47; --yes-bg:#e7f5ee; --no:#b3261e; --no-bg:#fbe6e4;
+    --blue:#2f6df6; --blue-bg:#e9f0ff; --amber:#9a6a00; --amber-bg:#fbf1d9; --purple:#6b4de6; --purple-bg:#efeaff;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+      --yes:#5fd08a; --yes-bg:#12251a; --no:#f2938c; --no-bg:#2a1513;
+      --blue:#6ea0ff; --blue-bg:#17233d; --amber:#e6b85c; --amber-bg:#2a2210; --purple:#b3a1ff; --purple-bg:#1e1938;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e3e6eb; --soft:#eef1f5;
+    --yes:#1a7f47; --yes-bg:#e7f5ee; --no:#b3261e; --no-bg:#fbe6e4;
+    --blue:#2f6df6; --blue-bg:#e9f0ff; --amber:#9a6a00; --amber-bg:#fbf1d9; --purple:#6b4de6; --purple-bg:#efeaff;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34; --soft:#1e232c;
+    --yes:#5fd08a; --yes-bg:#12251a; --no:#f2938c; --no-bg:#2a1513;
+    --blue:#6ea0ff; --blue-bg:#17233d; --amber:#e6b85c; --amber-bg:#2a2210; --purple:#b3a1ff; --purple-bg:#1e1938;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:30px 20px 70px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+  h1{font-size:25px;margin:6px 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:13.5px;}
+  .sub a{color:var(--blue);text-decoration:none;} .sub a:hover{text-decoration:underline;}
+  .why{margin-top:14px;padding:12px 15px;background:var(--blue-bg);border-radius:11px;font-size:13.5px;}
+  .why b{color:var(--ink);}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:30px 0 12px;}
+  .verdict-card{border:1px solid var(--amber);border-radius:14px;background:var(--card);overflow:hidden;}
+  .vc-head{background:var(--amber-bg);padding:15px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .vc-badge{font-size:15px;font-weight:800;color:var(--amber);letter-spacing:.02em;}
+  .vc-head .k{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--blue);text-decoration:none;}
+  .vc-head .meta{font-size:12px;color:var(--muted);margin-left:auto;}
+  .vc-body{padding:16px 18px;}
+  .vc-body p.lead{margin:0 0 14px;font-size:13.5px;color:var(--muted);}
+  .vc-body p.lead b{color:var(--ink);}
+  ol.check{margin:0;padding-left:0;list-style:none;counter-reset:c;display:flex;flex-direction:column;gap:9px;}
+  ol.check li{position:relative;padding:10px 12px 10px 40px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px;}
+  ol.check li::before{counter-increment:c;content:counter(c);position:absolute;left:12px;top:10px;width:20px;height:20px;border-radius:50%;background:var(--muted);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  ol.check li.red::before{background:var(--no);} ol.check li.amber::before{background:var(--amber);} ol.check li.green::before{background:var(--yes);}
+  li b{color:var(--ink);} code{background:var(--soft);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;}
+  .acrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .ac{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;}
+  .ac.ok{background:var(--yes-bg);color:var(--yes);} .ac.part{background:var(--amber-bg);color:var(--amber);} .ac.defer{background:var(--purple-bg);color:var(--purple);}
+  .lanes{display:flex;flex-direction:column;gap:12px;}
+  .lane{border:1px solid var(--line);border-radius:13px;background:var(--card);overflow:hidden;}
+  .lane .lh{padding:11px 15px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line);}
+  .lane.now .lh{background:var(--yes-bg);color:var(--yes);} .lane.next .lh{background:var(--blue-bg);color:var(--blue);}
+  .lane.later .lh{background:var(--purple-bg);color:var(--purple);} .lane.close .lh{background:var(--soft);color:var(--muted);}
+  .lane .lb{padding:12px 15px;display:flex;flex-direction:column;gap:9px;}
+  .step{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);}
+  .step .t{font-weight:600;font-size:13.5px;margin-bottom:3px;}
+  .step .t a{color:var(--blue);text-decoration:none;font-family:ui-monospace,Menlo,monospace;}
+  .step .d{font-size:12.5px;color:var(--muted);}
+  .step .d b{color:var(--ink);}
+  .flag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--amber-bg);color:var(--amber);margin-top:5px;}
+  .flag.intg{background:var(--purple-bg);color:var(--purple);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:700;}
+  tr:last-child td{border-bottom:none;} td b{color:var(--ink);}
+  .box{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px 16px;font-size:13px;}
+  ul.tight{margin:0;padding-left:18px;} ul.tight li{margin:5px 0;}
+  .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Short Pay Automation · Build Direction · for the engineer</div>
+    <h1>What to build — BMS-4965</h1>
+    <div class="sub">Direction from the Jul-14 Gulf on-site + live epic state. Epic <a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> (In Progress). · <b>2026-07-15</b></div>
+    <div class="why"><b>The why (on-site):</b> Gulf wants to <b>prevent</b> short pays at the source — but EFT can't hit zero (async; a discount the customer takes at payment time; no in-person moment). So a <b>back-office handling + approval path is mandatory</b> for the residual. This page is the <i>what-to-build</i>; the full reasoning + line citations live in <code>Short-Pay-Publix-EFT Extraction.md</code>.</div>
+  </header>
+
+  <h2>PR #439 / BMS-5625 — verdict</h2>
+  <div class="verdict-card">
+    <div class="vc-head">
+      <span class="vc-badge">⚠️ ITERATE</span>
+      <a class="k" href="https://github.com/Ohanafy/OHFY-Split/pull/439">PR #439</a>
+      <a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a>
+      <span class="meta">open · not merged · <code>mergeable: blocked</code> · +1249/−11 · 24 files</span>
+    </div>
+    <div class="vc-body">
+      <p class="lead"><b>Good foundation, not landable as-is.</b> Ph-4a scope is right (stateless hard-gate; engine = custom Apex + <code>Short_Pay_Approval_Layer__mdt</code> — the correct 07-01 design), and the gate boundaries were live-smoked ($30 allow · $50/$250/$1000 → layer 1/2/3). It's <b>blocked</b> and needs a focused iteration pass to land:</p>
+      <ol class="check">
+        <li class="red">🔴 <b>Green the CI — top blocker.</b> <b>Apex Tests</b> and <b>Playwright E2E</b> are <b>FAILING</b> in the pipeline, despite the PR body's "106 Apex / 25 Jest pass locally." Reconcile local-vs-CI (likely seed/env skew or the <code>OMS_UI_Wrappers</code> staleness-vs-POS-merge noted on the epic). Fix only this branch's failures.</li>
+        <li class="amber">🟠 <b>Remove leftover debug statements</b> — <code>E_DriverHome.cls:2814</code> (reviewer thomas-spangler, thread open).</li>
+        <li class="amber">🟠 <b>Answer the design Q</b> — <i>"expand the gate to more workflows?"</i> (thomas-spangler). Engine is already generic (<code>S_ShortPayApprovalGate</code> + CMDT); recommend: yes, reusable by design → coordinate with Bryson's central-approval component (BMS-4396) — but keep 5625 scoped.</li>
+        <li class="amber">🟠 <b>Visual banner smoke</b> — AC2 "Awaiting Approval" banner is Jest-covered but never rendered on a staged driver persona. Smoke it on Driver Home before demo.</li>
+        <li class="green">🟢 <b>Get an approving review</b> — only COMMENTED reviews so far; the Claude bot review was <b>skipped (org spend cap)</b>. Need a human approve (or re-trigger once the cap resets).</li>
+        <li class="green">✅ <b>After green + approved → merge</b>, then clear the stale <b>"Needs Refinement"</b> status and load the O-1 thresholds (below).</li>
+      </ol>
+      <div class="acrow">
+        <span class="ac ok">AC1 allow ✓</span><span class="ac ok">AC6 config ✓</span><span class="ac ok">AC7 in-app ✓</span>
+        <span class="ac part">AC2 block · partial (stateless)</span><span class="ac defer">AC3–5 → BMS-5631</span>
+        <span class="ac part">AC8 cov: gate 96% · DTO 100% · E_DriverHome 79% (legacy)</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Build order — what to build, in sequence</h2>
+  <div class="lanes">
+
+    <div class="lane now">
+      <div class="lh">🟢 NOW — approved, dependency-safe, disjoint</div>
+      <div class="lb">
+        <div class="step"><div class="t"><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a> · Ph 4a driver gate</div><div class="d">Run the iteration checklist above → <b>land PR #439.</b> Then load O-1 config. Engineer-owned (confirmed SF screen).</div></div>
+        <div class="step"><div class="t"><a href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a> + <a href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a> · Ph 2/3 back-office queue</div><div class="d">Finish the parked branch (<code>feat/short-pay-backoffice-bms-4965</code>): seed-skew fix + tests + PR. This is the queue the on-site says is mandatory for the EFT residual. <b>Load O-1 thresholds.</b> <span class="flag">+2 missing ACs on 4060: roll→next-invoice (FL 10-day) · sales-rep collection</span></div></div>
+      </div>
+    </div>
+
+    <div class="lane next">
+      <div class="lh">🟠 NEXT — after 5625 merges</div>
+      <div class="lb">
+        <div class="step"><div class="t"><a href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a> · Ph 4b approve/reject workflow</div><div class="d">Stateful multi-layer approve/reject (AC3–5): persisted <code>Short_Pay_Approval_State__c</code>, sequential per-layer, role-filtered by <code>Approver_Source</code>, modeled on <code>POSRequestController</code>. Also satisfies Thomas's "reuse across workflows." <span class="flag">+notification AC (Q4): finalize-short-pay surfacing — default bell/push + queue, recipient configurable (Chatter never named)</span></div></div>
+      </div>
+    </div>
+
+    <div class="lane later">
+      <div class="lh">🔵 LATER / GATED — not engineer-buildable now</div>
+      <div class="lb">
+        <div class="step"><div class="t"><a href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626</a> · Ph 5 EFT</div><div class="d">🚩 <b>Integration-owned (I-1).</b> Engineer builds ONLY the consume slice (<code>Amount_Paid &lt; Total_Due → Status=Open</code> into the 4060 queue) <b>after</b> the bank-rec feed lands. <span class="flag intg">gated: Product consume-vs-build + Publix DEX</span></div></div>
+        <div class="step"><div class="t"><a href="https://ohanafy.atlassian.net/browse/BMS-5627">BMS-5627</a> · Ph 6 AR aging</div><div class="d"><b>Split.</b> Short-pay aging already covered by 4059/4060's per-state aging. General net-30 "not-yet-due" view = separate configurable AR scope (metadata aging buckets, reuse per-state config). <span class="flag">confirm split w/ Product</span></div></div>
+      </div>
+    </div>
+
+    <div class="lane close">
+      <div class="lh">⚫ CLOSE / PARK — not work (dispositions posted to Jira)</div>
+      <div class="lb">
+        <div class="box"><ul class="tight">
+          <li><b>Close:</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4057">4057</a> (superseded — model decided), <a href="https://ohanafy.atlassian.net/browse/BMS-4058">4058</a> (delivered under BMS-3844).</li>
+          <li><b>Park (empty):</b> <a href="https://ohanafy.atlassian.net/browse/BMS-4784">4784</a> (demo live via 5625), <a href="https://ohanafy.atlassian.net/browse/BMS-4785">4785</a> / <a href="https://ohanafy.atlassian.net/browse/BMS-4786">4786</a> (reporting folded into 4060).</li>
+          <li><b>Needs info (separate lane):</b> <a href="https://ohanafy.atlassian.net/browse/BMS-5561">5561</a> returns mismatch + recon credit hold.</li>
+        </ul></div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>O-1 thresholds to load (decided 2026-07-15 · configurable)</h2>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>State</th><th>Auto-accept if short ≤</th><th>Aging</th><th>Basis</th></tr></thead>
+      <tbody>
+        <tr><td><b>AL</b></td><td><b>$0</b> — always route</td><td>0 days</td><td>Cash/COD by rule — AL ABC Ch. 20-X-8</td></tr>
+        <tr><td><b>FL</b></td><td><b>$50 AND ≤ 2%</b> (lower-of)</td><td>7 days</td><td>§561.42 10-day window (escalate before trigger)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box" style="margin-top:10px;">
+    <b>Where it lands:</b> gate cutoff → <code>Short_Pay_Approval_Layer__mdt</code> Layer-1 <code>Threshold_Min__c</code> per state (AL $0 / FL $50) · FL 2% → <code>Threshold_Percent</code> (shipped-dormant per comment 56551 — confirm/enable) · aging → <code>Short_Pay_Threshold__mdt</code> by <code>BillingState</code> (4059). ⚠️ Reconcile both CMDTs carry the right per-state values; % + aging are AI-assumed defaults to ratify w/ Ops.
+  </div>
+
+  <h2>Open decisions (routed — none block the engineer)</h2>
+  <div class="box"><ul class="tight">
+    <li><b>Invoice-cut authorization</b> — can drivers cut/edit a line, who approves → Jimmy/Ashton, Thursday pricing call.</li>
+    <li><b>Publix DEX build-vs-consume</b> (scopes 5626) → Product.</li>
+    <li><b>Notification channel + recipient</b> → Ops + AR, confirm Product.</li>
+    <li><b>"Rebill" as a formal outcome</b> → Product (Emily).</li>
+    <li><b>Non-deliverable enforcement until paid</b> — unticketed; keep/drop decision (Gulf flagged caution).</li>
+    <li><b>FL $50 / 2% / 7-day</b> — ratify vs Gulf's real invoice sizes → Ops.</li>
+  </ul></div>
+
+  <div class="box" style="margin-top:12px;border-color:var(--purple);">
+    <b>🚩 Explicitly NOT engineer scope</b> (so it doesn't land on you by default): Publix DEX sync (I-2), bank-rec detection feed (I-1), check-scan/OCR (I-4, epic-excluded). Engineer <b>consumes</b>; does not build the pipe.
+  </div>
+
+  <div class="foot">
+    Sources: on-site direction (<code>Short-Pay-Publix-EFT Extraction.md</code>); live BMS-4965 children + comments (54842, 56551, 58613, 58671, 58672, 58678, 58728–58734); PR #439 live GitHub state + CI + reviews (2026-07-15). Verdicts are the engineer's build-order call; no Jira statuses transitioned.
+  </div>
+</div>
+</body>
+</html>
