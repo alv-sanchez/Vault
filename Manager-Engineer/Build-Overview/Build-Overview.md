@@ -22,7 +22,7 @@ Each epic has its own self-contained folder: `overview.md` + `overview.html` (st
 - [[BMS-5070-shift-end-workflow/overview|🔵 BMS-5070 — Shift-End Workflow]]
 - [[BMS-5068-safety-stock/overview|🟢 BMS-5068 — Safety Stock]]
 - [[BMS-5083-pick-location-capacity/overview|🔵 BMS-5083 — Pick Location Capacity]]
-- [[BMS-4965-short-pay/overview|🟣 BMS-4965 — Short Pay]]
+- [[Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview|🟣 BMS-4965 — Short Pay]]
 
 ---
 

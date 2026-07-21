@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Predict → Prove</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  :root{
+    --bg:#16181d; --panel:#1e2128; --panel2:#242833; --line:#2f333d;
+    --ink:#e7e9ee; --dim:#9aa1ad; --faint:#6b7280;
+    --accent:#7c9cff; --good:#4ade80; --bad:#f87171; --new:#fbbf24;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--accent)}
+  .wrap{max-width:860px;margin:0 auto;padding:28px 20px 80px}
+  header.top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  h1{font-size:22px;margin:0;letter-spacing:-.3px}
+  h1 .arrow{color:var(--accent)}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 22px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+  .stat .n{font-size:26px;font-weight:700;letter-spacing:-.5px}
+  .stat .l{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);margin-top:2px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:18px}
+  .card h2{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card .hint{color:var(--dim);font-size:12.5px;margin:0 0 16px}
+  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  label.f{display:block;margin-bottom:14px}
+  label.f .q{font-size:13px;color:var(--ink);font-weight:600;margin-bottom:5px;display:block}
+  label.f .q .k{color:var(--faint);font-weight:400}
+  input[type=text],textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:9px 11px;font:inherit;resize:vertical}
+  input[type=text]:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  textarea{min-height:52px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:9px;padding:9px 15px;cursor:pointer;transition:.12s}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#0b0d12;border-color:var(--accent)}
+  button.ghost{background:transparent}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .score-row{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+  .score-row:first-of-type{border-top:none}
+  .score-row .txt{flex:1;min-width:0}
+  .score-row .qh{font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+  .score-row .pv{font-size:14px;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-top:2px}
+  .verdicts{display:flex;gap:6px;flex-shrink:0}
+  .vb{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:16px;
+    border:1px solid var(--line);background:var(--panel2);cursor:pointer;opacity:.45;transition:.12s}
+  .vb:hover{opacity:.8}
+  .vb.on{opacity:1;transform:scale(1.05)}
+  .vb.good.on{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+  .vb.bad.on{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+  .vb.new.on{border-color:var(--new);box-shadow:0 0 0 1px var(--new)}
+  .lockrow{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+  .hist{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .hrow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
+  .hrow:first-child{border-top:none}
+  .hrow:hover{background:var(--panel2)}
+  .hrow .tid{font-weight:700;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  .hrow .date{color:var(--faint);font-size:12px}
+  .hrow .mini{margin-left:auto;display:flex;gap:3px;font-size:13px}
+  .empty{color:var(--faint);text-align:center;padding:26px;font-size:13.5px}
+  .note{background:var(--panel2);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;color:var(--dim)}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--good);color:#08210f;
+    padding:10px 18px;border-radius:10px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9}
+  .flag{background:#2a1f10;border:1px solid #4d3714;color:#f0c674;border-radius:9px;padding:8px 11px;font-size:12.5px;margin-top:8px}
+  .tabbar{display:flex;gap:8px;margin-bottom:20px}
+  .tabbar button{flex:1}
+  .tabbar button.active{background:var(--accent);color:#0b0d12;border-color:var(--accent)}
+  footer{color:var(--faint);font-size:11.5px;text-align:center;margin-top:30px;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect} = React;
+const LS = "ptp_rounds_v1";
+const QS = [
+  {k:"files",   q:"Files / packages I'll change",              ph:"e.g. force-app/.../TripService.cls, wms-core"},
+  {k:"reuse",   q:"What already exists that I'll REUSE (not rebuild)", ph:"e.g. existing SplitAllocator handles the math"},
+  {k:"risk",    q:"The one risky / unknown part",              ph:"the part I'm least sure about"},
+  {k:"dod",     q:"Definition of done — how I'll know it's complete", ph:"acceptance criteria in my own words"},
+  {k:"carry",   q:"One thing from a PAST ticket that applies here", ph:"pattern / gotcha / helper I already learned"},
+];
+const VERDICTS = [
+  {v:"good", e:"✅", cls:"good", label:"Right — knowledge carried in"},
+  {v:"new",  e:"🆕", cls:"new", label:"Didn't know — the gap"},
+  {v:"bad",  e:"❌", cls:"bad", label:"Wrong mental model"},
+];
+const load = () => { try{return JSON.parse(localStorage.getItem(LS))||[]}catch(e){return []} };
+const save = (r) => localStorage.setItem(LS, JSON.stringify(r));
+const uid = () => Math.random().toString(36).slice(2,9);
+
+function App(){
+  const [rounds,setRounds] = useState(load());
+  const [tab,setTab] = useState("play");
+  const [toast,setToast] = useState(null);
+  useEffect(()=>save(rounds),[rounds]);
+  const flash = (m)=>{ setToast(m); setTimeout(()=>setToast(null),1800); };
+
+  // draft = the in-progress round (predict phase). null when nothing open.
+  const [draft,setDraft] = useState(null);
+  // active = a locked round being scored (prove phase)
+  const active = rounds.find(r=>r.phase==="prove");
+
+  const stats = computeStats(rounds);
+
+  return (
+    <div className="wrap">
+      <header className="top">
+        <h1>Predict <span className="arrow">→</span> Prove</h1>
+        <span className="pill">closing the "what am I building?" gap</span>
+      </header>
+      <p className="sub">Predict 5 things before you touch code. Run <b>/strata BMS-XXXX</b>. Score yourself. Log the misses. Watch your ✅ rate climb.</p>
+
+      <div className="stats">
+        <div className="stat"><div className="n">{stats.completed}</div><div className="l">Rounds done</div></div>
+        <div className="stat"><div className="n">{stats.hitRate==null?"—":stats.hitRate+"%"}</div><div className="l">✅ rate · last 10</div></div>
+        <div className="stat"><div className="n">{stats.streak}</div><div className="l">Log streak</div></div>
+        <div className="stat"><div className="n">{stats.gaps}</div><div className="l">🆕 gaps caught</div></div>
+      </div>
+
+      <div className="tabbar">
+        <button className={tab==="play"?"active":""} onClick={()=>setTab("play")}>Play</button>
+        <button className={tab==="history"?"active":""} onClick={()=>setTab("history")}>History ({stats.completed})</button>
+      </div>
+
+      {tab==="play" && (
+        active ? <Prove round={active} rounds={rounds} setRounds={setRounds} flash={flash}/>
+        : draft ? <Predict draft={draft} setDraft={setDraft} rounds={rounds} setRounds={setRounds} flash={flash}/>
+        : <Start setDraft={setDraft}/>
+      )}
+
+      {tab==="history" && <History rounds={rounds} setRounds={setRounds} flash={flash}/>}
+
+      <footer>
+        Saved locally in your browser (localStorage) · this file lives in your Obsidian vault<br/>
+        Manager-Engineer / Predict-Then-Prove
+      </footer>
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+function Start({setDraft}){
+  const [tid,setTid] = useState("");
+  const begin = () => {
+    if(!tid.trim()) return;
+    setDraft({id:uid(), ticket:tid.trim().toUpperCase(), preds:{}, phase:"predict"});
+  };
+  return (
+    <div className="card">
+      <h2>Start a round <span className="pill">before you open the code</span></h2>
+      <p className="hint">One round per ticket. Enter the ticket you're about to pick up.</p>
+      <div className="row">
+        <input type="text" placeholder="BMS-1234" value={tid}
+          onChange={e=>setTid(e.target.value)} onKeyDown={e=>e.key==="Enter"&&begin()}
+          style={{maxWidth:200}}/>
+        <button className="primary" onClick={begin}>Begin predictions →</button>
+      </div>
+    </div>
+  );
+}
+
+function Predict({draft,setDraft,rounds,setRounds,flash}){
+  const set = (k,v)=> setDraft({...draft, preds:{...draft.preds,[k]:v}});
+  const filled = QS.filter(x=>(draft.preds[x.k]||"").trim()).length;
+  const lock = () => {
+    if(filled<QS.length){ if(!confirm(`Only ${filled}/5 filled. Lock anyway?`)) return; }
+    const locked = {...draft, phase:"prove", startedAt:new Date().toISOString(),
+      scores:{}, notes:{}, prMerged:false};
+    setRounds([locked, ...rounds]);
+    setDraft(null);
+    flash("Locked. Now run /strata and prove it.");
+  };
+  return (
+    <div className="card">
+      <h2>Predict <span className="pill">{draft.ticket}</span></h2>
+      <p className="hint">Commit your mental model in writing. You can't edit these after locking — that's the point.</p>
+      {QS.map((x,i)=>(
+        <label className="f" key={x.k}>
+          <span className="q">{i+1}. {x.q}</span>
+          <textarea placeholder={x.ph} value={draft.preds[x.k]||""} onChange={e=>set(x.k,e.target.value)}/>
+        </label>
+      ))}
+      <div className="lockrow">
+        <button className="ghost" onClick={()=>setDraft(null)}>Cancel</button>
+        <div className="row">
+          <span className="pill">{filled}/5 filled</span>
+          <button className="primary" onClick={lock}>🔒 Lock predictions</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Prove({round,rounds,setRounds,flash}){
+  const patch = (upd)=> setRounds(rounds.map(r=>r.id===round.id?{...r,...upd}:r));
+  const setScore = (k,v)=> patch({scores:{...round.scores,[k]:v}});
+  const setNote  = (k,v)=> patch({notes:{...round.notes,[k]:v}});
+  const scored = QS.filter(x=>round.scores[x.k]).length;
+  const complete = () => {
+    if(scored<QS.length){ if(!confirm(`Only ${scored}/5 scored. Complete anyway?`)) return; }
+    patch({phase:"done", finishedAt:new Date().toISOString()});
+    flash("Round complete. Nice work.");
+  };
+  return (
+    <div className="card">
+      <h2>Prove <span className="pill">{round.ticket}</span> <span className="pill">run /strata first</span></h2>
+      <p className="hint">Compare each prediction to ground truth. ✅ right · 🆕 didn't know · ❌ wrong. Log every 🆕 and ❌ — that's the training data.</p>
+      {QS.map((x,i)=>{
+        const sc = round.scores[x.k];
+        const needsNote = sc==="new"||sc==="bad";
+        return (
+          <div key={x.k}>
+            <div className="score-row">
+              <div className="txt">
+                <div className="qh">{i+1}. {x.q}</div>
+                <div className="pv">{round.preds[x.k]||"— (left blank)"}</div>
+              </div>
+              <div className="verdicts">
+                {VERDICTS.map(vd=>(
+                  <div key={vd.v} title={vd.label}
+                    className={`vb ${vd.cls} ${sc===vd.v?"on":""}`}
+                    onClick={()=>setScore(x.k, sc===vd.v?undefined:vd.v)}>{vd.e}</div>
+                ))}
+              </div>
+            </div>
+            {needsNote && (
+              <textarea className="note" placeholder={sc==="new"?"What did you learn? (one line → carries to next ticket)":"What was the wrong assumption? (worth more than a 🆕)"}
+                value={round.notes[x.k]||""} onChange={e=>setNote(x.k,e.target.value)}/>
+            )}
+          </div>
+        );
+      })}
+      <div className="lockrow" style={{marginTop:14}}>
+        <label className="row" style={{cursor:"pointer"}}>
+          <input type="checkbox" checked={round.prMerged} onChange={e=>patch({prMerged:e.target.checked})}/>
+          <span>PR opened / merged</span>
+        </label>
+        <div className="row">
+          <span className="pill">{scored}/5 scored</span>
+          <button className="primary" onClick={complete} disabled={scored===0}>Complete round ✓</button>
+        </div>
+      </div>
+      {!round.prMerged && scored===QS.length &&
+        <div className="flag">Win condition = completed PR + every 🆕/❌ logged. Tick the PR box when it's up.</div>}
+    </div>
+  );
+}
+
+function History({rounds,setRounds,flash}){
+  const done = rounds.filter(r=>r.phase==="done");
+  const [open,setOpen] = useState(null);
+  if(done.length===0) return <div className="hist"><div className="empty">No completed rounds yet. Play one.</div></div>;
+
+  const del = (id)=>{ if(confirm("Delete this round?")) setRounds(rounds.filter(r=>r.id!==id)); };
+  const copyMd = (r)=>{ navigator.clipboard.writeText(toMarkdown(r)); flash("Markdown copied — paste into the engineering note"); };
+  const exportAll = ()=>{
+    const blob = new Blob([JSON.stringify(rounds,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="predict-then-prove-backup.json"; a.click();
+  };
+
+  return (
+    <div>
+      <div className="row" style={{justifyContent:"flex-end",marginBottom:12}}>
+        <button className="ghost" onClick={exportAll}>⬇ Export JSON backup</button>
+      </div>
+      <div className="hist">
+        {done.map(r=>{
+          const c = tally(r);
+          return (
+            <div key={r.id}>
+              <div className="hrow" onClick={()=>setOpen(open===r.id?null:r.id)}>
+                <span className="tid">{r.ticket}</span>
+                <span className="date">{fmt(r.finishedAt)}</span>
+                <span className="mini">
+                  {c.good?`✅${c.good} `:""}{c.new?`🆕${c.new} `:""}{c.bad?`❌${c.bad}`:""}
+                  {r.prMerged?" · PR✓":""}
+                </span>
+              </div>
+              {open===r.id && (
+                <div style={{padding:"0 16px 16px"}}>
+                  {QS.map((x,i)=>(
+                    <div className="score-row" key={x.k} style={{alignItems:"center"}}>
+                      <div className="txt">
+                        <div className="qh">{verdictEmoji(r.scores[x.k])} {x.q}</div>
+                        <div className="pv">{r.preds[x.k]||"—"}</div>
+                        {r.notes[x.k] && <div className="note">↳ {r.notes[x.k]}</div>}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="row" style={{marginTop:12}}>
+                    <button onClick={()=>copyMd(r)}>📋 Copy to engineering note</button>
+                    <button className="ghost" onClick={()=>del(r.id)}>Delete</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---- helpers ----
+function tally(r){
+  const t={good:0,new:0,bad:0};
+  QS.forEach(x=>{ const s=r.scores[x.k]; if(s)t[s]++; });
+  return t;
+}
+function computeStats(rounds){
+  const done = rounds.filter(r=>r.phase==="done");
+  const last10 = done.slice(0,10);
+  let g=0,tot=0,gaps=0;
+  done.forEach(r=>QS.forEach(x=>{const s=r.scores[x.k]; if(s==="new")gaps++;}));
+  last10.forEach(r=>QS.forEach(x=>{const s=r.scores[x.k]; if(s){tot++; if(s==="good")g++;}}));
+  // streak: consecutive done rounds (from newest) that logged all their 🆕/❌
+  let streak=0;
+  for(const r of done){
+    const logged = QS.every(x=>{const s=r.scores[x.k]; return (s!=="new"&&s!=="bad")|| (r.notes[x.k]||"").trim();});
+    if(logged && r.prMerged) streak++; else break;
+  }
+  return {completed:done.length, hitRate: tot?Math.round(g/tot*100):null, streak, gaps};
+}
+function verdictEmoji(v){ return ({good:"✅",new:"🆕",bad:"❌"})[v]||"·"; }
+function fmt(iso){ if(!iso)return""; const d=new Date(iso);
+  return d.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+function toMarkdown(r){
+  const c=tally(r);
+  let s=`### Predict → Prove · ${r.ticket}\n`;
+  s+=`_${fmt(r.finishedAt)} · ✅${c.good} 🆕${c.new} ❌${c.bad}${r.prMerged?" · PR merged":""}_\n\n`;
+  QS.forEach((x,i)=>{
+    s+=`${verdictEmoji(r.scores[x.k])} **${x.q}**\n`;
+    s+=`> ${(r.preds[x.k]||"—").replace(/\n/g,"\n> ")}\n`;
+    if(r.notes[x.k]) s+=`> ↳ _${r.notes[x.k]}_\n`;
+    s+=`\n`;
+  });
+  const gaps=QS.filter(x=>["new","bad"].includes(r.scores[x.k])&&r.notes[x.k]);
+  if(gaps.length){ s+=`**Carry-forward:**\n`; gaps.forEach(x=>s+=`- ${r.notes[x.k]}\n`); }
+  return s;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

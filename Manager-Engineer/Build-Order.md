@@ -23,6 +23,33 @@ tags:
 > - 4996 (S1) is **mostly already shipped** — only a contradicted remnant remains.
 > - 5060 needs slicing; 4935 & 5129 need a data-model decision before AC exists.
 
+> [!check] Live-state correction — 2026-07-20 (plan-only /pulse rerun; interactive Jira pull)
+> The 09:08 addendum below is now partly stale. Two epics **shipped** since:
+> - **BMS-5161 Freight Billbacks → DONE.** Merged via **integration PR #574** (`integration/bms-5161-stateLineTransfer-validation → main`, merged 2026-07-20 12:55Z). The 5789→5790→5791 draft stack (#511/#514/#516) was rolled into #574; worktrees + validation branches cleaned up. Remove S2-billback from the active wavefront. (5792 UI/demo was the Awaiting-UI child at ship.)
+> - **BMS-5576 Ecom Ph2 → DONE.** Shipped; drop from the isolated eCommerce stream. Its former autonomous candidates (BMS-4051, BMS-5321) are no longer active queue items.
+> - **Live in-progress epics are now exactly three: BMS-4965 (Short Pay), BMS-5113 (DOI-Std), BMS-4935 (Red Bull).** Everything below about 5161/5576 fronts is historical.
+> - No new topo regen (Atlassian MCP still down → no issuelink graph). No new blockers/open questions this rerun; the BMS-5164→BMS-4088 block is unchanged and still un-formalized.
+
+> [!check] Repo-verified active-work reconciliation — 2026-07-20 (plan-only /pulse)
+> Atlassian MCP still down for this thread → **no live `epics_jql`, no `/polish`, no PO Jira posts, no cross-epic topo regen** (needs the issuelink graph). Snapshot (`mission-control.json`) is from 2026-07-16; the repo (`gh`/git) is the independent live source used below. Streams/stages table further down is NOT regenerated this pass.
+>
+> **Wavefront changes vs 2026-07-13:**
+> - **BMS-4965 Short Pay — big advance.** The epic collapsed into ONE ready PR: **#582 (demo/short-pay-epic-bms-4965) READY**, unioning 5625+4059+4060+5631, validated e2e in org `ohfy-val-shortPay`. It **supersedes #439/#557/#561** (close those on merge). `REVIEW_REQUIRED`. This is now the top merge-gate item for the Finance/OMS stream — `/work-epic` owns the merge sequencing (bundle → main). Was "4059/4060 In Progress by hand" last run.
+> - **New OMS/supplier-program work landed on `main`:** BMS-5393/5394/5395/5396/5397 (supplier-program GL hand-off, rebate accrual, budgets/UX) + BMS-5836 (CI lint-gate auto-ticket). Adjacent to the billback/supplier streams — check package overlap before scheduling 5161 follow-ons.
+> - **BMS-5161 Freight Billbacks — unchanged front:** stack **5789 (#511) → 5790 (#514) → 5791 (#516)** all still DRAFT→main, merge A→B→C; 5792 (D) parked `Awaiting-UI`. New adjacent DRAFTs to watch for overlap: **#554 billback-reconciliation (4142/5845/5886)** and **#566 supplier-receipt-application (5511, oms/oms-ui/data-model, READY)** — coordinate, both touch OMS receivables.
+> - **BMS-5113 DOI-Std — unchanged:** **3742 (#513) still DRAFT** (High risk, DOI-reconciliation gate); 4544 spike / 4543 UI-demo backlog.
+> - **BMS-4935 Red Bull — unchanged:** still **blocked on Matt** (allocation direction); 4120 built (branch) but epic-gated. Do not advance 3735/4119/4121.
+> - **BMS-5576 Ecom Ph2:** #388 (3932 self-service, READY), #576 (5305 e2e), #376 (ecom package build) — isolated eCommerce stream, no overlap with the above.
+>
+> **Blocked (real, still un-formalized):** **BMS-5164** children 5825/5826/5827 → **BMS-4088** (AL cert-engine spike, Backlog) — no branches exist (repo-confirmed). Needs a formal `Open-Questions/` note once Jira is reachable.
+
+> [!check] Afternoon pulse — 2026-07-20 (plan-only /pulse #2; repo-verified, no topo regen)
+> Second plan-only pulse of the day. Epic state unchanged from the interactive pull: **active in-progress = exactly 3 (BMS-4965, BMS-5113, BMS-4935)**; 5161 + 5576 remain Done. **No new open questions.** The change this window is a **large afternoon Pricing-Manager PR wave landing REVIEW_REQUIRED** (17:00–19:00Z), none of which belongs to the 3 active epics or any tracked `Epics/*.md` note:
+> - **Pricing Manager cluster (OMS / OMS-UI):** #588 BMS-5972 (supplier×warehouse floor matrix, base `feat/billback-reconciliation-bms-4142` — stacked, not on main), #589 BMS-5967 (GI dollar-per-case default), #590 BMS-5926 (promotions overlay/authoring/calendar), #591 BMS-5970 (pricing audit trail), #593 BMS-5968 (draft bulk pricing actions), #595 BMS-5969 (chains inherit price code). All `REVIEW_REQUIRED`, mostly draft.
+> - **Adjacent:** #594 BMS-5989 (OHFY UI-kit component library, ready), #592 BMS-5986 (WMS Playwright de-flake, ready), #556 BMS-5897 (POS Asset registry, oms/oms-ui/data-model), #540 BMS-5612 (ThemeSettings LWC), #536 BMS-3780 (WMS Replenishment Exception Codes, draft).
+> - **Overlap watch:** this wave writes heavily into **OHFY-OMS / OHFY-OMS-UI** (pricing resolver, Pricing Manager LWCs) and, via #556/#588, **data-model + billback reconciliation** — the same neighborhood as the Short-Pay (#582) and supplier-receivable (#566/#554) streams. Do NOT schedule any autonomous OMS-touching candidate against these until the next Jira-connected run resolves epic membership + package disjointness. Treat all as in-flight, hand-worked — leave alone.
+> - No branches appeared for the **BMS-5164 → BMS-4088** block (still un-formalized). Streams/stages table below NOT regenerated (no issuelink graph — MCP down).
+
 > [!check] Repo-verified active-work reconciliation — 2026-07-13 (plan-only)
 > Atlassian MCP was down this pass, so the **cross-epic topo-sort below (streams/stages) was NOT regenerated** — that needs the live `blocks`/`blocked-by` issuelink graph. Instead the repo (`gh`/git) was used as an independent source to pin the *current* wavefront of the 4 active epics. This addendum is repo-derived active state, not a full Jira re-flow.
 >
@@ -33,6 +60,21 @@ tags:
 > - **BMS-4935 Red Bull (S3):** 4120 In Progress; epic otherwise **blocked on Matt** (allocation direction) — do not advance children 3735/4119/4121.
 >
 > **Blocked (real, already-logged):** **BMS-5164** children **BMS-5825/5826/5827** are all blocked on **BMS-4088** (shared AL cert-engine spike, Backlog/unstarted under sibling epic BMS-5160) — no branches exist for any of them (repo-confirmed). Cannot enter any stage until 4088 is scheduled.
+
+> [!check] Evening pulse — 2026-07-20 (plan-only /pulse #3; live-Jira deltas + repo-verified, no topo regen)
+> Third plan-only pulse. **Active in-progress = exactly 3 (BMS-4965, BMS-5113, BMS-4935)** — unchanged. Newest PR still #595; no new PRs since the afternoon pulse (the Pricing-Manager wave #588–595 is stable, still REVIEW_REQUIRED / mostly draft — leave alone). Tracked front unchanged: **#582 Short Pay READY** (top merge-gate), **#513 DOI-3742 draft**, **4935 Matt-gated** (4120 branch only, no PR).
+> **Two live-Jira deltas this pulse (parent-confirmed):**
+> - **BMS-5062 has left tracker scope** — to-do epics 8→7 (BMS-5481, 5164, 5768, 4997, 4996, 5577, 5155). No epic note existed for 5062; nothing to archive.
+> - **BMS-5161 (Done) children are in "Testing" — validation in flight, not closed.** Authoritative child set = **5789 / 5790 / 5792 / 5909** (paper trail had 5789/5790/5791/5792 → 5791 dropped, 5909 new). Repo still shows draft PRs #511/#514/#516 (5789/5790/5791) open to main + no artifacts for 5792/5909 — status-vs-build gap flagged in the 5161 epic note, reconcile next Jira-connected run.
+> **No new open questions.** Streams/stages table below NOT regenerated (Atlassian MCP down → no issuelink graph). BMS-5164 → BMS-4088 block still un-formalized (no branches, repo-confirmed).
+
+> [!check] Late pulse — 2026-07-20 (plan-only /pulse #4; live-Jira delta + repo-verified, no topo regen)
+> Fourth plan-only pulse. **Active in-progress = now 4 (was 3): BMS-4996 joins BMS-4965, BMS-5113, BMS-4935.**
+> - **BMS-4996 Retailer Engagement Notifications — To-Do → In Progress (picked up).** New dev org **`bms-4996-notif`** claimed; **no PR/branch yet** (repo-confirmed — work just starting). Reactivates **Stream S1 · eCommerce**, which had gone idle when BMS-5576 shipped Done. The notification backbone (`AbandonedCartReminderScheduler/Batch`, `OrderConfirmationService`, `TwilioSMSService`, `Notification_Log__c`) is already on `main`; children remain **Not-Yet** (BMS-4073 has a Contradicted "Order Name Fix" AC — see [[BMS-4073-order-name-fix-scope]]). Nothing autonomously queueable — treat as hand-worked, leave alone. S1 is disjoint (OHFY-eCommerce(-UI)) from the 3 other active streams, so no overlap risk with 4965/5113/4935.
+> - **To-do epics 7→6** (4996 left the to-do set): BMS-4997, 5481, 5164, 5768, 5577, 5155.
+> - **Done normalized to 15 + 3 done-with-open-children in Testing:** 5161, 5576, **4995** (4995 newly recognized as shipped-with-open-children).
+> - **Repo now on `main` and clean** — read-only preconditions pass (prior pulses today were on `chore/gulf-uat-...-bms-4184`, flagged off-main). Newest PR still **#595**; the Pricing-Manager wave (#588–595) is stable, REVIEW_REQUIRED / mostly draft — leave alone.
+> - **No new open questions.** BMS-5164 → BMS-4088 (AL cert-engine spike, Backlog) block still un-formalized (no branches, repo-confirmed) — can't post the formal Open-Questions note (MCP down → no PO Jira comment). Streams/stages table below NOT regenerated (no issuelink graph).
 
 ## What the audit found (overrides a title-only guess)
 1. **Inventory is one serial stream.** DOI, Snapshots, Safety Stock, Returns, and transfers' inventory-writes all go through `InventoryAdjustmentTriggerService.cls` + `Inventory__c`/`Inventory_Adjustment__c` (OHFY-PLTFM) → they collide → serialize.

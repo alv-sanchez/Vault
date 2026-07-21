@@ -10,9 +10,9 @@ ticket_count: 4
 
 ## 🎟️ Tickets that touch this area (4)
 - [BMS-3853](https://ohanafy.atlassian.net/browse/BMS-3853)
-- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#439](https://github.com/Ohanafy/OHFY-Split/pull/439)
-- [BMS-5902](https://ohanafy.atlassian.net/browse/BMS-5902) Supplier Agreement Terms LWC — per-charge-type split editor — `Backlog`
-- [BMS-5903](https://ohanafy.atlassian.net/browse/BMS-5903) Supplier Owed Dashboard LWC — calculated owed rollup — `Backlog`
+- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
+- [BMS-5902](https://ohanafy.atlassian.net/browse/BMS-5902)
+- [BMS-5903](https://ohanafy.atlassian.net/browse/BMS-5903)
 
 ## 🔗 Logged notes here
 - [[BMS-3853-route-profitability-analytics]]

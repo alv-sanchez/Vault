@@ -1,0 +1,538 @@
+<title>WMS Replenishment — User Journey Handoff</title>
+<style>
+  :root {
+    --ink: #16150f;
+    --ink-muted: #545454;
+    --ground: #faf9f6;
+    --surface: #ffffff;
+    --surface-muted: #f4f2f0;
+    --border: #d9d5cd;
+    --border-soft: #e8e5df;
+    --accent: #e4f223;        /* ohfy accent — acid yellow, always paired with near-black */
+    --accent-ink: #16150f;
+    --danger: #a32d2d;
+    --danger-soft: #f6e9e9;
+    --lane-blue: #b1c7eb;
+    --lane-blue-soft: #eef3fb;
+    --ok-soft: #f4f2f0;
+    --code-bg: #1c1b16;
+    --code-ink: #e8e5df;
+    /* Always-dark chip ground so the acid-yellow accent stays legible in both themes */
+    --chip: #16150f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ece9e1;
+      --ink-muted: #a6a29a;
+      --ground: #131310;
+      --surface: #1c1b17;
+      --surface-muted: #24231e;
+      --border: #3a382f;
+      --border-soft: #2c2a24;
+      --accent: #e4f223;
+      --accent-ink: #16150f;
+      --danger: #d96b6b;
+      --danger-soft: #33201f;
+      --lane-blue: #5f7396;
+      --lane-blue-soft: #1e2531;
+      --ok-soft: #24231e;
+      --code-bg: #0e0e0b;
+      --code-ink: #cfccc2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #ece9e1; --ink-muted: #a6a29a; --ground: #131310; --surface: #1c1b17;
+    --surface-muted: #24231e; --border: #3a382f; --border-soft: #2c2a24;
+    --accent: #e4f223; --accent-ink: #16150f; --danger: #d96b6b; --danger-soft: #33201f;
+    --lane-blue: #5f7396; --lane-blue-soft: #1e2531; --ok-soft: #24231e;
+    --code-bg: #0e0e0b; --code-ink: #cfccc2;
+  }
+  :root[data-theme="light"] {
+    --ink: #16150f; --ink-muted: #545454; --ground: #faf9f6; --surface: #ffffff;
+    --surface-muted: #f4f2f0; --border: #d9d5cd; --border-soft: #e8e5df;
+    --accent: #e4f223; --accent-ink: #16150f; --danger: #a32d2d; --danger-soft: #f6e9e9;
+    --lane-blue: #b1c7eb; --lane-blue-soft: #eef3fb; --ok-soft: #f4f2f0;
+    --code-bg: #1c1b16; --code-ink: #e8e5df;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 48px 24px 96px; }
+  code, .mono {
+    font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86em;
+  }
+  code {
+    background: var(--surface-muted);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+  a { color: inherit; }
+
+  /* ---------- header ---------- */
+  header.doc { margin-bottom: 40px; }
+  .eyebrow {
+    display: inline-block;
+    background: var(--chip);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 3px;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+    font-weight: 800;
+  }
+  .lede { font-size: 17px; color: var(--ink-muted); max-width: 62ch; margin: 0 0 20px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--ink-muted); }
+  .meta-row strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 56px; }
+  h2 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  h2 .tick {
+    width: 14px; height: 14px; flex-shrink: 0;
+    background: var(--accent);
+    border: 2px solid var(--ink);
+    transform: translateY(1px);
+  }
+  .section-sub { color: var(--ink-muted); font-size: 14px; margin: 0 0 22px; max-width: 68ch; }
+  h3 { font-size: 15px; font-weight: 700; margin: 26px 0 8px; }
+
+  /* ---------- flow diagram ---------- */
+  .flow-scroll { overflow-x: auto; padding: 6px 2px 14px; }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(9, max-content);
+    align-items: center;
+    column-gap: 0;
+    row-gap: 10px;
+    min-width: 780px;
+  }
+  .node {
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 3px 3px 0 var(--border);
+    min-width: 118px;
+  }
+  .node .n-title { font-weight: 800; font-size: 14px; line-height: 1.25; }
+  .node .n-sub { font-size: 11.5px; color: var(--ink-muted); margin-top: 3px; line-height: 1.35; }
+  .node.terminal { background: var(--chip); border-color: var(--chip); box-shadow: 3px 3px 0 var(--accent); }
+  .node.terminal .n-title { color: var(--accent); }
+  .node.terminal .n-sub { color: #cfccc2; }
+  .node.claim { border-color: var(--danger); background: var(--danger-soft); box-shadow: 3px 3px 0 var(--danger); }
+  .node.claim .n-title { color: var(--danger); }
+  .arrow {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 0 6px; align-self: center;
+  }
+  .arrow .a-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 2px; white-space: nowrap;
+  }
+  .arrow svg { display: block; }
+  .arrow svg line, .arrow svg path { stroke: var(--ink); stroke-width: 2; fill: none; }
+  .branch-row {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 2px; padding-left: 150px;
+  }
+  .branch-elbow { color: var(--danger); font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .flow-caption { font-size: 12.5px; color: var(--ink-muted); margin-top: 6px; }
+
+  /* ---------- actors ---------- */
+  .actor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .actor {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .actor .a-name { font-weight: 700; font-size: 14px; }
+  .actor .a-role { font-size: 12.5px; color: var(--ink-muted); margin-top: 4px; line-height: 1.45; }
+  .actor.ops { border-top: 3px solid var(--ink); }
+  .actor.claims { border-top: 3px solid var(--danger); }
+  .a-tag {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px;
+  }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th {
+    text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-muted); padding: 10px 14px; border-bottom: 2px solid var(--ink);
+    background: var(--surface-muted); white-space: nowrap;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td .dim { color: var(--ink-muted); font-size: 12.5px; }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px;
+    border-radius: 10px; white-space: nowrap;
+  }
+  .pill.seeded { background: var(--accent); color: #16150f; }
+  .pill.uat { background: var(--danger-soft); color: var(--danger); }
+  .pill.config { background: var(--lane-blue-soft); color: var(--ink); border: 1px solid var(--lane-blue); }
+  .pill.noseed { background: var(--surface-muted); color: var(--ink-muted); border: 1px solid var(--border); }
+  .hl td { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  .hl td:first-child { border-left: 3px solid var(--accent); }
+
+  /* ---------- lanes mini-viz ---------- */
+  .lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0 8px; }
+  .lane { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .lane-head { display: flex; align-items: center; gap: 8px; padding: 9px 13px; font-weight: 800; font-size: 13px; }
+  .lane-head .cnt { margin-left: auto; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 11px; }
+  .lane.critical .lane-head { background: var(--danger); color: #fff; }
+  .lane.critical .cnt { background: var(--surface); color: var(--danger); }
+  .lane.atrisk .lane-head { background: var(--accent); color: var(--accent-ink); }
+  .lane.atrisk .cnt { background: var(--accent-ink); color: var(--accent); }
+  .lane.ok .lane-head { background: var(--surface-muted); color: var(--ink); border-bottom: 1px solid var(--border); }
+  .lane.ok .cnt { background: var(--surface); color: var(--ink-muted); border: 1px solid var(--border); }
+  .lane-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .tcard {
+    border-radius: 6px; padding: 8px 10px; font-size: 12px; background: var(--surface);
+    box-shadow: 0 1px 2px rgba(0,0,0,.08); border: 1px solid var(--border-soft);
+  }
+  .lane.critical .tcard { border-left: 3px solid var(--danger); }
+  .lane.atrisk .tcard { border-left: 3px solid var(--accent); }
+  .lane.ok .tcard { border-left: 3px solid var(--lane-blue); }
+  .tcard .t-top { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; }
+  .tcard .chip {
+    font-size: 10px; font-weight: 700; background: var(--surface-muted); border: 1px solid var(--border);
+    border-radius: 9px; padding: 0 7px; color: var(--ink-muted); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .tcard .t-sub { color: var(--ink-muted); font-size: 11px; margin-top: 2px; }
+  @media (max-width: 640px) { .lanes { grid-template-columns: 1fr; } }
+
+  /* ---------- contract list ---------- */
+  .contract { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 4px 0; overflow-x: auto; }
+  .contract table { font-size: 12.5px; min-width: 640px; }
+  .contract th { background: transparent; color: #8a877c; border-bottom: 1px solid #3a382f; }
+  .contract td { border-bottom: 1px solid #2a2822; color: var(--code-ink); }
+  .contract tr:last-child td { border-bottom: none; }
+  .contract .fn { color: var(--accent); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; white-space: nowrap; }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    background: var(--surface); border-radius: 6px; padding: 14px 18px; margin: 16px 0;
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--danger); }
+  .callout .c-title { font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  ul.tight { margin: 8px 0; padding-left: 20px; }
+  ul.tight li { margin: 5px 0; }
+  .src-list { font-size: 13px; color: var(--ink-muted); }
+  .src-list li { margin: 4px 0; }
+
+  footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--ink-muted); }
+</style>
+
+<main>
+  <header class="doc">
+    <span class="eyebrow">Ohanafy · WMS · Handoff</span>
+    <h1>Inbound-to-Replenishment: the user journey, tied to its LWCs</h1>
+    <p class="lede">
+      Happy-path journey from a supplier shipment through blind receiving to the Replenishment Engine and
+      worker queue — with the claim branch, the actors who operate each step, and the exact Lightning Web
+      Components and Apex that implement each screen. Anchor component: <code>replenishmentTaskManager</code>.
+    </p>
+    <div class="meta-row">
+      <span><strong>Captured</strong> July 17, 2026 — whiteboard + journey-dictation session</span>
+      <span><strong>Repo</strong> OHFY-Split · <span class="mono">OHFY-WMS-UI</span> / <span class="mono">OHFY-WMS</span></span>
+      <span><strong>Status</strong> Happy path documented · claim journeys pending</span>
+    </div>
+  </header>
+
+  <!-- ================= FLOW ================= -->
+  <section>
+    <h2><span class="tick"></span>The flow</h2>
+    <p class="section-sub">
+      Redrawn from the whiteboard. A purchase order is fulfilled by a supplier shipment and blind-received —
+      the person unloading the truck counts product <em>without seeing the PO quantities</em>. The Floor Manager
+      compares the PO to the blind receive: a clean match generates the Inventory Receipt (the invoice the
+      distributor owes the supplier), which feeds the Replenishment Engine and its worker queue. A large enough
+      discrepancy branches into a Claim instead.
+    </p>
+    <div class="flow-scroll">
+      <div class="flow">
+        <div class="node">
+          <div class="n-title">Purchase Order</div>
+          <div class="n-sub">created from a supplier shipment</div>
+        </div>
+        <div class="arrow">
+          <span class="a-label">Shipment</span>
+          <svg width="58" height="12" viewBox="0 0 58 12"><line x1="0" y1="6" x2="50" y2="6"></line><path d="M50 1 L57 6 L50 11"></path></svg>
+        </div>
+        <div class="node">
+          <div class="n-title">Blind Receive</div>
+          <div class="n-sub">unloader counts, PO qty hidden</div>
+        </div>
+        <div class="arrow">
+          <span class="a-label">Floor Mgr compares</span>
+          <svg width="58" height="12" viewBox="0 0 58 12"><line x1="0" y1="6" x2="50" y2="6"></line><path d="M50 1 L57 6 L50 11"></path></svg>
+        </div>
+        <div class="node">
+          <div class="n-title">Inventory Receipt</div>
+          <div class="n-sub">invoice owed to supplier — no discrepancy</div>
+        </div>
+        <div class="arrow">
+          <svg width="46" height="12" viewBox="0 0 46 12"><line x1="0" y1="6" x2="38" y2="6"></line><path d="M38 1 L45 6 L38 11"></path></svg>
+        </div>
+        <div class="node terminal">
+          <div class="n-title">Replenishment Engine</div>
+          <div class="n-sub">task generation + prioritization</div>
+        </div>
+        <div class="arrow">
+          <svg width="46" height="12" viewBox="0 0 46 12"><line x1="0" y1="6" x2="38" y2="6"></line><path d="M38 1 L45 6 L38 11"></path></svg>
+        </div>
+        <div class="node terminal">
+          <div class="n-title">Worker Queue</div>
+          <div class="n-sub">assigned tasks, per picker</div>
+        </div>
+
+        <div class="branch-row">
+          <span class="branch-elbow">↳ discrepancy large enough?</span>
+          <div class="node claim">
+            <div class="n-title">Claim</div>
+            <div class="n-sub">filed by Floor Manager · worked by Front Office</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="flow-caption">
+      Discrepancy threshold is a Floor Manager judgment call today — “large enough to warrant filing a claim.”
+      Small variances pass through to the IR.
+    </p>
+  </section>
+
+  <!-- ================= ACTORS ================= -->
+  <section>
+    <h2><span class="tick"></span>Who's in the journey</h2>
+    <p class="section-sub">Actors as dictated in the session. Pickers subdivide by equipment and station.</p>
+    <div class="actor-grid">
+      <div class="actor ops"><span class="a-tag">Operations</span>
+        <div class="a-name">Pickers</div>
+        <div class="a-role">Bin fillers, forklift operators, lumpers / loaders. Execute replenishment tasks from the worker queue.</div>
+      </div>
+      <div class="actor ops"><span class="a-tag">Operations</span>
+        <div class="a-name">Floor Manager</div>
+        <div class="a-role">Compares PO to blind receive, decides discrepancy vs. clean, creates the IR, runs the task board.</div>
+      </div>
+      <div class="actor ops"><span class="a-tag">Operations</span>
+        <div class="a-name">Drivers</div>
+        <div class="a-role">Inbound shipment arrival at the dock; downstream delivery journeys.</div>
+      </div>
+      <div class="actor ops"><span class="a-tag">Operations</span>
+        <div class="a-name">Warehouse Exec / COO</div>
+        <div class="a-role">Oversight: throughput, discrepancy rates, replenishment health across warehouses.</div>
+      </div>
+      <div class="actor claims"><span class="a-tag">Claims</span>
+        <div class="a-name">Front Office Worker</div>
+        <div class="a-role">Works discrepancy-driven claims against the supplier. Role shape similar to manager. Claim journeys still to be documented.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STEP → SCREEN ================= -->
+  <section>
+    <h2><span class="tick"></span>Journey step → screen → code</h2>
+    <p class="section-sub">
+      Each journey step tied to the deployed Experience (App page + tab), the LWC that renders it, and the
+      component's App Builder display name (<code>&lt;masterLabel&gt;</code> from its <code>.js-meta.xml</code>).
+      All components live in <code>OHFY-WMS-UI/force-app/main/default/lwc/</code>. Where no masterLabel is set,
+      admins see the raw camelCase API name in the App Builder palette.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Step</th><th>Actor</th><th>Experience</th><th>LWC (API name)</th><th>masterLabel</th><th>Deploy status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Shipment arrives at dock</td><td>Driver · Floor Manager</td>
+            <td>Dock Dashboard</td><td><code>dockDashboard</code></td>
+            <td><span class="dim">none — shows API name</span></td>
+            <td><span class="pill seeded">Deployed — seeded</span></td>
+          </tr>
+          <tr>
+            <td>Blind receive (count without PO)</td><td>Picker / lumper</td>
+            <td>Receiver Home</td><td><code>receiverHomePage</code> · <code>blindReceivingFlow</code></td>
+            <td><span class="dim">none on either — show API names</span></td>
+            <td><span class="pill seeded">Deployed — seeded</span></td>
+          </tr>
+          <tr>
+            <td>Compare PO vs. blind receive; flag or pass</td><td>Floor Manager</td>
+            <td>Receiving Manager View</td><td><code>receivingManagerView</code> · <code>flagReceivingDiscrepancy</code></td>
+            <td><span class="dim">none</span> · Flag Receiving Discrepancy</td>
+            <td><span class="pill seeded">Deployed — seeded</span></td>
+          </tr>
+          <tr>
+            <td>Put-away into bins</td><td>Forklift operator</td>
+            <td>Put-Away Move / Forced Scan Move</td><td><code>putAwayMove</code> · <code>forcedScanMove</code></td>
+            <td>Put-Away Move · Forced Scan Move</td>
+            <td><span class="pill noseed">Not seedable</span> <span class="pill config">Config-driven</span></td>
+          </tr>
+          <tr class="hl">
+            <td>Generate, prioritize &amp; assign replenishment tasks</td><td>Floor Manager (warehouse lead)</td>
+            <td>Replenishment Task Manager</td><td><code>replenishmentTaskManager</code></td>
+            <td>Replenishment Task Manager</td>
+            <td><span class="pill seeded">Deployed — seeded</span></td>
+          </tr>
+          <tr>
+            <td>Work assigned tasks</td><td>Pickers</td>
+            <td>Replenishment Worker Queue</td><td><code>replenishmentWorkerQueue</code></td>
+            <td>Replenishment Worker Queue</td>
+            <td><span class="pill seeded">Deployed — seeded</span></td>
+          </tr>
+          <tr>
+            <td>Tune engine thresholds</td><td>Warehouse Exec</td>
+            <td>Replenishment Config</td><td><code>replenishmentConfig</code></td>
+            <td>Replenishment Configuration</td>
+            <td><span class="pill uat">UAT pending</span></td>
+          </tr>
+          <tr>
+            <td><span class="dim">Branch:</span> discrepancy → claim</td><td>Front Office Worker</td>
+            <td><span class="dim">Claims (journey TBD)</span></td><td><code>transferClaims</code> <span class="dim">(transfer-side today)</span></td>
+            <td>Transfer Claims</td>
+            <td><span class="pill noseed">Journey undocumented</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= DEEP DIVE ================= -->
+  <section>
+    <h2><span class="tick"></span>Anchor component: <span class="mono" style="font-size:17px">replenishmentTaskManager</span></h2>
+    <p class="section-sub">
+      The warehouse-lead board (BMS-4219, Phase 2 prioritization BMS-4103). Pick a warehouse, clear the prior
+      shift's tasks, generate a fresh days-on-hand / capacity-driven pool, then assign tasks to workers — this is
+      the hinge between the Replenishment Engine and the pickers' Worker Queue.
+    </p>
+
+    <h3>How the board reads</h3>
+    <p class="section-sub" style="margin-bottom:10px">
+      Tasks group into three engine-computed risk lanes, each sorted by <code>Priority_Value</code> descending.
+      Every card carries a velocity chip (units/day). Supervisors re-rank with ▲/▼ <em>within a lane only</em> —
+      cross-lane moves have no meaning against computed risk bands (drag-and-drop was removed for that reason).
+    </p>
+    <div class="lanes">
+      <div class="lane critical">
+        <div class="lane-head">Critical <span class="cnt">2</span></div>
+        <div class="lane-body">
+          <div class="tcard"><div class="t-top"><span>IPA 6-pack → Front-01</span><span class="chip">142/day</span></div><div class="t-sub">12 cases · Unassigned</div></div>
+          <div class="tcard"><div class="t-top"><span>Seltzer variety → Front-04</span><span class="chip">98.5/day</span></div><div class="t-sub">8 +6u · J. Alvarez</div></div>
+        </div>
+      </div>
+      <div class="lane atrisk">
+        <div class="lane-head">At Risk <span class="cnt">1</span></div>
+        <div class="lane-body">
+          <div class="tcard"><div class="t-top"><span>Lager 12-pack → Front-02</span><span class="chip">61.0/day</span></div><div class="t-sub">6 cases · Unassigned</div></div>
+        </div>
+      </div>
+      <div class="lane ok">
+        <div class="lane-head">OK <span class="cnt">1</span></div>
+        <div class="lane-body">
+          <div class="tcard"><div class="t-top"><span>Cider 4-pack → Front-09</span><span class="chip">12.3/day</span></div><div class="t-sub">3 cases · M. Chen</div></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Behaviors worth knowing</h3>
+    <ul class="tight">
+      <li><strong>Shift key</strong> is computed client-side as <code>YYYY-MM-DD-AM|PM</code> — the board, clear, and generate calls are all scoped to warehouse + shift.</li>
+      <li><strong>Month-end freeze:</strong> “Generate New Task Set” and “Recalculate Priorities” are suspended while frozen; “Clear Prior Tasks” stays available. The freeze state and message come back on the board DTO.</li>
+      <li><strong>Clear Prior Tasks</strong> reports how many tasks were cleared and how many were interrupted mid-pick.</li>
+      <li><strong>Manual re-rank</strong> writes a <code>Priority_Value</code> just past the adjacent card and commits it as a manual override via <code>overrideReplenishmentTaskPriority</code>, then refreshes the board.</li>
+      <li><strong>Assignment</strong> is multi-select checkboxes + a worker picker; guard rails toast if either side is missing.</li>
+      <li><strong>Mobile:</strong> <code>FORM_FACTOR === "Small"</code> switches to a stacked single-column board with full-width controls and ≥44px tap targets (the <code>ohfy-mobile</code> root modifier).</li>
+      <li><strong>Styling</strong> loads the WMS Tailwind static resource (<code>tailwindCSS_wms</code>) and degrades gracefully if it's slow; band colors ride the <code>--ohfy-*</code> design tokens.</li>
+    </ul>
+
+    <h3>Apex contract (via <span class="mono">WMS_UI_Wrappers</span>)</h3>
+    <p class="section-sub" style="margin-bottom:10px">
+      LWCs can't call <code>@AuraEnabled</code> methods in sibling managed packages directly, so every call proxies
+      through the <code>WMS_UI_Wrappers</code> class into the OHFY-WMS engine
+      (<code>E_ReplenishmentTask</code>, <code>E_ReplenishmentConfig</code>, <code>E_ReplenishmentReasonCode</code>, <code>E_ReplenishmentTriggerEvent</code>).
+    </p>
+    <div class="contract">
+      <table>
+        <thead><tr><th>Wrapper method</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td class="fn">getReplenishmentWarehouses()</td><td>Warehouse picker; first warehouse auto-selected on load</td></tr>
+          <tr><td class="fn">getReplenishmentWorkers()</td><td>Worker picker for assignment</td></tr>
+          <tr><td class="fn">getReplenishmentBoard(warehouseId, shift)</td><td>Board DTO: tasks, risk bands, freeze state, warehouse name</td></tr>
+          <tr><td class="fn">clearPriorReplenishmentTasks(warehouseId, shift)</td><td>Clear prior-shift pool; reports cleared + interrupted counts</td></tr>
+          <tr><td class="fn">generateReplenishmentTaskSet(warehouseId, shift)</td><td>DOH/capacity-driven generation; respects month-end freeze</td></tr>
+          <tr><td class="fn">assignReplenishmentTasks(taskIds, workerId)</td><td>Bulk assignment → tasks appear in the picker's Worker Queue</td></tr>
+          <tr><td class="fn">recalcReplenishmentPriorities(warehouseId, shift)</td><td>Velocity-weighted re-ranking; returns a fresh board</td></tr>
+          <tr><td class="fn">overrideReplenishmentTaskPriority(taskId, newPriorityValue)</td><td>Supervisor manual re-rank within a lane</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= OPEN ITEMS ================= -->
+  <section>
+    <h2><span class="tick"></span>Open items</h2>
+    <div class="callout warn">
+      <div class="c-title">Not yet documented</div>
+      <ul class="tight" style="margin-bottom:2px">
+        <li><strong>Claim journeys.</strong> The session notes explicitly flag “we also have claim journeys to add” — the Front Office Worker's path from discrepancy → filed claim → resolution has no experience mapping yet.</li>
+        <li><strong>Discrepancy threshold.</strong> “Large enough to warrant a claim” is human judgment today; no configured tolerance is referenced in the notes.</li>
+        <li><strong>Replenishment Engine internals.</strong> The dictation cut off at “Replenishment Engine + worker queue:” — engine trigger conditions (IR-driven vs. scheduled vs. DOH threshold) should be confirmed against <code>E_ReplenishmentTriggerEvent</code> before this doc is treated as complete.</li>
+        <li><strong>Replenishment Config</strong> is still UAT-pending; the exec-facing tuning journey may shift.</li>
+        <li><strong>Missing masterLabels.</strong> Four receiving-side components (<code>dockDashboard</code>, <code>receiverHomePage</code>, <code>blindReceivingFlow</code>, <code>receivingManagerView</code>) are exposed to App Builder without a <code>&lt;masterLabel&gt;</code>, so admins see raw camelCase API names in the palette. Easy polish gap to match the replenishment trio.</li>
+        <li><strong>Label drift.</strong> <code>replenishmentConfig</code>'s masterLabel is “Replenishment Configuration,” while the experience sheet calls it “Replenishment Config” — align one to the other.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= SOURCES ================= -->
+  <section>
+    <h2><span class="tick"></span>Sources</h2>
+    <ul class="src-list">
+      <li>Whiteboard flow photo — PO → Blind Receive → IR → Replenishment + Worker Queue, with the Discrepancy → Claim branch (July 17, 2026).</li>
+      <li>Journey-dictation session notes — “Document Ohanafy user journeys on Salesforce”: actors, happy path, IR definition, claims caveat.</li>
+      <li>Experience inventory sheet — Experience → App page + tab → deploy status for the Inbound / Receiving / Put-Away / Replenishment rows.</li>
+      <li><span class="mono">OHFY-WMS-UI/force-app/main/default/lwc/replenishmentTaskManager/replenishmentTaskManager.js</span> — component behavior and Apex contract read from source.</li>
+      <li><span class="mono">OHFY-WMS/…/executables/replenishment/</span> — engine classes: E_ReplenishmentTask, E_ReplenishmentConfig, E_ReplenishmentReasonCode, E_ReplenishmentTriggerEvent.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Ohanafy WMS · Inbound-to-Replenishment user journey handoff · drafted from the July 17, 2026 working session ·
+    tied to OHFY-Split source on branch <span class="mono">feat/ecom-phase2-pricing-checkout-bms-5576</span> reference date.
+  </footer>
+</main>

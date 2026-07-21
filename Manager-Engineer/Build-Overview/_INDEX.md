@@ -29,7 +29,7 @@ Lifecycle stages track your **Definition of Done**: **Impl** → **Tests** (≥9
 | Epic · Story | Impl | Tests | Review | PR | Branch · Org | Waiting on | Brief |
 |---|:--:|:--:|:--:|:--:|---|---|---|
 | **BMS-4935 · 4120** Red Bull | ✓ | ✗ | – | ✗ | `feat/redbull-allocation-import-bms-4120` · `ohfy-val-4120` | **Matt** (direction) | [→](Sprint-9/BMS-4935-red-bull-allocation/SESSION.md) |
-| **BMS-4965 · 5625** Short Pay | ◑ | ✗ | – | ✗ | `feat/short-pay-backoffice-bms-4965` · `ohfy-val-4965` | **Gulf/Emily** (rules) | [→](Sprint-9/BMS-4965-short-pay/SESSION.md) |
+| **BMS-4965 · 5625** Short Pay | ◑ | ✗ | – | ✗ | `feat/short-pay-backoffice-bms-4965` · `ohfy-val-4965` | **Gulf/Emily** (rules) | [→](Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/SESSION.md) |
 | **BMS-5070 · 4078** Shift-End | ✓ | ✗ | – | ✗ | `feat/shift-end-workflow-bms-4078` · `ohfy-val-4078` | — (demo-ready) | [→](Sprint-8/BMS-5070-shift-end/SESSION.md) |
 | **BMS-5068 · 4217** Safety Stock | ✓ | ? | – | ✗ | `feat/safety-stock-doh-sizing-bms-4217` · `ohfy-val-4217` | — (backend, no screen) | [→](Sprint-8/BMS-5068-safety-stock/SESSION.md) |
 | **BMS-5062 · 3823** Inter-Warehouse Vis. | ✗ | ✗ | – | ✗ | not started (no branch/org yet) | needs a look | [→](Sprint-9/BMS-5062-inter-warehouse-visibility/SESSION.md) |

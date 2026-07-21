@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 — Scaling /code-review to Large PRs (and What "Iterating" Means)</title>
+<style>
+/* Shared stylesheet for all lessons in this teaching workspace. Tufte-ish: quiet, readable, generous margins. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #8a3b2e;
+  --accent-soft: #f4e8e0;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #a1720b;
+  --suggestion: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+    --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+    --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e9e4d8; --paper: #1c1a16; --rule: #40392c; --accent: #d98a6f;
+  --accent-soft: #332420; --muted: #a39a86; --code-bg: #2a251d;
+  --blocker: #e2695a; --warning: #d9a441; --suggestion: #7fae8f;
+}
+:root[data-theme="light"] {
+  --ink: #1a1a1a; --paper: #fdfcf9; --rule: #d8d3c4; --accent: #8a3b2e;
+  --accent-soft: #f4e8e0; --muted: #6b6558; --code-bg: #f1efe6;
+  --blocker: #a8321f; --warning: #a1720b; --suggestion: #4a6b57;
+}
+
+* { box-sizing: border-box; }
+
+html, body { background: var(--paper); }
+
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.3rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 1.6rem 0 0.5rem;
+  color: var(--accent);
+}
+
+p { margin: 0.9rem 0; }
+
+a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--rule); }
+a:hover { text-decoration-color: var(--accent); }
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.3rem;
+  margin: 1.3rem 0;
+  font-size: 0.95rem;
+}
+
+.callout .label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+code, .mono {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+
+.pipeline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+.pipeline .step {
+  flex: 1;
+  min-width: 130px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 0.8rem 0.9rem;
+  font-size: 0.85rem;
+}
+.pipeline .step .n {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.pipeline .arrow {
+  align-self: center;
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+/* --- Wave ladder (new in this lesson; consistent with .pipeline vocabulary) --- */
+.waves { margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.wave-row {
+  display: flex; align-items: center; gap: 0.7rem;
+  background: var(--code-bg); border-radius: 6px; padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+}
+.wave-row .wn {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--accent); font-weight: 700;
+  min-width: 3.6rem;
+}
+.wave-row .pkg { font-family: var(--mono); font-size: 0.82rem; }
+.wave-row .note { color: var(--muted); font-size: 0.82rem; margin-left: auto; text-align: right; }
+
+.severity-blocker { color: var(--blocker); font-weight: 600; }
+.severity-warning { color: var(--warning); font-weight: 600; }
+.severity-suggestion { color: var(--suggestion); font-weight: 600; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2rem 0;
+  font-size: 0.9rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+/* --- Quiz widget --- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.3rem 1.4rem;
+  margin: 1.5rem 0;
+  background: var(--paper);
+}
+.quiz .q { font-weight: 600; margin-bottom: 0.8rem; }
+.quiz .choices { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz button.choice {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.quiz button.choice:hover { background: var(--accent-soft); }
+.quiz button.choice.correct { background: #e3ecdf; border-color: var(--suggestion); color: #1a1a1a; }
+.quiz button.choice.incorrect { background: #f3e0dc; border-color: var(--blocker); color: #1a1a1a; }
+.quiz .feedback { margin-top: 0.8rem; font-size: 0.9rem; min-height: 1.2rem; }
+.quiz .feedback.show-correct { color: var(--suggestion); }
+.quiz .feedback.show-incorrect { color: var(--blocker); }
+
+.recall {
+  border: 1px dashed var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin: 1.5rem 0;
+}
+.recall textarea {
+  width: 100%;
+  min-height: 3.5rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+.recall button {
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.mnemonic {
+  /* Fixed dark card, independent of the page's light/dark theme — intentional
+     high-contrast pull-quote, not a themed surface. */
+  background: #1f1c16;
+  color: #f3efe6;
+  border-radius: 10px;
+  padding: 1.6rem 1.8rem;
+  margin: 2rem 0;
+}
+.mnemonic .label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c4bbaa;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+.mnemonic .big {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.8rem;
+}
+.mnemonic .letter { color: #f0a860; }
+
+/* --- Ship-it card (new in this lesson) --- */
+.ship {
+  border: 2px solid var(--suggestion);
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  margin: 2rem 0;
+  background: var(--paper);
+}
+.ship .label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--suggestion); font-weight: 700;
+  display: block; margin-bottom: 0.5rem;
+}
+.ship h3 { color: var(--ink); margin-top: 0; }
+
+.footer-nav {
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ask-agent {
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<p class="kicker">Lesson 0002 &middot; How /code-review Works</p>
+<h1>Scaling <code>/code-review</code> to Large PRs — and What "Iterating" Actually Means</h1>
+
+<p class="lede">Your team is shipping fast, and PRs are getting too big to review by hand — so you lean on <code>/code-review</code> for a good first sweep. But a 12,000-line PR is a lot to ask of a tool built for normal-sized ones. This lesson explains exactly where it breaks, what the change you just made (PR #578) fixes, and — since you said you weren't sure what you were iterating on — names the handful of knobs you're actually turning.</p>
+
+<div class="callout">
+<span class="label">The one thing to hold onto</span>
+You are not iterating on "quality" in the abstract. You are iterating on one concrete question: <strong>can the first sweep reliably surface the load-bearing issues on a large PR without drowning?</strong> Everything below is in service of that sentence.
+</div>
+
+<h2>1. Why a big PR breaks the normal review</h2>
+<p>In Lesson 1 the enemy was <em>human</em> fatigue — reviewers lose accuracy past ~200–400 lines. The automated finder doesn't get tired, but it has its own version of the same limit, plus a second problem baked into the skill:</p>
+<ul>
+<li><strong>Context saturation.</strong> One finder agent reading all 12k lines across 100 files can't hold it all with precision — the tail of the diff gets a shallower read than the top. Same failure shape as human fatigue, different cause.</li>
+<li><strong>The flat finding cap.</strong> The skill stops at ~15 findings even at max effort — a sane limit on a 300-line PR, an artificial lid on a 12k-line one. That's roughly one note per 800 lines, whether or not there are more real issues.</li>
+<li><strong>No sense of structure.</strong> A monorepo PR isn't one flat blob — it's changes across packages that <em>depend on each other</em>. A single pass sees a new shared API and its consumers as unrelated code thousands of lines apart, with nothing connecting them.</li>
+</ul>
+<div class="callout">
+<span class="label">The real example this is built on</span>
+PR <strong>#560</strong> (eCommerce Phase 2): 12,228 lines, 100 files. It adds a <code>global</code> pricing method in OHFY-OMS and uses it across a dozen OHFY-eCommerce-UI components. A released <code>global</code> signature is <em>frozen the moment it merges</em> — you can never change it again. That is exactly the kind of high-consequence, hard-to-reverse thing a first sweep must not miss, and exactly what a flat 15-finding pass is most likely to let slip.
+</div>
+
+<h2>2. What PR #578 changes</h2>
+<p>Below a size threshold (~1,200 changed lines / 20 files), <strong>nothing changes</strong> — small PRs run exactly as they do today. That was a deliberate constraint: the fix for big PRs must not cost you anything on the common small ones. Above the threshold, the skill switches on two new behaviours:</p>
+
+<h3>a. Chunk by package</h3>
+<p>Split the diff into one chunk per Salesforce package touched (OMS, eCommerce, eCommerce-UI, …), and give each chunk its own reviewer that sees only ~1–4k lines it can actually hold. The finding cap scales with the number of chunks instead of staying flat. This is the fix for context saturation and the artificial lid.</p>
+
+<h3>b. Review in dependency order (the "parent/grandparent" part)</h3>
+<p>The chunks aren't blind to each other. The skill reads the repo's own <code>sfdx-project.json</code> to learn which package depends on which, then reviews them in <strong>waves</strong> — parents before children. When a parent's contract changes, a short <em>digest</em> of that change is handed forward, so the child's reviewer checks its usage against the <em>new</em> contract instead of discovering it cold. For PR #560 the waves come out as:</p>
+
+<div class="waves">
+  <div class="wave-row"><span class="wn">Wave 1</span><span class="pkg">OHFY-Data-Model</span><span class="note">no touched dependency</span></div>
+  <div class="wave-row"><span class="wn">Wave 2</span><span class="pkg">OHFY-OMS</span><span class="note">digest: +global eligiblePromotionsByItem()</span></div>
+  <div class="wave-row"><span class="wn">Wave 3</span><span class="pkg">OHFY-eCommerce</span><span class="note">digest: +global CheckoutSummaryDTO</span></div>
+  <div class="wave-row"><span class="wn">Wave 4</span><span class="pkg">OHFY-eCommerce-UI</span><span class="note">verifies usage vs. new contracts</span></div>
+</div>
+
+<p>Two things make this safe rather than clever: it's <em>derived</em>, so it needs no hand-maintained package list and survives repo reorganization; and sequencing only kicks in when touched packages actually depend on each other — a PR touching just WMS and WMS-UI with no shared change still runs everything in parallel, like before.</p>
+
+<div class="callout">
+<span class="label">Honest limit — say this out loud to the team</span>
+Chunking trades "one reviewer sees everything, shallowly" for "each reviewer sees its slice deeply." That's the right trade at 12k lines, but it is <em>not</em> strictly more coverage: a bug whose two halves live in different packages and <em>isn't</em> a declared-dependency contract change can now fall between chunks. More total agents also means more tokens and, for a deep dependency chain, more wall-clock. These are deliberate trades, not free wins.
+</div>
+
+<h2>3. Ship it — as the thing it is</h2>
+<div class="ship">
+<span class="label">Recommendation</span>
+<h3>Ship PR #578 as a first-sweep improvement, not a quality guarantee.</h3>
+<p style="margin-bottom:0.6rem;">A "first sweep" has a specific, achievable job: <strong>drown-proof the reviewer on large diffs, and make sure the high-consequence, hard-to-reverse things surface</strong> (frozen contracts, blockers, cross-tier breakage) so a human isn't hunting across 100 files for them. #578 is squarely aimed at that. It is strictly better than the flat single pass on large PRs and changes nothing on small ones — so there's no reason to hold it.</p>
+<p style="margin-bottom:0;">What it is <em>not</em> is a promise that the review is complete or correct. That distinction is the whole reason the word "sweep" matters: it reduces the human's surface area, it doesn't remove the human. Frame it that way when you tell the team, and it will be trusted for exactly what it does.</p>
+</div>
+
+<h2>4. So what <em>are</em> you iterating on?</h2>
+<p>Here's the part you said felt fuzzy. "Improving code review" is too vague to act on. In practice you are turning four specific knobs, and iterating means running the tool on a real PR, watching one of these misbehave, and adjusting it:</p>
+<table>
+<tr><th>Knob</th><th>What it controls</th><th>You'd change it when…</th></tr>
+<tr><td><strong>Threshold</strong></td><td>How big a PR must be before chunking turns on (~1,200 lines / 20 files)</td><td>Small PRs start getting chunked needlessly, or medium PRs still feel under-reviewed.</td></tr>
+<tr><td><strong>Chunk boundary</strong></td><td>How the diff is split (currently: one chunk per package)</td><td>A single package's chunk is itself too big, or unrelated files keep landing together.</td></tr>
+<tr><td><strong>Finding cap</strong></td><td>How many findings survive per chunk / overall</td><td>Output is a wall of noise, or clearly truncating real issues.</td></tr>
+<tr><td><strong>Digest</strong></td><td>What contract info crosses from a parent chunk to a child</td><td>Cross-tier issues still slip through, or the digest carries noise the child doesn't need.</td></tr>
+</table>
+
+<p>And the loop those knobs live inside has three rungs, cheapest first. You do not need the expensive one to start:</p>
+<div class="pipeline">
+  <div class="step"><span class="n">1 · Observe</span>Run it on one real large PR (#560 is right there). Read the output like a human: does it catch the load-bearing stuff? Is the noise tolerable?</div>
+  <div class="arrow">&rarr;</div>
+  <div class="step"><span class="n">2 · Tune</span>Adjust one knob above based on what you saw. Re-run. That is a full iteration.</div>
+  <div class="arrow">&rarr;</div>
+  <div class="step"><span class="n">3 · Measure</span>Later, and optional: run before-vs-after on merged PRs with known bugs, count catches. This turns "I think it helps" into a number.</div>
+</div>
+<p>Rung 3 is how you'd eventually <em>prove</em> quality or catch a regression from a future prompt edit — worth it down the line, but not a prerequisite for shipping a better sweep now. Most of your iterating will be rung 1 → rung 2.</p>
+
+<h2>Quick check</h2>
+<div class="quiz" data-answer="C">
+  <div class="q">1. Below the size threshold (~1,200 lines), what does PR #578 change about how a small PR is reviewed?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">It splits the PR into per-file chunks for extra thoroughness</button>
+    <button class="choice" data-key="B">It lowers the finding cap to keep small reviews fast</button>
+    <button class="choice" data-key="C">Nothing — small PRs run exactly as they do today</button>
+    <button class="choice" data-key="D">It skips the adversarial verify step to save tokens</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="B">
+  <div class="q">2. Why does the skill review packages in dependency-ordered waves instead of all in parallel?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">Parallel review isn't technically possible with subagents</button>
+    <button class="choice" data-key="B">So a child package's reviewer knows what contract a parent changed in the same PR, and checks its usage against the new one</button>
+    <button class="choice" data-key="C">To make the review run faster overall</button>
+    <button class="choice" data-key="D">To reduce the total number of agents spawned</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="quiz" data-answer="A">
+  <div class="q">3. What is the honest, correct claim to make about PR #578 to your team?</div>
+  <div class="choices">
+    <button class="choice" data-key="A">It's a better first sweep on large PRs — higher floor and ceiling, not a guarantee the review is complete</button>
+    <button class="choice" data-key="B">It ensures every bug in a large PR is caught before merge</button>
+    <button class="choice" data-key="C">It replaces the need for human review on large PRs</button>
+    <button class="choice" data-key="D">It makes large-PR review cheaper in tokens than the old single pass</button>
+  </div>
+  <div class="feedback"></div>
+</div>
+
+<div class="recall">
+<strong>Retrieval practice — no peeking above.</strong> Name two of the four knobs you'd turn to iterate on large-PR review, and one thing you'd watch for that would tell you to turn each.
+<textarea placeholder="Write your answer here, then scroll up to check yourself."></textarea>
+</div>
+
+<h2>Your memory hook</h2>
+<div class="mnemonic">
+<span class="label">What the change does — SPLIT then STACK</span>
+<div class="big"><span class="letter">SPLIT</span> by package &middot; <span class="letter">STACK</span> in dependency order</div>
+<p style="margin:0 0 1.2rem;color:#d8d3c4;font-size:0.9rem;">Split so no reviewer drowns in 12k lines; stack so a child package hears what its parent changed before it reviews. Below the threshold, neither happens — small PRs are untouched.</p>
+<span class="label">What you're iterating on — T.C.F.D.</span>
+<div class="big" style="font-size:1.3rem;">
+<span class="letter">T</span>hreshold &middot; <span class="letter">C</span>hunk boundary &middot; <span class="letter">F</span>inding cap &middot; <span class="letter">D</span>igest
+</div>
+<p style="margin:0;color:#d8d3c4;font-size:0.9rem;">Four knobs. Iterating = run on a real PR, watch one misbehave, turn it, re-run. Measure only when you need a number.</p>
+</div>
+
+<p><strong>If someone asks "what did you actually improve, and is the review now guaranteed good?"</strong> Say: <em>"On large multi-package PRs it now splits by package and stacks the review in dependency order, so it doesn't drown and it catches cross-tier contract changes — that's a better first sweep, not a guarantee. Small PRs are untouched."</em> That one sentence is the whole lesson.</p>
+
+<h2>Primary sources</h2>
+<p>The change itself lives in <a href="file:///Users/alvarosanchez_1/OHFY-Split/.claude/commands/code-review.md"><code>.claude/commands/code-review.md</code></a> (Phase 0.5) and is up for review as PR #578 on <code>Ohanafy/OHFY-Split</code>. The real PR it's demonstrated against is #560. For the "why a first sweep, not a guarantee" reasoning, the same fatigue/LOC-per-hour grounding from <a href="https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/">the SmartBear peer-review study</a> in Lesson 1 applies — an automated pass raises the floor, it doesn't remove the reviewer.</p>
+
+<p class="ask-agent">Want to actually run rung 1 together — the real before/after on PR #560 — so you can see the output and decide which knob (if any) to turn first? Just ask; that's the natural next step from here.</p>
+
+<div class="footer-nav">
+  <span><a href="lesson-1-what-it-solves.html">&larr; Lesson 1: What /code-review solves</a></span>
+  <span><a href="cheat-sheet.html">Cheat sheet: sections &amp; severity &rarr;</a></span>
+</div>
+
+<script>
+// Reusable retrieval-practice quiz widget. Same markup contract as Lesson 1.
+(function () {
+  function initQuizzes() {
+    document.querySelectorAll(".quiz").forEach(function (quiz) {
+      var answer = quiz.getAttribute("data-answer");
+      var feedback = quiz.querySelector(".feedback");
+      var buttons = quiz.querySelectorAll(".choice");
+      var answered = false;
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var picked = btn.getAttribute("data-key");
+          buttons.forEach(function (b) {
+            if (b.getAttribute("data-key") === answer) {
+              b.classList.add("correct");
+            } else if (b === btn) {
+              b.classList.add("incorrect");
+            }
+          });
+          if (feedback) {
+            if (picked === answer) {
+              feedback.textContent = "Correct.";
+              feedback.classList.add("show-correct");
+            } else {
+              feedback.textContent = "Not quite — the highlighted option is correct.";
+              feedback.classList.add("show-incorrect");
+            }
+          }
+        });
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuizzes);
+  } else {
+    initQuizzes();
+  }
+})();
+</script>
+</body>
+</html>

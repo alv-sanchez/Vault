@@ -10,8 +10,8 @@ ticket_count: 3
 
 ## 🎟️ Tickets that touch this area (3)
 - [BMS-3742](https://ohanafy.atlassian.net/browse/BMS-3742) DOI Formula Standardization — `Review` · [#513](https://github.com/Ohanafy/OHFY-Split/pull/513)
-- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791) PO-side optional billback — freight-scoped supplier-owes-distributor origination — `Review` · [#516](https://github.com/Ohanafy/OHFY-Split/pull/516)
-- [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901) Receipt-fee billback source — Inventory Receipt Fee → supplier-owed — `Backlog`
+- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791)
+- [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901)
 
 ## 🔗 Logged notes here
 - [[orientation]]

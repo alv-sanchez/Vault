@@ -3,13 +3,15 @@ epic: BMS-4996
 release_phase: walk
 title: "[REQ-069] Retailer Engagement Notifications"
 status: In Progress
+org: bms-4996-notif
+claimed_orgs: [bms-4996-notif]
 audit_verdict: Not-Yet
 score: 2
 stream: S1-eCommerce
 executable_children: []
 blockers: [BMS-4073]
 build_order: []
-updated: 2026-06-28
+updated: 2026-07-20
 jira: https://ohanafy.atlassian.net/browse/BMS-4996
 tags:
   - manager-engineer

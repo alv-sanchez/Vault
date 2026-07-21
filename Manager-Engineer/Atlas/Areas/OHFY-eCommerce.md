@@ -9,7 +9,7 @@ ticket_count: 1
 **Repo:** `OHFY-Split/OHFY-eCommerce` · rules + DoD live in `OHFY-eCommerce/CLAUDE.md`.
 
 ## 🎟️ Tickets that touch this area (1)
-- [BMS-4073](https://ohanafy.atlassian.net/browse/BMS-4073)
+- [BMS-4073](https://ohanafy.atlassian.net/browse/BMS-4073) Notification Services: Abandoned Cart Reminder & Order Confirmation — `To Do` · bms-4996-notif
 
 ## 🔗 Logged notes here
 - [[BMS-4073-notification-services-abandoned-cart-order-confirmation]]

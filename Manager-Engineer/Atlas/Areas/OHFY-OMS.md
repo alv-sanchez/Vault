@@ -10,10 +10,10 @@ ticket_count: 5
 
 ## 🎟️ Tickets that touch this area (5)
 - [BMS-3853](https://ohanafy.atlassian.net/browse/BMS-3853)
-- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#439](https://github.com/Ohanafy/OHFY-Split/pull/439)
-- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791) PO-side optional billback — freight-scoped supplier-owes-distributor origination — `Review` · [#516](https://github.com/Ohanafy/OHFY-Split/pull/516)
-- [BMS-5900](https://ohanafy.atlassian.net/browse/BMS-5900) Supplier Agreement Term + per-charge-type coverage cascade — `Backlog`
-- [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901) Receipt-fee billback source — Inventory Receipt Fee → supplier-owed — `Backlog`
+- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
+- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791)
+- [BMS-5900](https://ohanafy.atlassian.net/browse/BMS-5900)
+- [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901)
 
 ## 🔗 Logged notes here
 - [[orientation]]

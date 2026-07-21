@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pricing Demo Data — Promotions & Front-Line Prices (ohfy-5576)</title>
+<style>
+:root { --ink:#1f2430; --muted:#5b6472; --line:#e4e7ec; --accent:#4a5fb0; --accent-soft:#eef1fb;
+        --bg:#fbfbfc; --green:#0e7a3d; --green-soft:#e7f6ec; --amber:#a8610a; --amber-soft:#fdf4e7;
+        --code:#f4f5f7; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
+main{max-width:880px;margin:0 auto;padding:44px 24px 80px}
+h1{font-size:27px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 30px}
+h2{font-size:20px;margin:40px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--accent-soft)}
+h3{font-size:15px;margin:20px 0 8px;color:var(--accent)}
+p,li,td,th{font-size:14.5px}
+code{background:var(--code);padding:1px 6px;border-radius:4px;font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+table{border-collapse:collapse;width:100%;margin:14px 0}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 26px;margin:22px 0;box-shadow:0 3px 10px rgba(31,36,48,.05)}
+.card h2{border:none;margin:0 0 4px;padding:0}
+.itemtag{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:18px 0}
+.step{flex:1 1 150px;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff}
+.step .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.step .val{font-size:22px;font-weight:700}
+.step .src{font-size:11.5px;color:var(--muted);margin-top:6px}
+.step.win{border-color:var(--green);background:var(--green-soft)}
+.step.win .val{color:var(--green)}
+.step.dim .val{color:var(--muted);text-decoration:line-through;font-weight:600}
+.arrow{align-self:center;font-size:20px;color:var(--muted)}
+.chip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:99px;padding:2px 10px;margin-left:6px;vertical-align:middle}
+.chip.promo{background:var(--green-soft);color:var(--green)}
+.chip.vol{background:var(--accent-soft);color:var(--accent)}
+.chip.none{background:var(--code);color:var(--muted)}
+.try{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;padding:10px 16px;margin:14px 0;font-size:13.5px}
+.note{border-left:4px solid var(--amber);background:var(--amber-soft);border-radius:0 8px 8px 0;padding:10px 16px;margin:14px 0;font-size:13.5px}
+.money{font-variant-numeric:tabular-nums}
+.right{text-align:right}
+footer{margin-top:44px;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Pricing Demo Data — Promotions &amp; Front-Line Prices</h1>
+  <p class="sub">Live records on <code>ohfy-5576</code> (canal-lagoon) · shopper = <strong>Customer Account 0</strong> · BMS-4051 / BMS-5576 demo companion</p>
+
+  <h2>Who is the shopper?</h2>
+  <table>
+    <tr><th>Fact</th><th>Value</th><th>Where it lives</th></tr>
+    <tr><td>Account</td><td>Customer Account 0</td><td><code>Account</code></td></tr>
+    <tr><td>Front-line pricing group</td><td>Retail Tier 1</td><td><code>Account_Pricing_Group__c</code> (junction) → <code>Front_Line_Pricing_Group__c</code></td></tr>
+    <tr><td>Promotion audience</td><td>Account-targeted (both demo promos carry <code>Account__c</code> = Customer Account 0)</td><td><code>Promotion__c.Account__c</code></td></tr>
+    <tr><td>Fulfillment warehouse</td><td>Warehouse 1 (FL) — drives checkout tax, not item pricing</td><td><code>Account.Fulfillment_Location__c</code></td></tr>
+  </table>
+
+  <!-- ================= WAVE SPLITTER ================= -->
+  <div class="card">
+    <h2>Wave Splitter: 1/6 BBL <span class="chip promo">Promo Price</span></h2>
+    <div class="itemtag">The flat "Post-off" demo — same discounted price at every quantity</div>
+
+    <div class="flow">
+      <div class="step dim">
+        <div class="lbl">Catalog default</div>
+        <div class="val money">$65.00</div>
+        <div class="src"><code>Item__c.Default_Case_Price__c</code></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step dim">
+        <div class="lbl">Front-line price (base)</div>
+        <div class="val money">$69.00</div>
+        <div class="src"><code>Front_Line_Price__c</code> · scope <code>ITEM</code> · Retail Tier 1 · specificity 3 (most specific wins)</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step win">
+        <div class="lbl">After promotion</div>
+        <div class="val money">$59.00</div>
+        <div class="src">Post-off −$10.00/case · <code>Promotion__c</code> "Demo Post-off — Wave Splitter 1/6 BBL"</div>
+      </div>
+    </div>
+
+    <h3>The promotion record</h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><code>Type__c</code></td><td>Post-off (flat per-case discount)</td></tr>
+      <tr><td><code>Discount_Type__c</code> / <code>Discount_Amount__c</code></td><td>Dollar / 10</td></tr>
+      <tr><td><code>Min_Quantity__c</code></td><td>1 (applies from the first case)</td></tr>
+      <tr><td><code>Item__c</code> (scope)</td><td>Wave Splitter: 1/6 BBL (ITEM-scoped)</td></tr>
+      <tr><td><code>Account__c</code> (audience)</td><td>Customer Account 0</td></tr>
+      <tr><td><code>Status__c</code> / <code>End_Date__c</code></td><td>Active / blank (open-ended → "Ongoing")</td></tr>
+    </table>
+
+    <div class="try"><strong>Try it live:</strong> Shop → search "Wave Splitter" → the card shows <s>$69.00</s> <strong>$59.00</strong> with a <em>Promo Price</em> label. Same at any quantity — flat discounts don't ladder.</div>
+  </div>
+
+  <!-- ================= BOATS FLOAT ================= -->
+  <div class="card">
+    <h2>Boats Float: 1/2 BBL <span class="chip vol">Volume Price</span></h2>
+    <div class="itemtag">The tiered "Quantity Discount (QD)" demo — price drops as quantity crosses tiers</div>
+
+    <div class="flow">
+      <div class="step dim">
+        <div class="lbl">Catalog default</div>
+        <div class="val money">$170.00</div>
+        <div class="src"><code>Item__c.Default_Case_Price__c</code></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="lbl">Front-line price (base)</div>
+        <div class="val money">$160.00</div>
+        <div class="src"><code>Front_Line_Price__c</code> · scope <code>ITEM_LINE_PKG</code> (Beverage line + 1/2 BBL Keg) · Retail Tier 1</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step win">
+        <div class="lbl">At the 10+ tier</div>
+        <div class="val money">$157.00</div>
+        <div class="src">QD tier −$3.00/case · "Demo Volume Deal"</div>
+      </div>
+    </div>
+
+    <h3>The quantity ladder <span class="chip none">whole-cart quantity</span></h3>
+    <table>
+      <tr><th>Cart quantity</th><th class="right">Unit price</th><th class="right">Save / case</th><th>Label shown</th><th>Source</th></tr>
+      <tr><td>1 – 9</td><td class="right money">$160.00</td><td class="right money">—</td><td>(none — base FLP)</td><td><code>Front_Line_Price__c</code></td></tr>
+      <tr><td><strong>10 – 49</strong></td><td class="right money"><strong>$157.00</strong></td><td class="right money">$3.00</td><td><span class="chip vol">Volume Price</span></td><td><code>Promotion_Tier__c</code> (Min 10 → −$3)</td></tr>
+      <tr><td><strong>50 +</strong></td><td class="right money"><strong>$154.00</strong></td><td class="right money">$6.00</td><td><span class="chip vol">Volume Price</span></td><td><code>Promotion_Tier__c</code> (Min 50 → −$6)</td></tr>
+    </table>
+
+    <h3>The promotion record</h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><code>Type__c</code></td><td>QD (quantity discount, tiered)</td></tr>
+      <tr><td><code>Promotion_Tiers__r</code></td><td>2 child rows: Min 10 → −$3 · Min 50 → −$6 (deepest reached tier applies)</td></tr>
+      <tr><td><code>Item__c</code> (scope)</td><td>Boats Float: 1/2 BBL (ITEM-scoped)</td></tr>
+      <tr><td><code>Account__c</code> (audience)</td><td>Customer Account 0</td></tr>
+      <tr><td><code>Status__c</code> / <code>End_Date__c</code></td><td>Active / blank (open-ended → "Ongoing")</td></tr>
+    </table>
+
+    <div class="try"><strong>Try it live:</strong> add Boats Float 1/2 BBL to the cart, set qty <strong>9 → 10</strong> and watch the line reprice $160 → $157 with the <em>Volume Price</em> label; drop back to 9 and it snaps back. At qty 18: 18 × $157 = <strong>$2,826.00</strong> (save $54.00).</div>
+  </div>
+
+  <!-- ================= FULL FLP INVENTORY ================= -->
+  <h2>All Front-Line Price records on the org</h2>
+  <p>The resolver picks the <strong>most specific</strong> row that matches the item + the shopper's pricing group (higher <code>Specificity_Score__c</code> wins).</p>
+  <table>
+    <tr><th>Scope</th><th>Matches</th><th class="right">Case price</th><th>Pricing group</th><th class="right">Specificity</th></tr>
+    <tr><td><code>ITEM</code></td><td>Wave Splitter: 1/6 BBL</td><td class="right money">$69.00</td><td>Retail Tier 1</td><td class="right">3</td></tr>
+    <tr><td><code>ITEM_TYPE_PKG</code></td><td>Sharks Fin (type) + pkg</td><td class="right money">$17.00</td><td>Retail Tier 1</td><td class="right">2</td></tr>
+    <tr><td><code>ITEM_LINE_PKG</code></td><td>Beverage + 1/2 BBL Keg</td><td class="right money">$160.00</td><td>Retail Tier 1</td><td class="right">1</td></tr>
+    <tr><td><code>ITEM_LINE_PKG</code></td><td>Beverage + 1/6 BBL Keg</td><td class="right money">$60.00</td><td>Retail Tier 1</td><td class="right">1</td></tr>
+    <tr><td><code>ITEM_LINE_PKG</code></td><td>Beverage + 4/6/12oz Can</td><td class="right money">$22.00</td><td>Retail Tier 1</td><td class="right">1</td></tr>
+  </table>
+  <p class="note"><strong>Why Wave Splitter is $69, not $60:</strong> it matches both the ITEM row ($69, specificity 3) and the Beverage + 1/6 BBL row ($60, specificity 1) — the more specific ITEM row wins. An item with <em>no</em> FLP match falls back to <code>Item__c.Default_Case_Price__c</code>.</p>
+
+  <!-- ================= RULES ================= -->
+  <h2>Resolution rules (S_PriceResolver)</h2>
+  <table>
+    <tr><th>#</th><th>Rule</th></tr>
+    <tr><td>1</td><td><strong>Base:</strong> most-specific matching <code>Front_Line_Price__c</code> for the shopper's pricing group; else the item's default case price.</td></tr>
+    <tr><td>2</td><td><strong>Eligibility:</strong> promotion must be Active, in its date window, and in the shopper's audience (promotion group, chain, channel, warehouse, or direct <code>Account__c</code> target).</td></tr>
+    <tr><td>3</td><td><strong>One winner per line:</strong> when several promos qualify, the <em>deepest discount</em> wins — promotions never stack.</td></tr>
+    <tr><td>4</td><td><strong>QD tiers use the whole-cart quantity</strong> for that item — the deepest tier reached applies to every case on the line.</td></tr>
+    <tr><td>5</td><td><strong>Labels:</strong> flat/Post-off → <span class="chip promo">Promo Price</span> · tier reached → <span class="chip vol">Volume Price</span>, always with the struck base beside the final price.</td></tr>
+    <tr><td>6</td><td><strong>Same engine everywhere:</strong> shop card, product page, cart, review summary, and the confirmed invoice all call the same resolver — the number can't disagree across pages.</td></tr>
+  </table>
+
+  <footer>Data queried live from <code>ohfy-5576</code> · Objects: <code>Item__c</code>, <code>Front_Line_Price__c</code>, <code>Front_Line_Pricing_Group__c</code>, <code>Account_Pricing_Group__c</code>, <code>Promotion__c</code>, <code>Promotion_Tier__c</code> · Engine: <code>S_PriceResolver</code> via <code>Ecom_UI_Wrappers.resolveCartPricing</code> · BMS-4051 / BMS-5576</footer>
+</main>
+</body>
+</html>

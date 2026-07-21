@@ -1,38 +1,16 @@
 {
   "stamp": {
-    "iso": "2026-07-16",
-    "human": "2026-07-16 07:35",
-    "file": "2026-07-16-0735"
+    "iso": "2026-07-20",
+    "human": "2026-07-20 16:36",
+    "file": "2026-07-20-1636"
   },
   "counts": {
-    "matched": 3,
+    "matched": 0,
     "standing": 10,
-    "unmatchedOrgs": 1,
-    "orphanBranches": 36
+    "unmatchedOrgs": 3,
+    "orphanBranches": 38
   },
-  "tied": [
-    {
-      "bms": "5113",
-      "org": "bms-5113-5161-integration",
-      "branch": "integration/bms-5113-validation",
-      "exp": "2026-08-09",
-      "status": null
-    },
-    {
-      "bms": "5481",
-      "org": "bms-5481-picker-incentive",
-      "branch": "feat/picker-incentive-engine-bms-5481",
-      "exp": "2026-08-12",
-      "status": null
-    },
-    {
-      "bms": "5576",
-      "org": "ohfy-5576",
-      "branch": "feat/ecom-phase2-pricing-checkout-bms-5576",
-      "exp": "2026-08-12",
-      "status": null
-    }
-  ],
+  "tied": [],
   "orphanBranches": [
     {
       "bms": "3742",
@@ -99,6 +77,10 @@
       "branch": "feat/redbull-allocation-import-bms-4120"
     },
     {
+      "bms": "4184",
+      "branch": "chore/gulf-uat-demo-data-audit-bms-4184"
+    },
+    {
       "bms": "4217",
       "branch": "feat/safety-stock-doh-sizing-bms-4217"
     },
@@ -127,12 +109,20 @@
       "branch": "demo/short-pay-epic-bms-4965"
     },
     {
+      "bms": "4997",
+      "branch": "feat/call-center-order-visibility-reporting-bms-4997"
+    },
+    {
       "bms": "5068",
       "branch": "feat/safety-stock-controls-bms-5068"
     },
     {
+      "bms": "5113",
+      "branch": "integration/bms-5113-validation"
+    },
+    {
       "bms": "5161",
-      "branch": "integration/bms-5161-validation"
+      "branch": "integration/bms-5161-inboundPO-validation"
     },
     {
       "bms": "5237",
@@ -143,12 +133,20 @@
       "branch": "story/BMS-5252"
     },
     {
+      "bms": "5305",
+      "branch": "ci/ecom-playwright-e2e-bms-5305"
+    },
+    {
       "bms": "5344",
       "branch": "fix/reorder-banner-theming-bms-5344"
     },
     {
-      "bms": "5592",
-      "branch": "feat/launch-plan-checklist-bms-5592"
+      "bms": "5481",
+      "branch": "feat/picker-incentive-engine-bms-5481"
+    },
+    {
+      "bms": "5576",
+      "branch": "feat/ecom-phase2-pricing-checkout-bms-5576"
     },
     {
       "bms": "5625",
@@ -165,21 +163,11 @@
     {
       "bms": "5754",
       "branch": "feat/safety-stock-impact-value-bms-5754"
-    },
-    {
-      "bms": "5789",
-      "branch": "feat/freight-cost-capture-bms-5789"
-    },
-    {
-      "bms": "5790",
-      "branch": "feat/freight-billback-generation-bms-5790"
-    },
-    {
-      "bms": "5791",
-      "branch": "feat/po-freight-billback-bms-5791"
     }
   ],
   "unmatchedOrgs": [
-    "ohfy-val-shortPay"
+    "bms-4996-notif",
+    "ohfy-val-shortPay",
+    "sltransfer-validate"
   ]
 }

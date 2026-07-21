@@ -13,208 +13,98 @@
             "dimension": 61.33156966490299,
             "children": [
               {
-                "id": "93f1b127dc85dd70",
+                "id": "221c246bd2a1e173",
                 "type": "leaf",
-                "pinned": true,
                 "state": {
                   "type": "html-view",
                   "state": {
                     "file": "Manager-Engineer/Mission-Control/mission-control.html"
                   },
-                  "pinned": true,
                   "icon": "code-glyph",
                   "title": "mission-control"
                 }
               },
               {
-                "id": "710aef302925885f",
+                "id": "42abbc4a60c86429",
                 "type": "leaf",
                 "state": {
                   "type": "markdown",
                   "state": {
-                    "file": "Transcripts/Gulf On-site - Short Pays/Transcript July 14th - Afternoon meeting.md",
+                    "file": "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md",
                     "mode": "source",
                     "source": false
                   },
                   "icon": "lucide-file",
-                  "title": "Transcript July 14th - Afternoon meeting"
-                }
-              },
-              {
-                "id": "3e2a57f353319178",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "2026-06-30 Finance & Accounting Demo Workshop — Action Items"
-                }
-              },
-              {
-                "id": "17f90d23357a906b",
-                "type": "leaf",
-                "state": {
-                  "type": "html-view",
-                  "state": {
-                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/demo.html"
-                  },
-                  "icon": "code-glyph",
-                  "title": "demo"
-                }
-              },
-              {
-                "id": "e3b159abcffeef44",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/proposal.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "proposal"
-                }
-              },
-              {
-                "id": "bcd893d49a2abc49",
-                "type": "leaf",
-                "state": {
-                  "type": "excalidraw",
-                  "state": {
-                    "file": "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md"
-                  },
-                  "icon": "excalidraw-icon",
-                  "title": "Drawing 2026-07-16 09.02.24.excalidraw"
+                  "title": "Transcript July 15th - Afternoon meeting"
                 }
               },
               {
                 "id": "5b0e8c7cf71c94ae",
                 "type": "leaf",
                 "state": {
-                  "type": "html-view",
+                  "type": "markdown",
                   "state": {
-                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html"
+                    "file": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DATA-MODEL.md",
+                    "mode": "source",
+                    "source": false
                   },
-                  "icon": "code-glyph",
-                  "title": "Short-Pay-Ownership-Map"
+                  "icon": "lucide-file",
+                  "title": "DATA-MODEL"
                 }
               }
             ]
           },
           {
-            "id": "26417d0c1e2e3c33",
-            "type": "split",
+            "id": "8c8a7cad65d40b08",
+            "type": "tabs",
             "dimension": 38.66843033509701,
             "children": [
               {
-                "id": "8c8a7cad65d40b08",
-                "type": "tabs",
-                "children": [
-                  {
-                    "id": "178d83c8a8398acd",
-                    "type": "leaf",
-                    "pinned": true,
-                    "state": {
-                      "type": "terminal:terminal",
-                      "state": {
-                        "terminal:terminal": {
-                          "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
-                          "focus": false,
-                          "profile": {
-                            "args": [
-                              "--login"
-                            ],
-                            "environment": [],
-                            "executable": "/bin/zsh",
-                            "followTheme": true,
-                            "name": "",
-                            "platforms": {
-                              "darwin": true
-                            },
-                            "pythonExecutable": "python3",
-                            "restoreHistory": false,
-                            "rightClickAction": "copyPaste",
-                            "successExitCodes": [
-                              "0",
-                              "SIGINT",
-                              "SIGTERM"
-                            ],
-                            "terminalOptions": {
-                              "documentOverride": null
-                            },
-                            "type": "integrated",
-                            "useWin32Conhost": true
-                          },
-                          "profileSourceId": "darwinIntegratedDefault",
-                          "serial": null,
-                          "userTitle": ""
-                        }
+                "id": "178d83c8a8398acd",
+                "type": "leaf",
+                "pinned": true,
+                "state": {
+                  "type": "terminal:terminal",
+                  "state": {
+                    "terminal:terminal": {
+                      "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
+                      "focus": false,
+                      "profile": {
+                        "args": [
+                          "--login"
+                        ],
+                        "environment": [],
+                        "executable": "/bin/zsh",
+                        "followTheme": true,
+                        "name": "",
+                        "platforms": {
+                          "darwin": true
+                        },
+                        "pythonExecutable": "python3",
+                        "restoreHistory": false,
+                        "rightClickAction": "copyPaste",
+                        "successExitCodes": [
+                          "0",
+                          "SIGINT",
+                          "SIGTERM"
+                        ],
+                        "terminalOptions": {
+                          "documentOverride": null
+                        },
+                        "type": "integrated",
+                        "useWin32Conhost": true
                       },
-                      "pinned": true,
-                      "icon": "terminal",
-                      "title": "Terminal: ✳ Update child tickets with correct status"
+                      "profileSourceId": "darwinIntegratedDefault",
+                      "serial": null,
+                      "userTitle": ""
                     }
-                  }
-                ]
-              },
-              {
-                "id": "9c70ef7b160f6122",
-                "type": "tabs",
-                "children": [
-                  {
-                    "id": "e68774ce56343cb3",
-                    "type": "leaf",
-                    "pinned": true,
-                    "state": {
-                      "type": "terminal:terminal",
-                      "state": {
-                        "terminal:terminal": {
-                          "cwd": "/Users/alvarosanchez_1/Documents/Obsidian/Vault",
-                          "focus": false,
-                          "profile": {
-                            "args": [
-                              "--login"
-                            ],
-                            "environment": [],
-                            "executable": "/bin/zsh",
-                            "followTheme": true,
-                            "name": "",
-                            "platforms": {
-                              "darwin": true
-                            },
-                            "pythonExecutable": "python3",
-                            "restoreHistory": false,
-                            "rightClickAction": "copyPaste",
-                            "successExitCodes": [
-                              "0",
-                              "SIGINT",
-                              "SIGTERM"
-                            ],
-                            "terminalOptions": {
-                              "documentOverride": null
-                            },
-                            "type": "integrated",
-                            "useWin32Conhost": true
-                          },
-                          "profileSourceId": "darwinIntegratedDefault",
-                          "serial": null,
-                          "userTitle": ""
-                        }
-                      },
-                      "pinned": true,
-                      "icon": "terminal",
-                      "title": "Terminal: ✳ Gather short pay handling direction from Gulf on-site"
-                    }
-                  }
-                ]
+                  },
+                  "pinned": true,
+                  "icon": "terminal",
+                  "title": "Terminal: ⠂ Set up Grok tunnel and expose on URL"
+                }
               }
-            ],
-            "direction": "vertical"
+            ]
           }
         ],
         "direction": "horizontal"
@@ -371,8 +261,8 @@
             "state": {
               "type": "git-view",
               "state": {},
-              "icon": "lucide-ghost",
-              "title": "git-view"
+              "icon": "git-pull-request",
+              "title": "Source Control"
             }
           },
           {
@@ -412,12 +302,11 @@
             }
           }
         ],
-        "currentTab": 7
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 403.5,
-    "collapsed": true
+    "width": 403.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -435,56 +324,56 @@
       "markdown-table-editor:Open Markdown Table Editor": false
     }
   },
-  "active": "93f1b127dc85dd70",
+  "active": "e899aaf35053240e",
   "lastOpenFiles": [
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Child-Ticket-Approvals.html",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html",
     "Manager-Engineer/Mission-Control/mission-control.html",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/demo.html",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/freight-billback-mental-model.html",
-    "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DATA-MODEL.md",
+    "User Journeries/replenishment-journey-handoff.html",
+    "Manager-Engineer/Runs/2026-07-20-2140-plan-only-pulse.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/build-status-2026-07-15.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/audit-vs-onsite-jul14.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Child-Ticket-Approvals.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/QA-AC-validation.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/EPIC-final-AC-pass.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-review-queue.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-reject-rehydrate.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-home.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-approvals-pending.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/RESUME-STATE.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/DRY-RUN-TEST.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/ui-firstpass.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-overview.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-proposal.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-proposal.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/seed-data.apex",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-explained.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/diagram.excalidraw.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/SESSION.md",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-20-1636.md",
+    "Loading Data - 07-20-2026/Return Pre-Visibility — What Exists Today.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/diagram.excalidraw.md",
+    "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/VALIDATION.md",
+    "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Extraction.md",
+    "Transcripts/Gulf On-site/Short Pay/Transcript July 14th - Afternoon meeting.md",
+    "Transcripts/Gulf On-site/Short Pay/_HANDOFF-SUMMARY.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/DRY-RUN-TEST.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/ASSUMPTIONS.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-reject-rehydrate.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-review-queue.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-home.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-approvals-pending.png",
     "Images/Screenshot 2026-07-16 at 9.03.07 AM.png",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-16-0735.md",
-    "Manager-Engineer/Mission-Control/Snapshots/2026-07-16-0900.html",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/diagram.excalidraw.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/build-status-2026-07-15.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.md",
-    "Transcripts/Gulf On-site - Short Pays/Short-Pay-Publix-EFT Extraction.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/audit-vs-onsite-jul14.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
-    "Transcripts/Gulf On-site - Short Pays/Transcript July 14th - Afternoon meeting.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/proposal.md",
-    "Manager-Engineer/The-Corner/2026-07-15-1200.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/mockup.html",
-    "Transcripts/BMS-4965 Short Pay Automation/Finance&Accounting - Demo Workshop.md",
-    "Manager-Engineer/Tickets/BMS-5903-supplier-owed-dashboard-lwc.md",
-    "Manager-Engineer/Tickets/BMS-5902-supplier-agreement-terms-lwc.md",
-    "Manager-Engineer/Tickets/BMS-5901-receipt-fee-billback-source.md",
-    "Manager-Engineer/Tickets/BMS-5900-agreement-terms-coverage-cascade.md",
-    "Manager-Engineer/Tickets/BMS-5899-charge-type-dimension.md",
-    "Manager-Engineer/Tickets/supplier-owed-03-receipt-fee-billback-source.md",
-    "Manager-Engineer/Tickets/supplier-owed-04-supplier-agreement-terms-lwc.md",
-    "Manager-Engineer/Tickets/supplier-owed-05-supplier-owed-dashboard-lwc.md",
-    "Manager-Engineer/Tickets/supplier-owed-01-charge-type-dimension.md",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/ASSUMPTIONS.md",
-    "Transcripts/Gulf On-site - Short Pays/_HANDOFF-SUMMARY.md",
-    "Transcripts/Gulf On-site",
-    "Transcripts/Gulf On-site.zip",
-    "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.html",
-    "Transcripts/Gulf On-site - Short Pays/Short-Pay-MANAGER-HANDOFF.md",
-    "Manager-Engineer/Mission-Control/README.md",
     "Untitled.canvas",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/verify-bms-4078-fixed.png",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5070-shift-end/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/02-off-target-only.png",
-    "Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/screenshots/01-warehouse-grouped.png",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4935-red-bull-allocation/ui-firstpass.png",
     "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas",
-    "Images/Screenshot 2026-07-13 at 10.31.46 AM.png",
-    "Manager-Engineer/Build-Overview/BMS-5067-practical-days-on-hand/screenshots/03-location-flat.png",
     "Anvil/Engineering/Visualizer/Untitled.canvas",
     "Anvil/Engineering/Planning/Canvases/Sprint 4 Board.canvas",
     "Anvil/Engineering/Planning/Canvases/E-Commerce Sprints 3-5 Dependencies.canvas",

@@ -5,7 +5,7 @@ title: "[REQ-038] Short Pay Automation"
 domain: "AR / Finance (OMS)"
 user: "Drivers (capture) · AR/finance (resolution) · FL/AL compliance"
 impact: "Unexplained shortfalls, manual reconciliation, no compliance trail, missed supplier claim windows"
-build_status: "Built (back-office) · feat/short-pay-backoffice-bms-4965 · capture shipped (3844) · needs org"
+build_status: "Bundled + QA'd · PR #582 READY (demo/short-pay-epic-bms-4965) unions 5625+4059+4060+5631, supersedes #439/#557/#561 · validated e2e in ohfy-val-shortPay · awaiting review/merge (repo-verified 2026-07-20)"
 awaiting_ui_direction: true   # backend artifact built; AR review-queue screen pending your UX direction + mockup
 demo_review: true             # 🎬 in the demo bucket — review to catch a wrong-direction build early
 demo_pitch: "Replaces the dead short-pay ticket system — shortfalls escalate by FL/AL rules and repeat offenders surface."

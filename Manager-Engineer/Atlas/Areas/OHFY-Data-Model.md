@@ -11,10 +11,10 @@ ticket_count: 6
 ## 🎟️ Tickets that touch this area (6)
 - [BMS-3742](https://ohanafy.atlassian.net/browse/BMS-3742) DOI Formula Standardization — `Review` · [#513](https://github.com/Ohanafy/OHFY-Split/pull/513)
 - [BMS-3853](https://ohanafy.atlassian.net/browse/BMS-3853)
-- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay Automation — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#439](https://github.com/Ohanafy/OHFY-Split/pull/439)
-- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791) PO-side optional billback — freight-scoped supplier-owes-distributor origination — `Review` · [#516](https://github.com/Ohanafy/OHFY-Split/pull/516)
-- [BMS-5899](https://ohanafy.atlassian.net/browse/BMS-5899) Charge Type dimension on Billback Line — supplier-owed foundation — `Backlog`
-- [BMS-5900](https://ohanafy.atlassian.net/browse/BMS-5900) Supplier Agreement Term + per-charge-type coverage cascade — `Backlog`
+- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
+- [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791)
+- [BMS-5899](https://ohanafy.atlassian.net/browse/BMS-5899)
+- [BMS-5900](https://ohanafy.atlassian.net/browse/BMS-5900)
 
 ## 🔗 Logged notes here
 - [[orientation]]

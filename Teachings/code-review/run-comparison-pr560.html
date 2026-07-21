@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real-PR Run Comparison — PR #560 · /code-review scaling</title>
+<style>
+/* Print-oriented light theme, consistent with the code-review teaching lessons. */
+:root {
+  --ink: #1a1a1a;
+  --paper: #fdfcf9;
+  --rule: #d8d3c4;
+  --accent: #8a3b2e;
+  --accent-soft: #f4e8e0;
+  --muted: #6b6558;
+  --code-bg: #f1efe6;
+  --blocker: #a8321f;
+  --warning: #9a6a0a;
+  --ok: #4a6b57;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2.2rem 4rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1 { font-size: 1.85rem; line-height: 1.18; margin: 0 0 0.4rem; font-weight: 600; text-wrap: balance; }
+.kicker {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 1.4rem;
+}
+h2 {
+  font-size: 1.2rem; margin: 2.2rem 0 0.7rem;
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem;
+  page-break-after: avoid;
+}
+h3 { font-size: 1rem; margin: 1.3rem 0 0.4rem; color: var(--accent); page-break-after: avoid; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); }
+.meta {
+  font-size: 0.85rem; color: var(--muted);
+  background: var(--code-bg); border-radius: 6px; padding: 0.9rem 1.1rem; margin: 1rem 0 1.4rem;
+}
+.meta div { margin: 0.15rem 0; }
+.meta b { color: var(--ink); }
+.lede {
+  font-size: 1rem; color: var(--muted);
+  border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.2rem 0;
+}
+code, .mono {
+  font-family: var(--mono); font-size: 0.82em; background: var(--code-bg);
+  color: var(--ink); padding: 0.08em 0.32em; border-radius: 3px;
+}
+table {
+  width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem;
+  page-break-inside: avoid;
+}
+th, td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul { margin: 0.6rem 0; padding-left: 1.2rem; }
+li { margin: 0.35rem 0; }
+.callout {
+  background: var(--accent-soft); border-radius: 6px; padding: 0.9rem 1.2rem;
+  margin: 1.1rem 0; font-size: 0.92rem; page-break-inside: avoid;
+}
+.callout .label {
+  font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.3rem;
+}
+.sev { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; padding: 0.05em 0.4em; border-radius: 3px; }
+.sev.b { color: #fff; background: var(--blocker); }
+.sev.w { color: #fff; background: var(--warning); }
+.tag { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.three { display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin: 1rem 0; }
+.card { border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem 1.1rem; page-break-inside: avoid; }
+.card h3 { margin-top: 0; }
+.card.both h3 { color: var(--ok); }
+.card.newonly h3 { color: var(--accent); }
+.card.oldonly h3 { color: var(--warning); }
+.verdict { border: 2px solid var(--ok); border-radius: 8px; padding: 1rem 1.2rem; margin: 1.2rem 0; page-break-inside: avoid; }
+.verdict .label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ok); font-weight: 700; display: block; margin-bottom: 0.4rem; }
+.foot { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid var(--rule); font-size: 0.78rem; color: var(--muted); }
+@page { margin: 1.6cm 1.4cm; }
+@media print { body { padding: 0; max-width: none; font-size: 11pt; } a { color: var(--ink); } }
+</style>
+</head>
+<body>
+
+<p class="kicker">Code-Review Workspace · Measurement Record · 2026-07-17</p>
+<h1>Real-PR Run Comparison — Old Single-Pass vs. New Chunked + Dependency Waves</h1>
+
+<div class="meta">
+  <div><b>Subject PR:</b> <a href="https://github.com/Ohanafy/OHFY-Split/pull/560">Ohanafy/OHFY-Split #560</a> — feat(ecom): Phase 2 — pricing/promo completion &amp; checkout (BMS-5576)</div>
+  <div><b>Change under test:</b> <a href="https://github.com/Ohanafy/OHFY-Split/pull/578">#578</a> — Phase 0.5 scaling + dependency-ordered wave chunking of <code>/code-review</code></div>
+  <div><b>Posted review (new run):</b> <a href="https://github.com/Ohanafy/OHFY-Split/pull/560#pullrequestreview-4725420335">pullrequestreview-4725420335</a> — 7 inline + full body, COMMENT only</div>
+</div>
+
+<p class="lede">This is the “measure” step from Lesson 2 — the one that turns “I think this helps” into observed data. It is a <b>single</b> before/after run, not a statistical result. Treat it as one honest data point.</p>
+
+<h2>The PR under review</h2>
+<p>12,228 changed lines across 100 files — a genuine four-tier dependency chain plus shared paths:</p>
+<table>
+  <thead><tr><th>Package</th><th class="num">Files</th><th class="num">~Changed lines</th><th>Tier / deps</th></tr></thead>
+  <tbody>
+    <tr><td>OHFY-Data-Model</td><td class="num">20</td><td class="num">481</td><td>0</td></tr>
+    <tr><td>OHFY-OMS</td><td class="num">4</td><td class="num">805</td><td>3</td></tr>
+    <tr><td>OHFY-eCommerce</td><td class="num">14</td><td class="num">1,478</td><td>3 — deps: Data-Model, OMS</td></tr>
+    <tr><td>OHFY-eCommerce-UI</td><td class="num">38</td><td class="num">6,547</td><td>4 — deps: all above</td></tr>
+    <tr><td>shared (docs / orgScripts / org-metadata / .claude)</td><td class="num">~31</td><td class="num">2,303</td><td>catch-all</td></tr>
+  </tbody>
+</table>
+<p>Derived wave plan (from <code>sfdx-project.json</code>, no hardcoded names): <b>W1</b> Data-Model + shared → <b>W2</b> OMS → <b>W3</b> eCommerce → <b>W4</b> eCommerce-UI.</p>
+
+<h2>Method (kept as fair as possible)</h2>
+<ul>
+  <li><b>Old / “before”:</b> 3 global finder agents (correctness; cross-file + contracts; cleanup + altitude), each reading the <b>whole</b> ~14k-line diff, capped ~15 findings after dedup. All parallel (one wave). Sonnet-pinned.</li>
+  <li><b>New / “after”:</b> 5 chunk agents (one per package + catch-all), each running the full angle set + verify on <b>only its chunk</b>, executed in the 4 dependency waves above, each downstream wave receiving its touched ancestors’ <b>contract-change digest</b>. Sonnet-pinned. Consolidated in the main loop.</li>
+  <li>Both reviewed the same range: base <code>2954f6af6</code> → PR head <code>792b6d664</code>.</li>
+</ul>
+
+<h2>Cost &amp; coverage</h2>
+<table>
+  <thead><tr><th></th><th>Old (single-pass)</th><th>New (chunked waves)</th></tr></thead>
+  <tbody>
+    <tr><td>Agents</td><td>3 (all parallel)</td><td>5 (across 4 sequential waves)</td></tr>
+    <tr><td>Tokens</td><td class="num">~418k</td><td class="num">~480k</td></tr>
+    <tr><td>Wall-clock</td><td>~1 wave</td><td>~4 waves (sequencing tax)</td></tr>
+    <tr><td>Coverage (self-reported)</td><td>every finder skimmed the non-Apex ~40% (metadata, docs, Playwright)</td><td>full pass per package <b>except</b> the 6,547-line eCommerce-UI chunk, which still skimmed</td></tr>
+  </tbody>
+</table>
+
+<h2>Findings</h2>
+<div class="three">
+  <div class="card both">
+    <h3>Both runs caught (the key result)</h3>
+    <ul>
+      <li><span class="sev b">BLOCKER</span> <b>PDP reprice vs. tier-meter price disagreement</b> — <code>ecomProductPage.js</code> reprices with only the current item’s qty while the meter pools cart-wide in-scope qty → shopper sees an “unlocked” price the resolver won’t charge. Both flagged BLOCKER.</li>
+      <li><b>Doubled pricing waterfall</b> — <code>DraftInvoiceController</code> runs the full <code>S_PriceResolver</code> resolve twice per confirm. Old: BLOCKER; New: <span class="sev w">WARNING</span> (perf, not correctness — legitimate disagreement).</li>
+    </ul>
+  </div>
+  <div class="card newonly">
+    <h3>Only the NEW run found (breadth / cross-tier)</h3>
+    <ul>
+      <li><b>Cross-tier tax shift</b> — <code>Tax_Authority__c</code> sharing Private→Read (Data-Model) rode the digest into the OMS chunk, which flagged that guest checkout tax totals change on merge with no test coverage. Old run never connected them. <b>The digest’s clearest win.</b></li>
+      <li><b>3 shared / deploy findings</b> — guest sharing-rule name mismatch (<code>E_Commerce</code> vs <code>E_Commerce1</code>) that silently breaks banners for logged-out users; stale <code>LEARNINGS.md</code>; fragile <code>unpackaged/unpackaged</code> retrieve path. The catch-all got a dedicated agent instead of being skimmed last.</li>
+      <li><b>SYSTEM_MODE rule-6 misuse</b> in <code>StorefrontBannerController</code> — old confirmed a citation existed; new caught it was misapplied.</li>
+    </ul>
+  </div>
+  <div class="card oldonly">
+    <h3>Only the OLD run found (chunking’s real weakness)</h3>
+    <ul>
+      <li><b>Cross-package duplication.</b> The whole-tree pass caught <b>three</b> copy-paste instances across packages (<code>scopeMatches</code>, banner-group query, fieldset-resolution). The chunked run saw only within-chunk files, so it caught the one visible in a single chunk and <b>missed the cross-package ones</b>. The “chunking loses cross-chunk findings” caveat, observed live.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Verdict — iterate, do not rebuild</h2>
+<div class="verdict">
+  <span class="label">Conclusion</span>
+  <p style="margin-top:0;">The foundation is sound. On headline high-severity bugs the two runs <b>tied</b>; the new run’s edge is <b>breadth for a first sweep</b> (dedicated low-glamour coverage + the cross-tier tax signal), at the cost of <b>more tokens and much more wall-clock</b>, with <b>one genuine regression vs. old: cross-package duplication detection</b>.</p>
+</div>
+<p>Two small extensions (not a teardown), mapped to the Lesson-2 knobs:</p>
+<ul>
+  <li><b>Size cap → sub-chunk oversized packages.</b> The 6,547-line eCommerce-UI chunk reproduced the original context-saturation problem in miniature. Package chunking bounds <i>count</i>, not <i>size</i>. (Chunk-boundary knob.)</li>
+  <li><b>Add a cheap whole-tree duplication pass</b> in consolidation (even mechanical/grep-based), since chunking is structurally blind to cross-package copy-paste. (Consolidation step.)</li>
+</ul>
+<p>One thing to <b>watch, not fix yet:</b> the wave/digest machinery is the most complex and most expensive part and produced ~one clear unique win here (the tax finding). If further runs show the digest rarely catches something cheaper wouldn’t, collapse waves → <b>flat parallel chunks + a shared mechanical contract index</b> (changed public signatures/fields extracted up front, handed to all chunks): same cross-tier awareness, no sequencing tax. Keep waves for now; re-evaluate after a few more real PRs.</p>
+
+<h2>Caveats on this record</h2>
+<ul>
+  <li>One PR, one run each — not a statistical comparison. Severity calls and even finding sets vary run to run.</li>
+  <li>The “old” run got a fair shot (3 focused finders, allowed to self-parallelize), so it is not a strawman — which is <i>why</i> the results are close.</li>
+  <li>No findings were verified against ground truth (post-merge fixes/reverts). A stronger future measurement: score catch-rate against a merged PR whose real bugs are known in hindsight.</li>
+</ul>
+
+<div class="foot">
+  Companion to <code>run-comparison-pr560.md</code> and <code>lesson-2-scaling-large-prs.html</code> in the same workspace. Generated 2026-07-17.
+</div>
+
+</body>
+</html>

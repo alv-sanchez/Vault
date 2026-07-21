@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "screen": "Return Pre-Visibility",
+    "lwc": "OHFY-WMS-UI/force-app/main/default/lwc/returnPreVisibility",
+    "apexProxy": "WMS_UI_Wrappers (getReturnPreVisibilityWarehouses | getReturnPreVisibilityTrucks | getReturnPreVisibilityTruckLoad)",
+    "executable": "OHFY-WMS/.../executables/delivery/E_Delivery_ReturnPreVisibility.cls",
+    "dtos": ["TruckSummaryDTO", "TruckLoadSummaryDTO", "LoadLineDTO"],
+    "capturedFrom": "Screenshot 2026-07-20 10:36 — GULF MOBILE warehouse, TRUCK#766",
+    "warning": "ETA, Bay, and the RETURNING/ARRIVED/FIELD badge are FRONTEND-FABRICATED demo values (not seeded, not backend). See _frontendFabricated block."
+  },
+
+  "warehouse": {
+    "_source": "getReturnPreVisibilityWarehouses() -> Location__c (Parent_Location__c=NULL, Is_Active__c=TRUE, Is_Truck__c!=TRUE)",
+    "objectApiName": "Location__c",
+    "Name": "GULF MOBILE- 110-00649949",
+    "Id": "<resolve live — top-level GULF MOBILE Location>"
+  },
+
+  "truckCard": {
+    "_source": "getReturnPreVisibilityTrucks(warehouseId) -> TruckSummaryDTO (best non-terminal Delivery per operational Motorized Vehicle whose Vehicle.Fulfillment_Location = warehouse)",
+    "equipmentName": "TRUCK#766 -- SPARE TRUCK",
+    "equipmentId": "<Equipment__c / Vehicle__c Id — live>",
+    "truckLocationId": "<Delivery__c.Truck_Location__c — the inventory Location on the truck>",
+    "truckLocationName": "<Truck_Location__r.Name>",
+
+    "activeDeliveryId": "<Delivery__c Id>",
+    "deliveryNumber": "D-00003147",
+    "deliveryStatus": "<Delivery__c.Status__c — real value is Out For Delivery or Delivered; RETURNING badge is NOT this>",
+    "deliveryDate": "2026-07-20",
+    "routeName": "Demo Return Route 1",
+    "driverName": "Jason Damaschun",
+
+    "distinctItemCount": 3,
+    "distinctItemNames": [
+      "BLUEMOON BELGIUM 6/4/16Z CAN",
+      "TWISTED TEA LIGHT 2/12Z CAN",
+      "CORONA EXTRA 12/24Z CAN"
+    ],
+
+    "kpiStrip": {
+      "_note": "Card totals re-derived in JS as cases = sum(rawUnits/UPC) from the load summary cache; totalQuantityOnHand/sellableQuantity/unsellableQuantity on the DTO are RAW UNITS.",
+      "totalCases": 60,
+      "restockableCases": 60,
+      "nonRestockableCases": 0
+    }
+  },
+
+  "loadSummary": {
+    "_source": "getReturnPreVisibilityTruckLoad(truckLocationId) -> TruckLoadSummaryDTO { sellableLines[], unsellableLines[] }",
+    "_backingData": "Inventory__c + Lot_Inventory__c on Truck_Location__c (audit note 2026-07-19 §5b: 'lot cargo aboard'). isSellable = Lot__r.Is_Sellable__c. reasonCode from Inventory_Adjustment__c via Reason_Code__mdt.",
+    "_display": "STATUS column 'Restockable' = LoadLineDTO.isSellable=true; QTY 'Cases: N' = quantityOnHand(raw units)/unitsPerCase.",
+
+    "sellableLines": [
+      {
+        "itemName": "BLUEMOON BELGIUM 6/4/16Z CAN",
+        "itemId": "a0oWE00000CETJN",
+        "sku": "702021",
+        "packageCategory": "Packaged",
+        "packageType": "6/4/16Z CAN",
+        "reasonCode": null,
+        "isSellable": true,
+        "isLotTracked": true,
+        "displayCases": 15,
+        "quantityOnHand_rawUnits": "15 * unitsPerCase"
+      },
+      {
+        "itemName": "TWISTED TEA LIGHT 2/12Z CAN",
+        "itemId": "a0oWE00000CEPUH",
+        "sku": "<live>",
+        "packageCategory": "Packaged",
+        "packageType": "2/12Z CAN",
+        "reasonCode": null,
+        "isSellable": true,
+        "isLotTracked": true,
+        "displayCases": 20,
+        "quantityOnHand_rawUnits": "20 * unitsPerCase"
+      },
+      {
+        "itemName": "CORONA EXTRA 12/24Z CAN",
+        "itemId": "a0oWE00000CEPaj",
+        "sku": "<live>",
+        "packageCategory": "Packaged",
+        "packageType": "12/24Z CAN",
+        "reasonCode": null,
+        "isSellable": true,
+        "isLotTracked": true,
+        "displayCases": 25,
+        "quantityOnHand_rawUnits": "25 * unitsPerCase"
+      }
+    ],
+    "unsellableLines": []
+  },
+
+  "_frontendFabricated": {
+    "_warning": "These appear on the card but have NO backing record. Do NOT try to seed them.",
+    "eta": {
+      "value": "2:14 PM",
+      "source": "HARDCODED_ETAS[index % 7]; TRUCK#766 is card index 0 -> '2:14 PM'",
+      "js": "returnPreVisibility.js line 35 + line 327"
+    },
+    "bay": {
+      "value": "Bay 1",
+      "source": "bay = `bay${(index % 4) + 1}`; index 0 -> bay1 -> 'Bay 1'. Operator-overridable dropdown only.",
+      "js": "returnPreVisibility.js line 45 + line 332"
+    },
+    "statusBadge": {
+      "value": "RETURNING",
+      "source": "_demoReturningTruckId — one in-field truck picked at RANDOM per page load as RETURNING, another as ARRIVED. Real Delivery.Status__c has no 'Returning' value yet.",
+      "js": "returnPreVisibility.js lines 116-121, 234-257, 315-325"
+    }
+  },
+
+  "_dataModelGraph": {
+    "Location__c (warehouse)": "GULF MOBILE- 110-00649949",
+    "Equipment__c/Vehicle__c": "TRUCK#766 (Type=Motorized Vehicle, Status=Operational, Fulfillment_Location=warehouse)",
+    "Delivery__c": "D-00003147 (Vehicle__c->truck, Route__r=Demo Return Route 1, Driver__r=Jason Damaschun, Truck_Location__c->truck inventory Location, Status NOT IN {Complete,Cancelled})",
+    "Location__c (Truck_Location__c)": "the on-truck inventory location",
+    "Inventory__c": "one per Item on the truck location (Quantity_On_Hand__c > 0)",
+    "Lot_Inventory__c": "lot cargo; Lot__r.Is_Sellable__c drives Restockable vs Non-Restockable",
+    "Item__c": "Bluemoon / Twisted Tea Light / Corona Extra (Name, SKU_Number__c, Package_Type__c, Packaging_Type_Short_Name__c, Units_Per_Case__c)"
+  }
+}
