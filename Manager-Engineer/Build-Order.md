@@ -17,6 +17,14 @@ tags:
 > [!warning] Seed, not gospel
 > Stream/overlap calls below come from a one-time audit (2026-06-26). `/conductor` re-confirms `packages_touched` disjointness per ticket before dispatch and re-flows the wavefront as `4245` lands and the undecomposed epics gain children.
 
+> [!check] Plan-only /pulse addendum — 2026-07-21 ~15:30 (DRIFT since 09:31, no topo regen)
+> Atlassian MCP still down for this thread → no live `epics_jql`, `/polish`, PO posts, or cross-epic topo regen (needs issuelink graph). Streams/stages table below NOT regenerated. Repo (`gh`/git) is the live source; on `main`, clean.
+> **Changes vs the 09:31 pulse (which was zero-drift):**
+> - **BMS-4997 To-Do → In Progress** (active epics 4→5, to-do 6→5). Branch `feat/call-center-order-visibility-reporting-bms-4997` exists (no PR yet) — call-center agent dashboards. Reactivates an OMS-Delivery-adjacent stream; check package overlap (OMS/OMS-UI) vs the Pricing-Manager wave and Short Pay before scheduling. No epic note yet (hygiene gap).
+> - **Two merges landed on `main`** (HEAD `ad3e48e5`/#560 → **`d9f23ac0a`/#597**): **#554** (BMS-4142/5845/5886 supplier-program reconciliation — previously a draft to-watch, now MERGED; billback/supplier-receivables overlap now resolved into main) and **#597** (BMS-6002 freight-billback perm-set ref fix).
+> - **#582 Short Pay still READY, unmerged** — remains the top merge-gate item.
+> - **0 new open questions.** BMS-5164→BMS-4088 block unchanged, still un-formalized (needs a Jira-connected run to post).
+
 > [!danger] Dry-run reality check — 2026-06-28
 > The Stage 1 audit found **0 of 5 epics executable** — all are gated on direction/decomposition, not code. The "start now" Stage 1 below is **aspirational, not actionable yet**. The *actual* first action is the **decision wave**: answer the 5 Feedback Docs + decide BMS-4245. See [[Daily/2026-06-28]] and [[Runs/2026-06-28-Stage1-dryrun]]. (Ran on stale `main`, then pulled to `a00a3fe5` and verified the 13 commits touched none of the finding-relevant objects — findings stand on current main.)
 > - 5139 (S2) is **blocked** by unbuilt spike BMS-4126 — not start-now.
@@ -75,6 +83,47 @@ tags:
 > - **Done normalized to 15 + 3 done-with-open-children in Testing:** 5161, 5576, **4995** (4995 newly recognized as shipped-with-open-children).
 > - **Repo now on `main` and clean** — read-only preconditions pass (prior pulses today were on `chore/gulf-uat-...-bms-4184`, flagged off-main). Newest PR still **#595**; the Pricing-Manager wave (#588–595) is stable, REVIEW_REQUIRED / mostly draft — leave alone.
 > - **No new open questions.** BMS-5164 → BMS-4088 (AL cert-engine spike, Backlog) block still un-formalized (no branches, repo-confirmed) — can't post the formal Open-Questions note (MCP down → no PO Jira comment). Streams/stages table below NOT regenerated (no issuelink graph).
+
+> [!check] 2026-07-21 (plan-only /pulse; live-delta + repo-verified, no topo regen)
+> **Steady state — no epic drift since the 07-20 late pulse.** Active in-progress = **4** (BMS-4996, BMS-4965, BMS-5113, BMS-4935); to-do = **6** (4997, 5481, 5164, 5768, 5577, 5155); done = **15 + 3 done-with-open-children** (5161, 5576, 4995 — children still `Testing`/`Build` in Jira though their code merged to `main`).
+> - **No new merges to `main`** since 07-20 08:57 (HEAD = #560 BMS-5576 Ecom Ph2; #574 BMS-5161 Freight Billbacks merged the same morning — both pre-date the last pulse, no drift). Tracked front unchanged: **#582 Short Pay READY** (top merge-gate, `REVIEW_REQUIRED`), **#513 DOI-3742 draft**, **4935 Matt-gated** (branch `feat/redbull-allocation-import-bms-4120`, no PR). One new untracked draft this window — **#596** (Pricing-Manager crawl BMS-5967-70), joins the stable Pricing wave; not in any tracked epic → in-flight, leave alone.
+> - **BMS-4996** still In Progress, hand-worked (org `bms-4996-notif`, still no PR/branch — repo-confirmed). Stream S1 · eCommerce stays reserved to it; nothing autonomously queueable.
+> - **Autonomous candidates unchanged** (pending live `/polish` re-confirm, MCP down): BMS-4544 (5113 spike), BMS-4785 (4965 spike), BMS-3788 (5155 DOT core). **0 new open questions.** Repo on `main`, clean. Streams/stages table below NOT regenerated (no issuelink graph — MCP unavailable to this thread).
+
+> [!check] 2026-07-21 09:31 (plan-only /pulse re-run; snapshot + repo-verified, no topo regen)
+> **Re-pulse 13 min after 09:18 — zero drift.** Active in-progress = **4** (BMS-4996, BMS-4965, BMS-5113, BMS-4935); to-do = **6** (4997, 5481, 5164, 5768, 5577, 5155); done = **15 + 3 done-with-open-children** (5161, 5576, 4995). Snapshot `mission-control.json` fresh (`generated 2026-07-21 09:18`); repo `main`, clean. **HEAD unchanged** (`ad3e48e5`, #560 Ecom Ph2, 07-20 08:57) — no new merges. **Newest PR still #596** — no new PRs this window. Tracked front unchanged: **#582 Short Pay READY** (top merge-gate), **#513 DOI-3742 draft**, **4935 Matt-gated** (branch only, no PR), **4996** hand-worked (org `bms-4996-notif`, no PR/branch). **0 new open questions.** BMS-5164 → BMS-4088 block still un-formalized (repo-confirmed, no branches). Streams/stages table NOT regenerated (no issuelink graph — Atlassian MCP unavailable to this thread).
+
+> [!check] Plan-only /pulse addendum — 2026-07-23 09:42 (2-day gap since 07-21 15:30; no topo regen)
+> Atlassian MCP still unavailable to this thread (verified: `searchJiraIssuesUsingJql` → `No such tool available`, server ✔ Connected at CLI) → no live `epics_jql`, `/polish`, PO posts, or cross-epic topo regen (needs issuelink graph). Streams/stages table below NOT regenerated. Repo (`gh`/git) is the live build-state source; on `main`, clean.
+> **No epic drift** vs 07-21 15:30 — active in-progress = **5** (BMS-4996, 4965, 5113, 4935, 4997); to-do = **5** (5481, 5164, 5768, 5577, 5155); done = **15 + 3 done-open** (5161, 5576, 4995). Snapshot (07-21) unchanged; no repo evidence of any tracked-epic transition.
+> **Changes vs the 07-21 15:30 pulse:**
+> - **HEAD advanced `d9f23ac0a`/#597 → `187bed696`/#596** (~9 merges over the 2-day gap). **None belong to a tracked active epic** — all untracked/in-flight: **#596** (Pricing-Manager crawl BMS-5967-70 + 6005/6006/6007/6057/6058, now HEAD), coverage-auditor/CI cluster (**#598/#548/#545/#547** BMS-5578, **#533** BMS-5824), **#592** (WMS Playwright de-flake BMS-5986), **#609** (docs BMS-6004), **#501** (/productize-demo skill), **#601** (BMS-6009 SupplierProgramControllerException namespace fix). Leave alone.
+> - **BMS-4997 Call Center Order Visibility — draft PR #612 opened** (`feat/call-center-order-visibility-reporting-bms-4997`, created 07-23 03:28Z). Was branch-only at last pulse. First build artifact for the newly-active OMS/OMS-UI stream (account promotions + inventory panel). Hand-worked, in-flight → leave alone; still no epic note (hygiene gap).
+> - **#582 Short Pay still OPEN / not-draft / `REVIEW_REQUIRED`, unmerged** — remains the top merge-gate item, unchanged.
+> - **#513 DOI-3742 still draft OPEN**; **BMS-4935** still branch-only (`feat/redbull-allocation-import-bms-4120`, no PR, Matt-gated) — both unchanged.
+> - **New untracked PRs to watch for overlap, do-not-touch:** #610 (BMS-5386 Pricing Floors grid, supersedes 5972), #608 (BMS-6012 Gulf Budget App — new OHFY-BGT pkgs), #607 (BMS-3921 stalled-cart rep alert, ecom), #606 (BMS-6054 OHFY-Accounting import), #599 (BMS-6000 WMS Layer Line), plus package-on-main/coverage bots (#616/615/614/613/611/605/604/603/602).
+> - **0 new open questions.** BMS-5164 → BMS-4088 block unchanged, still un-formalized (needs a Jira-connected run to post).
+
+> [!check] Plan-only /pulse addendum — 2026-07-23 15:36 (re-pulse, ~6h after 09:42; no topo regen)
+> Atlassian MCP still unavailable to this thread (verified: `searchJiraIssuesUsingJql` → `No such tool available`, server ✔ Connected at CLI) → no live `epics_jql`, `/polish`, PO posts, or cross-epic topo regen. Streams/stages table NOT regenerated. Repo (`gh`/git) is the live build-state source; **local `main` was stale at #596 — fetched `origin/main`, now clean and current.**
+> **No epic drift** vs 09:42 — active in-progress = **5** (BMS-4996, 4965, 5113, 4935, 4997); to-do = **5** (5481, 5164, 5768, 5577, 5155); done = **15 + 3 done-open** (5161, 5576, 4995). Snapshot (07-21) unchanged; no repo evidence of a tracked-epic transition.
+> **Changes vs the 09:42 pulse:**
+> - **origin/main advanced `187bed696`/#596 → `776ed4560`/#566** (6 squash-merges over the window). **None belong to a tracked active epic** — all untracked/in-flight, leave alone: **#566** (BMS-5511 trigger-driven supplier receivable collection + aging — oms/oms-ui/data-model, now HEAD), **#537** (BMS-3854 POS Deployment Visibility), **#610** (BMS-5386 Pricing Floors grid, supersedes 5972), **#614** (BMS-6076/6073 package-on-main unblock), **#536** (BMS-3780 WMS Replenishment Exception Codes), **#555** (BMS-4084/4085/4086/5214 POS Receiving Workflow).
+> - **Overlap watch:** #566 (BMS-5511) writes OHFY-OMS / OHFY-OMS-UI / data-model receivables — same neighborhood as Short Pay (#582) and 4997 (#612). Do NOT schedule any autonomous OMS-touching candidate against this until a Jira-connected run resolves package disjointness.
+> - **Tracked front unchanged:** **#582 Short Pay** still OPEN / not-draft / `REVIEW_REQUIRED`, unmerged (top merge-gate, no change since 07-22 13:40Z). **#513 DOI-3742** still draft OPEN. **#612 BMS-4997** still draft OPEN. **BMS-4935** still branch-only (`feat/redbull-allocation-import-bms-4120`, no PR, Matt-gated).
+> - **BMS-4996 org re-claimed:** the old `bms-4996-notif` org is gone from `sf` auth; a new **`bms-4996-notif2`** org is now claimed. Still In Progress, hand-worked, no PR/branch (repo-confirmed) — leave alone. Update the 4996 epic note's Claimed-Orgs on the next connected run.
+> - **New untracked draft/CI PRs opened this window, do-not-touch:** #626 (BMS-5843 Billback one-per-agreement, oms), #627 (BMS-6016 oms-ui coverage), #618 (BMS-6004 WMS multiworker, ready), #617 (BMS-6065 pltfm E2E), plus doc/CI-guard bots #619–625 (BMS-6083-6089) and package-on-main lint bots #615/616.
+> - **0 new open questions.** BMS-5164 → BMS-4088 block unchanged, still un-formalized.
+
+> [!check] Plan-only /pulse addendum — 2026-07-23 16:50 (re-pulse, ~1h after 15:36; no topo regen)
+> Atlassian MCP still unavailable to this thread (verified: `searchJiraIssuesUsingJql` → `No such tool available`, server ✔ Connected at CLI) → no live `epics_jql`, `/polish`, PO posts, or cross-epic topo regen. Streams/stages table NOT regenerated. Repo (`gh`/git) is the live build-state source; local `main` behind origin by 7 (stale at #596) — read via `origin/main`.
+> **No epic drift** vs 15:36 — active in-progress = **5** (BMS-4996, 4965, 5113, 4935, 4997); to-do = **5** (5481, 5164, 5768, 5577, 5155); done = **15 + 3 done-open** (5161, 5576, 4995). Snapshot `mission-control.json` fresh (`generated 2026-07-23 15:35`); no repo evidence of a tracked-epic transition.
+> **Changes vs the 15:36 pulse:**
+> - **origin/main advanced `776ed4560`/#566 → `794b800b9`/#627** (1 new squash-merge). **Untracked/in-flight, leave alone:** **#627** (BMS-6016 oms-ui supplier-settlement facade coverage, merged 19:56Z — clears a promote coverage gate). No tracked epic shipped.
+> - **Tracked front unchanged:** **#582 Short Pay** still OPEN / not-draft / `REVIEW_REQUIRED`, unmerged (top merge-gate, last touched 07-22 13:40Z). **#513 DOI-3742** still draft OPEN (touched 07-23 04:12Z). **#612 BMS-4997** still draft OPEN. **BMS-4935** still branch-only (`feat/redbull-allocation-import-bms-4120`, no PR, Matt-gated).
+> - **7 children went In Progress at the 15:05 pulse** (4997: 3858/3922 · 4996: 3921/3931 · 4965: 4057/4058/5625) — all hand-worked / in-flight, so per the executable gate they are **not polished, not queued** (leave alone). No autonomous candidates change.
+> - **BMS-4996 org** = `bms-4996-notif2` (re-claim already reflected in the epic note frontmatter). Still In Progress, no PR/branch.
+> - **0 new open questions.** BMS-5164 → BMS-4088 block unchanged, still un-formalized (needs a Jira-connected run to post).
 
 ## What the audit found (overrides a title-only guess)
 1. **Inventory is one serial stream.** DOI, Snapshots, Safety Stock, Returns, and transfers' inventory-writes all go through `InventoryAdjustmentTriggerService.cls` + `Inventory__c`/`Inventory_Adjustment__c` (OHFY-PLTFM) → they collide → serialize.

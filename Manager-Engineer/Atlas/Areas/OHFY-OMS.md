@@ -10,13 +10,13 @@ ticket_count: 5
 
 ## 🎟️ Tickets that touch this area (5)
 - [BMS-3853](https://ohanafy.atlassian.net/browse/BMS-3853)
-- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
+- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `In Progress` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
 - [BMS-5791](https://ohanafy.atlassian.net/browse/BMS-5791)
 - [BMS-5900](https://ohanafy.atlassian.net/browse/BMS-5900)
 - [BMS-5901](https://ohanafy.atlassian.net/browse/BMS-5901)
 
 ## 🔗 Logged notes here
-- [[orientation]]
+- [[Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/orientation]]
 - [[BMS-3853-route-profitability-analytics]]
 - [[BMS-5625-driver-finalize-approval-gate]]
 - [[BMS-5791-po-freight-billback]]

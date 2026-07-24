@@ -1,0 +1,234 @@
+<title>E-Commerce — Takeaways & Next Direction (Gulf on-site, Jul 15)</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff;
+    --green:#1a7f47; --green-soft:#e5f4ec; --amber:#9a6a00; --amber-soft:#fbf1d9;
+    --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+      --accent:#6ea0ff; --accent-soft:#1a2740;
+      --green:#5fd08a; --green-soft:#12251a; --amber:#e6b85c; --amber-soft:#2a2210;
+      --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff;
+    --green:#1a7f47; --green-soft:#e5f4ec; --amber:#9a6a00; --amber-soft:#fbf1d9;
+    --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+    --accent:#6ea0ff; --accent-soft:#1a2740;
+    --green:#5fd08a; --green-soft:#12251a; --amber:#e6b85c; --amber-soft:#2a2210;
+    --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 64px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px;}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+  h1{font-size:27px;line-height:1.2;margin:6px 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px;}
+  .meta b{color:var(--ink);font-weight:600;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--ink);border:1px solid var(--line);}
+  .pill.amber{background:var(--amber-soft);color:var(--amber);border-color:transparent;}
+  .pill.green{background:var(--green-soft);color:var(--green);border-color:transparent;}
+  .pill.red{background:var(--red-soft);color:var(--red);border-color:transparent;}
+  .pill.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent;}
+  h2{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;display:flex;align-items:center;gap:8px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px;}
+  .lede{font-size:16px;line-height:1.6;}
+  .lede b{color:var(--accent);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .stat .num{font-size:26px;font-weight:750;letter-spacing:-.02em;line-height:1;}
+  .stat .lbl{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4;}
+  .stat.hot .num{color:var(--red);}
+  /* friction ranking */
+  .fr{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden;}
+  .fr::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);}
+  .fr.p1::before{background:var(--red);}
+  .fr.p2::before{background:var(--amber);}
+  .fr .rank{font-size:20px;font-weight:800;color:var(--muted);min-width:30px;text-align:center;padding-top:2px;}
+  .fr .body{flex:1;min-width:0;}
+  .fr .h{font-weight:700;font-size:15.5px;margin-bottom:3px;}
+  .fr .pain{color:var(--muted);font-size:13.5px;margin:2px 0 8px;}
+  .fr .fix{font-size:13.5px;}
+  .fr .fix b{color:var(--green);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--chip);color:var(--muted);}
+  .tag.effort{background:var(--green-soft);color:var(--green);}
+  .tag.dep{background:var(--red-soft);color:var(--red);}
+  .tag.tkt{background:var(--accent-soft);color:var(--accent);}
+  ul.clean{margin:0;padding-left:20px;} ul.clean li{margin:6px 0;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:680px){.two{grid-template-columns:1fr;}}
+  .want{border-left:3px solid var(--accent);padding:4px 0 4px 12px;margin:12px 0;}
+  .want .q{font-style:italic;color:var(--muted);font-size:13.5px;margin-top:4px;}
+  .flag{background:var(--amber-soft);border:1px solid transparent;border-radius:12px;padding:14px 16px;margin:14px 0;}
+  .flag .t{font-weight:700;color:var(--amber);margin-bottom:4px;}
+  .foot{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);margin-top:36px;padding-top:14px;}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+  a{color:var(--accent);}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">E-Commerce · Discovery Read-out</div>
+    <h1>What Gulf wants from the B2B storefront — and where to swing first</h1>
+    <div class="meta">
+      <span><b>Source:</b> Gulf on-site, Jul 15 (Sales Day 1, 3h 11m)</span>
+      <span><b>Owner:</b> Alvaro Sanchez (E-Comm SME)</span>
+      <span><b>Prepared:</b> 2026-07-21</span>
+    </div>
+    <div class="pills">
+      <span class="pill accent">Discovery only — no epic yet</span>
+      <span class="pill green">12 asks answerable today</span>
+      <span class="pill amber">10 open decisions</span>
+      <span class="pill red">1 upstream dependency</span>
+    </div>
+  </header>
+
+  <!-- ONE-LINE THESIS -->
+  <div class="card">
+    <p class="lede" style="margin:0;">The storefront is <b>~11–12% of revenue</b>, yet <b>~75% of those accounts never see a rep</b> and Gulf has <b>zero visibility</b> into how they behave online. Olivia's framing: <i>"this has got to be our salesperson."</i> The mandate is to turn an order-pad into a <b>selling engine</b> — and to light up the operational blind spots first.</p>
+  </div>
+
+  <!-- STATS -->
+  <h2>The numbers that set the priority</h2>
+  <div class="grid">
+    <div class="stat hot"><div class="num">11–12%</div><div class="lbl">of total revenue flows through e-comm today</div></div>
+    <div class="stat hot"><div class="num">~75%</div><div class="lbl">of web-order accounts are <b>never</b> seen by a salesperson</div></div>
+    <div class="stat hot"><div class="num">~0</div><div class="lbl">line of sight into online behavior (traffic, carts, drop-off)</div></div>
+    <div class="stat"><div class="num">100%</div><div class="lbl">manual today: new logins go through one person (Mindy) by email</div></div>
+  </div>
+
+  <!-- FRICTION RANKING -->
+  <h2>Biggest friction points — ranked by relief-per-effort</h2>
+
+  <div class="fr p1">
+    <div class="rank">1</div>
+    <div class="body">
+      <div class="h">Flying blind on the channel that is 12% of revenue</div>
+      <div class="pain">No metrics on who's logging in, who orders on time, who's gone quiet, or where carts die. Suppliers ask "what did you sell online" and there's no answer.</div>
+      <div class="fix"><b>Alleviate:</b> ship short-term ops metrics now — signups, on-time-order %, dormant 30/60/90-day accounts → rep/GM/SVP dashboards. Full web-funnel analytics follow.</div>
+      <div class="tags"><span class="tag tkt">ECOM-20</span><span class="tag effort">buildable now</span><span class="tag">then ECOM-21 (roadmap)</span></div>
+    </div>
+  </div>
+
+  <div class="fr p1">
+    <div class="rank">2</div>
+    <div class="body">
+      <div class="h">Onboarding a new ordering user is a manual bottleneck</div>
+      <div class="pain">Every new bar manager / new account must email Mindy to get a login set up — slow, single-threaded, error-prone.</div>
+      <div class="fix"><b>Alleviate:</b> self-registration gated by alcohol-license # (+ license upload = audit proof), plus bulk-enable on new-license import.</div>
+      <div class="tags"><span class="tag tkt">ECOM-12</span><span class="tag tkt">ECOM-13</span><span class="tag effort">clear scope</span></div>
+    </div>
+  </div>
+
+  <div class="fr p1">
+    <div class="rank">3</div>
+    <div class="body">
+      <div class="h">Retailers can't fix their own orders — staff do it by hand</div>
+      <div class="pain">Mindy does "a lot of manual editing" when retailers need changes; no self-service modify path.</div>
+      <div class="fix"><b>Alleviate:</b> let retailers modify their order until cutoff, with save-time validation; make cutoff windows configurable (route after cutoff).</div>
+      <div class="tags"><span class="tag tkt">ECOM-1</span><span class="tag tkt">ECOM-2</span><span class="tag effort">confirmed capable</span></div>
+    </div>
+  </div>
+
+  <div class="fr p1">
+    <div class="rank">4</div>
+    <div class="body">
+      <div class="h">Missing product images &amp; broken search are losing sales</div>
+      <div class="pain">Deerfish items don't surface in search (show as "DF"); many SKUs have no image. Olivia: <i>"it's stopping all of us from making money."</i></div>
+      <div class="fix"><b>Alleviate:</b> fix retailer-portal search (fast bug win) + a missing-image report; then supplier-portal asset intake so suppliers own their images.</div>
+      <div class="tags"><span class="tag tkt">ECOM-22 (bug)</span><span class="tag tkt">ECOM-23</span><span class="tag effort">quick wins</span></div>
+    </div>
+  </div>
+
+  <div class="fr p2">
+    <div class="rank">5</div>
+    <div class="body">
+      <div class="h">The storefront doesn't sell — it just takes orders</div>
+      <div class="pain">No way to push MBOs / distribution drives (Modelo, 75% Red Bull) at checkout. Highest business upside, but the rules don't exist as data yet.</div>
+      <div class="fix"><b>Alleviate:</b> suggestive-selling engine (product→cart→checkout) + per-account dynamic banners + QD nudges. <b>Gated on DEP-1 + Olivia's scenario list.</b></div>
+      <div class="tags"><span class="tag tkt">ECOM-15</span><span class="tag tkt">ECOM-16/17</span><span class="tag dep">blocked · DEP-1</span></div>
+    </div>
+  </div>
+
+  <div class="fr p2">
+    <div class="rank">6</div>
+    <div class="body">
+      <div class="h">Retailers misread delivery timing</div>
+      <div class="pain">Every-other-week accounts think "I get it tomorrow" — chronic complaint; the existing note gets ignored.</div>
+      <div class="fix"><b>Alleviate:</b> show the actual next-delivery <i>date</i> prominently at the top of the home screen. Cheap, high-relief.</div>
+      <div class="tags"><span class="tag tkt">ECOM-3</span><span class="tag effort">quick win</span></div>
+    </div>
+  </div>
+
+  <!-- THE LOAD-BEARING FLAG -->
+  <div class="flag">
+    <div class="t">🚩 The one dependency that can't be lost</div>
+    <div>The whole suggestive-selling vision rests on Ohanafy's promise that <b>items, pricing, promotions &amp; MBOs surface automatically by eligibility</b> (account + start/end date) from the core system — the storefront is just a lens. <b>But MBOs / promos / incentives are not structured records today</b> — they live in spreadsheets, special-events sheets, other people's budgets, and "Jimmy's head." Olivia herself <i>"doesn't do the MBOs or track incentives."</i> Building a promotion object with eligibility + dates is <b>upstream of E-Comm (a sales/marketing/budgeting build)</b>. Track it as <code>DEP-1</code> so a missing prerequisite doesn't read later as "e-comm failed to deliver upsell."</div>
+  </div>
+
+  <!-- NEXT DIRECTION -->
+  <h2>Next direction</h2>
+  <div class="two">
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:8px;">Swing now (no blockers)</div>
+      <ul class="clean">
+        <li><b>Analytics:</b> short-term ops metrics + dashboards <span class="tag tkt">ECOM-20</span></li>
+        <li><b>Self-registration</b> w/ license verification <span class="tag tkt">ECOM-12/13</span></li>
+        <li><b>Modify-until-cutoff</b> + config windows <span class="tag tkt">ECOM-1/2</span></li>
+        <li><b>Search bug + missing-image report</b> <span class="tag tkt">ECOM-22/23</span></li>
+        <li><b>Delivery-date display</b> fix <span class="tag tkt">ECOM-3</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:8px;">Unblock, then build</div>
+      <ul class="clean">
+        <li>Get <b>DEP-1</b> (promotion/MBO object) onto the right team's plate</li>
+        <li>Collect <b>Olivia's scenario list</b> (DISC-1) — defines the upsell rules</li>
+        <li>Then: suggestive selling, dynamic banners, QD nudges <span class="tag tkt">ECOM-15/16/17</span></li>
+        <li>Confirm <b>mobile app</b> scope (DISC / ECOM-30) &amp; multi-language (ECOM-29)</li>
+        <li>Decide <b>show-on-hand-qty</b> policy (DISC-4) &amp; resale-on-ecom (DISC-3)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WANTS -->
+  <h2>What Gulf explicitly wants (their words)</h2>
+  <div class="card" style="padding-top:6px;">
+    <div class="want"><b>A selling engine, not an order pad.</b><div class="q">"Our E-commerce platform should be pushing that agenda for us… it should be suggestive selling that to them until they add it to cart and check out."</div></div>
+    <div class="want"><b>Visibility into online behavior.</b><div class="q">"We have zero line of sight of how our customers are behaving online… this has got to be our salesperson."</div></div>
+    <div class="want"><b>Self-service &amp; less manual work.</b><div class="q">Self-registration, modify-your-own-order, auto-enable new accounts — stop routing everything through one person.</div></div>
+    <div class="want"><b>Suppliers own their content.</b><div class="q">A supplier portal where suppliers upload images/assets at new-item intake — "I want them to own it."</div></div>
+    <div class="want"><b>Flexibility that keeps up with the calendar.</b><div class="q">MBOs change monthly, drives end mid-month — surfacing must be eligibility + date-driven, self-maintaining.</div></div>
+  </div>
+
+  <!-- ALIGNMENTS -->
+  <h2>Alignments to hold onto</h2>
+  <div class="card">
+    <ul class="clean">
+      <li><b>Storefront = a lens into core.</b> Items/pricing/promos/MBOs are managed in the core env and surface by eligibility — no separate e-comm backend to maintain. Every "can it do X" rests on this.</li>
+      <li><b>Resale/POS is out of the storefront for now</b> — decided live; keep with the sales team, turn on later. Signage <i>requests</i> are wanted.</li>
+      <li><b>Mobile app is uncommitted</b> — Gulf assumes app + website; flag as roadmap.</li>
+      <li><b>Full marketing-style analytics are roadmap</b>, not near-term — set expectations; deliver ops metrics first.</li>
+      <li><b>Order confirmation ≠ notification</b> — treat separately for SMS opt-in / STOP compliance.</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    Discovery read-out — no Jira issues created. Companion docs: <code>E-Commerce-Extraction.md</code> (verbatim + validation), <code>E-Commerce-Action-Items.md</code> (full ticket tree). Prepared by Alvaro Sanchez, 2026-07-21.
+  </div>
+</div>

@@ -10,54 +10,51 @@
           {
             "id": "45b279e259f34102",
             "type": "tabs",
-            "dimension": 61.33156966490299,
+            "dimension": 60.67415730337079,
             "children": [
               {
-                "id": "221c246bd2a1e173",
+                "id": "8d248009701bc0e4",
                 "type": "leaf",
                 "state": {
                   "type": "html-view",
                   "state": {
-                    "file": "Manager-Engineer/Mission-Control/mission-control.html"
+                    "file": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html"
                   },
                   "icon": "code-glyph",
-                  "title": "mission-control"
+                  "title": "Short-Pay-Ownership-Map"
                 }
               },
               {
-                "id": "42abbc4a60c86429",
+                "id": "ca13584b0582d80d",
                 "type": "leaf",
                 "state": {
-                  "type": "markdown",
+                  "type": "html-view",
                   "state": {
-                    "file": "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md",
-                    "mode": "source",
-                    "source": false
+                    "file": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DEMO-RUNTHROUGH.html"
                   },
-                  "icon": "lucide-file",
-                  "title": "Transcript July 15th - Afternoon meeting"
+                  "icon": "code-glyph",
+                  "title": "DEMO-RUNTHROUGH"
                 }
               },
               {
-                "id": "5b0e8c7cf71c94ae",
+                "id": "686282d31efe122e",
                 "type": "leaf",
                 "state": {
-                  "type": "markdown",
+                  "type": "html-view",
                   "state": {
-                    "file": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DATA-MODEL.md",
-                    "mode": "source",
-                    "source": false
+                    "file": "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/email-impact-analysis.html"
                   },
-                  "icon": "lucide-file",
-                  "title": "DATA-MODEL"
+                  "icon": "code-glyph",
+                  "title": "email-impact-analysis"
                 }
               }
-            ]
+            ],
+            "currentTab": 2
           },
           {
             "id": "8c8a7cad65d40b08",
             "type": "tabs",
-            "dimension": 38.66843033509701,
+            "dimension": 39.325842696629216,
             "children": [
               {
                 "id": "178d83c8a8398acd",
@@ -101,7 +98,7 @@
                   },
                   "pinned": true,
                   "icon": "terminal",
-                  "title": "Terminal: ⠂ Set up Grok tunnel and expose on URL"
+                  "title": "Terminal: ⠐ Set up Grok tunnel and expose on URL"
                 }
               }
             ]
@@ -306,7 +303,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 403.5
+    "width": 403.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -324,54 +322,54 @@
       "markdown-table-editor:Open Markdown Table Editor": false
     }
   },
-  "active": "e899aaf35053240e",
+  "active": "178d83c8a8398acd",
   "lastOpenFiles": [
-    "Manager-Engineer/Mission-Control/mission-control.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DATA-MODEL.md",
-    "User Journeries/replenishment-journey-handoff.html",
-    "Manager-Engineer/Runs/2026-07-20-2140-plan-only-pulse.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/build-status-2026-07-15.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/audit-vs-onsite-jul14.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Child-Ticket-Approvals.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/2026-06-30 Finance & Accounting Demo Workshop — Action Items.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/QA-AC-validation.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management/EPIC-final-AC-pass.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-review-queue.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-reject-rehydrate.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-home.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-approvals-pending.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/RESUME-STATE.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/DRY-RUN-TEST.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/ui-firstpass.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-overview.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-proposal.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Management",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-proposal.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/seed-data.apex",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/short-pay-explained.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/diagram.excalidraw.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.html",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/SESSION.md",
-    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-20-1636.md",
-    "Loading Data - 07-20-2026/Return Pre-Visibility — What Exists Today.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/overview.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/diagram.excalidraw.md",
-    "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/VALIDATION.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/email-impact-analysis.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/AC-Coverage-by-Ticket.html",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/Native-vs-Custom-CASE.html",
+    "Side Missons/Brain Gap - E-Commerce Admin Persona/Brain Gap - E-Commerce Admin Persona.md",
+    "Side Missons/Brain Gap - E-Commerce Admin Persona/Ohanafy Product Suite Catalog v0.3.pdf",
+    "Side Missons/Ohanafy Product Suite Catalog v0.3.pdf",
+    "Side Missons/Brain Gap - E-Commerce Admin Persona",
+    "Teachings/code-review/lesson-2-scaling-large-prs.html",
+    "Side Missons",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/Dry Run Testing/VERIFICATION-RESULTS.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/Dry Run Testing/org-setup-email-templates/DryRunTemplates/order_out_for_delivery.email-meta.xml",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/Dry Run Testing/org-setup-email-templates/DryRunTemplates/order_out_for_delivery.email",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/Dry Run Testing/org-setup-email-templates/DryRunTemplates/order_delivered.email-meta.xml",
+    "Manager-Engineer/Atlas/Ledger/OHFY-REX.md",
+    "Manager-Engineer/Atlas/Ledger/OHFY-OMS.md",
+    "Manager-Engineer/Runs/2026-07-23-1650-plan-only-pulse.md",
+    "Claude Session Manager/Session Manager.md",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-23-1651.md",
+    "Claude Session Manager/Session Manager 1.md",
+    "Manager-Engineer/Runs/2026-07-23-1536-plan-only-pulse.md",
+    "Manager-Engineer/Branch-Org Manager/Snapshots/2026-07-23-1535.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/SPIKE-short-pay-resolution-outcomes.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/INTEGRATIONS-HANDOFF-eft-short-pay.md",
+    "Transcripts/Gulf On-site/Short Pay/Short-Pay-Publix-EFT Extraction.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/AC-Coverage-Native-vs-Custom.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/Email - How they calculate DOI&DOH vs how it SHOULD be for us going forward might not be the same.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/overview.md",
+    "Manager-Engineer/Open-Questions/BMS-5113-doi-doh-vocabulary.md",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/Dry Run Testing/order-visibility-FINAL-all-panels.png",
+    "Excalidraw/Drawing 2026-07-23 11.33.31.excalidraw.md",
+    "Images/Screenshot 2026-07-23 at 11.33.13 AM.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/diagram.excalidraw.md",
+    "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Roadmap.md",
+    "Manager-Engineer/Epics/eCommerce/BMS-4997-call-center-order-visibility.md",
+    "Manager-Engineer/Mission-Control/README.md",
     "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Extraction.md",
-    "Transcripts/Gulf On-site/Short Pay/Transcript July 14th - Afternoon meeting.md",
-    "Transcripts/Gulf On-site/Short Pay/_HANDOFF-SUMMARY.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/DRY-RUN-TEST.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/ASSUMPTIONS.md",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-reject-rehydrate.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-review-queue.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-driver-home.png",
-    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/Dry Run Testing/img-approvals-pending.png",
-    "Images/Screenshot 2026-07-16 at 9.03.07 AM.png",
+    "Excalidraw/Drawing 2026-07-22 11.45.28.excalidraw.md",
+    "Manager-Engineer/Tickets/BMS-4073-notification-services-abandoned-cart-order-confirmation.md",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Dry Run Testing/img-driver-reject-rehydrate.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Dry Run Testing/img-review-queue.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Dry Run Testing/img-driver-home.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Dry Run Testing/img-approvals-pending.png",
+    "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/ui-firstpass.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/Dry Run Testing/order-visibility-inventory-assortment.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/Dry Run Testing/order-visibility-rich.png",
+    "Manager-Engineer/Build-Overview/Sprint-10/BMS-4997-call-center-order-visibility/Dry Run Testing/order-visibility-complete.png",
     "Untitled.canvas",
     "Manager-Engineer/Diagrams/ohfy-doh-safety-stock.canvas",
     "Anvil/Engineering/Visualizer/Untitled.canvas",

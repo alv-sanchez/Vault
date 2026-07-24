@@ -25,6 +25,7 @@ note_on_attribution: "Raw diarization is unreliable — most turns labeled 'Dave
 - **Ohanafy's core architectural pitch:** the storefront is **just a lens into Gulf's core Salesforce environment** — items, pricing, promotions, MBOs surface automatically by eligibility (start/end date + account). *"You're not having to come into the E-commerce side and change anything, you're managing all that from within the core environment."* (ln 1350) This is the single most important alignment.
 - **Big themes raised:** notifications/reminders (order cutoffs, abandoned cart) via email/text/chatter; self-registration w/ alcohol-license verification; modify-order-until-cutoff; suggestive selling from MBOs; per-account dynamic banners; e-comm analytics; product images via supplier feeds + a **supplier portal** for asset intake; POS/resale items — should they be orderable on e-comm (**answered: not yet, keep with sales team**).
 - **Homework Gulf owes (Olivia to send):** examples of MBO/promo/upsell scenarios + where they should surface; POS inventory-depth decision; tap-handle inventory sheet. She closed with *"I've got my list of items to send to you."* (ln 1623)
+- **🚩 Dependency to not lose sight of:** the auto-surface-MBO promise rests on **items/pricing/promotions/MBOs being structured, eligibility- & date-bound records in core** — today MBOs/promos/incentives are scattered spreadsheets nobody owns cleanly. See the **CROSS-CUTTING** section (X1–X5) for every upstream thread that governs what the storefront can show.
 
 ---
 
@@ -113,6 +114,40 @@ note_on_attribution: "Raw diarization is unreliable — most turns labeled 'Dave
 
 ---
 
+# CROSS-CUTTING — upstream core data that feeds the storefront
+*(source: scattered through the marketing/budgeting first half, ~0:00–1:25, + resale/POS + images — NOT in the e-comm session, but the storefront is a lens into this data, so it's an E-Comm dependency)*
+
+> **Why this grouping exists:** Ohanafy's load-bearing claim is that items, pricing, promotions and MBOs
+> **surface on the storefront automatically by eligibility (account + start/end date)** from the core
+> Salesforce env (ln 1350). That promise is only as good as how these things are modeled *upstream*.
+> The threads below live outside the e-comm conversation but **directly govern what the storefront can show** —
+> capturing them so the dependency (and the risk) isn't lost.
+
+### X1. Promotions / MBOs / incentives — 🚩 the biggest dependency-risk
+- Olivia's #1 e-comm ask is auto-surfacing MBOs/promos/incentives at checkout by eligibility (Cluster 2, ln 1269, 1350). **But today none of these are structured, eligibility-bound records** — they're scattered across marketing spreadsheets, a separate special-events sheet, *other people's* budgets, "Jimmy's head," PowerPoints, and external systems (POS Connection, Heineken's portal, xtc). (ln 198, 318, 483, 498)
+- Olivia **does not even own/track MBOs or incentives herself** — *"I don't do the mbos. I don't track incentives."* (ln 198); *"incentives and mbos… they're not included in my budget."* (ln 465)
+- MBOs change **monthly**; distribution drives start/end **mid-month** (ln 1347) → eligibility + date-bounding must be first-class.
+- 🚩 **FLAG (owner):** the "storefront auto-shows MBOs" vision **presupposes an MBO/promotion object in core with eligible-accounts + start/end dates + supplier linkage that does not exist today.** This is upstream of E-Comm and likely another team's scope (sales/marketing/budgeting build), but **E-Comm cannot deliver suggestive-selling without it.** Treat as a hard prerequisite, not an e-comm task. Tie to Olivia's O2 homework (her scenario list defines the eligibility rules).
+
+### X2. Items / product catalog structure
+- Item hierarchy discussed: **supplier → item line → item type → brand** ("Molson Coors item line"), highly flexible; Gulf decides depth. (ln 759, 864)
+- **Channel eligibility is how storefront visibility is controlled** — *"if it's open to on premise, we can open up items to certain channels of business"* (ln 1080); resale on/off via checkbox (ln 921). This is the mechanism behind "only some items show on e-comm."
+- **Item-count explosion** if resale is inventoried by brand: *"from 30/40/50 item numbers to hundreds if not thousands"* (ln 681) — governs catalog scale/perf and the resale-on-e-comm decision (O3).
+- **Item names must be fully spelled out** for reps & e-comm (raised in the Jul-14 accounting transcript, ln 341–344 there) — naming is a catalog-quality dependency for the storefront.
+
+### X3. Pricing
+- **Resale price book** — resale items are just "a different price book"; buckets carry a built-in markup (e.g. +$6, freight/tax-inflated to stay compliant). (ln 642, 651)
+- **Committed inventory / channel pricing** already covered in Cluster 2 (ln 1101, 1104) — noting here that pricing shown on the storefront is core-managed, not e-comm-managed.
+
+### X4. Digital assets / product images (cross-ref Cluster 3)
+- Fed from VIP + supplier auto-feeds (Molson Coors DAM); **supplier portal** for self-serve intake at new-item setup; missing-image + stale-asset reporting; possible AI image gen. (ln 1560, 1578, 1611, 1613)
+- 🚩 **FLAG:** big suppliers (Molson Coors) likely won't use the supplier portal → asset ownership for large SKU counts is unresolved (O5); and a live **search bug** hides Deerfish items on the retailer portal (O6). Both directly degrade the storefront.
+
+### X5. Noted-but-out-of-scope (tie-ins, not E-Comm work)
+- Supplier-spend transparency / "hold suppliers accountable for our money," GL/actuals dashboards, pre-order pipeline (POS ordered 6 mo ahead) — **marketing/accounting/budgeting build.** Listed only so the linkage is visible; no E-Comm dependency. (ln 315, 438, 495)
+
+---
+
 # VALIDATION — did I get it all?
 
 Swept the full 1,624-line transcript for: `ecom / e-commerce / e commerce`, `portal`, `website`, `catalog`, `order online / place order / checkout / cart`, `storefront / self-service`, `reorder`, `abandoned`, `notification / reminder`, `suggestive / suggested / upsell`, `banner`, `promotion / MBO`, `self regist / registration`, `supplier portal`, `digital asset / product image / image not available / DAM`, `cut off / cutoff`, `chat`, `dashboard / metric / analytic / click through / bounce rate`.
@@ -121,15 +156,18 @@ Swept the full 1,624-line transcript for: `ecom / e-commerce / e commerce`, `por
   - Cluster 1 (POS/resale → what to expose on e-comm): ln ~648–912.
   - Cluster 2 (the platform session): ln ~887–1554.
   - Cluster 3 (images/assets/supplier portal): ln ~1556–1623.
-- **Deliberately EXCLUDED (non-core hits in the sales/marketing-budget first half):**
-  - ln 174 — Molson Coors **media budget** (matched on "commerce"-adjacent text), not e-comm.
-  - ln 198, 315, 318, 438, 456, 465 — **marketing budgets / MBO spend / supplier a-la-carte budgets / logo ingestion for brand representation** — marketing planning, not the storefront.
-  - ln 261, 396 — **purchase-order system & analytics rollup** — accounting/PO process.
-  - ln 402 — **logo ingestion "touches website and probably E-commerce"** — tangential brand-asset mention; the substantive asset discussion is captured in Cluster 3.
-  - ln 498 — **"Heineken's portal / xtc"** — a supplier ordering channel, not Gulf's e-comm.
+- **Re-captured as CROSS-CUTTING dependencies (not dropped):** the sales/marketing-budget first half (0:00–1:25) is not e-comm dialogue, but the **promotions/MBO/incentive, item, pricing and digital-asset** threads inside it feed the storefront (lens-into-core), so they're pulled into the Cross-Cutting section rather than excluded:
+  - ln 198, 318, 465, 483 — **MBOs / incentives / promotions scattered across spreadsheets & heads** → X1 (dependency-risk flag).
+  - ln 759, 864, 681, 1080 — **item hierarchy / channel eligibility / item-count** → X2.
+  - ln 642, 651 — **resale price book / pricing** → X3.
+  - ln 438, 456, 498 — supplier-spend & external portals → X5 (tie-in, no e-comm dependency).
+- **Genuinely EXCLUDED (no e-comm tie):**
+  - ln 174 — Molson Coors **media budget** (matched adjacent text).
+  - ln 261, 396 — **PO system / GL actuals rollup** — accounting/budgeting.
+  - ln 402 — logo ingestion "touches website and probably E-commerce" — tangential; substantive asset discussion is in Cluster 3 / X4.
   - ln 582 — a **notification** in the budgeting context.
-  - ln 762–873 — **POS inventory (neons, tap handles, coolers, display tracking, ROI)** — marketing-ops inventory; included only where it directly gates the e-comm "should resale be orderable" decision (Cluster 1), otherwise out of scope.
-- Nothing about the E-Commerce platform appears outside ln 640–1623. **Coverage is complete.**
+  - ln 762–873 — **POS marketing inventory** (neons, tap handles, coolers, display/ROI tracking) — included only where it gates the resale-on-e-comm decision (Cluster 1), otherwise marketing-ops.
+- All E-Commerce *platform* dialogue sits in ln 640–1623; all upstream data-dependencies are now captured in Cross-Cutting. **Coverage is complete.**
 
 ---
 
@@ -170,6 +208,7 @@ Swept the full 1,624-line transcript for: `ecom / e-commerce / e commerce`, `por
 4. **Full marketing-style analytics are roadmap, not near-term** — set expectations; deliver the signup/on-time/dormant metrics first. (ln 1332, 1338)
 5. **Order confirmation ≠ notification** — treat separately for opt-out/compliance; SMS needs opt-in + STOP handling. (ln 1260)
 6. **Look/feel is anchored to Amazon** best practices + guided walkthroughs. (ln 1377)
+7. **🚩 The suggestive-selling vision has an upstream prerequisite that isn't E-Comm's to build.** Auto-surfacing MBOs/promos at checkout needs a structured MBO/promotion object in core (eligible accounts + start/end dates + supplier link). Today these live in spreadsheets/heads across marketing/sales (X1). Don't let this land as an "e-comm didn't deliver upsell" gap — it's a core-data prerequisite. Track it against Olivia's O2 scenario list.
 
 ---
 

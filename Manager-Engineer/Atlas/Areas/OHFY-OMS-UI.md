@@ -10,7 +10,7 @@ ticket_count: 4
 
 ## 🎟️ Tickets that touch this area (4)
 - [BMS-3853](https://ohanafy.atlassian.net/browse/BMS-3853)
-- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `Needs Refinement` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
+- [BMS-5625](https://ohanafy.atlassian.net/browse/BMS-5625) Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) — `In Progress` · [#582](https://github.com/Ohanafy/OHFY-Split/pull/582)
 - [BMS-5902](https://ohanafy.atlassian.net/browse/BMS-5902)
 - [BMS-5903](https://ohanafy.atlassian.net/browse/BMS-5903)
 
@@ -20,8 +20,10 @@ ticket_count: 4
 - [[BMS-5902-supplier-agreement-terms-lwc]]
 - [[BMS-5903-supplier-owed-dashboard-lwc]]
 
-## 🧱 Capabilities already built here (1)
+## 🧱 Capabilities already built here (3)
 _Reach for these before building — the anti-reinvention catalog (cited + shipped). Full table: [[Ledger/OHFY-OMS-UI]]._
+- **posDeploymentCapture LWC — offline-first driver capture: reason codes, photo upload, lightning/mobileCapabilities geolocation, localStorage queue with per-row failure surfacing** (BMS-3854) — `OHFY-OMS-UI/force-app/main/default/lwc/posDeploymentCapture/posDeploymentCapture.js:1`
+- **POSDeploymentController — POS deployment assignment, offline-batch driver sync w/ cancelled-assignment conflict handling, dashboard aggregates, compliance report, 4-week pre/post ROI vs same-territory control group** (BMS-3854) — `OHFY-OMS-UI/force-app/main/default/classes/controllers/posDeployment/POSDeploymentController.cls:1`
 - **getLastSoldPrice(accountId, itemId) — cacheable @AuraEnabled lookup of the last invoice price an account paid for an item (Placement__c.Last_Invoice_Price__c), race-safe via an Id DESC tiebreaker on the ordering** (BMS-5431) — `OHFY-OMS-UI/force-app/main/default/classes/wrappers/OMS_UI_Wrappers.cls:2247`
 
 ## 🕸️ See the web

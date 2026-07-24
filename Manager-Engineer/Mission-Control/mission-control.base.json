@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-20 16:36",
-  "stampFile": "2026-07-20-1636",
+  "generated": "2026-07-23 16:50",
+  "stampFile": "2026-07-23-1650",
   "epics": [
     {
       "key": "BMS-4996",
@@ -15,8 +15,8 @@
           "key": "BMS-3921",
           "type": "Story",
           "title": "Retailer Engagement Notifications",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true
         },
@@ -24,8 +24,8 @@
           "key": "BMS-3931",
           "type": "Story",
           "title": "Order status tracking & delivery notifications",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true
         },
@@ -33,8 +33,8 @@
           "key": "BMS-4073",
           "type": "Story",
           "title": "Notification Services: Abandoned Cart Reminder & Order Confirmation",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Backend",
           "polished": true
         },
@@ -82,8 +82,8 @@
           "key": "BMS-4057",
           "type": "Story",
           "title": "Short Pay \u2014 Spike: Data Model & Compliance Rules",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Spike",
           "polished": false
         },
@@ -91,8 +91,8 @@
           "key": "BMS-4058",
           "type": "Story",
           "title": "Short Pay \u2014 Ph 1: Driver Detection & Reason Coding",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false
         },
@@ -156,8 +156,8 @@
           "key": "BMS-5625",
           "type": "Story",
           "title": "Short Pay \u2014 Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
-          "status": "Needs Refinement",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true
         },
@@ -183,6 +183,24 @@
           "key": "BMS-5631",
           "type": "Story",
           "title": "Short Pay \u2014 Ph 4b: Stateful Multi-Layer Approve/Reject Workflow",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false
+        },
+        {
+          "key": "BMS-6021",
+          "type": "Story",
+          "title": "Short Pay \u2014 Unified short-pay audit event log (Short_Pay_Event__c)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false
+        },
+        {
+          "key": "BMS-6022",
+          "type": "Story",
+          "title": "Short Pay \u2014 AR confirmation gate for rep-collected short pays (interim status)",
           "status": "Backlog",
           "statusCategory": "To Do",
           "build": "Backend",
@@ -247,6 +265,16 @@
           "build": "Backend",
           "polished": false,
           "note": "Builds the DOI reporting surface on top of the standardized calc so planners actually see the unified metric; in review awaiting sign-off."
+        },
+        {
+          "key": "BMS-6071",
+          "type": "Story",
+          "title": "DOI Formula \u2014 10-day window + edge-case rules (per Gulf DOH/DOI sheet)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "note": "Needs Gulf input (needs-gulf-input) \u2014 edge-case + 10-day window rules from the Gulf DOH/DOI sheet."
         }
       ]
     },
@@ -299,15 +327,13 @@
           "polished": true
         }
       ]
-    }
-  ],
-  "todoEpics": [
+    },
     {
       "key": "BMS-4997",
       "title": "Call Center Order Visibility",
       "domain": "E-Commerce & Ordering",
       "phase": "run",
-      "summary": "Two stories (3858, 3922) pending decomposition/grooming \u2014 agent dashboards for account/promo/order context.",
+      "summary": "Picked up \u2014 call-center agent dashboards (account insights + promos + order context); 2 stories pending grooming.",
       "user": "Gulf call-center agents handling inbound orders",
       "impact": "Consolidated agent dashboards (account insights + active promos + order status) \u2014 faster, more informed customer interactions and upsell.",
       "tickets": [
@@ -315,8 +341,8 @@
           "key": "BMS-3858",
           "type": "Story",
           "title": "Call Center Order Visibility",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false
         },
@@ -324,13 +350,15 @@
           "key": "BMS-3922",
           "type": "Story",
           "title": "Call Center Order Visibility",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false
         }
       ]
-    },
+    }
+  ],
+  "todoEpics": [
     {
       "key": "BMS-5481",
       "title": "Picker Incentive Engine",
@@ -592,15 +620,6 @@
           "polished": true
         },
         {
-          "key": "BMS-4052",
-          "type": "Story",
-          "title": "Cart & Checkout \u2014 Ph 3: Checkout + Tax + Order",
-          "status": "Testing",
-          "statusCategory": "In Progress",
-          "build": "Both",
-          "polished": true
-        },
-        {
           "key": "BMS-4053",
           "type": "Story",
           "title": "Retailer Portal Product Card \u2014 Ph 1: Card Component",
@@ -635,15 +654,6 @@
       "domain": "Transfers & Compliance",
       "doneAt": null,
       "tickets": [
-        {
-          "key": "BMS-5789",
-          "type": "Story",
-          "title": "Source-agnostic freight cost capture on cross-state transfers",
-          "status": "Testing",
-          "statusCategory": "In Progress",
-          "build": "Backend",
-          "polished": true
-        },
         {
           "key": "BMS-5790",
           "type": "Story",

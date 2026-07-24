@@ -1,0 +1,295 @@
+<title>BMS-4997 — AC coverage by ticket</title>
+<style>
+  :root {
+    --ground: #f6f7f9; --surface: #ffffff; --surface-2: #eef0f4;
+    --ink: #171b24; --ink-soft: #414a5c; --ink-faint: #6b7488;
+    --hair: #dfe3ea; --hair-strong: #cbd1dc; --accent: #4a4fd6; --accent-soft: #ecedfb;
+    --built: #6d3bd1;  --built-bg: #efe9fb;   /* custom LWC */
+    --native: #1f8a5b; --native-bg: #e6f4ec;  /* native / reuse */
+    --gap: #c93b57;    --gap-bg: #fbe8ec;      /* to build */
+    --defer: #6b7488;  --defer-bg: #e9ecf2;    /* deferred */
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0e1117; --surface: #161b24; --surface-2: #1d232e;
+      --ink: #e9ecf3; --ink-soft: #b3bccd; --ink-faint: #7c8697;
+      --hair: #262d3a; --hair-strong: #333c4c; --accent: #8b8ff2; --accent-soft: #21243b;
+      --built: #b39bf0; --built-bg: #241a3a; --native: #4cc38a; --native-bg: #12271d;
+      --gap: #f0728c; --gap-bg: #2c1319; --defer: #8994a6; --defer-bg: #1e232c;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground:#f6f7f9;--surface:#fff;--surface-2:#eef0f4;--ink:#171b24;--ink-soft:#414a5c;--ink-faint:#6b7488;
+    --hair:#dfe3ea;--hair-strong:#cbd1dc;--accent:#4a4fd6;--accent-soft:#ecedfb;
+    --built:#6d3bd1;--built-bg:#efe9fb;--native:#1f8a5b;--native-bg:#e6f4ec;
+    --gap:#c93b57;--gap-bg:#fbe8ec;--defer:#6b7488;--defer-bg:#e9ecf2;
+  }
+  :root[data-theme="dark"] {
+    --ground:#0e1117;--surface:#161b24;--surface-2:#1d232e;--ink:#e9ecf3;--ink-soft:#b3bccd;--ink-faint:#7c8697;
+    --hair:#262d3a;--hair-strong:#333c4c;--accent:#8b8ff2;--accent-soft:#21243b;
+    --built:#b39bf0;--built-bg:#241a3a;--native:#4cc38a;--native-bg:#12271d;
+    --gap:#f0728c;--gap-bg:#2c1319;--defer:#8994a6;--defer-bg:#1e232c;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: clamp(1.5rem,4vw,3.5rem) clamp(1.1rem,4vw,2.5rem) 5rem; }
+
+  .eyebrow { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .eyebrow .d { color:var(--ink-faint); }
+  h1 { font-size:clamp(1.8rem,4.4vw,2.9rem); line-height:1.05; letter-spacing:-0.02em; font-weight:760; margin:0 0 0.9rem; text-wrap:balance; }
+  .lede { font-size:clamp(1rem,1.6vw,1.18rem); color:var(--ink-soft); max-width:66ch; margin:0; }
+  .lede strong { color:var(--ink); }
+
+  /* legend */
+  .legend { display:flex; flex-wrap:wrap; gap:0.5rem 1.4rem; margin:1.8rem 0 0; padding:0.9rem 1.1rem; background:var(--surface-2); border-radius:10px; font-size:0.83rem; color:var(--ink-soft); }
+  .legend .li { display:flex; align-items:center; gap:0.5rem; }
+  .legend .dot { width:0.7rem; height:0.7rem; border-radius:3px; flex-shrink:0; }
+  .dot.built{background:var(--built);} .dot.native{background:var(--native);} .dot.gap{background:var(--gap);} .dot.defer{background:var(--defer);}
+  .legend b { color:var(--ink); font-weight:620; }
+
+  /* summary tiles */
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:0.8rem; margin:1.4rem 0 0; }
+  .tile { background:var(--surface); border:1px solid var(--hair); border-radius:11px; padding:1rem 1.05rem; position:relative; overflow:hidden; }
+  .tile::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; }
+  .tile.b::before{background:var(--built);} .tile.n::before{background:var(--native);} .tile.g::before{background:var(--gap);} .tile.d::before{background:var(--defer);}
+  .tile .n2 { font-family:var(--mono); font-size:1.8rem; font-weight:600; font-variant-numeric:tabular-nums; line-height:1; }
+  .tile.b .n2{color:var(--built);} .tile.n .n2{color:var(--native);} .tile.g .n2{color:var(--gap);} .tile.d .n2{color:var(--defer);}
+  .tile .l2 { margin-top:0.4rem; font-size:0.78rem; color:var(--ink-soft); line-height:1.35; }
+
+  /* ticket band */
+  .ticket { margin-top:3rem; }
+  .ticket-head { border-bottom:2px solid var(--hair-strong); padding-bottom:0.8rem; margin-bottom:1.3rem; }
+  .ticket-head .k { font-family:var(--mono); font-size:0.8rem; color:var(--accent); letter-spacing:0.04em; }
+  .ticket-head h2 { font-size:clamp(1.2rem,2.3vw,1.55rem); letter-spacing:-0.015em; margin:0.2rem 0 0; font-weight:730; }
+  .ticket-head .role { font-size:0.9rem; color:var(--ink-faint); margin-top:0.25rem; }
+
+  /* scenario card */
+  .scn { background:var(--surface); border:1px solid var(--hair); border-radius:12px; padding:1.05rem 1.15rem 1.1rem; margin-bottom:0.85rem; }
+  .scn-top { display:flex; align-items:baseline; gap:0.6rem; margin-bottom:0.7rem; }
+  .scn-top .sid { font-family:var(--mono); font-size:0.72rem; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:0.2rem 0.45rem; border-radius:5px; flex-shrink:0; }
+  .scn-top h3 { font-size:0.98rem; font-weight:640; margin:0; letter-spacing:-0.01em; }
+  .rows { display:flex; flex-direction:column; gap:0.5rem; }
+  .row { display:grid; grid-template-columns:auto 1fr; gap:0.7rem; align-items:start; font-size:0.9rem; }
+  .chip { font-family:var(--mono); font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; padding:0.26rem 0.44rem; border-radius:6px; white-space:nowrap; margin-top:0.08rem; text-align:center; min-width:5.4rem; }
+  .chip.built{background:var(--built-bg); color:var(--built);}
+  .chip.native{background:var(--native-bg); color:var(--native);}
+  .chip.gap{background:var(--gap-bg); color:var(--gap);}
+  .chip.defer{background:var(--defer-bg); color:var(--defer);}
+  .row .txt { color:var(--ink-soft); }
+  .row .txt b { color:var(--ink); font-weight:620; }
+  .row .txt .m { font-family:var(--mono); font-size:0.84em; background:var(--surface-2); padding:0.05em 0.32em; border-radius:4px; color:var(--ink); }
+
+  /* to-build closer */
+  .build { margin-top:3.2rem; border-radius:16px; padding:clamp(1.5rem,4vw,2.4rem); background:var(--ink); color:var(--ground); }
+  @media (prefers-color-scheme: dark){ .build{ background:var(--surface-2); color:var(--ink); border:1px solid var(--hair-strong);} }
+  :root[data-theme="dark"] .build{ background:var(--surface-2); color:var(--ink); border:1px solid var(--hair-strong);}
+  :root[data-theme="light"] .build{ background:var(--ink); color:var(--ground); border:none;}
+  .build .tag { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; opacity:0.7; margin-bottom:0.4rem; }
+  .build h2 { font-size:clamp(1.3rem,2.6vw,1.75rem); margin:0 0 1.3rem; letter-spacing:-0.02em; }
+  .build ol { margin:0; padding:0; list-style:none; counter-reset:b; display:flex; flex-direction:column; gap:0.9rem; }
+  .build li { counter-increment:b; display:grid; grid-template-columns:auto 1fr auto; gap:0.9rem; align-items:start; }
+  .build li::before { content:counter(b); font-family:var(--mono); font-size:0.85rem; font-weight:700; opacity:0.55; margin-top:0.1rem; }
+  .build li .bt { font-size:0.98rem; }
+  .build li .bt b { font-weight:660; }
+  .build li .bt span { display:block; font-size:0.85rem; opacity:0.82; margin-top:0.15rem; }
+  .build li .tagchip { font-family:var(--mono); font-size:0.6rem; font-weight:700; text-transform:uppercase; padding:0.26rem 0.5rem; border-radius:999px; white-space:nowrap; margin-top:0.15rem; }
+  .tagchip.custom { background:rgba(179,155,240,0.22); color:#c9b6ff; }
+  .tagchip.nativeish { background:rgba(76,195,138,0.2); color:#7fe0b0; }
+  :root[data-theme="light"] .tagchip.custom{ background:rgba(109,59,209,0.16); color:#e9defb; }
+  :root[data-theme="light"] .tagchip.nativeish{ background:rgba(31,138,91,0.22); color:#d6f2e2; }
+  .build .foot { margin-top:1.5rem; padding-top:1rem; border-top:1px solid rgba(127,127,127,0.35); font-size:0.9rem; opacity:0.85; }
+
+  footer { margin-top:2.6rem; font-family:var(--mono); font-size:0.75rem; color:var(--ink-faint); display:flex; flex-wrap:wrap; gap:0.4rem 1.2rem; border-top:1px solid var(--hair); padding-top:1.1rem; }
+
+  @media (max-width:720px){
+    .tiles{ grid-template-columns:1fr 1fr; }
+    .row{ grid-template-columns:1fr; gap:0.25rem; }
+    .build li{ grid-template-columns:auto 1fr; }
+    .build li .tagchip{ grid-column:2; justify-self:start; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span>AC coverage</span><span class="d">· BMS-4997 · children BMS-3858 + BMS-3922</span><span class="d">· read-only scope</span></div>
+    <h1>Acceptance criteria — built, covered, or still to build</h1>
+    <p class="lede">Every AC from both child stories, mapped to how it's satisfied. <strong>Purple = custom work in the LWC</strong> that a report genuinely can't do; green = already covered; red = a real gap; grey = deliberately deferred because the epic is scoped read-only (order creation is a later transactional story).</p>
+  </header>
+
+  <div class="legend">
+    <span class="li"><span class="dot built"></span><b>Built in LWC</b> — custom, not reportable</span>
+    <span class="li"><span class="dot native"></span><b>Native / reuse</b> — already covered</span>
+    <span class="li"><span class="dot gap"></span><b>Gap</b> — to build (in scope)</span>
+    <span class="li"><span class="dot defer"></span><b>Deferred</b> — transactional, later story</span>
+  </div>
+
+  <div class="tiles">
+    <div class="tile b"><div class="n2">7</div><div class="l2">ACs met by <strong>custom LWC</strong> work</div></div>
+    <div class="tile n"><div class="n2">9</div><div class="l2">Covered <strong>native / reuse</strong></div></div>
+    <div class="tile g"><div class="n2">6</div><div class="l2"><strong>Gaps</strong> to build (read-only)</div></div>
+    <div class="tile d"><div class="n2">8</div><div class="l2"><strong>Deferred</strong> — order creation</div></div>
+  </div>
+
+  <!-- ===================== BMS-3858 ===================== -->
+  <section class="ticket">
+    <div class="ticket-head">
+      <span class="k">BMS-3858</span>
+      <h2>Agent context before placing an order</h2>
+      <div class="role">As a Gulf Route Manager — 6 scenarios</div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S1</span><h3>Account ordering context</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt">Assigned <b>route / warehouse / delivery day</b> → delivery banner (<span class="m">getDeliveryContext</span>)</span></div>
+        <div class="row"><span class="chip native">Native</span><span class="txt">Last 5 orders (date/total/lines/status) → Invoices related list</span></div>
+        <div class="row"><span class="chip native">Native</span><span class="txt">Credit status + open balances → Account fields (<span class="m">Credit_Status__c</span>, <span class="m">Account_Balance__c</span>)</span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>Pinned sales-rep notes</b> section ("switching Brand X→Y") → not built; standard Notes exists but isn't a pinned panel</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S2</span><h3>Active promotions in context</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt">Promotions panel w/ <b>eligibility criteria + effective dates</b> → <span class="m">getPromotions</span></span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>"Expiring within 7 days" warning badge</b> → not built (small add)</span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">Auto-apply on line entry + "8 of 10 cases to qualify" progress → transactional</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S3</span><h3>Pricing waterfall drill-down</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip native">Reuse</span><span class="txt">Price code + list→net resolved price → <span class="m">accountPricingPanel</span> (BMS-5679, runtime — not a report)</span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>Full waterfall popout</b> (list → code → promo → net, labeled) <b>+ variance vs last order</b> → the net-new delta; not fully in the pricing panel</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S4</span><h3>Supervisor multi-warehouse aggregate</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip native">Native</span><span class="txt">Group orders by warehouse + channel + status, aggregate $/counts → <b>native Report</b> on <span class="m">Invoice__c.Fulfillment_Location__c</span> (report type shipped)</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S5</span><h3>Delivery &amp; route context</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt"><b>Fully built</b> → next-delivery estimate + cutoff + last-delivery (ordered vs delivered) banner (<span class="m">getDeliveryContext</span>)</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S6</span><h3>Inventory availability</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt">Available inventory per item @ warehouse, <b>cases/units</b>, in/out → <span class="m">getInventoryAvailability</span></span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>Committed (allocated) vs available</b> split → only available is shown today</span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">Live shortfall warning while adding a line ("7 cases short") → transactional</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BMS-3922 ===================== -->
+  <section class="ticket">
+    <div class="ticket-head">
+      <span class="k">BMS-3922</span>
+      <h2>Account dashboard / retailer context</h2>
+      <div class="role">As a Gulf Retailer — 6 scenarios</div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S1</span><h3>Account dashboard on call open</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip native">Native</span><span class="txt">Last 10 orders + pricing code + discount tiers → Invoices list + <span class="m">accountPricingPanel</span></span></div>
+        <div class="row"><span class="chip built">Built</span><span class="txt">Route / warehouse context → delivery banner (rep name is native)</span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>Open/pending orders flagged at top</b> (Draft/Submitted/Confirmed/In-Transit) → not built; a native list view likely covers it</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S2</span><h3>Promotions with applicability</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt"><b>Eligible AND "Not Eligible + reason"</b> → <span class="m">getPromotions</span> (the sharpest custom case)</span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">"Apply to Order" action pre-populating a draft → transactional</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S3</span><h3>Create order with promo pricing</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">New Order + apply promo + auto-remove below threshold → transactional; covered by the order modal when built</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S4</span><h3>Order history &amp; reorder</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt"><b>Top Ordered SKUs</b> (top-5 + avg qty) → <span class="m">getTopProducts</span> <em>(the one borderline — a report could also sum this)</em></span></div>
+        <div class="row"><span class="chip native">Native</span><span class="txt">Order history list + date/status/brand filter → native list view</span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">Reorder button → transactional (<span class="m">reorderModal</span> exists)</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S5</span><h3>Multi-entity boundaries</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt">Promotions / pricing / <b>inventory reflect the correct warehouse entity</b> → account-scoped, warehouse-derived server-side</span></div>
+        <div class="row"><span class="chip gap">Gap</span><span class="txt"><b>Tax jurisdiction / GL by entity</b> → descoped (GL is internal accounting — PO call in ASSUMPTIONS)</span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">Block applying an AL promo to an FL account → transactional guard</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-top"><span class="sid">S6</span><h3>Graceful missing/incomplete data</h3></div>
+      <div class="rows">
+        <div class="row"><span class="chip built">Built</span><span class="txt">Per-panel <b>empty states</b> ("No prior orders", no-route degraded banner) → LWC</span></div>
+        <div class="row"><span class="chip native">Reuse</span><span class="txt">"No pricing code assigned" warning → <span class="m">accountPricingPanel</span></span></div>
+        <div class="row"><span class="chip defer">Deferred</span><span class="txt">Draft order + manager approval on submit → transactional</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TO BUILD ===================== -->
+  <section class="build">
+    <div class="tag">Read-only scope · in play now</div>
+    <h2>What you actually need to build</h2>
+    <ol>
+      <li>
+        <div class="bt"><b>Pricing waterfall popout</b><span>list → price code → promo → net, each tier labeled, + variance vs the last order's price. 3858-S3 — the genuine net-new delta.</span></div>
+        <span class="tagchip custom">Custom only</span>
+      </li>
+      <li>
+        <div class="bt"><b>Pinned sales-rep notes panel</b><span>account-context notes surfaced inline (not just standard Notes). 3858-S1.</span></div>
+        <span class="tagchip custom">Custom only</span>
+      </li>
+      <li>
+        <div class="bt"><b>"Expiring ≤ 7 days" badge on promotions</b><span>small addition to the existing promotions panel. 3858-S2.</span></div>
+        <span class="tagchip custom">Custom only</span>
+      </li>
+      <li>
+        <div class="bt"><b>Committed vs available inventory column</b><span>show allocated alongside available in the inventory panel. 3858-S6.</span></div>
+        <span class="tagchip custom">Custom only</span>
+      </li>
+      <li>
+        <div class="bt"><b>Open / pending orders flag band</b><span>surface Draft/Submitted/Confirmed/In-Transit at the top. 3922-S1.</span></div>
+        <span class="tagchip nativeish">Likely native list view</span>
+      </li>
+      <li>
+        <div class="bt"><b>Tax / GL by entity</b><span>only if the PO wants it surfaced — currently descoped (GL is internal accounting). 3922-S5.</span></div>
+        <span class="tagchip nativeish">PO decision</span>
+      </li>
+    </ol>
+    <div class="foot">Everything marked <b>Deferred</b> (New Order · Apply to Order · Reorder · auto-apply/remove · draft + manager approval) is intentionally out of scope — the epic was re-scoped read-only; order creation is a later transactional story.</div>
+  </section>
+
+  <footer>
+    <span>BMS-4997 · Call Center Order Visibility</span>
+    <span>BMS-3858 + BMS-3922 · 12 scenarios</span>
+    <span>source-validated · read-only scope</span>
+  </footer>
+
+</div>

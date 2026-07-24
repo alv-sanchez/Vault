@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR #626 — Billback one-per-agreement</title>
+<style>
+:root {
+  --bg:#2b2b2b; --surface:#ffffff; --surface-alt:#f5f5f0; --accent:#f5c518;
+  --text:#1a1a1a; --text-muted:#666666; --border:#e0e0e0;
+  --diff-add-bg:#e6ffec; --diff-add-text:#1a7f37; --diff-del-bg:#ffebe9; --diff-del-text:#cf222e;
+  --diff-hunk-bg:#ddf4ff; --diff-hunk-text:#0969da; --diff-line-bg:#f6f8fa;
+  --ok:#1a7f37; --warn:#bc4c00;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; line-height:1.55; }
+code { font-family:'SF Mono','Fira Code','Cascadia Code',ui-monospace,monospace; font-size:0.86em; background:rgba(0,0,0,.06); padding:.06em .35em; border-radius:4px; }
+a { color:var(--diff-hunk-text); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:1080px; margin:0 auto; padding:0 20px 80px; }
+
+nav { position:sticky; top:0; z-index:20; background:#1f1f1f; border-bottom:2px solid var(--accent); display:flex; gap:6px; align-items:center; padding:10px 20px; }
+nav .brand { color:var(--accent); font-weight:700; font-size:.82rem; letter-spacing:.5px; margin-right:auto; }
+nav a { color:#ddd; font-size:.82rem; padding:5px 12px; border-radius:6px; }
+nav a:hover { background:#333; text-decoration:none; }
+nav button { background:transparent; border:1px solid #555; color:#ddd; font-size:.75rem; padding:5px 10px; border-radius:6px; cursor:pointer; }
+nav button:hover { border-color:var(--accent); color:var(--accent); }
+
+header.hero { background:#1f1f1f; color:#f2f2f2; padding:30px 30px 26px; border-radius:0 0 12px 12px; margin-bottom:22px; }
+.krow { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+.tk { background:var(--accent); color:#1a1a1a; font-weight:800; font-size:.8rem; padding:4px 10px; border-radius:6px; letter-spacing:.5px; }
+.prn { color:#aaa; font-size:.85rem; font-weight:600; }
+.hero h1 { font-size:1.5rem; margin:6px 0 14px; line-height:1.3; }
+.badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.badge { font-size:.72rem; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.4px; }
+.b-status { background:#3d3d1a; color:var(--accent); border:1px solid var(--accent); }
+.b-type { background:#25324a; color:#7fb0ff; }
+.b-prio { background:#333; color:#bbb; }
+.label { font-size:.7rem; background:#333; color:#bbb; padding:3px 8px; border-radius:5px; }
+.labels { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+
+.card { background:var(--surface); border-radius:12px; padding:24px 26px; margin-bottom:20px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+.card h2 { font-size:1.15rem; margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid var(--surface-alt); }
+.card h3 { font-size:.95rem; margin:20px 0 8px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+.summary-lead { font-size:1.02rem; }
+.ac { background:var(--surface-alt); border-radius:8px; padding:14px 18px 14px 34px; margin:6px 0 0; }
+.ac li { margin:5px 0; }
+
+.clgroup { border:1px solid var(--border); border-radius:8px; margin-bottom:10px; overflow:hidden; }
+.clgroup > summary { cursor:pointer; padding:10px 14px; background:var(--surface-alt); font-weight:700; font-size:.9rem; list-style:none; }
+.clgroup > summary::-webkit-details-marker { display:none; }
+.count { background:var(--accent); color:#1a1a1a; font-size:.72rem; padding:1px 8px; border-radius:20px; margin-left:6px; }
+.clrow { padding:11px 16px; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:4px 12px; }
+.clfile { font-family:'SF Mono',monospace; font-size:.84rem; font-weight:600; }
+.clstat { font-family:'SF Mono',monospace; font-size:.8rem; white-space:nowrap; }
+.clnote { grid-column:1 / -1; font-size:.88rem; color:#333; }
+.badd { color:var(--diff-add-text); font-weight:700; }
+.bdel { color:var(--diff-del-text); font-weight:700; }
+
+.decisions { background:var(--surface-alt); border-left:4px solid var(--accent); border-radius:0 8px 8px 0; padding:14px 20px 14px 34px; }
+.decisions li { margin:9px 0; }
+
+.openbox { border-left:4px solid var(--warn); border-radius:0 8px 8px 0; background:#fff8f0; padding:16px 20px; }
+.oirow { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-top:1px solid #f0e2d0; }
+.oirow:first-child { border-top:none; }
+.oidot { flex:none; font-size:.64rem; font-weight:800; padding:3px 8px; border-radius:5px; letter-spacing:.4px; margin-top:2px; }
+.oi-fixed { background:#e6ffec; color:var(--ok); border:1px solid #a6e6b8; }
+.oi-open { background:#fff0d9; color:var(--warn); border:1px solid #f0c98a; }
+.oititle { font-weight:700; font-size:.9rem; }
+.oibody { font-size:.86rem; color:#444; margin-top:2px; }
+
+.statsbar { display:flex; gap:10px; flex-wrap:wrap; margin:4px 0 18px; }
+.stat { background:var(--surface-alt); border-radius:8px; padding:10px 16px; text-align:center; min-width:92px; }
+.stat .n { font-size:1.25rem; font-weight:800; display:block; }
+.stat .l { font-size:.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+
+.difffile { background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:12px; overflow:hidden; }
+.difffile > summary { cursor:pointer; padding:11px 15px; background:var(--surface-alt); display:flex; justify-content:space-between; align-items:center; gap:12px; list-style:none; }
+.difffile > summary::-webkit-details-marker { display:none; }
+.difffile > summary:hover { background:#ecece5; }
+.fpath { font-family:'SF Mono',monospace; font-size:.8rem; font-weight:600; word-break:break-all; }
+.fstat { font-family:'SF Mono',monospace; font-size:.78rem; white-space:nowrap; }
+.difftbl-wrap { overflow-x:auto; }
+.difftbl { border-collapse:collapse; width:100%; font-family:'SF Mono','Fira Code','Cascadia Code',monospace; font-size:.8rem; }
+.difftbl td { padding:0 6px; white-space:pre; vertical-align:top; }
+.difftbl td.code { width:100%; }
+.difftbl td.ln { text-align:right; color:#adadad; user-select:none; width:1%; padding:0 8px; background:var(--diff-line-bg); border-right:1px solid var(--border); }
+tr.add td.code { background:var(--diff-add-bg); color:var(--diff-add-text); }
+tr.del td.code { background:var(--diff-del-bg); color:var(--diff-del-text); }
+tr.ctx td.code { color:#24292f; }
+tr.hunk td { background:var(--diff-hunk-bg); color:var(--diff-hunk-text); font-weight:600; }
+
+footer { text-align:center; color:#888; font-size:.78rem; padding:24px; }
+footer code { background:rgba(255,255,255,.08); color:#bbb; }
+.section-title { color:var(--accent); font-size:.78rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:26px 4px 10px; }
+</style></head>
+<body>
+<nav>
+  <span class="brand">PR OVERVIEW</span>
+  <a href="#context">Context</a>
+  <a href="#narrative">Narrative</a>
+  <a href="#diffs">Diffs</a>
+  <button onclick="toggleAll(true)">Expand all</button>
+  <button onclick="toggleAll(false)">Collapse all</button>
+</nav>
+<div class="wrap">
+
+<header class="hero" id="context">
+  <div class="krow"><span class="tk">BMS-5843</span><span class="prn">PR #626 · Ohanafy/OHFY-Split</span></div>
+  <h1>Billback one-per-agreement — split <code style="background:rgba(255,255,255,.1);color:#f2f2f2">Billback__c</code> from one-per-supplier</h1>
+  <div class="badges">
+    <span class="badge b-status">In Progress</span>
+    <span class="badge b-type">Story</span>
+    <span class="badge b-prio">Priority: TBD</span>
+  </div>
+  <div class="labels"><span class="label">crawl</span> <span class="label">domain:pricing-revenue-integrity</span> <span class="label">gulf</span> <span class="label">onsite-jun2026</span> <span class="label">tier:go-live</span></div>
+  <div style="margin-top:14px"><a href="https://github.com/Ohanafy/OHFY-Split/pull/626" style="color:var(--accent);font-weight:600">↗ View PR on GitHub</a> &nbsp;·&nbsp; <a href="https://ohanafy.atlassian.net/browse/BMS-5843" style="color:var(--accent);font-weight:600">↗ BMS-5843 in Jira</a></div>
+</header>
+
+<div class="card">
+  <p class="summary-lead">As a Gulf Finance Controller, each supplier funding agreement should own its own <code>Billback__c</code> record instead of sharing one per supplier — so multi-agreement suppliers (different brands, warehouses, program types) get isolated billback tracking and reconciliation without cross-contamination. The prerequisite model decision (confirmed with Emily/Dave, 2026-07-23) is <b>pure per-agreement grouping</b>, not further split by warehouse; end-of-month settlement still nets to one consolidated invoice per supplier.</p>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac"><li><code>Billback__c</code> has <code>Supplier_Funding_Agreement__c</code> lookup deployed</li>
+<li>A supplier with 2 active agreements gets 2 separate <code>Billback__c</code> records</li>
+<li><code>updateBillbacks</code> accumulates to the correct per-agreement record without double-counting</li>
+<li>End-of-month finalization produces one invoice per supplier (summing across agreements)</li>
+<li><code>_T</code> coverage ≥ 90%; multi-agreement scenario covered</li></ul>
+</div>
+
+<div class="section-title" id="narrative">Implementation Narrative</div>
+
+<div class="card">
+  <h2>What Was Built</h2>
+  <p>The billback header's identity moves from a short-lived per-invoice key (<code>bb:{invoiceId}:{supplierId}</code>) to a <b>persistent per-agreement key</b> (<code>bb:agr:{agreementId}</code>, with a <code>bb:sup:{supplierId}</code> fallback for unattributed lines) that accumulates across the agreement's lifetime. A new released <code>Supplier_Funding_Agreement__c</code> lookup stamps each header; the agreement is embedded in the line External_Ids so an agreement change safely re-homes a non-reparentable master-detail line via retract-old + create-new. The incentive trigger's <code>updateBillbacks</code> was rewritten to a single hardened pass that eliminates a real full-completions + delta double-count and routes volume accruals to the correct per-agreement header. Two downstream fixes (per-line aging, incentive relink/unlink reversal) were pulled forward from follow-up BMS-6091 during review.</p>
+
+  <h3>File Changelog</h3>
+  <details open class="clgroup"><summary>Data Model (Tier 0) <span class="count">1</span></summary><div class="clrow">
+<a class="clfile" href="#diff-ohfy-data-model-force-app-main-default-objects-billback-c-fields-supplier-funding-agreement-c-field-meta-xml">Supplier_Funding_Agreement__c.field-meta.xml</a>
+<span class="clstat"><span class="badd">+17</span> <span class="bdel">-0</span></span>
+<div class="clnote">New released lookup <code>Billback__c.Supplier_Funding_Agreement__c</code> (SetNull, nullable during migration). Stamps each header with the agreement it belongs to; the Jira key was dropped from the description on review.</div>
+</div></details><details open class="clgroup"><summary>Apex Services — OMS (Tier 3) <span class="count">2</span></summary><div class="clrow">
+<a class="clfile" href="#diff-ohfy-oms-force-app-main-default-classes-services-billback-s-billbackcalculation-cls">S_BillbackCalculation.cls</a>
+<span class="clstat"><span class="badd">+152</span> <span class="bdel">-21</span></span>
+<div class="clnote">Core engine. Header External_Id re-keyed from per-invoice <code>bb:{invoiceId}:{supplierId}</code> to persistent <code>bb:agr:{agreementId}</code> (with a <code>bb:sup:{supplierId}</code> fallback for unattributed lines). Agreement folded into the <code>bbl:</code>/<code>bbmw:</code> line keys via a single <code>buildLineExternalId</code> helper so a changed agreement re-homes the line (retract-old + create-new) rather than illegally reparenting a master-detail. Charge_Date stamped on brand-new headers only; a cancelled header hit by a later invoice now emits a Logger audit instead of silently dropping the recoverable.</div>
+</div><div class="clrow">
+<a class="clfile" href="#diff-ohfy-oms-force-app-main-default-classes-services-billback-s-supplierreceivables-cls">S_SupplierReceivables.cls</a>
+<span class="clstat"><span class="badd">+26</span> <span class="bdel">-3</span></span>
+<div class="clnote">Aging fix pulled forward from BMS-6091: <code>getSupplierAging</code> now ages each accrued line off its own invoice date (<code>lineChargeDate</code>) instead of the header's frozen earliest Charge_Date, falling back to the header date only for non-invoice lines.</div>
+</div></details><details open class="clgroup"><summary>Trigger Services — REX (Tier 3) <span class="count">1</span></summary><div class="clrow">
+<a class="clfile" href="#diff-ohfy-rex-force-app-main-default-classes-triggerservices-incentive-incentivetriggerservice-cls">IncentiveTriggerService.cls</a>
+<span class="clstat"><span class="badd">+61</span> <span class="bdel">-44</span></span>
+<div class="clnote"><code>updateBillbacks</code> rewritten from three overlapping loops to one hardened pass — fixes a full-completions + delta double-count and a latent null-map NPE, routes <code>Total_Cases__c</code> to the per-agreement header, and (pulled forward) reverses an incentive's accrual out of the header it left on relink/unlink, clearing the stale reverse link.</div>
+</div></details><details open class="clgroup"><summary>Tests <span class="count">4</span></summary><div class="clrow">
+<a class="clfile" href="#diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-billbackcalculation-t-cls">S_BillbackCalculation_T.cls</a>
+<span class="clstat"><span class="badd">+283</span> <span class="bdel">-0</span></span>
+<div class="clnote">Adds multi-agreement isolation, agreement-added-later re-home, persistent-header Charge_Date freeze, and the cancelled-header suppression-with-audit scenarios.</div>
+</div><div class="clrow">
+<a class="clfile" href="#diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-billbacksettlement-t-cls">S_BillbackSettlement_T.cls</a>
+<span class="clstat"><span class="badd">+42</span> <span class="bdel">-0</span></span>
+<div class="clnote">Confirms two per-agreement headers (blank cadence) still consolidate into one supplier invoice.</div>
+</div><div class="clrow">
+<a class="clfile" href="#diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-supplierreceivables-t-cls">S_SupplierReceivables_T.cls</a>
+<span class="clstat"><span class="badd">+104</span> <span class="bdel">-0</span></span>
+<div class="clnote">Proves per-line aging: a recent line and a 120-day line on one persistent header land in distinct buckets.</div>
+</div><div class="clrow">
+<a class="clfile" href="#diff-ohfy-rex-force-app-main-default-classes-triggerservices-incentive-tests-incentive-au-t-cls">Incentive_AU_T.cls</a>
+<span class="clstat"><span class="badd">+278</span> <span class="bdel">-0</span></span>
+<div class="clnote">Covers no-double-count on simultaneous link+completions change, delta-only, active-toggle, dangling reference, and the new relink/unlink accrual reversal.</div>
+</div></details>
+
+  <h3>Key Decisions</h3>
+  <ol class="decisions"><li>Header keyed by <b>agreement</b>, not invoice — a persistent header accumulates across the agreement's lifetime; unattributed lines (account-default / 100% fallback) collect on a per-supplier fallback header. Keys are self-describing (<code>bb:agr:</code> / <code>bb:sup:</code>) so the two shapes can't collide even in principle.</li>
+<li>Agreement is embedded in the line External_Id. Because <code>Billback_Line__c.Billback__c</code> is a non-reparentable master-detail, an agreement change makes a NEW line (old one retracted) rather than an illegal reparent — the same pattern already used for supplier changes.</li>
+<li>Charge_Date is stamped on brand-new headers only (via a pre-resolved existing-key set) so a persistent header's aging anchor doesn't churn; aging then reads each line's own invoice date for accuracy.</li>
+<li>The legacy <code>Incentive__c.Billback__c</code> link stays and routes the volume accrual (<code>Total_Cases__c</code>), kept disjoint from the recompute path's <code>Total_Recoverable_Amount__c</code> rollup so a supplier's money is never counted on both.</li>
+<li>A later invoice mapping to an already-Cancelled header has its recoverable dropped but <b>audited via Logger</b> (header id, supplier, line count, $ total) — surfacing what the persistent key would otherwise silently swallow.</li></ol>
+
+  <h3>Open Items &amp; Review History</h3>
+  <div class="openbox">
+    <div style="font-size:.85rem;color:#444;margin-bottom:6px">Code review (alv-sanchez) raised 3 <b>WARNING</b>s + 2 <b>SUGGESTION</b>s across two rounds. All were fixed or explicitly dispositioned by the author (Auston Main). Status per item:</div>
+    <div class="oirow"><span class="oidot oi-fixed">RESOLVED</span><div><div class="oititle">Cancelled-header blackhole [WARNING]</div><div class="oibody">A later invoice hitting a Cancelled per-agreement header silently dropped its recoverable (and was removed from the "No Billback Required" audit). <b>Fixed</b> — <code>logSuppressedCancelledHeader</code> now buffers a Logger audit entry; new test <code>cancelledHeaderSuppressesLaterInvoiceWithoutDuplicatingOrCrashing</code>.</div></div></div>
+<div class="oirow"><span class="oidot oi-fixed">RESOLVED</span><div><div class="oititle">Aging misdate (was deferred) [Q1]</div><div class="oibody">Persistent header froze Charge_Date at the earliest charge, so later lines aged from the oldest date. <b>Pulled forward &amp; fixed</b> in <code>S_SupplierReceivables</code> (per-line invoice-date aging) with coverage.</div></div></div>
+<div class="oirow"><span class="oidot oi-fixed">RESOLVED</span><div><div class="oititle">Incentive relink/unlink stale count (was deferred)</div><div class="oibody">Re-pointing or unlinking an incentive never decremented the old header. <b>Pulled forward &amp; fixed</b> — accrual reversed out of the vacated header; two new tests.</div></div></div>
+<div class="oirow"><span class="oidot oi-fixed">RESOLVED</span><div><div class="oititle">Two-sided key duplication + non-self-describing keys [SUGGESTION]</div><div class="oibody"><b>Fixed</b> — single <code>buildLineExternalId</code> helper; keys changed to <code>bb:agr:</code>/<code>bb:sup:</code>.</div></div></div>
+<div class="oirow"><span class="oidot oi-fixed">RESOLVED</span><div><div class="oititle">Jira key in shipped metadata [WARNING]</div><div class="oibody"><b>Fixed</b> — <code>(BMS-5843)</code> removed from the field description.</div></div></div>
+<div class="oirow"><span class="oidot oi-open">OPEN</span><div><div class="oititle">Existing billback data / orphaning [WARNING → confirm]</div><div class="oibody">Dispositioned as greenfield (billback generation not yet in a released managed version, so no org is live on the old key). <b>Still needs a hard yes/no</b> that Gulf's org carries no early Accrued billback data; if it does, a one-time external-id backfill is required before deploy.</div></div></div>
+<div class="oirow"><span class="oidot oi-open">OPEN</span><div><div class="oititle">Budget fiscal-year attribution — deferred to BMS-6091</div><div class="oibody">A header spanning fiscal years keeps summing into its first year's budget (<code>S_BudgetConsumption</code>). Deliberately deferred — needs a per-line schema change + product decision. Annual-budget consumption stays skewed for multi-year agreements until then.</div></div></div>
+<div class="oirow"><span class="oidot oi-open">OPEN</span><div><div class="oititle">Charge-date-on-new-headers helper extraction [SUGGESTION — declined]</div><div class="oibody">The freeze choreography could move into <code>S_BillbackLedgerHelper</code> alongside <code>stampStatusOnNewHeaders</code>. Author kept the PR focused; noted as a follow-on.</div></div></div>
+  </div>
+</div>
+
+<div class="section-title" id="diffs">Code Changes</div>
+<div class="card">
+  <div class="statsbar">
+    <div class="stat"><span class="n">8</span><span class="l">Files</span></div>
+    <div class="stat"><span class="n badd">+963</span><span class="l">Insertions</span></div>
+    <div class="stat"><span class="n bdel">-68</span><span class="l">Deletions</span></div>
+    <div class="stat"><span class="n">3</span><span class="l">Commits</span></div>
+  </div>
+  <details open id="diff-ohfy-data-model-force-app-main-default-objects-billback-c-fields-supplier-funding-agreement-c-field-meta-xml" class="difffile">
+<summary><span class="fpath">OHFY-Data-Model/force-app/main/default/objects/Billback__c/fields/Supplier_Funding_Agreement__c.field-meta.xml</span><span class="fstat"><span class="badd">+17</span> <span class="bdel">-0</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -0,0 +1,17 @@</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1</td><td class="code">+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">2</td><td class="code">+&lt;CustomField xmlns=&quot;http://soap.sforce.com/2006/04/metadata&quot;&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">3</td><td class="code">+    &lt;fullName&gt;Supplier_Funding_Agreement__c&lt;/fullName&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">4</td><td class="code">+    &lt;deleteConstraint&gt;SetNull&lt;/deleteConstraint&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">5</td><td class="code">+    &lt;description</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">6</td><td class="code">+    &gt;The funding agreement this billback header belongs to. One Billback per Supplier_Funding_Agreement__c so a multi-agreement supplier gets isolated, per-agreement tracking and reconciliation. Stamped by the billback engine at accrual time. Null when the header collects unattributed charges (account-default or 100% fallback coverage with no specific agreement) — nullable during migration, required going forward.&lt;/description&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">7</td><td class="code">+    &lt;externalId&gt;false&lt;/externalId&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">8</td><td class="code">+    &lt;inlineHelpText</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">9</td><td class="code">+    &gt;Funding agreement this billback belongs to (one billback per agreement).&lt;/inlineHelpText&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">10</td><td class="code">+    &lt;label&gt;Supplier Funding Agreement&lt;/label&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">11</td><td class="code">+    &lt;referenceTo&gt;Supplier_Funding_Agreement__c&lt;/referenceTo&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">12</td><td class="code">+    &lt;relationshipLabel&gt;Billbacks&lt;/relationshipLabel&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">13</td><td class="code">+    &lt;relationshipName&gt;Billbacks&lt;/relationshipName&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">14</td><td class="code">+    &lt;required&gt;false&lt;/required&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">15</td><td class="code">+    &lt;trackTrending&gt;false&lt;/trackTrending&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">16</td><td class="code">+    &lt;type&gt;Lookup&lt;/type&gt;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">17</td><td class="code">+&lt;/CustomField&gt;</td></tr>
+</tbody></table></div>
+</details><details  id="diff-ohfy-oms-force-app-main-default-classes-services-billback-s-billbackcalculation-cls" class="difffile">
+<summary><span class="fpath">OHFY-OMS/force-app/main/default/classes/services/billback/S_BillbackCalculation.cls</span><span class="fstat"><span class="badd">+152</span> <span class="bdel">-21</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -3,8 +3,11 @@</td></tr>
+<tr class="ctx"><td class="ln">3</td><td class="ln">3</td><td class="code">  *                      with promotional pricing (BMS-4141, Phase 1). Given a set of invoice Ids,</td></tr>
+<tr class="ctx"><td class="ln">4</td><td class="ln">4</td><td class="code">  *                      finds every promo-priced or floor-make-whole invoice line, attributes it to</td></tr>
+<tr class="ctx"><td class="ln">5</td><td class="ln">5</td><td class="code">  *                      the funding supplier (Item.Item_Line__r.Supplier__c), and assembles one</td></tr>
+<tr class="del"><td class="ln">6</td><td class="ln"></td><td class="code">- *                      Billback__c per supplier per invoice with one Billback_Line__c per</td></tr>
+<tr class="del"><td class="ln">7</td><td class="ln"></td><td class="code">- *                      qualifying line.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">6</td><td class="code">+ *                      Billback__c per funding AGREEMENT (BMS-5843, one-per-agreement — a persistent</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">7</td><td class="code">+ *                      header that accumulates across the agreement&#x27;s lifetime) with one</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">8</td><td class="code">+ *                      Billback_Line__c per qualifying line. Lines with no specific agreement</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">9</td><td class="code">+ *                      (account-default / 100% fallback coverage) collect on a persistent</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">10</td><td class="code">+ *                      per-supplier fallback header instead.</td></tr>
+<tr class="ctx"><td class="ln">8</td><td class="ln">11</td><td class="code">  *</td></tr>
+<tr class="ctx"><td class="ln">9</td><td class="ln">12</td><td class="code">  *                      Two ledger-line types per qualifying invoice line:</td></tr>
+<tr class="ctx"><td class="ln">10</td><td class="ln">13</td><td class="code">  *</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -46,8 +49,10 @@</td></tr>
+<tr class="ctx"><td class="ln">46</td><td class="ln">49</td><td class="code">  *                                     to the coverage split&#x27;s agreementId; nullable.</td></tr>
+<tr class="ctx"><td class="ln">47</td><td class="ln">50</td><td class="code">  *                      Lines with null/0 Floor_Make_Whole_Per_Case__c or null qty skip the bbmw emission.</td></tr>
+<tr class="ctx"><td class="ln">48</td><td class="ln">51</td><td class="code">  *</td></tr>
+<tr class="del"><td class="ln">49</td><td class="ln"></td><td class="code">- *                      A bbmw-only line (no promo gross) still creates the shared header. Both line</td></tr>
+<tr class="del"><td class="ln">50</td><td class="ln"></td><td class="code">- *                      types share one bb:{invoiceId}:{supplierId} header.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">52</td><td class="code">+ *                      A bbmw-only line (no promo gross) still creates its header. The bbl: and</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">53</td><td class="code">+ *                      bbmw: lines for one invoice line share a header only when they resolve to the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">54</td><td class="code">+ *                      SAME agreement; when the floor make-whole resolves to a different (floor)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">55</td><td class="code">+ *                      agreement than the coverage split, each lands on its own agreement&#x27;s header.</td></tr>
+<tr class="ctx"><td class="ln">51</td><td class="ln">56</td><td class="code">  *</td></tr>
+<tr class="ctx"><td class="ln">52</td><td class="ln">57</td><td class="code">  *                      RECOMPUTE, NOT ACCUMULATE (BMS-4141 AC): this replaces — never augments —</td></tr>
+<tr class="ctx"><td class="ln">53</td><td class="ln">58</td><td class="code">  *                      the REX IncentiveTriggerService.updateBillbacks delta-accumulation. Invoice-</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -57,11 +62,13 @@</td></tr>
+<tr class="ctx"><td class="ln">57</td><td class="ln">62</td><td class="code">  *</td></tr>
+<tr class="ctx"><td class="ln">58</td><td class="ln">63</td><td class="code">  *                      Idempotent AND self-correcting on re-run (nightly sweep, re-delivery, manual</td></tr>
+<tr class="ctx"><td class="ln">59</td><td class="ln">64</td><td class="code">  *                      reprocess):</td></tr>
+<tr class="del"><td class="ln">60</td><td class="ln"></td><td class="code">- *                        • Deterministic External_Id keys — bb:{invoiceId}:{supplierId} on the</td></tr>
+<tr class="del"><td class="ln">61</td><td class="ln"></td><td class="code">- *                          header, bbl:{invoiceItemId}:{supplierId} on the coverage-split line,</td></tr>
+<tr class="del"><td class="ln">62</td><td class="ln"></td><td class="code">- *                          bbmw:{invoiceItemId}:{supplierId} on the floor-make-whole line (supplier</td></tr>
+<tr class="del"><td class="ln">63</td><td class="ln"></td><td class="code">- *                          IN the line key so a supplier change makes a NEW line rather than</td></tr>
+<tr class="del"><td class="ln">64</td><td class="ln"></td><td class="code">- *                          reparenting a non-reparentable master-detail).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">65</td><td class="code">+ *                        • Deterministic External_Id keys — bb:agr:{agreementId} (or</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">66</td><td class="code">+ *                          bb:sup:{supplierId} for unattributed lines) on the header,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">67</td><td class="code">+ *                          bbl:{invoiceItemId}:{supplierId}:{agreementId|none} on the coverage-split</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">68</td><td class="code">+ *                          line, bbmw:{invoiceItemId}:{supplierId}:{agreementId|none} on the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">69</td><td class="code">+ *                          floor-make-whole line (both supplier AND agreement IN the line key so a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">70</td><td class="code">+ *                          supplier OR agreement change makes a NEW line rather than reparenting a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">71</td><td class="code">+ *                          non-reparentable master-detail).</td></tr>
+<tr class="ctx"><td class="ln">65</td><td class="ln">72</td><td class="code">  *                        • Status is preserved — a header already advanced past Accrued</td></tr>
+<tr class="ctx"><td class="ln">66</td><td class="ln">73</td><td class="code">  *                          (Invoiced/Collected/Written_Off) is NOT reverted; only brand-new headers</td></tr>
+<tr class="ctx"><td class="ln">67</td><td class="ln">74</td><td class="code">  *                          are stamped Accrued.</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -130,10 +137,14 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">130</td><td class="ln">137</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">131</td><td class="ln">138</td><td class="code">         Map&lt;Id, Decimal&gt; accountDefaultBySupplier = queryAccountDefaults(supplierIds);</td></tr>
+<tr class="ctx"><td class="ln">132</td><td class="ln">139</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">133</td><td class="ln"></td><td class="code">-        // key = invoiceId + &#x27;|&#x27; + supplierId → the header assembling that supplier&#x27;s lines.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">140</td><td class="code">+        // key = the header&#x27;s External_Id (bb:{agreementId}, or bb:{supplierId} for unattributed</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">141</td><td class="code">+        // lines) → the header assembling that agreement&#x27;s lines (BMS-5843, one-per-agreement).</td></tr>
+<tr class="ctx"><td class="ln">134</td><td class="ln">142</td><td class="code">         Map&lt;String, Billback__c&gt; headersByKey = new Map&lt;String, Billback__c&gt;();</td></tr>
+<tr class="ctx"><td class="ln">135</td><td class="ln">143</td><td class="code">         // group key → the Billback_Line__c records staged for it (parent set after header upsert).</td></tr>
+<tr class="ctx"><td class="ln">136</td><td class="ln">144</td><td class="code">         Map&lt;String, List&lt;Billback_Line__c&gt;&gt; linesByKey = new Map&lt;String, List&lt;Billback_Line__c&gt;&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">145</td><td class="code">+        // group key → the earliest invoice date feeding that header (the aging anchor, stamped only</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">146</td><td class="code">+        // on brand-new headers so a persistent per-agreement header&#x27;s Charge_Date never churns).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">147</td><td class="code">+        Map&lt;String, Date&gt; chargeDateByKey = new Map&lt;String, Date&gt;();</td></tr>
+<tr class="ctx"><td class="ln">137</td><td class="ln">148</td><td class="code">         // Every line External_Id we (re)generate this run — anything else on these invoices is stale.</td></tr>
+<tr class="ctx"><td class="ln">138</td><td class="ln">149</td><td class="code">         Set&lt;String&gt; liveLineExternalIds = new Set&lt;String&gt;();</td></tr>
+<tr class="ctx"><td class="ln">139</td><td class="ln">150</td><td class="code"> </td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -232,6 +243,7 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">232</td><td class="ln">243</td><td class="code">                         stage(</td></tr>
+<tr class="ctx"><td class="ln">233</td><td class="ln">244</td><td class="code">                             headersByKey,</td></tr>
+<tr class="ctx"><td class="ln">234</td><td class="ln">245</td><td class="code">                             linesByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">246</td><td class="code">+                            chargeDateByKey,</td></tr>
+<tr class="ctx"><td class="ln">235</td><td class="ln">247</td><td class="code">                             liveLineExternalIds,</td></tr>
+<tr class="ctx"><td class="ln">236</td><td class="ln">248</td><td class="code">                             line,</td></tr>
+<tr class="ctx"><td class="ln">237</td><td class="ln">249</td><td class="code">                             fundingSupplierId,</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -276,6 +288,7 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">276</td><td class="ln">288</td><td class="code">                             stage(</td></tr>
+<tr class="ctx"><td class="ln">277</td><td class="ln">289</td><td class="code">                                 headersByKey,</td></tr>
+<tr class="ctx"><td class="ln">278</td><td class="ln">290</td><td class="code">                                 linesByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">291</td><td class="code">+                                chargeDateByKey,</td></tr>
+<tr class="ctx"><td class="ln">279</td><td class="ln">292</td><td class="code">                                 liveLineExternalIds,</td></tr>
+<tr class="ctx"><td class="ln">280</td><td class="ln">293</td><td class="code">                                 line,</td></tr>
+<tr class="ctx"><td class="ln">281</td><td class="ln">294</td><td class="code">                                 supplierId,</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -357,9 +370,25 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">357</td><td class="ln">370</td><td class="code">                         Coverage_Percent__c = 100,</td></tr>
+<tr class="ctx"><td class="ln">358</td><td class="ln">371</td><td class="code">                         Recoverable_Amount__c = mwGross,</td></tr>
+<tr class="ctx"><td class="ln">359</td><td class="ln">372</td><td class="code">                         Supplier_Funding_Agreement__c = mwAgreementId,</td></tr>
+<tr class="del"><td class="ln">360</td><td class="ln"></td><td class="code">-                        External_Id__c = &#x27;bbmw:&#x27; + line.Id + &#x27;:&#x27; + supplierId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">373</td><td class="code">+                        // Agreement IN the key (see buildLine) — non-reparentable master-detail</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">374</td><td class="code">+                        // safety. bbmw: may resolve to a different (floor) agreement than the bbl:</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">375</td><td class="code">+                        // line, in which case each lands on its own agreement&#x27;s header.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">376</td><td class="code">+                        External_Id__c = buildLineExternalId(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">377</td><td class="code">+                            &#x27;bbmw&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">378</td><td class="code">+                            line.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">379</td><td class="code">+                            supplierId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">380</td><td class="code">+                            mwAgreementId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">381</td><td class="code">+                        )</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">382</td><td class="code">+                    );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">383</td><td class="code">+                    stage(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">384</td><td class="code">+                        headersByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">385</td><td class="code">+                        linesByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">386</td><td class="code">+                        chargeDateByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">387</td><td class="code">+                        liveLineExternalIds,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">388</td><td class="code">+                        line,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">389</td><td class="code">+                        supplierId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">390</td><td class="code">+                        mwLine</td></tr>
+<tr class="ctx"><td class="ln">361</td><td class="ln">391</td><td class="code">                     );</td></tr>
+<tr class="del"><td class="ln">362</td><td class="ln"></td><td class="code">-                    stage(headersByKey, linesByKey, liveLineExternalIds, line, supplierId, mwLine);</td></tr>
+<tr class="ctx"><td class="ln">363</td><td class="ln">392</td><td class="code">                     booked = true;</td></tr>
+<tr class="ctx"><td class="ln">364</td><td class="ln">393</td><td class="code">                 }</td></tr>
+<tr class="ctx"><td class="ln">365</td><td class="ln">394</td><td class="code">             }</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -376,7 +405,27 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">376</td><td class="ln">405</td><td class="code">         removeCancelledHeaders(headersByKey, linesByKey);</td></tr>
+<tr class="ctx"><td class="ln">377</td><td class="ln">406</td><td class="code"> </td></tr>
+<tr class="ctx"><td class="ln">378</td><td class="ln">407</td><td class="code">         if (!headersByKey.isEmpty()) {</td></tr>
+<tr class="del"><td class="ln">379</td><td class="ln"></td><td class="code">-            S_BillbackLedgerHelper.stampStatusOnNewHeaders(headersByKey.values());</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">408</td><td class="code">+            Set&lt;String&gt; headerExternalIds = new Set&lt;String&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">409</td><td class="code">+            for (Billback__c header : headersByKey.values()) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">410</td><td class="code">+                headerExternalIds.add(header.External_Id__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">411</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">412</td><td class="code">+            // Resolve which headers already exist ONCE — reused for both the status stamp and the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">413</td><td class="code">+            // aging-anchor stamp so neither churns an existing per-agreement header (BMS-5843).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">414</td><td class="code">+            Set&lt;String&gt; existingHeaderKeys = S_BillbackLedgerHelper.existingHeaderKeys(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">415</td><td class="code">+                headerExternalIds</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">416</td><td class="code">+            );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">417</td><td class="code">+            S_BillbackLedgerHelper.stampStatusOnNewHeaders(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">418</td><td class="code">+                headersByKey.values(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">419</td><td class="code">+                existingHeaderKeys</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">420</td><td class="code">+            );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">421</td><td class="code">+            for (String key : headersByKey.keySet()) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">422</td><td class="code">+                Billback__c header = headersByKey.get(key);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">423</td><td class="code">+                // Stamp Charge_Date only on brand-new headers; an existing per-agreement header</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">424</td><td class="code">+                // keeps its original anchor as later invoices for the same agreement accrue.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">425</td><td class="code">+                if (!existingHeaderKeys.contains(header.External_Id__c)) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">426</td><td class="code">+                    header.Charge_Date__c = chargeDateByKey.get(key);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">427</td><td class="code">+                }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">428</td><td class="code">+            }</td></tr>
+<tr class="ctx"><td class="ln">380</td><td class="ln">429</td><td class="code">             S_BillbackLedgerHelper.upsertHeaders(headersByKey.values());</td></tr>
+<tr class="ctx"><td class="ln">381</td><td class="ln">430</td><td class="code"> </td></tr>
+<tr class="ctx"><td class="ln">382</td><td class="ln">431</td><td class="code">             List&lt;Billback_Line__c&gt; allLines = new List&lt;Billback_Line__c&gt;();</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -413,18 +462,35 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">413</td><td class="ln">462</td><td class="code">     private static void stage(</td></tr>
+<tr class="ctx"><td class="ln">414</td><td class="ln">463</td><td class="code">         Map&lt;String, Billback__c&gt; headersByKey,</td></tr>
+<tr class="ctx"><td class="ln">415</td><td class="ln">464</td><td class="code">         Map&lt;String, List&lt;Billback_Line__c&gt;&gt; linesByKey,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">465</td><td class="code">+        Map&lt;String, Date&gt; chargeDateByKey,</td></tr>
+<tr class="ctx"><td class="ln">416</td><td class="ln">466</td><td class="code">         Set&lt;String&gt; liveLineExternalIds,</td></tr>
+<tr class="ctx"><td class="ln">417</td><td class="ln">467</td><td class="code">         Invoice_Item__c line,</td></tr>
+<tr class="ctx"><td class="ln">418</td><td class="ln">468</td><td class="code">         Id supplierId,</td></tr>
+<tr class="ctx"><td class="ln">419</td><td class="ln">469</td><td class="code">         Billback_Line__c billbackLine</td></tr>
+<tr class="ctx"><td class="ln">420</td><td class="ln">470</td><td class="code">     ) {</td></tr>
+<tr class="del"><td class="ln">421</td><td class="ln"></td><td class="code">-        String key = line.Invoice__c + &#x27;|&#x27; + supplierId;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">471</td><td class="code">+        // One header per agreement (BMS-5843). When the line resolved to a specific funding</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">472</td><td class="code">+        // agreement, that agreement&#x27;s header collects it — persisting and accumulating across the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">473</td><td class="code">+        // agreement&#x27;s lifetime rather than a new header per invoice. Unattributed lines (account-</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">474</td><td class="code">+        // default / 100% fallback coverage, or a strike-price floor with no agreement) fall back to</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">475</td><td class="code">+        // a persistent per-supplier header so every line still has a parent for its non-reparentable</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">476</td><td class="code">+        // master-detail. The &#x27;agr&#x27;/&#x27;sup&#x27; segment makes the two key shapes self-describing so they</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">477</td><td class="code">+        // can&#x27;t collide even in principle (rather than relying on Agreement vs Account Id prefixes).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">478</td><td class="code">+        Id agreementId = billbackLine.Supplier_Funding_Agreement__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">479</td><td class="code">+        String key = agreementId != null ? &#x27;bb:agr:&#x27; + agreementId : &#x27;bb:sup:&#x27; + supplierId;</td></tr>
+<tr class="ctx"><td class="ln">422</td><td class="ln">480</td><td class="code">         if (!headersByKey.containsKey(key)) {</td></tr>
+<tr class="del"><td class="ln">423</td><td class="ln"></td><td class="code">-            headersByKey.put(key, buildHeader(line, supplierId));</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">481</td><td class="code">+            headersByKey.put(key, buildHeader(supplierId, agreementId, key));</td></tr>
+<tr class="ctx"><td class="ln">424</td><td class="ln">482</td><td class="code">             linesByKey.put(key, new List&lt;Billback_Line__c&gt;());</td></tr>
+<tr class="ctx"><td class="ln">425</td><td class="ln">483</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">426</td><td class="ln">484</td><td class="code">         linesByKey.get(key).add(billbackLine);</td></tr>
+<tr class="ctx"><td class="ln">427</td><td class="ln">485</td><td class="code">         liveLineExternalIds.add(billbackLine.External_Id__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">486</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">487</td><td class="code">+        Date invoiceDate = line.Invoice__r != null ? line.Invoice__r.Invoice_Date__c : null;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">488</td><td class="code">+        if (invoiceDate != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">489</td><td class="code">+            Date existing = chargeDateByKey.get(key);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">490</td><td class="code">+            if (existing == null || invoiceDate &lt; existing) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">491</td><td class="code">+                chargeDateByKey.put(key, invoiceDate);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">492</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">493</td><td class="code">+        }</td></tr>
+<tr class="ctx"><td class="ln">428</td><td class="ln">494</td><td class="code">     }</td></tr>
+<tr class="ctx"><td class="ln">429</td><td class="ln">495</td><td class="code"> </td></tr>
+<tr class="ctx"><td class="ln">430</td><td class="ln">496</td><td class="code">     /**</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -456,12 +522,48 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">456</td><td class="ln">522</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">457</td><td class="ln">523</td><td class="code">         for (String key : new List&lt;String&gt;(headersByKey.keySet())) {</td></tr>
+<tr class="ctx"><td class="ln">458</td><td class="ln">524</td><td class="code">             if (cancelledExternalIds.contains(externalIdByKey.get(key))) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">525</td><td class="code">+                logSuppressedCancelledHeader(headersByKey.get(key), linesByKey.get(key));</td></tr>
+<tr class="ctx"><td class="ln">459</td><td class="ln">526</td><td class="code">                 headersByKey.remove(key);</td></tr>
+<tr class="ctx"><td class="ln">460</td><td class="ln">527</td><td class="code">                 linesByKey.remove(key);</td></tr>
+<tr class="ctx"><td class="ln">461</td><td class="ln">528</td><td class="code">             }</td></tr>
+<tr class="ctx"><td class="ln">462</td><td class="ln">529</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">463</td><td class="ln">530</td><td class="code">     }</td></tr>
+<tr class="ctx"><td class="ln">464</td><td class="ln">531</td><td class="code"> </td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">532</td><td class="code">+    /**</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">533</td><td class="code">+     * Audit a CANCELLED header whose newly-detected recoverable lines are being dropped before</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">534</td><td class="code">+     * upsert. Because the header persists per-agreement (BMS-5843), a later invoice can map to an</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">535</td><td class="code">+     * already-cancelled header; the cancel freezes it, so this run&#x27;s lines are never persisted — and</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">536</td><td class="code">+     * since the qualifying invoice was already booked (removed from the &quot;No Billback Required&quot;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">537</td><td class="code">+     * audit), the recoverable would otherwise vanish with no trace. Buffer an audit entry (flushed by</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">538</td><td class="code">+     * generateForInvoices) so the untracked money is visible. Resolving the cancel semantics</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">539</td><td class="code">+     * (permanent freeze vs. a fresh header per new invoice) is tracked in BMS-6091.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">540</td><td class="code">+     */</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">541</td><td class="code">+    private static void logSuppressedCancelledHeader(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">542</td><td class="code">+        Billback__c header,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">543</td><td class="code">+        List&lt;Billback_Line__c&gt; droppedLines</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">544</td><td class="code">+    ) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">545</td><td class="code">+        Integer lineCount = droppedLines == null ? 0 : droppedLines.size();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">546</td><td class="code">+        Decimal suppressed = 0;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">547</td><td class="code">+        if (droppedLines != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">548</td><td class="code">+            for (Billback_Line__c bl : droppedLines) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">549</td><td class="code">+                suppressed += bl.Recoverable_Amount__c == null ? 0 : bl.Recoverable_Amount__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">550</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">551</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">552</td><td class="code">+        Logger.getInstance()</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">553</td><td class="code">+            .info(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">554</td><td class="code">+                &#x27;Billback suppressed: cancelled header &#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">555</td><td class="code">+                    header.External_Id__c +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">556</td><td class="code">+                    &#x27; (supplier &#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">557</td><td class="code">+                    header.Account__c +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">558</td><td class="code">+                    &#x27;) dropped &#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">559</td><td class="code">+                    lineCount +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">560</td><td class="code">+                    &#x27; newly-detected recoverable line(s) totaling &#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">561</td><td class="code">+                    suppressed +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">562</td><td class="code">+                    &#x27; — untracked; a new invoice matched a cancelled per-agreement header&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">563</td><td class="code">+                header.Account__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">564</td><td class="code">+            );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">565</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">566</td><td class="code">+</td></tr>
+<tr class="ctx"><td class="ln">465</td><td class="ln">567</td><td class="code">     // ------------------------------------------------------------------ //</td></tr>
+<tr class="ctx"><td class="ln">466</td><td class="ln">568</td><td class="code">     //  Attribution &amp; math                                                 //</td></tr>
+<tr class="ctx"><td class="ln">467</td><td class="ln">569</td><td class="code">     // ------------------------------------------------------------------ //</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -576,14 +678,17 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">576</td><td class="ln">678</td><td class="code">     //  Record builders                                                    //</td></tr>
+<tr class="ctx"><td class="ln">577</td><td class="ln">679</td><td class="code">     // ------------------------------------------------------------------ //</td></tr>
+<tr class="ctx"><td class="ln">578</td><td class="ln">680</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">579</td><td class="ln"></td><td class="code">-    private static Billback__c buildHeader(Invoice_Item__c line, Id supplierId) {</td></tr>
+<tr class="del"><td class="ln">580</td><td class="ln"></td><td class="code">-        // Status__c is intentionally NOT set here — stampStatusOnNewHeaders sets Accrued only on</td></tr>
+<tr class="del"><td class="ln">581</td><td class="ln"></td><td class="code">-        // brand-new headers, so a re-run never reverts an advanced lifecycle status.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">681</td><td class="code">+    private static Billback__c buildHeader(Id supplierId, Id agreementId, String externalId) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">682</td><td class="code">+        // Status__c and Charge_Date__c are intentionally NOT set here — both are stamped only on</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">683</td><td class="code">+        // brand-new headers at finalize time (stampStatusOnNewHeaders + the charge-date pass), so a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">684</td><td class="code">+        // re-run never reverts an advanced lifecycle status nor churns the aging anchor of a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">685</td><td class="code">+        // persistent per-agreement header. Supplier_Funding_Agreement__c is null for the fallback</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">686</td><td class="code">+        // per-supplier header that collects unattributed (account-default / 100%) charges.</td></tr>
+<tr class="ctx"><td class="ln">582</td><td class="ln">687</td><td class="code">         return new Billback__c(</td></tr>
+<tr class="ctx"><td class="ln">583</td><td class="ln">688</td><td class="code">             Account__c = supplierId,</td></tr>
+<tr class="ctx"><td class="ln">584</td><td class="ln">689</td><td class="code">             Type__c = TYPE_BILLBACK,</td></tr>
+<tr class="del"><td class="ln">585</td><td class="ln"></td><td class="code">-            Charge_Date__c = line.Invoice__r != null ? line.Invoice__r.Invoice_Date__c : null,</td></tr>
+<tr class="del"><td class="ln">586</td><td class="ln"></td><td class="code">-            External_Id__c = &#x27;bb:&#x27; + line.Invoice__c + &#x27;:&#x27; + supplierId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">690</td><td class="code">+            Supplier_Funding_Agreement__c = agreementId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">691</td><td class="code">+            External_Id__c = externalId</td></tr>
+<tr class="ctx"><td class="ln">587</td><td class="ln">692</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">588</td><td class="ln">693</td><td class="code">     }</td></tr>
+<tr class="ctx"><td class="ln">589</td><td class="ln">694</td><td class="code"> </td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -603,10 +708,36 @@ public with sharing class S_BillbackCalculation {</td></tr>
+<tr class="ctx"><td class="ln">603</td><td class="ln">708</td><td class="code">                 100)</td></tr>
+<tr class="ctx"><td class="ln">604</td><td class="ln">709</td><td class="code">                 .setScale(2, System.RoundingMode.HALF_UP),</td></tr>
+<tr class="ctx"><td class="ln">605</td><td class="ln">710</td><td class="code">             Supplier_Funding_Agreement__c = agreementId,</td></tr>
+<tr class="del"><td class="ln">606</td><td class="ln"></td><td class="code">-            External_Id__c = &#x27;bbl:&#x27; + line.Id + &#x27;:&#x27; + supplierId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">711</td><td class="code">+            // Agreement is IN the line key (BMS-5843): a line whose resolved agreement changes must</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">712</td><td class="code">+            // move to that agreement&#x27;s header, but Billback_Line__c.Billback__c is a non-reparentable</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">713</td><td class="code">+            // master-detail — so an agreement change makes a NEW line (old one retracted) exactly the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">714</td><td class="code">+            // way a supplier change does, never an illegal reparent.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">715</td><td class="code">+            External_Id__c = buildLineExternalId(&#x27;bbl&#x27;, line.Id, supplierId, agreementId)</td></tr>
+<tr class="ctx"><td class="ln">607</td><td class="ln">716</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">608</td><td class="ln">717</td><td class="code">     }</td></tr>
+<tr class="ctx"><td class="ln">609</td><td class="ln">718</td><td class="code"> </td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">719</td><td class="code">+    /**</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">720</td><td class="code">+     * The deterministic External_Id for a Billback_Line__c: prefix + invoice item + supplier +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">721</td><td class="code">+     * agreement discriminator (the agreement Id, or the &#x27;none&#x27; sentinel for an unattributed line).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">722</td><td class="code">+     * Built in ONE place so the bbl: (coverage-split) and bbmw: (floor make-whole) keys can never</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">723</td><td class="code">+     * drift — a one-sided format change would silently break the &quot;bbl: and bbmw: share a header only</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">724</td><td class="code">+     * when they resolve to the same agreement&quot; invariant.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">725</td><td class="code">+     */</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">726</td><td class="code">+    private static String buildLineExternalId(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">727</td><td class="code">+        String prefix,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">728</td><td class="code">+        Id lineId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">729</td><td class="code">+        Id supplierId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">730</td><td class="code">+        Id agreementId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">731</td><td class="code">+    ) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">732</td><td class="code">+        return prefix +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">733</td><td class="code">+            &#x27;:&#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">734</td><td class="code">+            lineId +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">735</td><td class="code">+            &#x27;:&#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">736</td><td class="code">+            supplierId +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">737</td><td class="code">+            &#x27;:&#x27; +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">738</td><td class="code">+            (agreementId != null ? String.valueOf(agreementId) : &#x27;none&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">739</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">740</td><td class="code">+</td></tr>
+<tr class="ctx"><td class="ln">610</td><td class="ln">741</td><td class="code">     /**</td></tr>
+<tr class="ctx"><td class="ln">611</td><td class="ln">742</td><td class="code">      * Delete existing Billback_Line__c on the processed invoices whose External_Id we did NOT</td></tr>
+<tr class="ctx"><td class="ln">612</td><td class="ln">743</td><td class="code">      * regenerate this run — the line no longer qualifies (discount/coverage) or its supplier changed.</td></tr>
+</tbody></table></div>
+</details><details open id="diff-ohfy-oms-force-app-main-default-classes-services-billback-s-supplierreceivables-cls" class="difffile">
+<summary><span class="fpath">OHFY-OMS/force-app/main/default/classes/services/billback/S_SupplierReceivables.cls</span><span class="fstat"><span class="badd">+26</span> <span class="bdel">-3</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -431,7 +431,8 @@ public with sharing class S_SupplierReceivables {</td></tr>
+<tr class="ctx"><td class="ln">431</td><td class="ln">431</td><td class="code">                         &#x27;Recoverable_Amount__c&#x27;,</td></tr>
+<tr class="ctx"><td class="ln">432</td><td class="ln">432</td><td class="code">                         &#x27;Billback__r.Account__c&#x27;,</td></tr>
+<tr class="ctx"><td class="ln">433</td><td class="ln">433</td><td class="code">                         &#x27;Billback__r.Account__r.Name&#x27;,</td></tr>
+<tr class="del"><td class="ln">434</td><td class="ln"></td><td class="code">-                        &#x27;Billback__r.Charge_Date__c&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">434</td><td class="code">+                        &#x27;Billback__r.Charge_Date__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">435</td><td class="code">+                        &#x27;Invoice_Item__r.Invoice__r.Invoice_Date__c&#x27;</td></tr>
+<tr class="ctx"><td class="ln">435</td><td class="ln">436</td><td class="code">                     },</td></tr>
+<tr class="ctx"><td class="ln">436</td><td class="ln">437</td><td class="code">                     &#x27;Billback_Line__c&#x27;</td></tr>
+<tr class="ctx"><td class="ln">437</td><td class="ln">438</td><td class="code">                 )</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -460,8 +461,12 @@ public with sharing class S_SupplierReceivables {</td></tr>
+<tr class="ctx"><td class="ln">460</td><td class="ln">461</td><td class="code">             if (amount &lt;= 0) {</td></tr>
+<tr class="ctx"><td class="ln">461</td><td class="ln">462</td><td class="code">                 continue;</td></tr>
+<tr class="ctx"><td class="ln">462</td><td class="ln">463</td><td class="code">             }</td></tr>
+<tr class="del"><td class="ln">463</td><td class="ln"></td><td class="code">-            Date chargeDate = (Date) header.get(&#x27;Charge_Date__c&#x27;);</td></tr>
+<tr class="del"><td class="ln">464</td><td class="ln"></td><td class="code">-            Integer days = chargeDate == null ? 0 : Math.max(0, chargeDate.daysBetween(today));</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">464</td><td class="code">+            // Age each line off ITS OWN charge date (the line&#x27;s invoice date), not the header&#x27;s</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">465</td><td class="code">+            // frozen anchor: a per-agreement header persists across invoices of different dates</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">466</td><td class="code">+            // (BMS-5843), so a later charge must age from when IT accrued — falling back to the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">467</td><td class="code">+            // header Charge_Date only for non-invoice lines (rebate accrual / manual charge).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">468</td><td class="code">+            Date lineDate = lineChargeDate(so, header);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">469</td><td class="code">+            Integer days = lineDate == null ? 0 : Math.max(0, lineDate.daysBetween(today));</td></tr>
+<tr class="ctx"><td class="ln">465</td><td class="ln">470</td><td class="code">             SupplierAgingDTO dto = agingFor(bySupplier, supplierId, supplierName);</td></tr>
+<tr class="ctx"><td class="ln">466</td><td class="ln">471</td><td class="code">             addToBucket(dto, days, amount);</td></tr>
+<tr class="ctx"><td class="ln">467</td><td class="ln">472</td><td class="code">             dto.accruedBalance += amount;</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -480,6 +485,24 @@ public with sharing class S_SupplierReceivables {</td></tr>
+<tr class="ctx"><td class="ln">480</td><td class="ln">485</td><td class="code">         return result;</td></tr>
+<tr class="ctx"><td class="ln">481</td><td class="ln">486</td><td class="code">     }</td></tr>
+<tr class="ctx"><td class="ln">482</td><td class="ln">487</td><td class="code"> </td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">488</td><td class="code">+    /**</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">489</td><td class="code">+     * A billback line&#x27;s effective charge date for aging: the invoice date of its invoice item when</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">490</td><td class="code">+     * the line came from an invoice, else the header&#x27;s Charge_Date (rebate accrual / manual charge /</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">491</td><td class="code">+     * inventory-adjustment lines that carry no invoice item). BMS-5843 — per-line accuracy now that a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">492</td><td class="code">+     * per-agreement header persists across invoices of different dates.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">493</td><td class="code">+     */</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">494</td><td class="code">+    private static Date lineChargeDate(SObject line, SObject header) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">495</td><td class="code">+        SObject invItem = line.getSObject(&#x27;Invoice_Item__r&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">496</td><td class="code">+        if (invItem != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">497</td><td class="code">+            SObject inv = invItem.getSObject(&#x27;Invoice__r&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">498</td><td class="code">+            Date invDate = inv != null ? (Date) inv.get(&#x27;Invoice_Date__c&#x27;) : null;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">499</td><td class="code">+            if (invDate != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">500</td><td class="code">+                return invDate;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">501</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">502</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">503</td><td class="code">+        return (Date) header.get(&#x27;Charge_Date__c&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">504</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">505</td><td class="code">+</td></tr>
+<tr class="ctx"><td class="ln">483</td><td class="ln">506</td><td class="code">     /** Same bucket scheme as the ledger&#x27;s per-entry chips (SupplierProgramController.getLedger). */</td></tr>
+<tr class="ctx"><td class="ln">484</td><td class="ln">507</td><td class="code">     public static String agingBucket(Integer days) {</td></tr>
+<tr class="ctx"><td class="ln">485</td><td class="ln">508</td><td class="code">         if (days == null) {</td></tr>
+</tbody></table></div>
+</details><details  id="diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-billbackcalculation-t-cls" class="difffile">
+<summary><span class="fpath">OHFY-OMS/force-app/main/default/classes/services/billback/tests/S_BillbackCalculation_T.cls</span><span class="fstat"><span class="badd">+283</span> <span class="bdel">-0</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -1458,4 +1458,287 @@ private class S_BillbackCalculation_T {</td></tr>
+<tr class="ctx"><td class="ln">1458</td><td class="ln">1458</td><td class="code">             &#x27;the unscoped coverage agreement wins as the fallback attribution for an NC customer&#x27;</td></tr>
+<tr class="ctx"><td class="ln">1459</td><td class="ln">1459</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">1460</td><td class="ln">1460</td><td class="code">     }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1461</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1462</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1463</td><td class="code">+    //  One-per-agreement header keying (BMS-5843)                          //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1464</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1465</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1466</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1467</td><td class="code">+    static void supplierWithTwoAgreementsGetsTwoIsolatedBillbacks() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1468</td><td class="code">+        // BMS-5843 AC: a single supplier with two active funding agreements (two brands) gets TWO</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1469</td><td class="code">+        // separate Billback__c headers — one per agreement — never a shared per-supplier header.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1470</td><td class="code">+        Account supplier = makeSupplier(&#x27;BB Multi-Agr Supplier&#x27;, null);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1471</td><td class="code">+        Account customer = makeCustomer();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1472</td><td class="code">+        Item__c itemX = makeItem(supplier.Id, &#x27;AgrX&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1473</td><td class="code">+        Item__c itemY = makeItem(supplier.Id, &#x27;AgrY&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1474</td><td class="code">+        Id brandX = [SELECT Item_Line__c FROM Item__c WHERE Id = :itemX.Id].Item_Line__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1475</td><td class="code">+        Id brandY = [SELECT Item_Line__c FROM Item__c WHERE Id = :itemY.Id].Item_Line__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1476</td><td class="code">+        Supplier_Funding_Agreement__c agrX = new Supplier_Funding_Agreement__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1477</td><td class="code">+            Supplier__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1478</td><td class="code">+            Brand__c = brandX,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1479</td><td class="code">+            Coverage_Default__c = 50,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1480</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1481</td><td class="code">+            Start_Date__c = TODAY.addDays(-10)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1482</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1483</td><td class="code">+        Supplier_Funding_Agreement__c agrY = new Supplier_Funding_Agreement__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1484</td><td class="code">+            Supplier__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1485</td><td class="code">+            Brand__c = brandY,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1486</td><td class="code">+            Coverage_Default__c = 75,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1487</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1488</td><td class="code">+            Start_Date__c = TODAY.addDays(-10)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1489</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1490</td><td class="code">+        insert new List&lt;Supplier_Funding_Agreement__c&gt;{ agrX, agrY };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1491</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1492</td><td class="code">+        bypassInvoiceTriggers(true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1493</td><td class="code">+        Invoice__c inv = new Invoice__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1494</td><td class="code">+            Customer__c = customer.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1495</td><td class="code">+            Invoice_Date__c = TODAY,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1496</td><td class="code">+            Status__c = &#x27;Delivered&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1497</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1498</td><td class="code">+        insert inv;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1499</td><td class="code">+        insert new List&lt;Invoice_Item__c&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1500</td><td class="code">+            new Invoice_Item__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1501</td><td class="code">+                Invoice__c = inv.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1502</td><td class="code">+                Item__c = itemX.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1503</td><td class="code">+                Case_Price__c = BASE_PRICE,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1504</td><td class="code">+                Total_Discount_Percent__c = 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1505</td><td class="code">+                Promotion_Discount_Per_Case__c = 2.50, // gross $2.50 x 40 = $100</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1506</td><td class="code">+                Ordered_Case_Quantity__c = 40,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1507</td><td class="code">+                Invoiced_Case_Quantity__c = 40,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1508</td><td class="code">+                Case_Quantity__c = 24</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1509</td><td class="code">+            ),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1510</td><td class="code">+            new Invoice_Item__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1511</td><td class="code">+                Invoice__c = inv.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1512</td><td class="code">+                Item__c = itemY.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1513</td><td class="code">+                Case_Price__c = BASE_PRICE,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1514</td><td class="code">+                Total_Discount_Percent__c = 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1515</td><td class="code">+                Promotion_Discount_Per_Case__c = 2.50, // gross $2.50 x 20 = $50</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1516</td><td class="code">+                Ordered_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1517</td><td class="code">+                Invoiced_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1518</td><td class="code">+                Case_Quantity__c = 24</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1519</td><td class="code">+            )</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1520</td><td class="code">+        };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1521</td><td class="code">+        bypassInvoiceTriggers(false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1522</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1523</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1524</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1525</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1526</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1527</td><td class="code">+        List&lt;Billback__c&gt; bbs = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1528</td><td class="code">+            SELECT Id, Account__c, Supplier_Funding_Agreement__c, Total_Recoverable_Amount__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1529</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1530</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1531</td><td class="code">+        Assert.areEqual(2, bbs.size(), &#x27;two agreements -&gt; two separate billback headers&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1532</td><td class="code">+        Map&lt;Id, Billback__c&gt; byAgreement = new Map&lt;Id, Billback__c&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1533</td><td class="code">+        for (Billback__c bb : bbs) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1534</td><td class="code">+            Assert.areEqual(supplier.Id, bb.Account__c, &#x27;both headers billed to the same supplier&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1535</td><td class="code">+            Assert.isNotNull(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1536</td><td class="code">+                bb.Supplier_Funding_Agreement__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1537</td><td class="code">+                &#x27;each header stamped with its agreement (per-agreement isolation)&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1538</td><td class="code">+            );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1539</td><td class="code">+            byAgreement.put(bb.Supplier_Funding_Agreement__c, bb);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1540</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1541</td><td class="code">+        Assert.areEqual(2, byAgreement.size(), &#x27;headers keyed to distinct agreements&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1542</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1543</td><td class="code">+            50.00,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1544</td><td class="code">+            byAgreement.get(agrX.Id).Total_Recoverable_Amount__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1545</td><td class="code">+            &#x27;agrX header: $100 gross x 50% = $50&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1546</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1547</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1548</td><td class="code">+            37.50,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1549</td><td class="code">+            byAgreement.get(agrY.Id).Total_Recoverable_Amount__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1550</td><td class="code">+            &#x27;agrY header: $50 gross x 75% = $37.50&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1551</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1552</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1553</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1554</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1555</td><td class="code">+    static void agreementAddedLaterRehomesLineWithoutReparentFailure() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1556</td><td class="code">+        // BMS-5843: the agreement is part of the line&#x27;s External_Id and Billback_Line__c.Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1557</td><td class="code">+        // is a NON-reparentable master-detail. When Gulf configures the funding agreement AFTER the</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1558</td><td class="code">+        // billback first accrued, the recompute must re-home the line onto the agreement&#x27;s header by</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1559</td><td class="code">+        // retracting the old (unattributed) line and creating a new one — never an illegal reparent.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1560</td><td class="code">+        Account supplier = makeSupplier(&#x27;BB Rehome Supplier&#x27;, null);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1561</td><td class="code">+        Account customer = makeCustomer();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1562</td><td class="code">+        Item__c item = makeItem(supplier.Id, &#x27;Rehome&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1563</td><td class="code">+        Invoice__c inv = deliveredInvoice(customer.Id, item.Id, 10, 50); // gross $125</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1564</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1565</td><td class="code">+        // First run: no agreement -&gt; unattributed line on a per-supplier fallback header.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1566</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1567</td><td class="code">+        List&lt;Billback_Line__c&gt; firstRun = billbackLines();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1568</td><td class="code">+        Assert.areEqual(1, firstRun.size(), &#x27;one line initially&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1569</td><td class="code">+        Assert.isNull(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1570</td><td class="code">+            firstRun[0].Supplier_Funding_Agreement__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1571</td><td class="code">+            &#x27;no agreement yet -&gt; unattributed line&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1572</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1573</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1574</td><td class="code">+        // Gulf configures a supplier-wide agreement covering this item at 100%.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1575</td><td class="code">+        Supplier_Funding_Agreement__c agr = new Supplier_Funding_Agreement__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1576</td><td class="code">+            Supplier__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1577</td><td class="code">+            Coverage_Default__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1578</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1579</td><td class="code">+            Start_Date__c = TODAY.addDays(-10)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1580</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1581</td><td class="code">+        insert agr;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1582</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1583</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1584</td><td class="code">+        // Must not throw a non-reparentable master-detail DmlException.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1585</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1586</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1587</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1588</td><td class="code">+        List&lt;Billback_Line__c&gt; afterRun = billbackLines();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1589</td><td class="code">+        Assert.areEqual(1, afterRun.size(), &#x27;still exactly one live line after re-homing&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1590</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1591</td><td class="code">+            agr.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1592</td><td class="code">+            afterRun[0].Supplier_Funding_Agreement__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1593</td><td class="code">+            &#x27;the line is re-homed onto the agreement it now resolves to&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1594</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1595</td><td class="code">+        Map&lt;Id, Decimal&gt; owedByAgreement = new Map&lt;Id, Decimal&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1596</td><td class="code">+        for (Billback__c bb : [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1597</td><td class="code">+            SELECT Supplier_Funding_Agreement__c, Total_Recoverable_Amount__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1598</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1599</td><td class="code">+        ]) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1600</td><td class="code">+            owedByAgreement.put(bb.Supplier_Funding_Agreement__c, bb.Total_Recoverable_Amount__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1601</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1602</td><td class="code">+        Assert.areEqual(125.00, owedByAgreement.get(agr.Id), &#x27;agreement header holds the $125&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1603</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1604</td><td class="code">+            0,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1605</td><td class="code">+            owedByAgreement.get(null),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1606</td><td class="code">+            &#x27;the unattributed fallback header deflated to 0&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1607</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1608</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1609</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1610</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1611</td><td class="code">+    static void persistentAgreementHeaderFreezesChargeDateAtEarliestInvoice() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1612</td><td class="code">+        // BMS-5843: a per-agreement header persists across invoices. Its Charge_Date (the aging</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1613</td><td class="code">+        // anchor) is stamped once, on creation, and is NOT re-stamped when a later-dated invoice for</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1614</td><td class="code">+        // the same agreement accrues onto the same header — so the anchor stays at the earliest charge.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1615</td><td class="code">+        Account supplier = makeSupplier(&#x27;BB Anchor Supplier&#x27;, null);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1616</td><td class="code">+        Account customer = makeCustomer();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1617</td><td class="code">+        Item__c item = makeItem(supplier.Id, &#x27;Anchor&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1618</td><td class="code">+        Supplier_Funding_Agreement__c agr = new Supplier_Funding_Agreement__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1619</td><td class="code">+            Supplier__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1620</td><td class="code">+            Coverage_Default__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1621</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1622</td><td class="code">+            Start_Date__c = TODAY.addDays(-60)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1623</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1624</td><td class="code">+        insert agr;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1625</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1626</td><td class="code">+        Date earlier = TODAY.addDays(-30);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1627</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1628</td><td class="code">+        bypassInvoiceTriggers(true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1629</td><td class="code">+        Invoice__c inv1 = new Invoice__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1630</td><td class="code">+            Customer__c = customer.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1631</td><td class="code">+            Invoice_Date__c = earlier,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1632</td><td class="code">+            Status__c = &#x27;Delivered&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1633</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1634</td><td class="code">+        Invoice__c inv2 = new Invoice__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1635</td><td class="code">+            Customer__c = customer.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1636</td><td class="code">+            Invoice_Date__c = TODAY,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1637</td><td class="code">+            Status__c = &#x27;Delivered&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1638</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1639</td><td class="code">+        insert new List&lt;Invoice__c&gt;{ inv1, inv2 };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1640</td><td class="code">+        insert new List&lt;Invoice_Item__c&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1641</td><td class="code">+            new Invoice_Item__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1642</td><td class="code">+                Invoice__c = inv1.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1643</td><td class="code">+                Item__c = item.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1644</td><td class="code">+                Case_Price__c = BASE_PRICE,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1645</td><td class="code">+                Total_Discount_Percent__c = 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1646</td><td class="code">+                Promotion_Discount_Per_Case__c = 2.50, // gross $2.50 x 20 = $50</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1647</td><td class="code">+                Ordered_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1648</td><td class="code">+                Invoiced_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1649</td><td class="code">+                Case_Quantity__c = 24</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1650</td><td class="code">+            ),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1651</td><td class="code">+            new Invoice_Item__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1652</td><td class="code">+                Invoice__c = inv2.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1653</td><td class="code">+                Item__c = item.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1654</td><td class="code">+                Case_Price__c = BASE_PRICE,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1655</td><td class="code">+                Total_Discount_Percent__c = 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1656</td><td class="code">+                Promotion_Discount_Per_Case__c = 2.50, // gross $2.50 x 20 = $50</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1657</td><td class="code">+                Ordered_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1658</td><td class="code">+                Invoiced_Case_Quantity__c = 20,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1659</td><td class="code">+                Case_Quantity__c = 24</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1660</td><td class="code">+            )</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1661</td><td class="code">+        };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1662</td><td class="code">+        bypassInvoiceTriggers(false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1663</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1664</td><td class="code">+        // First invoice creates the agreement header, anchoring Charge_Date to the earlier date.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1665</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv1.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1666</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1667</td><td class="code">+            earlier,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1668</td><td class="code">+            billbacks()[0].Charge_Date__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1669</td><td class="code">+            &#x27;anchor = the first (earlier) invoice date&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1670</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1671</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1672</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1673</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv2.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1674</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1675</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1676</td><td class="code">+        List&lt;Billback__c&gt; after = billbacks();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1677</td><td class="code">+        Assert.areEqual(1, after.size(), &#x27;still one persistent per-agreement header&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1678</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1679</td><td class="code">+            earlier,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1680</td><td class="code">+            after[0].Charge_Date__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1681</td><td class="code">+            &#x27;Charge_Date frozen at the earliest charge — not re-stamped to the later invoice&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1682</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1683</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1684</td><td class="code">+            2,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1685</td><td class="code">+            billbackLines().size(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1686</td><td class="code">+            &#x27;both invoices accrued lines onto the one header&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1687</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1688</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1689</td><td class="code">+            100.00,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1690</td><td class="code">+            after[0].Total_Recoverable_Amount__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1691</td><td class="code">+            &#x27;header accumulates across invoices ($50 + $50)&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1692</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1693</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1694</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1695</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1696</td><td class="code">+    static void cancelledHeaderSuppressesLaterInvoiceWithoutDuplicatingOrCrashing() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1697</td><td class="code">+        // BMS-5843 review (cancelled-header blackhole): under the persistent per-agreement key, a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1698</td><td class="code">+        // NEW invoice that maps to an already-Cancelled header must not spawn a duplicate header or</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1699</td><td class="code">+        // persist onto the frozen one — its recoverable is dropped (and audited via Logger) rather</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1700</td><td class="code">+        // than silently double-tracked. Distinct from cancelledHeaderSurvivesRegenerationSweep,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1701</td><td class="code">+        // which only re-runs the SAME invoice.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1702</td><td class="code">+        Account supplier = makeSupplier(&#x27;BB Cancel Blackhole&#x27;, null);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1703</td><td class="code">+        Account customer = makeCustomer();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1704</td><td class="code">+        Item__c item = makeItem(supplier.Id, &#x27;CancelBH&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1705</td><td class="code">+        Supplier_Funding_Agreement__c agr = new Supplier_Funding_Agreement__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1706</td><td class="code">+            Supplier__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1707</td><td class="code">+            Coverage_Default__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1708</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1709</td><td class="code">+            Start_Date__c = TODAY.addDays(-10)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1710</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1711</td><td class="code">+        insert agr;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1712</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1713</td><td class="code">+        // First invoice creates the per-agreement header; then cancel it.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1714</td><td class="code">+        Invoice__c inv1 = deliveredInvoice(customer.Id, item.Id, 10, 50);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1715</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv1.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1716</td><td class="code">+        List&lt;Billback__c&gt; afterFirst = billbacks();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1717</td><td class="code">+        Assert.areEqual(1, afterFirst.size(), &#x27;one per-agreement header from the first invoice&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1718</td><td class="code">+        update new Billback__c(Id = afterFirst[0].Id, Status__c = &#x27;Cancelled&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1719</td><td class="code">+        Integer linesBeforeSecondRun = billbackLines().size();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1720</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1721</td><td class="code">+        // A brand-new invoice for the same supplier/item/agreement → same cancelled header key.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1722</td><td class="code">+        Invoice__c inv2 = deliveredInvoice(customer.Id, item.Id, 10, 30);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1723</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1724</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1725</td><td class="code">+        S_BillbackCalculation.generateForInvoices(new Set&lt;Id&gt;{ inv2.Id });</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1726</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1727</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1728</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1729</td><td class="code">+            1,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1730</td><td class="code">+            billbacks().size(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1731</td><td class="code">+            &#x27;no duplicate header created for the cancelled per-agreement key&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1732</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1733</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1734</td><td class="code">+            &#x27;Cancelled&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1735</td><td class="code">+            billbacks()[0].Status__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1736</td><td class="code">+            &#x27;the header stays Cancelled — the later invoice does not re-open it&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1737</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1738</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1739</td><td class="code">+            linesBeforeSecondRun,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1740</td><td class="code">+            billbackLines().size(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1741</td><td class="code">+            &#x27;the later invoice line is not persisted onto the cancelled header&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1742</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">1743</td><td class="code">+    }</td></tr>
+<tr class="ctx"><td class="ln">1461</td><td class="ln">1744</td><td class="code"> }</td></tr>
+</tbody></table></div>
+</details><details open id="diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-billbacksettlement-t-cls" class="difffile">
+<summary><span class="fpath">OHFY-OMS/force-app/main/default/classes/services/billback/tests/S_BillbackSettlement_T.cls</span><span class="fstat"><span class="badd">+42</span> <span class="bdel">-0</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -810,4 +810,46 @@ private class S_BillbackSettlement_T {</td></tr>
+<tr class="ctx"><td class="ln">810</td><td class="ln">810</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">811</td><td class="ln">811</td><td class="code">         Assert.areEqual(qEnd, invs[0].Invoice_Date__c, &#x27;Invoice_Date__c = quarter end&#x27;);</td></tr>
+<tr class="ctx"><td class="ln">812</td><td class="ln">812</td><td class="code">     }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">813</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">814</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">815</td><td class="code">+    //  One invoice per supplier, summing across agreements (BMS-5843)      //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">816</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">817</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">818</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">819</td><td class="code">+    static void twoAgreementsBlankCadence_consolidateIntoOneSupplierInvoice() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">820</td><td class="code">+        // BMS-5843 AC: end-of-month finalization produces ONE invoice per supplier, summing across</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">821</td><td class="code">+        // the supplier&#x27;s (now multiple) per-agreement headers. Two agreements with no explicit</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">822</td><td class="code">+        // settlement cadence both fall into the supplier bucket -&gt; a single consolidated invoice.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">823</td><td class="code">+        Account supplier = makeSupplier(&#x27;Settle Supplier MultiAgr&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">824</td><td class="code">+        Supplier_Funding_Agreement__c agrA = makeAgreement(supplier.Id, null); // blank cadence</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">825</td><td class="code">+        Supplier_Funding_Agreement__c agrB = makeAgreement(supplier.Id, null); // blank cadence</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">826</td><td class="code">+        makeBillbackWithLines(supplier.Id, 40.00, 10.00, agrA.Id); // agreement A header -&gt; $50</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">827</td><td class="code">+        makeBillbackWithLines(supplier.Id, 30.00, 20.00, agrB.Id); // agreement B header -&gt; $50</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">828</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">829</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">830</td><td class="code">+        S_BillbackSettlement.settleForSuppliers(new Set&lt;Id&gt;{ supplier.Id }, TODAY);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">831</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">832</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">833</td><td class="code">+        List&lt;Invoice__c&gt; invs = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">834</td><td class="code">+            SELECT Id, External_ID__c, Billback_Total__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">835</td><td class="code">+            FROM Invoice__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">836</td><td class="code">+            WHERE Customer__c = :supplier.Id AND Is_Billback_Invoice__c = TRUE</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">837</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">838</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">839</td><td class="code">+            1,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">840</td><td class="code">+            invs.size(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">841</td><td class="code">+            &#x27;two per-agreement headers (blank cadence) consolidate into ONE supplier invoice&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">842</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">843</td><td class="code">+        Date pStart = S_BillbackSettlement.periodStart(&#x27;Monthly&#x27;, TODAY);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">844</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">845</td><td class="code">+            &#x27;bbsi:&#x27; + supplier.Id + &#x27;:&#x27; + String.valueOf(pStart),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">846</td><td class="code">+            invs[0].External_ID__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">847</td><td class="code">+            &#x27;consolidated invoice keyed to the supplier bucket, not per agreement&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">848</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">849</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">850</td><td class="code">+            100.00,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">851</td><td class="code">+            invs[0].Billback_Total__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">852</td><td class="code">+            &#x27;Billback_Total__c sums across both agreements ($50 + $50)&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">853</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">854</td><td class="code">+    }</td></tr>
+<tr class="ctx"><td class="ln">813</td><td class="ln">855</td><td class="code"> }</td></tr>
+</tbody></table></div>
+</details><details  id="diff-ohfy-oms-force-app-main-default-classes-services-billback-tests-s-supplierreceivables-t-cls" class="difffile">
+<summary><span class="fpath">OHFY-OMS/force-app/main/default/classes/services/billback/tests/S_SupplierReceivables_T.cls</span><span class="fstat"><span class="badd">+104</span> <span class="bdel">-0</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -444,4 +444,108 @@ private class S_SupplierReceivables_T {</td></tr>
+<tr class="ctx"><td class="ln">444</td><td class="ln">444</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">445</td><td class="ln">445</td><td class="code">         SupplierProgramController.throwForTest = false;</td></tr>
+<tr class="ctx"><td class="ln">446</td><td class="ln">446</td><td class="code">     }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">447</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">448</td><td class="code">+    /** A delivered invoice + one line (with a real Item), returns the Invoice_Item Id. */</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">449</td><td class="code">+    private static Id makeInvoiceItem(Id supplierId, Date invoiceDate) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">450</td><td class="code">+        Item_Line__c itemLine = (Item_Line__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">451</td><td class="code">+            &#x27;ohfy__Item_Line__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">452</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">453</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;Aging Line &#x27; + String.valueOf(Math.random()),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">454</td><td class="code">+                &#x27;ohfy__Supplier__c&#x27; =&gt; supplierId</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">455</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">456</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">457</td><td class="code">+        Item_Type__c itemType = (Item_Type__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">458</td><td class="code">+            &#x27;ohfy__Item_Type__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">459</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">460</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;Aging Type &#x27; + String.valueOf(Math.random()),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">461</td><td class="code">+                &#x27;ohfy__Item_Line__c&#x27; =&gt; itemLine.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">462</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">463</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">464</td><td class="code">+        Item__c product = (Item__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">465</td><td class="code">+            &#x27;ohfy__Item__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">466</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">467</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;Aging Item &#x27; + String.valueOf(Math.random()),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">468</td><td class="code">+                &#x27;ohfy__Item_Line__c&#x27; =&gt; itemLine.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">469</td><td class="code">+                &#x27;ohfy__Item_Type__c&#x27; =&gt; itemType.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">470</td><td class="code">+                &#x27;ohfy__Type__c&#x27; =&gt; &#x27;Finished Good&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">471</td><td class="code">+                &#x27;ohfy__Case_Quantity__c&#x27; =&gt; 24,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">472</td><td class="code">+                &#x27;ohfy__UOM__c&#x27; =&gt; &#x27;US Volume&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">473</td><td class="code">+                &#x27;ohfy__Packaging_Type__c&#x27; =&gt; &#x27;1/2 Barrel(s)&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">474</td><td class="code">+                &#x27;ohfy__Default_Case_Price__c&#x27; =&gt; 25,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">475</td><td class="code">+                &#x27;ohfy__Is_Lot_Tracked__c&#x27; =&gt; false</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">476</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">477</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">478</td><td class="code">+        TestService.setTriggerMethodBypass(&#x27;ohfy__Invoice__c&#x27;, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">479</td><td class="code">+        TestService.setTriggerMethodBypass(&#x27;ohfy__Invoice_Item__c&#x27;, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">480</td><td class="code">+        Invoice__c inv = new Invoice__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">481</td><td class="code">+            Customer__c = supplierId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">482</td><td class="code">+            Invoice_Date__c = invoiceDate,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">483</td><td class="code">+            Status__c = &#x27;Delivered&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">484</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">485</td><td class="code">+        insert inv;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">486</td><td class="code">+        Invoice_Item__c item = new Invoice_Item__c(Invoice__c = inv.Id, Item__c = product.Id);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">487</td><td class="code">+        insert item;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">488</td><td class="code">+        TestService.setTriggerMethodBypass(&#x27;ohfy__Invoice__c&#x27;, false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">489</td><td class="code">+        TestService.setTriggerMethodBypass(&#x27;ohfy__Invoice_Item__c&#x27;, false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">490</td><td class="code">+        return item.Id;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">491</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">492</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">493</td><td class="code">+    @isTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">494</td><td class="code">+    static void accruedLineAgesByItsOwnInvoiceDateNotFrozenHeaderAnchor() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">495</td><td class="code">+        // BMS-5843: a persistent per-agreement header carries lines from invoices of different dates.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">496</td><td class="code">+        // Each accrued line must age off ITS OWN invoice date, not the header&#x27;s frozen (earliest)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">497</td><td class="code">+        // Charge_Date — so a recent charge on an old header lands in 0-30, not 90+.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">498</td><td class="code">+        Account supplier = makeSupplier(&#x27;Aging Per-Line Supplier&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">499</td><td class="code">+        Billback__c header = new Billback__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">500</td><td class="code">+            Account__c = supplier.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">501</td><td class="code">+            Type__c = &#x27;Billback&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">502</td><td class="code">+            Status__c = &#x27;Accrued&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">503</td><td class="code">+            Is_Active__c = true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">504</td><td class="code">+            Charge_Date__c = TODAY.addDays(-120), // old anchor</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">505</td><td class="code">+            External_Id__c = &#x27;bbh:perline:&#x27; + supplier.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">506</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">507</td><td class="code">+        insert header;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">508</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">509</td><td class="code">+        Id recentItemId = makeInvoiceItem(supplier.Id, TODAY); // charge accrued today</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">510</td><td class="code">+        Id oldItemId = makeInvoiceItem(supplier.Id, TODAY.addDays(-120)); // charge 120 days old</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">511</td><td class="code">+        insert new List&lt;Billback_Line__c&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">512</td><td class="code">+            new Billback_Line__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">513</td><td class="code">+                Billback__c = header.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">514</td><td class="code">+                Invoice_Item__c = recentItemId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">515</td><td class="code">+                Recoverable_Amount__c = 40,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">516</td><td class="code">+                Coverage_Percent__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">517</td><td class="code">+                External_Id__c = &#x27;bbl:recent:&#x27; + header.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">518</td><td class="code">+            ),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">519</td><td class="code">+            new Billback_Line__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">520</td><td class="code">+                Billback__c = header.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">521</td><td class="code">+                Invoice_Item__c = oldItemId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">522</td><td class="code">+                Recoverable_Amount__c = 60,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">523</td><td class="code">+                Coverage_Percent__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">524</td><td class="code">+                External_Id__c = &#x27;bbl:old:&#x27; + header.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">525</td><td class="code">+            )</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">526</td><td class="code">+        };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">527</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">528</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">529</td><td class="code">+        List&lt;SupplierAgingDTO&gt; aging = S_SupplierReceivables.getSupplierAging();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">530</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">531</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">532</td><td class="code">+        SupplierAgingDTO dto = null;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">533</td><td class="code">+        for (SupplierAgingDTO a : aging) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">534</td><td class="code">+            if (a.supplierId == supplier.Id) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">535</td><td class="code">+                dto = a;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">536</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">537</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">538</td><td class="code">+        Assert.isNotNull(dto, &#x27;supplier present in aging&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">539</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">540</td><td class="code">+            40.00,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">541</td><td class="code">+            dto.bucket0to30,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">542</td><td class="code">+            &#x27;the recent (today) line ages into 0-30 by its own invoice date&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">543</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">544</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">545</td><td class="code">+            60.00,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">546</td><td class="code">+            dto.bucket90plus,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">547</td><td class="code">+            &#x27;the 120-day-old line ages into 90+ by its own invoice date — not lumped with the recent one&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">548</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">549</td><td class="code">+        Assert.areEqual(100.00, dto.accruedBalance, &#x27;both lines counted&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">550</td><td class="code">+    }</td></tr>
+<tr class="ctx"><td class="ln">447</td><td class="ln">551</td><td class="code"> }</td></tr>
+</tbody></table></div>
+</details><details  id="diff-ohfy-rex-force-app-main-default-classes-triggerservices-incentive-incentivetriggerservice-cls" class="difffile">
+<summary><span class="fpath">OHFY-REX/force-app/main/default/classes/triggerServices/incentive/IncentiveTriggerService.cls</span><span class="fstat"><span class="badd">+61</span> <span class="bdel">-44</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -207,39 +207,31 @@ public with sharing class IncentiveTriggerService implements ObjectTriggerServic</td></tr>
+<tr class="ctx"><td class="ln">207</td><td class="ln">207</td><td class="code">             &#x27;Incentive - Update Billbacks&#x27;</td></tr>
+<tr class="ctx"><td class="ln">208</td><td class="ln">208</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">209</td><td class="ln">209</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">210</td><td class="ln"></td><td class="code">-        List&lt;Incentive__c&gt; updatedActiveStatus = new List&lt;Incentive__c&gt;();</td></tr>
+<tr class="del"><td class="ln">211</td><td class="ln"></td><td class="code">-        List&lt;Incentive__c&gt; updatedBillback = new List&lt;Incentive__c&gt;();</td></tr>
+<tr class="del"><td class="ln">212</td><td class="ln"></td><td class="code">-        List&lt;Incentive__c&gt; updatedCompletionAmount = new List&lt;Incentive__c&gt;();</td></tr>
+<tr class="del"><td class="ln">213</td><td class="ln"></td><td class="code">-        Map&lt;Id, Billback__c&gt; billbackMap = new Map&lt;Id, Billback__c&gt;();</td></tr>
+<tr class="ctx"><td class="ln">214</td><td class="ln">210</td><td class="code">         Map&lt;Id, Incentive__c&gt; oldMap = new Map&lt;Id, Incentive__c&gt;(oldIncentives);</td></tr>
+<tr class="del"><td class="ln">215</td><td class="ln"></td><td class="code">-        List&lt;Id&gt; incentiveIds = new List&lt;Id&gt;();</td></tr>
+<tr class="del"><td class="ln">216</td><td class="ln"></td><td class="code">-        List&lt;Id&gt; billbackIds = new List&lt;Id&gt;();</td></tr>
+<tr class="ctx"><td class="ln">217</td><td class="ln">211</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">218</td><td class="ln"></td><td class="code">-        // checking for changes in Has_Billback__c, Completions__c, and Is_Active__c fields</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">212</td><td class="code">+        // The billback headers the changed incentives currently point at. Under the one-per-agreement</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">213</td><td class="code">+        // model (BMS-5843) an incentive&#x27;s Billback__c lookup is its per-agreement header; the volume</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">214</td><td class="code">+        // accrual (Total_Cases__c) lands there — disjoint from the invoice-driven recompute path,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">215</td><td class="code">+        // which owns Total_Recoverable_Amount__c and never sets Incentive__c, so the two never</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">216</td><td class="code">+        // double-count the same figure.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">217</td><td class="code">+        // Query BOTH the current and the prior header per incentive — a relink or unlink must be</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">218</td><td class="code">+        // able to reverse the incentive&#x27;s accrual out of the header it LEFT (BMS-5843: the header now</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">219</td><td class="code">+        // persists indefinitely, so a stale count would otherwise live on it forever).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">220</td><td class="code">+        Set&lt;Id&gt; billbackIds = new Set&lt;Id&gt;();</td></tr>
+<tr class="ctx"><td class="ln">219</td><td class="ln">221</td><td class="code">         for (Incentive__c newInc : newIncentives) {</td></tr>
+<tr class="ctx"><td class="ln">220</td><td class="ln">222</td><td class="code">             Incentive__c oldInc = oldMap.get(newInc.Id);</td></tr>
+<tr class="del"><td class="ln">221</td><td class="ln"></td><td class="code">-</td></tr>
+<tr class="del"><td class="ln">222</td><td class="ln"></td><td class="code">-            if (newInc.Billback__c != oldInc.Billback__c) {</td></tr>
+<tr class="del"><td class="ln">223</td><td class="ln"></td><td class="code">-                updatedBillback.add(newInc);</td></tr>
+<tr class="del"><td class="ln">224</td><td class="ln"></td><td class="code">-                incentiveIds.add(newInc.Id);</td></tr>
+<tr class="del"><td class="ln">225</td><td class="ln"></td><td class="code">-            }</td></tr>
+<tr class="del"><td class="ln">226</td><td class="ln"></td><td class="code">-</td></tr>
+<tr class="del"><td class="ln">227</td><td class="ln"></td><td class="code">-            if (newInc.Completions__c != oldInc.Completions__c) {</td></tr>
+<tr class="del"><td class="ln">228</td><td class="ln"></td><td class="code">-                updatedCompletionAmount.add(newInc);</td></tr>
+<tr class="del"><td class="ln">229</td><td class="ln"></td><td class="code">-                incentiveIds.add(newInc.Id);</td></tr>
+<tr class="del"><td class="ln">230</td><td class="ln"></td><td class="code">-            }</td></tr>
+<tr class="del"><td class="ln">231</td><td class="ln"></td><td class="code">-</td></tr>
+<tr class="del"><td class="ln">232</td><td class="ln"></td><td class="code">-            if (newInc.Is_Active__c != oldInc.Is_Active__c) {</td></tr>
+<tr class="del"><td class="ln">233</td><td class="ln"></td><td class="code">-                updatedActiveStatus.add(newInc);</td></tr>
+<tr class="del"><td class="ln">234</td><td class="ln"></td><td class="code">-                incentiveIds.add(newInc.Id);</td></tr>
+<tr class="del"><td class="ln">235</td><td class="ln"></td><td class="code">-            }</td></tr>
+<tr class="del"><td class="ln">236</td><td class="ln"></td><td class="code">-</td></tr>
+<tr class="ctx"><td class="ln">237</td><td class="ln">223</td><td class="code">             if (newInc.Billback__c != null) {</td></tr>
+<tr class="ctx"><td class="ln">238</td><td class="ln">224</td><td class="code">                 billbackIds.add(newInc.Billback__c);</td></tr>
+<tr class="ctx"><td class="ln">239</td><td class="ln">225</td><td class="code">             }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">226</td><td class="code">+            if (oldInc.Billback__c != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">227</td><td class="code">+                billbackIds.add(oldInc.Billback__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">228</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">229</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">230</td><td class="code">+        if (billbackIds.isEmpty()) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">231</td><td class="code">+            return;</td></tr>
+<tr class="ctx"><td class="ln">240</td><td class="ln">232</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">241</td><td class="ln">233</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">242</td><td class="ln"></td><td class="code">-        Map&lt;Id, Billback__c&gt; billbackIdToBillbackMap = new Map&lt;Id, Billback__c&gt;(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">234</td><td class="code">+        Map&lt;Id, Billback__c&gt; billbackById = new Map&lt;Id, Billback__c&gt;(</td></tr>
+<tr class="ctx"><td class="ln">243</td><td class="ln">235</td><td class="code">             (List&lt;Billback__c&gt;) QueryService.newBuilder(</td></tr>
+<tr class="ctx"><td class="ln">244</td><td class="ln">236</td><td class="code">                     new List&lt;String&gt;{ &#x27;Id&#x27;, &#x27;Is_Active__c&#x27;, &#x27;Total_Cases__c&#x27;, &#x27;Incentive__c&#x27; },</td></tr>
+<tr class="ctx"><td class="ln">245</td><td class="ln">237</td><td class="code">                     &#x27;Billback__c&#x27;</td></tr>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -249,33 +241,58 @@ public with sharing class IncentiveTriggerService implements ObjectTriggerServic</td></tr>
+<tr class="ctx"><td class="ln">249</td><td class="ln">241</td><td class="code">                 .execute(new Map&lt;String, Object&gt;{ &#x27;billbackIds&#x27; =&gt; billbackIds })</td></tr>
+<tr class="ctx"><td class="ln">250</td><td class="ln">242</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">251</td><td class="ln">243</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">252</td><td class="ln"></td><td class="code">-        for (Incentive__c incentive : updatedBillback) {</td></tr>
+<tr class="del"><td class="ln">253</td><td class="ln"></td><td class="code">-            if (incentive.Billback__c != null) {</td></tr>
+<tr class="del"><td class="ln">254</td><td class="ln"></td><td class="code">-                billbackIdToBillbackMap.get(incentive.Billback__c).Incentive__c = incentive.Id;</td></tr>
+<tr class="del"><td class="ln">255</td><td class="ln"></td><td class="code">-                billbackIdToBillbackMap.get(incentive.Billback__c)</td></tr>
+<tr class="del"><td class="ln">256</td><td class="ln"></td><td class="code">-                    .Is_Active__c = incentive.Is_Active__c;</td></tr>
+<tr class="del"><td class="ln">257</td><td class="ln"></td><td class="code">-                billbackIdToBillbackMap.get(incentive.Billback__c)</td></tr>
+<tr class="del"><td class="ln">258</td><td class="ln"></td><td class="code">-                    .Total_Cases__c += incentive.Completions__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">244</td><td class="code">+        // Single pass — each incentive applies AT MOST ONE case accrual to its current header. A save</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">245</td><td class="code">+        // that changes both the Billback link AND Completions in one transaction therefore can never</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">246</td><td class="code">+        // double-count (full completions + the delta accumulating together) — the exact</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">247</td><td class="code">+        // BMS-4140/BMS-4141 regression the ticket&#x27;s &quot;do not augment&quot; callout guards against.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">248</td><td class="code">+        for (Incentive__c newInc : newIncentives) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">249</td><td class="code">+            Incentive__c oldInc = oldMap.get(newInc.Id);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">250</td><td class="code">+            Boolean linkChanged = newInc.Billback__c != oldInc.Billback__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">251</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">252</td><td class="code">+            // Relink/unlink: reverse this incentive&#x27;s contribution out of the header it LEFT so a</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">253</td><td class="code">+            // persistent per-agreement header can&#x27;t carry a stale case count forever.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">254</td><td class="code">+            if (linkChanged &amp;&amp; oldInc.Billback__c != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">255</td><td class="code">+                Billback__c oldHeader = billbackById.get(oldInc.Billback__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">256</td><td class="code">+                if (oldHeader != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">257</td><td class="code">+                    oldHeader.Total_Cases__c =</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">258</td><td class="code">+                        (oldHeader.Total_Cases__c ?? 0) - (oldInc.Completions__c ?? 0);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">259</td><td class="code">+                    if (oldHeader.Incentive__c == newInc.Id) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">260</td><td class="code">+                        oldHeader.Incentive__c = null; // drop the now-stale reverse link</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">261</td><td class="code">+                    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">262</td><td class="code">+                }</td></tr>
+<tr class="ctx"><td class="ln">259</td><td class="ln">263</td><td class="code">             }</td></tr>
+<tr class="del"><td class="ln">260</td><td class="ln"></td><td class="code">-        }</td></tr>
+<tr class="ctx"><td class="ln">261</td><td class="ln">264</td><td class="code"> </td></tr>
+<tr class="del"><td class="ln">262</td><td class="ln"></td><td class="code">-        for (Incentive__c incentive : updatedActiveStatus) {</td></tr>
+<tr class="del"><td class="ln">263</td><td class="ln"></td><td class="code">-            Billback__c relatedBillback = billbackIdToBillbackMap.get(incentive.Billback__c);</td></tr>
+<tr class="del"><td class="ln">264</td><td class="ln"></td><td class="code">-            if (relatedBillback != null) {</td></tr>
+<tr class="del"><td class="ln">265</td><td class="ln"></td><td class="code">-                relatedBillback.Is_Active__c = incentive.Is_Active__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">265</td><td class="code">+            if (newInc.Billback__c == null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">266</td><td class="code">+                continue; // unlinked — nothing to accrue onto a current header</td></tr>
+<tr class="ctx"><td class="ln">266</td><td class="ln">267</td><td class="code">             }</td></tr>
+<tr class="del"><td class="ln">267</td><td class="ln"></td><td class="code">-        }</td></tr>
+<tr class="del"><td class="ln">268</td><td class="ln"></td><td class="code">-</td></tr>
+<tr class="del"><td class="ln">269</td><td class="ln"></td><td class="code">-        for (Incentive__c incentive : updatedCompletionAmount) {</td></tr>
+<tr class="del"><td class="ln">270</td><td class="ln"></td><td class="code">-            Billback__c relatedBillback = billbackIdToBillbackMap.get(incentive.Billback__c);</td></tr>
+<tr class="del"><td class="ln">271</td><td class="ln"></td><td class="code">-            if (relatedBillback != null) {</td></tr>
+<tr class="del"><td class="ln">272</td><td class="ln"></td><td class="code">-                relatedBillback.Total_Cases__c +=</td></tr>
+<tr class="del"><td class="ln">273</td><td class="ln"></td><td class="code">-                    incentive.Completions__c - oldMap.get(incentive.Id).Completions__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">268</td><td class="code">+            Billback__c billback = billbackById.get(newInc.Billback__c);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">269</td><td class="code">+            if (billback == null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">270</td><td class="code">+                // Linked header not found (deleted / SetNull) — skip rather than NPE.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">271</td><td class="code">+                continue;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">272</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">273</td><td class="code">+            Boolean completionsChanged = newInc.Completions__c != oldInc.Completions__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">274</td><td class="code">+            Boolean activeChanged = newInc.Is_Active__c != oldInc.Is_Active__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">275</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">276</td><td class="code">+            if (linkChanged) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">277</td><td class="code">+                // Newly associated to this per-agreement header: adopt the incentive&#x27;s identity and</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">278</td><td class="code">+                // active flag, and seed the accrual with the incentive&#x27;s full completions (once).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">279</td><td class="code">+                billback.Incentive__c = newInc.Id;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">280</td><td class="code">+                billback.Is_Active__c = newInc.Is_Active__c;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">281</td><td class="code">+                billback.Total_Cases__c =</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">282</td><td class="code">+                    (billback.Total_Cases__c ?? 0) + (newInc.Completions__c ?? 0);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">283</td><td class="code">+            } else if (completionsChanged) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">284</td><td class="code">+                // Same header, completions moved: accrue ONLY the delta.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">285</td><td class="code">+                billback.Total_Cases__c =</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">286</td><td class="code">+                    (billback.Total_Cases__c ?? 0) +</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">287</td><td class="code">+                    ((newInc.Completions__c ?? 0) - (oldInc.Completions__c ?? 0));</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">288</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">289</td><td class="code">+            if (activeChanged &amp;&amp; !linkChanged) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">290</td><td class="code">+                billback.Is_Active__c = newInc.Is_Active__c;</td></tr>
+<tr class="ctx"><td class="ln">274</td><td class="ln">291</td><td class="code">             }</td></tr>
+<tr class="ctx"><td class="ln">275</td><td class="ln">292</td><td class="code">         }</td></tr>
+<tr class="ctx"><td class="ln">276</td><td class="ln">293</td><td class="code"> </td></tr>
+<tr class="ctx"><td class="ln">277</td><td class="ln">294</td><td class="code">         try {</td></tr>
+<tr class="del"><td class="ln">278</td><td class="ln"></td><td class="code">-            DmlService.doUpdate(billbackIdToBillbackMap.values(), true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">295</td><td class="code">+            DmlService.doUpdate(billbackById.values(), true);</td></tr>
+<tr class="ctx"><td class="ln">279</td><td class="ln">296</td><td class="code">         } catch (Exception e) {</td></tr>
+<tr class="ctx"><td class="ln">280</td><td class="ln">297</td><td class="code">             Logger.getInstance().error(&#x27;Error updating billbacks&#x27;, e);</td></tr>
+<tr class="ctx"><td class="ln">281</td><td class="ln">298</td><td class="code">             Logger.getInstance().flush();</td></tr>
+</tbody></table></div>
+</details><details  id="diff-ohfy-rex-force-app-main-default-classes-triggerservices-incentive-tests-incentive-au-t-cls" class="difffile">
+<summary><span class="fpath">OHFY-REX/force-app/main/default/classes/triggerServices/incentive/tests/Incentive_AU_T.cls</span><span class="fstat"><span class="badd">+278</span> <span class="bdel">-0</span></span></summary>
+<div class="difftbl-wrap"><table class="difftbl"><tbody>
+<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="code">@@ -329,4 +329,282 @@ private class Incentive_AU_T {</td></tr>
+<tr class="ctx"><td class="ln">329</td><td class="ln">329</td><td class="code">             &#x27;Expected Total Completion to be 0&#x27;</td></tr>
+<tr class="ctx"><td class="ln">330</td><td class="ln">330</td><td class="code">         );</td></tr>
+<tr class="ctx"><td class="ln">331</td><td class="ln">331</td><td class="code">     }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">332</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">333</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">334</td><td class="code">+    static void updateBillbacks_bothFieldsChange_noDoubleCount() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">335</td><td class="code">+        // BMS-5843: when an incentive is linked to its (per-agreement) billback header AND its</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">336</td><td class="code">+        // Completions change in the SAME save, the accrual must be applied ONCE — not the full</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">337</td><td class="code">+        // completions plus the delta (the BMS-4140/BMS-4141 double-count regression the ticket&#x27;s</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">338</td><td class="code">+        // &quot;do not augment&quot; callout guards against).</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">339</td><td class="code">+        Billback__c bb = (Billback__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">340</td><td class="code">+            &#x27;ohfy__Billback__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">341</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">342</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;DoubleCount Guard&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">343</td><td class="code">+                &#x27;ohfy__Total_Cases__c&#x27; =&gt; 0,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">344</td><td class="code">+                &#x27;ohfy__Is_Active__c&#x27; =&gt; true</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">345</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">346</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">347</td><td class="code">+        Goal_Template__c gt = (Goal_Template__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">348</td><td class="code">+            &#x27;ohfy__Goal_Template__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">349</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">350</td><td class="code">+                &#x27;ohfy__Tracking_Object_API__c&#x27; =&gt; &#x27;ohfy__Invoice_Item__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">351</td><td class="code">+                &#x27;ohfy__Tracking_Object_Field__c&#x27; =&gt; &#x27;ohfy__Case_Equivalents__c&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">352</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">353</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">354</td><td class="code">+        Incentive__c inc = (Incentive__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">355</td><td class="code">+            &#x27;ohfy__Incentive__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">356</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">357</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;DoubleCount Incentive&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">358</td><td class="code">+                &#x27;ohfy__Is_Active__c&#x27; =&gt; true,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">359</td><td class="code">+                &#x27;ohfy__Goal_Template__c&#x27; =&gt; gt.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">360</td><td class="code">+                &#x27;ohfy__Completions__c&#x27; =&gt; 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">361</td><td class="code">+                &#x27;ohfy__Start_Date__c&#x27; =&gt; System.today(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">362</td><td class="code">+                &#x27;ohfy__End_Date__c&#x27; =&gt; System.today() + 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">363</td><td class="code">+                &#x27;ohfy__Type__c&#x27; =&gt; &#x27;Number&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">364</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">365</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">366</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">367</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">368</td><td class="code">+        // Both the Billback link (null -&gt; bb) AND Completions (100 -&gt; 175) change in one update.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">369</td><td class="code">+        update new Incentive__c(Id = inc.Id, Billback__c = bb.Id, Completions__c = 175);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">370</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">371</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">372</td><td class="code">+        Billback__c after = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">373</td><td class="code">+            SELECT Total_Cases__c, Incentive__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">374</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">375</td><td class="code">+            WHERE Id = :bb.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">376</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">377</td><td class="code">+        // Newly-linked header seeds the FULL (new) completions ONCE — not 175 + (175 - 100) = 250.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">378</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">379</td><td class="code">+            175,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">380</td><td class="code">+            after.Total_Cases__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">381</td><td class="code">+            &#x27;newly-linked billback seeds full completions once — no full+delta double-count&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">382</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">383</td><td class="code">+        Assert.areEqual(inc.Id, after.Incentive__c, &#x27;reverse Incentive__c link stamped&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">384</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">385</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">386</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">387</td><td class="code">+    //  updateBillbacks branch coverage (BMS-5843)                          //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">388</td><td class="code">+    // ------------------------------------------------------------------ //</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">389</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">390</td><td class="code">+    private static Billback__c makeBillback(Decimal totalCases, Boolean isActive) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">391</td><td class="code">+        return (Billback__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">392</td><td class="code">+            &#x27;ohfy__Billback__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">393</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">394</td><td class="code">+                &#x27;Name&#x27; =&gt; &#x27;Cov BB&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">395</td><td class="code">+                &#x27;ohfy__Total_Cases__c&#x27; =&gt; totalCases,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">396</td><td class="code">+                &#x27;ohfy__Is_Active__c&#x27; =&gt; isActive</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">397</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">398</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">399</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">400</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">401</td><td class="code">+    private static Incentive__c makeIncentive(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">402</td><td class="code">+        Id billbackId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">403</td><td class="code">+        Decimal completions,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">404</td><td class="code">+        Boolean isActive</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">405</td><td class="code">+    ) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">406</td><td class="code">+        Goal_Template__c gt = (Goal_Template__c) TestDataFactory.createSObject(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">407</td><td class="code">+            &#x27;ohfy__Goal_Template__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">408</td><td class="code">+            new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">409</td><td class="code">+                &#x27;ohfy__Tracking_Object_API__c&#x27; =&gt; &#x27;ohfy__Invoice_Item__c&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">410</td><td class="code">+                &#x27;ohfy__Tracking_Object_Field__c&#x27; =&gt; &#x27;ohfy__Case_Equivalents__c&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">411</td><td class="code">+            }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">412</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">413</td><td class="code">+        Map&lt;String, Object&gt; fields = new Map&lt;String, Object&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">414</td><td class="code">+            &#x27;Name&#x27; =&gt; &#x27;Cov Incentive&#x27;,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">415</td><td class="code">+            &#x27;ohfy__Is_Active__c&#x27; =&gt; isActive,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">416</td><td class="code">+            &#x27;ohfy__Goal_Template__c&#x27; =&gt; gt.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">417</td><td class="code">+            &#x27;ohfy__Completions__c&#x27; =&gt; completions,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">418</td><td class="code">+            &#x27;ohfy__Start_Date__c&#x27; =&gt; System.today(),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">419</td><td class="code">+            &#x27;ohfy__End_Date__c&#x27; =&gt; System.today() + 10,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">420</td><td class="code">+            &#x27;ohfy__Type__c&#x27; =&gt; &#x27;Number&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">421</td><td class="code">+        };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">422</td><td class="code">+        if (billbackId != null) {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">423</td><td class="code">+            fields.put(&#x27;ohfy__Billback__c&#x27;, billbackId);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">424</td><td class="code">+        }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">425</td><td class="code">+        return (Incentive__c) TestDataFactory.createSObject(&#x27;ohfy__Incentive__c&#x27;, fields);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">426</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">427</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">428</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">429</td><td class="code">+    static void updateBillbacks_completionsOnlyChange_accruesDeltaOnly() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">430</td><td class="code">+        // Link unchanged, Completions 100 -&gt; 150: accrue ONLY the +50 delta.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">431</td><td class="code">+        Billback__c bb = makeBillback(0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">432</td><td class="code">+        Incentive__c inc = makeIncentive(bb.Id, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">433</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">434</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">435</td><td class="code">+        update new Incentive__c(Id = inc.Id, Completions__c = 150);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">436</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">437</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">438</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">439</td><td class="code">+            50,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">440</td><td class="code">+            [SELECT Total_Cases__c FROM Billback__c WHERE Id = :bb.Id].Total_Cases__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">441</td><td class="code">+            &#x27;completions-only change accrues the delta (150 - 100)&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">442</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">443</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">444</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">445</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">446</td><td class="code">+    static void updateBillbacks_activeOnlyToggle_reflectsOnLinkedHeader() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">447</td><td class="code">+        // Link + completions unchanged, Is_Active true -&gt; false: reflect on the linked header only.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">448</td><td class="code">+        Billback__c bb = makeBillback(0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">449</td><td class="code">+        Incentive__c inc = makeIncentive(bb.Id, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">450</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">451</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">452</td><td class="code">+        update new Incentive__c(Id = inc.Id, Is_Active__c = false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">453</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">454</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">455</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">456</td><td class="code">+            false,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">457</td><td class="code">+            [SELECT Is_Active__c FROM Billback__c WHERE Id = :bb.Id].Is_Active__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">458</td><td class="code">+            &#x27;active toggle (no link change) reflects on the linked header&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">459</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">460</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">461</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">462</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">463</td><td class="code">+    static void updateBillbacks_mixedBatch_skipsUnlinkedIncentive() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">464</td><td class="code">+        // A batch with one linked + one unlinked incentive: the unlinked one is skipped cleanly.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">465</td><td class="code">+        Billback__c bb = makeBillback(0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">466</td><td class="code">+        Incentive__c linked = makeIncentive(bb.Id, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">467</td><td class="code">+        Incentive__c unlinked = makeIncentive(null, 40, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">468</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">469</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">470</td><td class="code">+        update new List&lt;Incentive__c&gt;{</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">471</td><td class="code">+            new Incentive__c(Id = linked.Id, Is_Active__c = false),</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">472</td><td class="code">+            new Incentive__c(Id = unlinked.Id, Is_Active__c = false)</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">473</td><td class="code">+        };</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">474</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">475</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">476</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">477</td><td class="code">+            false,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">478</td><td class="code">+            [SELECT Is_Active__c FROM Billback__c WHERE Id = :bb.Id].Is_Active__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">479</td><td class="code">+            &#x27;linked header updated; unlinked incentive skipped without error&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">480</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">481</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">482</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">483</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">484</td><td class="code">+    static void updateBillbacks_danglingBillbackReference_skipsWithoutNpe() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">485</td><td class="code">+        // Guard: an incentive pointing at a header that no longer exists is skipped, never an NPE.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">486</td><td class="code">+        Billback__c bb = makeBillback(0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">487</td><td class="code">+        Incentive__c inc = makeIncentive(null, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">488</td><td class="code">+        Id ghostId = bb.Id;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">489</td><td class="code">+        delete bb;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">490</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">491</td><td class="code">+        Incentive__c newInc = new Incentive__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">492</td><td class="code">+            Id = inc.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">493</td><td class="code">+            Billback__c = ghostId,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">494</td><td class="code">+            Completions__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">495</td><td class="code">+            Is_Active__c = true</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">496</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">497</td><td class="code">+        Incentive__c oldInc = new Incentive__c(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">498</td><td class="code">+            Id = inc.Id,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">499</td><td class="code">+            Billback__c = null,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">500</td><td class="code">+            Completions__c = 100,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">501</td><td class="code">+            Is_Active__c = true</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">502</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">503</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">504</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">505</td><td class="code">+        // Direct invocation: the header query returns nothing for the dangling id -&gt; guarded skip.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">506</td><td class="code">+        new IncentiveTriggerService()</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">507</td><td class="code">+            .afterUpdate(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">508</td><td class="code">+                new List&lt;SObject&gt;{ newInc },</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">509</td><td class="code">+                new List&lt;SObject&gt;{ oldInc },</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">510</td><td class="code">+                new Set&lt;String&gt;{ &#x27;updatebillbacks&#x27; }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">511</td><td class="code">+            );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">512</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">513</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">514</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">515</td><td class="code">+            0,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">516</td><td class="code">+            [SELECT COUNT() FROM Billback__c WHERE Id = :ghostId],</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">517</td><td class="code">+            &#x27;dangling reference handled without a DML/NPE failure&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">518</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">519</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">520</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">521</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">522</td><td class="code">+    static void triggerHooks_noOpContextsExecuteCleanly() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">523</td><td class="code">+        // The empty before/after hooks + the empty-enabledMethods afterUpdate guard are no-ops.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">524</td><td class="code">+        IncentiveTriggerService svc = new IncentiveTriggerService();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">525</td><td class="code">+        List&lt;SObject&gt; emptyRecords = new List&lt;SObject&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">526</td><td class="code">+        Set&lt;String&gt; noMethods = new Set&lt;String&gt;();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">527</td><td class="code">+        Integer before = [SELECT COUNT() FROM Billback__c];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">528</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">529</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">530</td><td class="code">+        svc.beforeInsert(emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">531</td><td class="code">+        svc.beforeUpdate(emptyRecords, emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">532</td><td class="code">+        svc.beforeDelete(emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">533</td><td class="code">+        svc.afterInsert(emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">534</td><td class="code">+        svc.afterUpdate(emptyRecords, emptyRecords, noMethods); // empty enabledMethods -&gt; early return</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">535</td><td class="code">+        svc.afterDelete(emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">536</td><td class="code">+        svc.afterUndelete(emptyRecords, noMethods);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">537</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">538</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">539</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">540</td><td class="code">+            before,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">541</td><td class="code">+            [SELECT COUNT() FROM Billback__c],</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">542</td><td class="code">+            &#x27;no-op trigger hooks create/modify nothing&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">543</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">544</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">545</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">546</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">547</td><td class="code">+    static void updateGoals_incentiveWithoutGoals_earlyReturn() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">548</td><td class="code">+        // An Is_Active change on an incentive with no goals exercises the empty-goals early return.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">549</td><td class="code">+        Incentive__c inc = makeIncentive(null, 0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">550</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">551</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">552</td><td class="code">+        update new Incentive__c(Id = inc.Id, Is_Active__c = false);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">553</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">554</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">555</td><td class="code">+        Assert.areEqual(</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">556</td><td class="code">+            false,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">557</td><td class="code">+            [SELECT Is_Active__c FROM Incentive__c WHERE Id = :inc.Id].Is_Active__c,</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">558</td><td class="code">+            &#x27;update applied; updateGoals early-returned with no goals to update&#x27;</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">559</td><td class="code">+        );</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">560</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">561</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">562</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">563</td><td class="code">+    static void updateBillbacks_relink_movesAccrualBetweenHeaders() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">564</td><td class="code">+        // BMS-5843: re-pointing an incentive from header A to header B must reverse its accrual out</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">565</td><td class="code">+        // of A and seed it onto B — a persistent per-agreement header can&#x27;t keep a stale count.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">566</td><td class="code">+        Billback__c headerA = makeBillback(100, true); // already carries this incentive&#x27;s 100</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">567</td><td class="code">+        Billback__c headerB = makeBillback(0, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">568</td><td class="code">+        Incentive__c inc = makeIncentive(headerA.Id, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">569</td><td class="code">+        update new Billback__c(Id = headerA.Id, Incentive__c = inc.Id); // seed A&#x27;s reverse link</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">570</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">571</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">572</td><td class="code">+        update new Incentive__c(Id = inc.Id, Billback__c = headerB.Id); // A -&gt; B</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">573</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">574</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">575</td><td class="code">+        Billback__c a = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">576</td><td class="code">+            SELECT Total_Cases__c, Incentive__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">577</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">578</td><td class="code">+            WHERE Id = :headerA.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">579</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">580</td><td class="code">+        Billback__c b = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">581</td><td class="code">+            SELECT Total_Cases__c, Incentive__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">582</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">583</td><td class="code">+            WHERE Id = :headerB.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">584</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">585</td><td class="code">+        Assert.areEqual(0, a.Total_Cases__c, &#x27;header A trued down — the incentive left it&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">586</td><td class="code">+        Assert.isNull(a.Incentive__c, &#x27;stale reverse link on A cleared&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">587</td><td class="code">+        Assert.areEqual(100, b.Total_Cases__c, &#x27;header B seeded with the incentive completions&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">588</td><td class="code">+        Assert.areEqual(inc.Id, b.Incentive__c, &#x27;reverse link now on B&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">589</td><td class="code">+    }</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">590</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">591</td><td class="code">+    @IsTest</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">592</td><td class="code">+    static void updateBillbacks_unlink_decrementsOldHeader() {</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">593</td><td class="code">+        // Unlinking an incentive (Billback__c -&gt; null) must reverse its accrual out of the old header.</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">594</td><td class="code">+        Billback__c headerA = makeBillback(100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">595</td><td class="code">+        Incentive__c inc = makeIncentive(headerA.Id, 100, true);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">596</td><td class="code">+        update new Billback__c(Id = headerA.Id, Incentive__c = inc.Id);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">597</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">598</td><td class="code">+        Test.startTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">599</td><td class="code">+        update new Incentive__c(Id = inc.Id, Billback__c = null); // unlink</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">600</td><td class="code">+        Test.stopTest();</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">601</td><td class="code">+</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">602</td><td class="code">+        Billback__c a = [</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">603</td><td class="code">+            SELECT Total_Cases__c, Incentive__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">604</td><td class="code">+            FROM Billback__c</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">605</td><td class="code">+            WHERE Id = :headerA.Id</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">606</td><td class="code">+        ];</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">607</td><td class="code">+        Assert.areEqual(0, a.Total_Cases__c, &#x27;old header trued down on unlink&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">608</td><td class="code">+        Assert.isNull(a.Incentive__c, &#x27;stale reverse link cleared on unlink&#x27;);</td></tr>
+<tr class="add"><td class="ln"></td><td class="ln">609</td><td class="code">+    }</td></tr>
+<tr class="ctx"><td class="ln">332</td><td class="ln">610</td><td class="code"> }</td></tr>
+</tbody></table></div>
+</details>
+</div>
+
+<footer>
+  <div>Ohanafy/OHFY-Split · branch <code>feat/billback-per-agreement-bms-5843</code> → <code>main</code> · 3 commits · head <code>535d108de</code></div>
+  <div style="margin-top:6px">Generated 2026-07-23 · viewable in Obsidian HTML Reader or any browser</div>
+</footer>
+</div>
+<script>
+function toggleAll(open){ document.querySelectorAll('details.difffile').forEach(d=>d.open=open); }
+document.querySelectorAll('.clfile').forEach(a=>a.addEventListener('click',e=>{
+  const t=document.querySelector(a.getAttribute('href')); if(t) t.open=true;
+}));
+</script>
+</body></html>

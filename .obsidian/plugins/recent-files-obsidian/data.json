@@ -1,24 +1,160 @@
 {
   "recentFiles": [
     {
+      "basename": "email-impact-analysis",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/email-impact-analysis.html"
+    },
+    {
+      "basename": "Brain Gap - E-Commerce Admin Persona",
+      "path": "Side Missons/Brain Gap - E-Commerce Admin Persona/Brain Gap - E-Commerce Admin Persona.md"
+    },
+    {
+      "basename": "Ohanafy Product Suite Catalog v0.3",
+      "path": "Side Missons/Brain Gap - E-Commerce Admin Persona/Ohanafy Product Suite Catalog v0.3.pdf"
+    },
+    {
+      "basename": "lesson-2-scaling-large-prs",
+      "path": "Teachings/code-review/lesson-2-scaling-large-prs.html"
+    },
+    {
       "basename": "mission-control",
       "path": "Manager-Engineer/Mission-Control/mission-control.html"
     },
     {
-      "basename": "DATA-MODEL",
-      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DATA-MODEL.md"
+      "basename": "Session Manager",
+      "path": "Claude Session Manager/Session Manager.md"
+    },
+    {
+      "basename": "Short-Pay-Ownership-Map",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Ownership-Map.html"
+    },
+    {
+      "basename": "Short-Pay-Build-Direction",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/Management/Short-Pay-Build-Direction.html"
+    },
+    {
+      "basename": "SPIKE-short-pay-resolution-outcomes",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/SPIKE-short-pay-resolution-outcomes.md"
+    },
+    {
+      "basename": "INTEGRATIONS-HANDOFF-eft-short-pay",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/INTEGRATIONS-HANDOFF-eft-short-pay.md"
+    },
+    {
+      "basename": "Short-Pay-Publix-EFT Extraction",
+      "path": "Transcripts/Gulf On-site/Short Pay/Short-Pay-Publix-EFT Extraction.md"
+    },
+    {
+      "basename": "DEMO-RUNTHROUGH",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4965-short-pay/DEMO-RUNTHROUGH.html"
+    },
+    {
+      "basename": "orientation",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/orientation.html"
+    },
+    {
+      "basename": "Email - How they calculate DOI&DOH vs how it SHOULD be for us going forward might not be the same",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/Email - How they calculate DOI&DOH vs how it SHOULD be for us going forward might not be the same.md"
+    },
+    {
+      "basename": "overview",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-5113-doi-formula-standardization/overview.md"
+    },
+    {
+      "basename": "BMS-5113-doi-doh-vocabulary",
+      "path": "Manager-Engineer/Open-Questions/BMS-5113-doi-doh-vocabulary.md"
+    },
+    {
+      "basename": "Drawing 2026-07-23 11.33.31.excalidraw",
+      "path": "Excalidraw/Drawing 2026-07-23 11.33.31.excalidraw.md"
+    },
+    {
+      "basename": "diagram.excalidraw",
+      "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-4965-short-pay/diagram.excalidraw.md"
+    },
+    {
+      "basename": "README",
+      "path": "Manager-Engineer/Mission-Control/README.md"
+    },
+    {
+      "basename": "E-Commerce-Extraction",
+      "path": "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Extraction.md"
+    },
+    {
+      "basename": "pr-501-overview",
+      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-501-overview.html"
+    },
+    {
+      "basename": "pr-536-overview",
+      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-536-overview.html"
+    },
+    {
+      "basename": "Drawing 2026-07-22 11.45.28.excalidraw",
+      "path": "Excalidraw/Drawing 2026-07-22 11.45.28.excalidraw.md"
+    },
+    {
+      "basename": "BMS-4073-notification-services-abandoned-cart-order-confirmation",
+      "path": "Manager-Engineer/Tickets/BMS-4073-notification-services-abandoned-cart-order-confirmation.md"
+    },
+    {
+      "basename": "E-Commerce-Takeaways",
+      "path": "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Takeaways.html"
+    },
+    {
+      "basename": "Transcript July 15th - Afternoon meeting",
+      "path": "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md"
+    },
+    {
+      "basename": "E-Commerce-MANAGER-HANDOFF",
+      "path": "Transcripts/Gulf On-site/E-Commerce/E-Commerce-MANAGER-HANDOFF.md"
+    },
+    {
+      "basename": "Twilio",
+      "path": "Work/Twilio/Twilio.md"
+    },
+    {
+      "basename": "VALIDATION",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/VALIDATION.md"
+    },
+    {
+      "basename": "HANDOFF",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/HANDOFF.md"
+    },
+    {
+      "basename": "MANUAL-DRY-RUN-STEPS",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/Dry Run Testing/MANUAL-DRY-RUN-STEPS.md"
+    },
+    {
+      "basename": "Short-Pay-MANAGER-HANDOFF",
+      "path": "Transcripts/Gulf On-site/Short Pay/Short-Pay-MANAGER-HANDOFF.html"
+    },
+    {
+      "basename": "Finance&Accounting - Demo Workshop",
+      "path": "Transcripts/BMS-4965 Short Pay Automation/Finance&Accounting - Demo Workshop.md"
+    },
+    {
+      "basename": "E-Commerce-Action-Items",
+      "path": "Transcripts/Gulf On-site/E-Commerce/E-Commerce-Action-Items.md"
+    },
+    {
+      "basename": "Drawing 2026-07-21 11.33.09.excalidraw",
+      "path": "Excalidraw/Drawing 2026-07-21 11.33.09.excalidraw.md"
+    },
+    {
+      "basename": "ASSUMPTIONS",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/ASSUMPTIONS.md"
     },
     {
       "basename": "replenishment-journey-handoff",
       "path": "User Journeries/replenishment-journey-handoff.html"
     },
     {
-      "basename": "Return Pre-Visibility — What Exists Today",
-      "path": "Loading Data - 07-20-2026/Return Pre-Visibility — What Exists Today.md"
+      "basename": "SESSION",
+      "path": "Manager-Engineer/Build-Overview/Sprint-10/BMS-4996-retailer-engagement-notifications/SESSION.md"
     },
     {
-      "basename": "Transcript July 15th - Afternoon meeting",
-      "path": "Transcripts/Gulf On-site/E-Commerce/Transcript July 15th - Afternoon meeting.md"
+      "basename": "Return Pre-Visibility — What Exists Today",
+      "path": "Loading Data - 07-20-2026/Return Pre-Visibility — What Exists Today.md"
     },
     {
       "basename": "Transcript July 14th - Afternoon meeting",
@@ -45,14 +181,6 @@
       "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/orientation.html"
     },
     {
-      "basename": "BMS-4073-notification-services-abandoned-cart-order-confirmation",
-      "path": "Manager-Engineer/Tickets/BMS-4073-notification-services-abandoned-cart-order-confirmation.md"
-    },
-    {
-      "basename": "lesson-2-scaling-large-prs",
-      "path": "Teachings/code-review/lesson-2-scaling-large-prs.html"
-    },
-    {
       "basename": "Drawing 2026-07-16 09.02.24.excalidraw",
       "path": "Excalidraw/Drawing 2026-07-16 09.02.24.excalidraw.md"
     },
@@ -65,84 +193,12 @@
       "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/freight-billback-mental-model.html"
     },
     {
-      "basename": "Short-Pay-Publix-EFT Extraction",
-      "path": "Transcripts/Gulf On-site/Short Pay/Short-Pay-Publix-EFT Extraction.md"
-    },
-    {
       "basename": "mockup",
       "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/mockup.html"
     },
     {
-      "basename": "Finance&Accounting - Demo Workshop",
-      "path": "Transcripts/BMS-4965 Short Pay Automation/Finance&Accounting - Demo Workshop.md"
-    },
-    {
       "basename": "ASSUMPTIONS",
       "path": "Manager-Engineer/Build-Overview/Sprint-9/BMS-5161-supplier-freight-cost-billbacks/supplier-owed-program/ASSUMPTIONS.md"
-    },
-    {
-      "basename": "Short-Pay-MANAGER-HANDOFF",
-      "path": "Transcripts/Gulf On-site/Short Pay/Short-Pay-MANAGER-HANDOFF.html"
-    },
-    {
-      "basename": "Short-Pay-MANAGER-HANDOFF",
-      "path": "Transcripts/Gulf On-site/Short Pay/Short-Pay-MANAGER-HANDOFF.md"
-    },
-    {
-      "basename": "README",
-      "path": "Manager-Engineer/Mission-Control/README.md"
-    },
-    {
-      "basename": "understand-TICKETS",
-      "path": "Manager-Engineer/Build-Overview/understand-TICKETS/understand-TICKETS.html"
-    },
-    {
-      "basename": "BMS-5113-feedback",
-      "path": "Manager-Engineer/Feedback/BMS-5113-feedback.md"
-    },
-    {
-      "basename": "erd-and-flows",
-      "path": "Teachings/supplier-freight-cost-billbacks/reference/erd-and-flows.md"
-    },
-    {
-      "basename": "pr-491-overview",
-      "path": "Anvil/Engineering/Sprints/Visuals/PR-Reviews/pr-491-overview.html"
-    },
-    {
-      "basename": "0001-what-youre-solving",
-      "path": "Teachings/supplier-freight-cost-billbacks/lessons/0001-what-youre-solving.html"
-    },
-    {
-      "basename": "lesson-1-what-it-solves",
-      "path": "Teachings/code-review/lesson-1-what-it-solves.html"
-    },
-    {
-      "basename": "0002-why-the-epic-is-tidy",
-      "path": "Teachings/safety-stock-epic/lessons/0002-why-the-epic-is-tidy.html"
-    },
-    {
-      "basename": "BMS-5060-feedback",
-      "path": "Manager-Engineer/Feedback/BMS-5060-feedback.md"
-    },
-    {
-      "basename": "BMS-4996-feedback",
-      "path": "Manager-Engineer/Feedback/BMS-4996-feedback.md"
-    },
-    {
-      "basename": "BMS-4935-feedback",
-      "path": "Manager-Engineer/Feedback/BMS-4935-feedback.md"
-    },
-    {
-      "basename": "All",
-      "path": "All.base"
-    },
-    {
-      "basename": "Skills",
-      "path": "Personal/Skills.md"
-    },
-    {
-      "basename": "erd-and-flows",
-      "path": "Teachings/supplier-freight-cost-billbacks/reference/erd-and-flows.html"
     }
   ],
   "omittedPaths": [],

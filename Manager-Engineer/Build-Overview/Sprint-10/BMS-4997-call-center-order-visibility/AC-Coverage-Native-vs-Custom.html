@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BMS-4997 — AC Coverage: Native vs. Custom</title>
+    <style>
+      :root {
+        --bg: #f5f7f9;
+        --surface: #ffffff;
+        --surface-2: #eef2f5;
+        --ink: #18222e;
+        --ink-soft: #47566a;
+        --ink-faint: #6f8091;
+        --line: #dbe3ea;
+        --accent: #1b6ca8;
+        --native: #2e7d61;
+        --native-bg: #e6f2ec;
+        --partial: #a9711a;
+        --partial-bg: #f6eddb;
+        --custom: #5b4bb0;
+        --custom-bg: #ebe8f7;
+        --shadow: 0 1px 2px rgba(24, 34, 46, 0.06), 0 8px 24px rgba(24, 34, 46, 0.05);
+        --radius: 12px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0e151d;
+          --surface: #161f2a;
+          --surface-2: #1d2833;
+          --ink: #e9eef3;
+          --ink-soft: #a9b6c4;
+          --ink-faint: #7d8c9c;
+          --line: #2a3742;
+          --accent: #5aa8dc;
+          --native: #63c39a;
+          --native-bg: #16302697;
+          --partial: #d9a441;
+          --partial-bg: #33290f8f;
+          --custom: #a99bec;
+          --custom-bg: #241f3d8c;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+      }
+      :root[data-theme="light"] {
+        --bg: #f5f7f9;
+        --surface: #ffffff;
+        --surface-2: #eef2f5;
+        --ink: #18222e;
+        --ink-soft: #47566a;
+        --ink-faint: #6f8091;
+        --line: #dbe3ea;
+        --accent: #1b6ca8;
+        --native: #2e7d61;
+        --native-bg: #e6f2ec;
+        --partial: #a9711a;
+        --partial-bg: #f6eddb;
+        --custom: #5b4bb0;
+        --custom-bg: #ebe8f7;
+        --shadow: 0 1px 2px rgba(24, 34, 46, 0.06), 0 8px 24px rgba(24, 34, 46, 0.05);
+      }
+      :root[data-theme="dark"] {
+        --bg: #0e151d;
+        --surface: #161f2a;
+        --surface-2: #1d2833;
+        --ink: #e9eef3;
+        --ink-soft: #a9b6c4;
+        --ink-faint: #7d8c9c;
+        --line: #2a3742;
+        --accent: #5aa8dc;
+        --native: #63c39a;
+        --native-bg: #16302697;
+        --partial: #d9a441;
+        --partial-bg: #33290f8f;
+        --custom: #a99bec;
+        --custom-bg: #241f3d8c;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem;
+      }
+
+      /* Header */
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 1.6rem;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+      h1 {
+        font-size: clamp(1.7rem, 4.2vw, 2.5rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+        margin: 0.75rem 0 0.4rem;
+        font-weight: 700;
+      }
+      .lede {
+        font-size: 1.02rem;
+        color: var(--ink-soft);
+        max-width: 62ch;
+        margin: 0 0 1.4rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.4rem;
+        padding: 0.85rem 1.1rem;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+      }
+      .meta b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .meta code {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.82em;
+        color: var(--accent);
+      }
+
+      /* The organizing rule callout */
+      .rule {
+        margin: 1.6rem 0 2rem;
+        padding: 1.1rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+      .rule p {
+        margin: 0;
+        font-size: 1.02rem;
+      }
+      .rule .k {
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0 0 2rem;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.28rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 650;
+        letter-spacing: 0.01em;
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+      .pill .dot {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        flex: none;
+      }
+      .pill.native {
+        color: var(--native);
+        background: var(--native-bg);
+        border-color: color-mix(in srgb, var(--native) 30%, transparent);
+      }
+      .pill.native .dot {
+        background: var(--native);
+      }
+      .pill.partial {
+        color: var(--partial);
+        background: var(--partial-bg);
+        border-color: color-mix(in srgb, var(--partial) 30%, transparent);
+      }
+      .pill.partial .dot {
+        background: var(--partial);
+      }
+      .pill.custom {
+        color: var(--custom);
+        background: var(--custom-bg);
+        border-color: color-mix(in srgb, var(--custom) 34%, transparent);
+      }
+      .pill.custom .dot {
+        background: var(--custom);
+      }
+
+      /* Sections */
+      section {
+        margin-bottom: 2.4rem;
+      }
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        margin-bottom: 0.9rem;
+      }
+      .sec-head h2 {
+        font-size: 1.18rem;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .sec-head .count {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.8rem;
+        color: var(--ink-faint);
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+      thead th {
+        text-align: left;
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        font-weight: 600;
+        padding: 0.85rem 1rem;
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+      }
+      tbody td {
+        padding: 0.95rem 1rem;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        font-size: 0.9rem;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr {
+        position: relative;
+      }
+      .cap {
+        font-weight: 650;
+        color: var(--ink);
+      }
+      .ac {
+        display: block;
+        margin-top: 0.2rem;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.72rem;
+        color: var(--ink-faint);
+      }
+      td.delivered {
+        color: var(--ink-soft);
+      }
+      td.delivered code,
+      .arg code {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.82em;
+        color: var(--accent);
+        word-break: break-word;
+      }
+      .arg {
+        color: var(--ink-soft);
+        max-width: 46ch;
+      }
+      /* State stripe on the verdict cell */
+      td.verdict {
+        white-space: nowrap;
+      }
+      .col-cap {
+        width: 24%;
+      }
+      .col-del {
+        width: 20%;
+      }
+      .col-ver {
+        width: 12%;
+      }
+
+      .foot {
+        margin-top: 2.5rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.8rem;
+        color: var(--ink-faint);
+      }
+      .foot code {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <span class="eyebrow">BMS-4997 · Call Center Order Visibility</span>
+      <h1>Acceptance criteria: what's native, what needed a build</h1>
+      <p class="lede">
+        Every child-ticket acceptance criterion mapped to how it's delivered — and whether
+        Salesforce reports, list views, or an existing component could do it. The column that
+        matters is the last one: the argument.
+      </p>
+      <div class="meta">
+        <span><b>Stories</b> BMS-3858 · BMS-3922</span>
+        <span><b>Custom surface</b> <code>accountOrderVisibility</code> LWC</span>
+        <span><b>Verified</b> branch + <code>ccov-4997</code>, 2026-07-23</span>
+      </div>
+
+      <div class="rule">
+        <p>
+          <span class="k">The rule this encodes.</span> Build custom
+          <em>only</em> where the data is runtime-computed or runtime-filtered. Everything backed by
+          stored records — order history, pricing, the supervisor aggregate — stays native or reuses
+          an existing component, because rebuilding it would duplicate a first-class Salesforce
+          surface.
+        </p>
+      </div>
+
+      <div class="legend">
+        <span class="pill native"><span class="dot"></span> Native / existing — not rebuilt</span>
+        <span class="pill partial"><span class="dot"></span> Partially reportable</span>
+        <span class="pill custom"><span class="dot"></span> Custom required</span>
+      </div>
+
+      <section>
+        <div class="sec-head">
+          <h2>Covered by native / existing</h2>
+          <span class="count">5 capabilities · deliberately not rebuilt</span>
+        </div>
+        <div class="card">
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-cap">Capability</th>
+                  <th class="col-del">Delivered by</th>
+                  <th class="col-ver">Native?</th>
+                  <th>Argument</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="cap">Order history</span
+                    ><span class="ac">3858-1 · 3922-1 · 3922-4</span>
+                  </td>
+                  <td class="delivered">Invoices related list + list views</td>
+                  <td class="verdict">
+                    <span class="pill native"><span class="dot"></span> Native</span>
+                  </td>
+                  <td class="arg">
+                    <code>Invoice__c</code> is master-detail to Account with reports enabled, so the
+                    account's orders already appear as a related list; list views handle
+                    browse/filter. A custom history panel would duplicate a native surface.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Supervisor multi-warehouse aggregate</span
+                    ><span class="ac">3858-4</span>
+                  </td>
+                  <td class="delivered">Native Report / Dashboard on <code>Invoice__c</code></td>
+                  <td class="verdict">
+                    <span class="pill native"><span class="dot"></span> Native</span>
+                  </td>
+                  <td class="arg">
+                    Aggregating stored orders across accounts and warehouses is exactly what Reports
+                    &amp; Dashboards do. <code>enableReports=true</code> lets the customer build and
+                    tune it; shipping a packaged dashboard would freeze the configuration.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Pricing code &amp; resolved account prices</span
+                    ><span class="ac">3858-3 · 3922-1</span>
+                  </td>
+                  <td class="delivered">Existing <code>accountPricingPanel</code> (BMS-5679)</td>
+                  <td class="verdict">
+                    <span class="pill native"><span class="dot"></span> Existing</span>
+                  </td>
+                  <td class="arg">
+                    A dedicated, shipped component already shows the price code, list-to-net
+                    resolution, and upcoming prices. Rebuilding it is pure duplication.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Live quote &amp; order creation + promo auto-apply</span
+                    ><span class="ac">3922-3</span>
+                  </td>
+                  <td class="delivered">Order-entry modal (<code>createInvoice</code>)</td>
+                  <td class="verdict">
+                    <span class="pill native"><span class="dot"></span> Existing</span>
+                  </td>
+                  <td class="arg">
+                    Order creation with promotion-resolved pricing (auto-applied and auto-reverted at
+                    the quantity threshold) already exists; the quote is computed at order entry via
+                    <code>S_PriceResolver</code>.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Credit status, open balances, rep, notes</span
+                    ><span class="ac">3858-1</span>
+                  </td>
+                  <td class="delivered">Account fields, related lists, standard Notes</td>
+                  <td class="verdict">
+                    <span class="pill native"><span class="dot"></span> Native</span>
+                  </td>
+                  <td class="arg">
+                    Standard record data on the Account page — no custom widget warranted.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-head">
+          <h2>Couldn't be a report — required the custom LWC</h2>
+          <span class="count">what we built</span>
+        </div>
+        <div class="card">
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-cap">Capability</th>
+                  <th class="col-del">Delivered by</th>
+                  <th class="col-ver">Native?</th>
+                  <th>Argument</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="cap">Eligible promotions (per account, runtime)</span
+                    ><span class="ac">3858-2 · 3922-2</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code> · S_PriceResolver</td>
+                  <td class="verdict">
+                    <span class="pill custom"><span class="dot"></span> Custom</span>
+                  </td>
+                  <td class="arg">
+                    Eligibility is a runtime computation — audience membership, an
+                    <code>Promotion_Account_Exclusion__c</code> anti-join, an item-scope cascade, and
+                    channel/location/chain rules resolved most-specific-wins. Reports can't express
+                    NOT-IN or conditional cross-object resolution.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Not-eligible promotions + reason</span
+                    ><span class="ac">3922-2</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code></td>
+                  <td class="verdict">
+                    <span class="pill custom"><span class="dot"></span> Custom</span>
+                  </td>
+                  <td class="arg">
+                    Requires computing which product-relevant promotions the account
+                    <em>fails</em> and <em>why</em>. No native surface derives or annotates
+                    ineligibility.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Inventory availability (orderable catalog @ warehouse)</span
+                    ><span class="ac">3858-6 · 3922-5</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code></td>
+                  <td class="verdict">
+                    <span class="pill partial"><span class="dot"></span> Partial</span>
+                  </td>
+                  <td class="arg">
+                    A report can list raw <code>Inventory__c</code>, but not apply the per-account
+                    sellable + <code>Product_Market_Restriction__c</code> anti-join, the
+                    assigned-warehouse hierarchy rollup, the lot-aware quantity, or the cases/units
+                    split — all runtime.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap"
+                      >Delivery / route banner + next delivery + cutoff + last-delivery</span
+                    ><span class="ac">3858-5</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code></td>
+                  <td class="verdict">
+                    <span class="pill custom"><span class="dot"></span> Custom</span>
+                  </td>
+                  <td class="arg">
+                    The next-delivery date is derived (route day-of-week + cadence), not stored;
+                    cutoff is computed. No native field or report holds it.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Top ordered products (frequency + avg cases)</span
+                    ><span class="ac">3922-4</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code></td>
+                  <td class="verdict">
+                    <span class="pill partial"><span class="dot"></span> Arguable</span>
+                  </td>
+                  <td class="arg">
+                    Could be a report grouped by item — but as a per-account inline top-5 with
+                    average cases on the record page, a report-chart embed is clunky, so it's
+                    delivered inline. The one honestly borderline call.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="cap">Search / filter / pagination on the above</span>
+                  </td>
+                  <td class="delivered"><code>accountOrderVisibility</code></td>
+                  <td class="verdict">
+                    <span class="pill custom"><span class="dot"></span> Custom</span>
+                  </td>
+                  <td class="arg">
+                    These computed panels aren't list views, so they can't inherit native list-view
+                    filtering — they carry their own search, filter, and paging.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <p class="foot">
+        Net — the custom surface is the <code>accountOrderVisibility</code> LWC on the Account
+        record page (delivery banner · promotions eligible + not-eligible · top products ·
+        inventory, all searchable/paginated). Everything backed by stored records stays native:
+        order history (related list), supervisor aggregate (report), pricing
+        (<code>accountPricingPanel</code>), order creation (order modal).
+      </p>
+    </main>
+  </body>
+</html>

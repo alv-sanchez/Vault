@@ -12,7 +12,7 @@ ticket_count: 0
 _None logged yet._
 
 ## 🔗 Logged notes here
-- [[orientation]]
+- [[Manager-Engineer/Build-Overview/Sprint-8/BMS-5067-practical-days-on-hand/orientation]]
 
 ## 🧱 Capabilities already built here (0)
 _None catalogued yet. As tickets ship here, `/dev-review` appends confirmed capabilities to the ledger._

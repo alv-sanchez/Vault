@@ -1,0 +1,1120 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: Epic BMS-4965 · Short-Pay Automation
+      - heading "Short-Pay Automation — Architecture & Data Model" [level=1] [ref=e5]
+      - paragraph [ref=e6]:
+        - text: End-to-end map of how the short-pay feature works — the data model, the status lifecycle, and every automation path — with special focus on
+        - strong [ref=e7]: how the AR review queue hands a short pay to a sales rep and creates their collection task.
+  - generic [ref=e8]:
+    - blockquote [ref=e9]:
+      - paragraph [ref=e10]:
+        - strong [ref=e11]: "Scope:"
+        - text: "back-office (BMS-4965) + finalize gate / O-1 thresholds / roll-forward & rep-collection / approval workflow (BMS-5625, 4059, 4060, 5631). Packages:"
+        - code [ref=e12]: OHFY-Data-Model
+        - text: ","
+        - code [ref=e13]: OHFY-OMS
+        - text: ","
+        - code [ref=e14]: OHFY-OMS-UI
+        - text: .
+      - paragraph [ref=e15]:
+        - text: API names shown
+        - strong [ref=e16]: unqualified
+        - text: (
+        - code [ref=e17]: Invoice__c
+        - text: ","
+        - code [ref=e18]: Short_Pay_Amount__c
+        - text: ) as in Apex; a managed subscriber org carries the
+        - code [ref=e19]: ohfy__
+        - text: prefix.
+    - generic [ref=e20]:
+      - heading "Contents" [level=4] [ref=e21]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link "One-paragraph version" [ref=e24] [cursor=pointer]:
+            - /url: "#s1"
+        - listitem [ref=e25]:
+          - link "Big-picture flow" [ref=e26] [cursor=pointer]:
+            - /url: "#s2"
+        - listitem [ref=e27]:
+          - link "Data model" [ref=e28] [cursor=pointer]:
+            - /url: "#s3"
+        - listitem [ref=e29]:
+          - link "Status lifecycle" [ref=e30] [cursor=pointer]:
+            - /url: "#s4"
+        - listitem [ref=e31]:
+          - link "⭐ Rep-task creation deep dive" [ref=e32] [cursor=pointer]:
+            - /url: "#s5"
+        - listitem [ref=e33]:
+          - link "Other resolution paths" [ref=e34] [cursor=pointer]:
+            - /url: "#s6"
+        - listitem [ref=e35]:
+          - link "Credit-posted resolution" [ref=e36] [cursor=pointer]:
+            - /url: "#s7"
+        - listitem [ref=e37]:
+          - link "Batch jobs" [ref=e38] [cursor=pointer]:
+            - /url: "#s8"
+        - listitem [ref=e39]:
+          - link "Approval gate" [ref=e40] [cursor=pointer]:
+            - /url: "#s9"
+        - listitem [ref=e41]:
+          - link "Security model" [ref=e42] [cursor=pointer]:
+            - /url: "#s10"
+        - listitem [ref=e43]:
+          - link "Class / component map" [ref=e44] [cursor=pointer]:
+            - /url: "#s11"
+        - listitem [ref=e45]:
+          - link "Outstanding / caveats" [ref=e46] [cursor=pointer]:
+            - /url: "#s12"
+    - heading "1. The one-paragraph version" [level=2] [ref=e47]
+    - paragraph [ref=e48]:
+      - text: A
+      - strong [ref=e49]: short pay
+      - text: is an invoice the customer paid
+      - emphasis [ref=e50]: less than
+      - text: what was owed. The driver
+      - emphasis [ref=e51]: captures
+      - text: the shortfall in the field (that half shipped in BMS-3844). This epic builds the
+      - strong [ref=e52]: back-office
+      - text: "half: the shortfall becomes a live number on the invoice ("
+      - code [ref=e53]: Short_Pay_Amount__c
+      - text: ), moves through a
+      - strong [ref=e54]: status lifecycle
+      - text: (
+      - code [ref=e55]: Short_Pay_Status__c
+      - text: ), and lands in an
+      - strong [ref=e56]: AR review queue
+      - text: . From that queue AR can resolve it five ways — post a credit, mark it collected, write it off, roll it onto the next invoice, or
+      - strong [ref=e57]: hand it to the sales rep for in-field collection
+      - text: (which creates a due-dated Task on the rep's route). A nightly
+      - strong [ref=e58]: escalation batch
+      - text: auto-flags aging/large shortfalls per state, a
+      - strong [ref=e59]: rollup batch
+      - text: tracks repeat offenders, and every state change writes an immutable
+      - strong [ref=e60]: audit event
+      - text: . A separate
+      - strong [ref=e61]: approval gate
+      - text: can block a driver from finalizing a stop until the right management layer signs off.
+    - heading "2. Big-picture flow" [level=2] [ref=e62]
+    - document [ref=e64]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - paragraph [ref=e74]: Sales rep
+          - paragraph [ref=e81]: Back office (AR)
+          - paragraph [ref=e88]: Field (driver)
+        - generic [ref=e113]:
+          - paragraph [ref=e119]: shortfall clears layers
+          - paragraph [ref=e125]: needs sign-off
+          - paragraph [ref=e131]: approved
+          - paragraph [ref=e137]: rejected
+          - paragraph [ref=e143]: crosses state threshold
+          - paragraph [ref=e149]: AR confirms cash
+        - generic [ref=e150]:
+          - paragraph [ref=e157]: Driver finalizes stop, customer pays short
+          - paragraph [ref=e164]: Approval gate required?
+          - paragraph [ref=e171]: Short pay captured, finalizeStop stamps Status = Open
+          - paragraph [ref=e178]: Sequential approval chain
+          - paragraph [ref=e185]: Finalize stays blocked, Status stays blank
+          - paragraph [ref=e192]: Short_Pay_Status__c = Open, Amount > 0
+          - paragraph [ref=e199]: Nightly escalation batch
+          - paragraph [ref=e206]: Status = Escalated
+          - paragraph [ref=e213]: Short-Pay Review Queue LWC
+          - paragraph [ref=e220]: Post Credit → Resolved-Credit
+          - paragraph [ref=e227]: Mark Collected → Resolved-Collected
+          - paragraph [ref=e234]: Write Off → Written Off
+          - paragraph [ref=e241]: Roll Forward → next invoice
+          - paragraph [ref=e248]: Assign to Rep → Rep Collection
+          - paragraph [ref=e255]: Collection Task created on rep route today
+          - paragraph [ref=e262]: Rep marks collected
+          - paragraph [ref=e269]: Status = Rep Collected - Pending AR
+          - paragraph [ref=e276]: Nightly rollup batch
+          - paragraph [ref=e283]: Account TTM count + amount = repeat-offender signal
+          - paragraph [ref=e290]: Short_Pay_Event__c audit trail
+    - heading "3. Data model" [level=2] [ref=e291]
+    - paragraph [ref=e292]:
+      - strong [ref=e293]: Zero new "short pay" child objects.
+      - text: Per the rescope decision the feature
+      - emphasis [ref=e294]: extends
+      - code [ref=e295]: Invoice__c
+      - text: /
+      - code [ref=e296]: Account
+      - text: and
+      - emphasis [ref=e297]: reuses
+      - code [ref=e298]: Credit__c
+      - text: . The only new objects are one
+      - strong [ref=e299]: audit
+      - text: object and five
+      - strong [ref=e300]: config CMDTs
+      - text: .
+    - heading "3.1 Entity map" [level=3] [ref=e301]
+    - document [ref=e303]:
+      - generic [ref=e305]:
+        - generic [ref=e318]:
+          - paragraph [ref=e324]: Customer__c
+          - paragraph [ref=e330]: reused
+          - paragraph [ref=e336]: audit
+          - paragraph [ref=e342]: Short_Pay_Invoice__c
+          - paragraph [ref=e348]: Short_Pay_Rolled_To__c
+          - paragraph [ref=e354]: Driver__c
+          - paragraph [ref=e360]: stops
+          - paragraph [ref=e366]: matched by BillingState
+          - paragraph [ref=e372]: drives transitions
+          - paragraph [ref=e378]: task wording
+          - paragraph [ref=e384]: approval chain
+        - generic [ref=e385]:
+          - paragraph [ref=e392]: Account
+          - paragraph [ref=e399]: Invoice
+          - paragraph [ref=e406]: Credit
+          - paragraph [ref=e413]: ShortPayEvent
+          - paragraph [ref=e420]: Task
+          - paragraph [ref=e427]: SalesRoute
+          - paragraph [ref=e434]: SalesRouteStop
+          - paragraph [ref=e441]: StateThreshold_mdt
+          - paragraph [ref=e448]: StatusConfig_mdt
+          - paragraph [ref=e455]: TaskTemplate_mdt
+          - paragraph [ref=e462]: ApprovalLayer_mdt
+    - heading [level=3] [ref=e467]:
+      - text: "3.2"
+      - code [ref=e468]: Invoice__c
+      - text: — the short-pay record itself
+    - table [ref=e469]:
+      - rowgroup [ref=e470]:
+        - row [ref=e471]:
+          - columnheader "Field" [ref=e472]
+          - columnheader "Type" [ref=e473]
+          - columnheader "Purpose" [ref=e474]
+        - row [ref=e475]:
+          - cell [ref=e476]:
+            - code [ref=e477]: Short_Pay_Amount__c
+          - cell "Currency (formula)" [ref=e478]
+          - cell [ref=e479]:
+            - text: "The live shortfall:"
+            - code [ref=e480]: Total_Due__c − Amount_Paid__c + Carried_Forward_Short_Pay__c
+            - text: .
+            - strong [ref=e481]: "> 0 means \"this is a short pay.\""
+        - row [ref=e482]:
+          - cell [ref=e483]:
+            - code [ref=e484]: Short_Pay_Status__c
+          - cell "Picklist" [ref=e485]
+          - cell "Lifecycle state (§4)." [ref=e486]
+        - row [ref=e487]:
+          - cell [ref=e488]:
+            - code [ref=e489]: Short_Pay_Resolved_Date__c
+          - cell "Date" [ref=e490]
+          - cell [ref=e491]:
+            - text: Stamped
+            - strong [ref=e492]: only
+            - text: on a terminal close; interim states never set it.
+        - row [ref=e493]:
+          - cell [ref=e494]:
+            - code [ref=e495]: Carried_Forward_Short_Pay__c
+          - cell "Currency" [ref=e496]
+          - cell [ref=e497]:
+            - text: A shortfall rolled
+            - emphasis [ref=e498]: in
+            - text: from a prior invoice (feeds the formula).
+        - row [ref=e499]:
+          - cell [ref=e500]:
+            - code [ref=e501]: Short_Pay_Rolled_To__c
+          - cell "Lookup(Invoice__c)" [ref=e502]
+          - cell "Where a rolled-forward shortfall went." [ref=e503]
+        - row [ref=e504]:
+          - cell [ref=e505]:
+            - code [ref=e506]: Short_Pay_Reason__c
+            - text: /
+            - code [ref=e507]: Short_Pay_Note__c
+          - cell "Picklist / Text" [ref=e508]
+          - cell "Driver-captured reason (BMS-3844, pre-existing)." [ref=e509]
+        - row [ref=e510]:
+          - cell [ref=e511]:
+            - code [ref=e512]: Short_Pay_Approval_State__c
+          - cell "Picklist" [ref=e513]
+          - cell "None / Pending / Approved / Rejected — persisted approval-chain state." [ref=e514]
+        - row [ref=e515]:
+          - cell [ref=e516]:
+            - code [ref=e517]: Short_Pay_Approval_Layer__c
+          - cell "Number" [ref=e518]
+          - cell [ref=e519]:
+            - code [ref=e520]: Sequence__c
+            - text: of the layer awaiting a decision.
+        - row [ref=e521]:
+          - cell [ref=e522]:
+            - code [ref=e523]: Short_Pay_Shortfall_Amount__c
+          - cell "Currency" [ref=e524]
+          - cell "Shortfall the chain was started for (a larger later shortfall re-runs it)." [ref=e525]
+    - heading [level=3] [ref=e526]:
+      - text: "3.3"
+      - code [ref=e527]: Account
+      - text: — repeat-offender rollups
+    - table [ref=e528]:
+      - rowgroup [ref=e529]:
+        - row [ref=e530]:
+          - columnheader "Field" [ref=e531]
+          - columnheader "Type" [ref=e532]
+          - columnheader "Purpose" [ref=e533]
+        - row [ref=e534]:
+          - cell [ref=e535]:
+            - code [ref=e536]: Short_Pay_Count_TTM__c
+          - cell "Number" [ref=e537]
+          - cell "# short-paid invoices in trailing 365 days." [ref=e538]
+        - row [ref=e539]:
+          - cell [ref=e540]:
+            - code [ref=e541]: Short_Pay_Amount_TTM__c
+          - cell "Currency" [ref=e542]
+          - cell "Sum of shortfalls in trailing 365 days." [ref=e543]
+    - paragraph [ref=e544]:
+      - text: Maintained by
+      - code [ref=e545]: B_Account_ShortPayRollup
+      - text: (TTM windows can't be native roll-up summaries). Threshold-matching state comes from
+      - code [ref=e546]: Account.BillingState
+      - text: .
+    - heading [level=3] [ref=e547]:
+      - text: "3.4"
+      - code [ref=e548]: Short_Pay_Event__c
+      - text: — immutable audit trail (new object)
+    - paragraph [ref=e549]: One row per meaningful action; never updated, only inserted. Audit failures are logged-and-swallowed so they never block the resolution itself.
+    - table [ref=e550]:
+      - rowgroup [ref=e551]:
+        - row [ref=e552]:
+          - columnheader "Field" [ref=e553]
+          - columnheader "Purpose" [ref=e554]
+        - row [ref=e555]:
+          - cell [ref=e556]:
+            - code [ref=e557]: Event_Type__c
+          - cell [ref=e558]:
+            - text: e.g.
+            - code [ref=e559]: Resolution
+            - text: ", approval decisions"
+        - row [ref=e560]:
+          - cell [ref=e561]:
+            - code [ref=e562]: Action__c
+          - cell [ref=e563]:
+            - text: Human label ("Credit Posted", "Rep Collection", "Written Off") — from
+            - code [ref=e564]: S_ShortPayConfig.auditAction()
+        - row [ref=e565]:
+          - cell [ref=e566]:
+            - code [ref=e567]: Resulting_Value__c
+          - cell "Status the invoice moved to" [ref=e568]
+        - row [ref=e569]:
+          - cell [ref=e570]:
+            - code [ref=e571]: Amount__c
+          - cell "Shortfall at the time" [ref=e572]
+        - row [ref=e573]:
+          - cell [ref=e574]:
+            - code [ref=e575]: Actor__c
+          - cell [ref=e576]:
+            - code [ref=e577]: UserInfo.getUserId()
+        - row [ref=e578]:
+          - cell [ref=e579]:
+            - code [ref=e580]: Invoice__c
+            - text: /
+            - code [ref=e581]: Layer__c
+          - cell "The invoice; approval layer where relevant" [ref=e582]
+    - heading [level=3] [ref=e583]:
+      - text: "3.5"
+      - code [ref=e584]: Activity
+      - text: (Task) — the rep collection task
+    - paragraph [ref=e585]:
+      - text: Reuses the
+      - strong [ref=e586]: standard Task
+      - text: "plus one custom lookup:"
+    - table [ref=e587]:
+      - rowgroup [ref=e588]:
+        - row [ref=e589]:
+          - columnheader "Field" [ref=e590]
+          - columnheader "Purpose" [ref=e591]
+        - row [ref=e592]:
+          - cell [ref=e593]:
+            - code [ref=e594]: Short_Pay_Invoice__c
+            - text: (on Activity)
+          - cell [ref=e595]:
+            - text: Links the collection Task to the specific short-paid invoice.
+            - strong [ref=e596]:
+              - text: Why not
+              - code [ref=e597]: WhatId
+              - text: ":"
+            - code [ref=e598]: Invoice__c
+            - text: has activities disabled, so
+            - code [ref=e599]: Task.WhatId
+            - text: points at the customer
+            - strong [ref=e600]: Account
+            - text: ; the invoice link lives here.
+    - heading "3.6 Config — Custom Metadata Types (tune without a deploy)" [level=3] [ref=e601]
+    - table [ref=e602]:
+      - rowgroup [ref=e603]:
+        - row [ref=e604]:
+          - columnheader "CMDT" [ref=e605]
+          - columnheader "Drives" [ref=e606]
+          - columnheader "Key fields" [ref=e607]
+        - row [ref=e608]:
+          - cell [ref=e609]:
+            - code [ref=e610]: Short_Pay_State_Threshold__mdt
+          - cell "Escalation + roll window, per state" [ref=e611]
+          - cell [ref=e612]:
+            - code [ref=e613]: Compliance_State__c
+            - text: (
+            - code [ref=e614]: "*"
+            - text: = wildcard),
+            - code [ref=e615]: Escalation_Amount__c
+            - text: ","
+            - code [ref=e616]: Escalation_Percent__c
+            - text: ","
+            - code [ref=e617]: Aging_Days__c
+            - text: ","
+            - code [ref=e618]: Rollover_Window_Days__c
+        - row [ref=e619]:
+          - cell [ref=e620]:
+            - code [ref=e621]: Short_Pay_Status_Config__mdt
+          - cell [ref=e622]:
+            - text: "Status transitions (key → target + audit label). Keys:"
+            - code [ref=e623]: OPEN
+            - text: (capture entry),
+            - code [ref=e624]: CREDIT_POSTED
+            - text: ","
+            - code [ref=e625]: MANUAL_COLLECTED
+            - text: ","
+            - code [ref=e626]: ESCALATED
+            - text: ","
+            - code [ref=e627]: WRITTEN_OFF
+            - text: ","
+            - code [ref=e628]: REP_COLLECTION
+            - text: ","
+            - code [ref=e629]: REP_COLLECTED_PENDING
+          - cell [ref=e630]:
+            - code [ref=e631]: Transition_Key__c
+            - text: ","
+            - code [ref=e632]: Target_Status__c
+            - text: ","
+            - code [ref=e633]: Audit_Action__c
+        - row [ref=e634]:
+          - cell [ref=e635]:
+            - code [ref=e636]: Short_Pay_Task_Template__mdt
+          - cell "Rep-task wording" [ref=e637]
+          - cell [ref=e638]:
+            - code [ref=e639]: Template_Key__c
+            - text: (
+            - code [ref=e640]: REP_COLLECTION
+            - text: ),
+            - code [ref=e641]: Subject_Template__c
+            - text: ","
+            - code [ref=e642]: Description_Template__c
+            - text: — tokens
+            - code [ref=e643]: "{customer} {amount} {invoice}"
+        - row [ref=e644]:
+          - cell [ref=e645]:
+            - code [ref=e646]: Short_Pay_Approval_Layer__mdt
+          - cell "Approval chain" [ref=e647]
+          - cell [ref=e648]:
+            - code [ref=e649]: Sequence__c
+            - text: ","
+            - code [ref=e650]: Approver_Source__c
+            - text: ","
+            - code [ref=e651]: Threshold_Min__c
+            - text: ","
+            - code [ref=e652]: Threshold_Percent__c
+    - generic [ref=e653]:
+      - strong [ref=e654]: ⚠️ Seeded values are AI-assumed, pending Gulf/Ops ratification.
+      - list [ref=e655]:
+        - listitem [ref=e656]:
+          - text: Thresholds —
+          - code [ref=e657]: AL
+          - text: ": $0 / 0 days (escalate everything);"
+          - code [ref=e658]: FL
+          - text: ": $50 or 2% of total, 7-day aging, 10-day roll window;"
+          - code [ref=e659]: Default (*)
+          - text: ": wildcard fallback."
+        - listitem [ref=e660]:
+          - text: Approval layers — L1
+          - code [ref=e661]: Delivery_Supervisor
+          - text: (min $0), L2
+          - code [ref=e662]: Sales_Manager
+          - text: ", L3"
+          - code [ref=e663]: Regional_Director
+          - text: .
+    - heading "4. The status lifecycle (state machine)" [level=2] [ref=e664]
+    - document [ref=e666]:
+      - generic [ref=e668]:
+        - generic [ref=e688]:
+          - paragraph [ref=e694]: driver captures shortfall
+          - paragraph [ref=e700]: escalation batch
+          - paragraph [ref=e706]: AR "Assign to Rep"
+          - paragraph [ref=e712]: AR "Assign to Rep"
+          - paragraph [ref=e718]: credit posted
+          - paragraph [ref=e724]: credit posted
+          - paragraph [ref=e730]: AR "Mark Collected"
+          - paragraph [ref=e736]: AR "Mark Collected"
+          - paragraph [ref=e742]: AR "Write Off"
+          - paragraph [ref=e748]: AR "Write Off"
+          - paragraph [ref=e754]: AR "Roll Forward"
+          - paragraph [ref=e760]: rep marks collected
+          - paragraph [ref=e766]: AR confirms cash
+          - paragraph [ref=e772]: credit posted
+          - paragraph [ref=e778]: cash never landed
+        - generic [ref=e779]:
+          - paragraph [ref=e788]: Open
+          - paragraph [ref=e795]: Escalated
+          - paragraph [ref=e802]: RepCollection
+          - paragraph [ref=e809]: ResolvedCredit
+          - paragraph [ref=e816]: ResolvedCollected
+          - paragraph [ref=e823]: WrittenOff
+          - paragraph [ref=e830]: RolledForward
+          - paragraph [ref=e837]: RepCollectedPending
+    - paragraph [ref=e845]:
+      - strong [ref=e846]: Open (resolvable) states
+      - text: "— shown in the queue, still actionable:"
+      - code [ref=e847]: Open
+      - text: ","
+      - code [ref=e848]: Escalated
+      - text: ","
+      - code [ref=e849]: Rep Collection
+      - text: ","
+      - code [ref=e850]: Rep Collected - Pending AR
+      - text: .
+    - paragraph [ref=e851]:
+      - strong [ref=e852]: Terminal states
+      - text: — leave the queue, stamp
+      - code [ref=e853]: Short_Pay_Resolved_Date__c
+      - text: ":"
+      - code [ref=e854]: Resolved-Credit
+      - text: ","
+      - code [ref=e855]: Resolved-Collected
+      - text: ","
+      - code [ref=e856]: Written Off
+      - text: ","
+      - code [ref=e857]: Rolled-Forward
+      - text: .
+    - paragraph [ref=e858]:
+      - text: Every transition is
+      - strong [ref=e859]: data-driven
+      - text: ":"
+      - code [ref=e860]: S_ShortPayResolution
+      - text: passes a
+      - emphasis [ref=e861]: transition key
+      - text: (
+      - code [ref=e862]: OPEN
+      - text: ","
+      - code [ref=e863]: CREDIT_POSTED
+      - text: ","
+      - code [ref=e864]: MANUAL_COLLECTED
+      - text: ","
+      - code [ref=e865]: REP_COLLECTION
+      - text: ","
+      - code [ref=e866]: REP_COLLECTED_PENDING
+      - text: ","
+      - code [ref=e867]: WRITTEN_OFF
+      - text: ","
+      - code [ref=e868]: ESCALATED
+      - text: ) to
+      - code [ref=e869]: S_ShortPayConfig
+      - text: ", which returns both the target picklist value"
+      - strong [ref=e870]: and
+      - text: the audit label from one CMDT row (so they never drift).
+    - heading [level=3] [ref=e871]:
+      - text: 4.1 The capture → queue hand-off (how a short pay
+      - emphasis [ref=e872]: enters
+      - text: the queue)
+    - paragraph [ref=e873]:
+      - text: The
+      - code [ref=e874]: "[*] → Open"
+      - text: transition is the join between the driver's world and AR's world, and it's easy to get wrong — the shortfall (
+      - code [ref=e875]: Short_Pay_Amount__c
+      - text: ) is a
+      - strong [ref=e876]: formula
+      - text: ", so it goes positive the moment the driver records a partial payment, but the"
+      - strong [ref=e877]: queue status is a separate field that must be explicitly stamped
+      - text: . Nothing else initializes it — no field default, no Invoice trigger, no flow.
+    - paragraph [ref=e878]:
+      - strong [ref=e879]:
+        - code [ref=e880]: E_DriverHome.finalizeStop
+        - text: owns this stamp.
+      - text: When a short pay
+      - strong [ref=e881]: clears
+      - text: finalize (auto-approved below threshold, or the approval chain has approved it), finalize sets
+      - code [ref=e882]: Short_Pay_Status__c = S_ShortPayConfig.targetStatus('OPEN')
+      - text: (default
+      - code [ref=e883]: Open
+      - text: "). Guarded twice:"
+    - list [ref=e884]:
+      - listitem [ref=e885]:
+        - strong [ref=e886]: only when the invoice actually cleared
+        - text: — a blocked/pending short pay is not in the queue yet, so its status stays blank until the gate clears;
+      - listitem [ref=e887]:
+        - strong [ref=e888]: only from a blank status
+        - text: — a re-finalize never clobbers a later queue/resolved state (e.g. an already-
+        - code [ref=e889]: Escalated
+        - text: or
+        - code [ref=e890]: Resolved-Credit
+        - text: invoice).
+    - generic [ref=e891]:
+      - strong [ref=e892]: "⚠️ Why this matters:"
+      - text: without the stamp, a cleared short pay carries a
+      - strong [ref=e893]: blank
+      - code [ref=e894]: Short_Pay_Status__c
+      - text: and is invisible to
+      - strong [ref=e895]: both
+      - text: the review queue (
+      - code [ref=e896]: getWorklist
+      - text: filters
+      - code [ref=e897]: "Short_Pay_Status__c IN {Open, …}"
+      - text: )
+      - strong [ref=e898]: and
+      - text: the escalation batch (scans
+      - code [ref=e899]: Open
+      - text: /
+      - code [ref=e900]: Rep Collection
+      - text: ) — it would silently never reach back office. This hand-off was added in BMS-4965 to close exactly that gap.
+    - document [ref=e902]:
+      - generic [ref=e904]:
+        - generic [ref=e911]:
+          - paragraph [ref=e917]: no, pending/rejected
+          - paragraph [ref=e923]: "yes"
+          - paragraph [ref=e929]: "yes"
+          - paragraph [ref=e935]: no (re-finalize)
+          - paragraph [ref=e941]: approval granted, re-finalize
+        - generic [ref=e942]:
+          - paragraph [ref=e949]: Driver finalize, Short_Pay_Amount > 0
+          - paragraph [ref=e956]: cleared the approval gate?
+          - paragraph [ref=e963]: Status stays blank, NOT in queue yet
+          - paragraph [ref=e970]: Status currently blank?
+          - paragraph [ref=e977]: Stamp Open, enters AR review queue
+          - paragraph [ref=e984]: Leave existing status, no clobber
+    - 'heading "⭐ 5. Deep dive: how \"Assign to Rep\" creates the collection task" [level=2] [ref=e985]'
+    - paragraph [ref=e986]:
+      - text: AR clicks
+      - strong [ref=e987]: Assign to Rep
+      - text: on a queue row; the system moves the invoice to
+      - code [ref=e988]: Rep Collection
+      - text: and drops a due-dated Task onto that rep's route for today.
+    - heading "5.1 The call chain" [level=3] [ref=e989]
+    - document [ref=e991]:
+      - generic [ref=e992]: DmlService
+      - generic [ref=e995]: Thresholds / Config
+      - generic [ref=e998]: S_ShortPayResolution
+      - generic [ref=e1001]: E_ShortPayReview
+      - generic [ref=e1004]: OMS_UI_Wrappers
+      - generic [ref=e1007]: AR user (LWC)
+      - generic [ref=e1010]: DmlService
+      - generic [ref=e1014]: Thresholds / Config
+      - generic [ref=e1018]: S_ShortPayResolution
+      - generic [ref=e1022]: E_ShortPayReview
+      - generic [ref=e1026]: OMS_UI_Wrappers
+      - generic [ref=e1030]: AR user (LWC)
+      - generic [ref=e1034]: click Assign to Rep (invoiceId)
+      - generic [ref=e1035]: assignToRepForCollection(invoiceId)
+      - generic [ref=e1036]: assignToRepForCollection(invoiceId)
+      - generic [ref=e1037]: loadOpenShortPay (open & amount > 0)
+      - generic [ref=e1039]: resolve rep - Invoice.Sales_Rep ▸ Account.Sales_Rep ▸ Account.Owner
+      - generic [ref=e1041]: resolveForState(BillingState) → roll window (else 10)
+      - generic [ref=e1042]: targetStatus(REP_COLLECTION)
+      - generic [ref=e1043]: build Task (template, WhatId=Account, link=Invoice)
+      - generic [ref=e1045]: update Invoice (Rep Collection) [SYSTEM_MODE]
+      - generic [ref=e1046]: insert Task (owner=rep, due today) [SYSTEM_MODE]
+      - generic [ref=e1047]: insert Short_Pay_Event (audit)
+      - generic [ref=e1048]: ensureRepRouteStop(rep, account, today)
+      - generic [ref=e1050]: returns new Task Id
+    - heading [level=3] [ref=e1051]:
+      - text: 5.2 What the logic actually does (
+      - code [ref=e1052]: S_ShortPayResolution.assignToRepForCollection
+      - text: )
+    - list [ref=e1053]:
+      - listitem [ref=e1054]:
+        - strong [ref=e1055]: Guard
+        - text: —
+        - code [ref=e1056]: loadOpenShortPay()
+        - text: re-queries; proceeds only if still an
+        - emphasis [ref=e1057]: open
+        - text: short pay with
+        - code [ref=e1058]: Short_Pay_Amount__c > 0
+        - text: . Stale/resolved → throws.
+      - listitem [ref=e1059]:
+        - strong [ref=e1060]: "Resolve the rep (3-level fallback):"
+        - code [ref=e1061]: Invoice.Sales_Rep__c
+        - text: → else
+        - code [ref=e1062]: Account.Sales_Rep__c
+        - text: → else
+        - code [ref=e1063]: Account.OwnerId
+        - text: . None → throws.
+      - listitem [ref=e1064]:
+        - strong [ref=e1065]: Compute the due window
+        - text: —
+        - code [ref=e1066]: resolveForState(BillingState).Rollover_Window_Days__c
+        - text: ", default"
+        - strong [ref=e1067]: 10 days
+        - text: . (Governs invoice-side escalation; the Task itself is due
+        - strong [ref=e1068]: today
+        - text: — see 5.3/caveats.)
+      - listitem [ref=e1069]:
+        - strong [ref=e1070]: Move the invoice
+        - text: — status =
+        - code [ref=e1071]: targetStatus('REP_COLLECTION')
+        - text: (default
+        - code [ref=e1072]: Rep Collection
+        - text: ).
+      - listitem [ref=e1073]:
+        - strong [ref=e1074]: "Build the Task:"
+        - code [ref=e1075]: OwnerId
+        - text: = rep;
+        - code [ref=e1076]: WhatId
+        - text: =
+        - strong [ref=e1077]: customer Account
+        - text: (invoice has activities disabled →
+        - code [ref=e1078]: FIELD_INTEGRITY_EXCEPTION
+        - text: );
+        - code [ref=e1079]: Short_Pay_Invoice__c
+        - text: = invoice; subject/description from
+        - code [ref=e1080]: Short_Pay_Task_Template__mdt
+        - text: with tokens substituted;
+        - code [ref=e1081]: ActivityDate
+        - text: = today,
+        - code [ref=e1082]: Status
+        - text: = Not Started,
+        - code [ref=e1083]: Priority
+        - text: = High.
+      - listitem [ref=e1084]:
+        - strong [ref=e1085]: Commit
+        - text: — Invoice update + Task insert via
+        - code [ref=e1086]: DmlService
+        - text: in
+        - code [ref=e1087]: SYSTEM_MODE
+        - text: (rule 4).
+      - listitem [ref=e1088]:
+        - strong [ref=e1089]: Audit
+        - text: — insert
+        - code [ref=e1090]: Short_Pay_Event__c
+        - text: (
+        - code [ref=e1091]: Action__c = Rep Collection
+        - text: ).
+      - listitem [ref=e1092]:
+        - strong [ref=e1093]: Make it visible
+        - text: —
+        - code [ref=e1094]: ensureRepRouteStop()
+        - text: (5.3).
+      - listitem [ref=e1095]:
+        - strong [ref=e1096]: Return
+        - text: the new Task Id.
+    - heading [level=3] [ref=e1097]:
+      - text: 5.3 Why
+      - code [ref=e1098]: ensureRepRouteStop()
+      - text: exists (the non-obvious part)
+    - paragraph [ref=e1099]:
+      - text: Sales Rep Home is a
+      - strong [ref=e1100]: route-driven
+      - text: view — it only lists tasks for accounts that are a
+      - strong [ref=e1101]:
+        - text: stop on the rep's
+        - code [ref=e1102]: Sales_Route__c
+        - text: for the day
+      - text: . A collection task is not a delivery, so without help it would never show.
+      - code [ref=e1103]: ensureRepRouteStop()
+      - text: ","
+      - strong [ref=e1104]: idempotently
+      - text: ":"
+    - list [ref=e1105]:
+      - listitem [ref=e1106]:
+        - text: Finds the rep's route for today (
+        - code [ref=e1107]: Driver__c = rep AND Sales_Route_Date__c = today
+        - text: ); creates
+        - code [ref=e1108]: "\"Collections <date>\""
+        - text: if absent.
+      - listitem [ref=e1109]:
+        - text: Adds a
+        - code [ref=e1110]: Sales_Route_Stop__c
+        - text: for the account if not already on the route (
+        - code [ref=e1111]: Stop_Order__c = 999
+        - text: ).
+    - paragraph [ref=e1112]: "Result: the collection task appears on the rep's home screen the same day."
+    - heading "5.4 Closing the loop" [level=3] [ref=e1113]
+    - document [ref=e1115]:
+      - generic [ref=e1117]:
+        - generic [ref=e1121]:
+          - paragraph [ref=e1127]: "rep taps collected: markRepCollected"
+          - paragraph [ref=e1133]: "AR confirms cash: markCollected"
+          - paragraph [ref=e1139]: cash never landed
+        - generic [ref=e1140]:
+          - paragraph [ref=e1147]: Rep Collection
+          - paragraph [ref=e1154]: Rep Collected - Pending AR
+          - paragraph [ref=e1161]: Resolved-Collected
+          - paragraph [ref=e1168]: Written Off
+    - paragraph [ref=e1169]:
+      - text: The rep marking the task done is
+      - strong [ref=e1170]: not
+      - text: the terminal close — it moves the invoice to
+      - code [ref=e1171]: Rep Collected - Pending AR
+      - text: (still open, no resolved date). AR must confirm the cash actually landed (
+      - code [ref=e1172]: markCollected
+      - text: →
+      - code [ref=e1173]: Resolved-Collected
+      - text: ") to close it. Deliberate: the rep"
+      - emphasis [ref=e1174]: reports
+      - text: collection; AR
+      - emphasis [ref=e1175]: confirms
+      - text: it.
+    - heading "6. The other resolution paths" [level=2] [ref=e1176]
+    - table [ref=e1177]:
+      - rowgroup [ref=e1178]:
+        - row [ref=e1179]:
+          - columnheader "Action (queue button)" [ref=e1180]
+          - columnheader "Method" [ref=e1181]
+          - columnheader "Transition key" [ref=e1182]
+          - columnheader "Result" [ref=e1183]
+          - columnheader "Notes" [ref=e1184]
+        - row [ref=e1185]:
+          - cell "Post Credit" [ref=e1186]
+          - cell [ref=e1187]:
+            - code [ref=e1188]: resolveWithCredit
+          - cell [ref=e1189]:
+            - code [ref=e1190]: CREDIT_POSTED
+          - cell "Resolved-Credit" [ref=e1191]
+          - cell [ref=e1192]:
+            - text: Inserts a
+            - code [ref=e1193]: Credit__c
+            - text: (1 case @ shortfall). The Credit after-insert trigger does the status move (§7).
+        - row [ref=e1194]:
+          - cell "Mark Collected" [ref=e1195]
+          - cell [ref=e1196]:
+            - code [ref=e1197]: markCollected
+          - cell [ref=e1198]:
+            - code [ref=e1199]: MANUAL_COLLECTED
+          - cell "Resolved-Collected" [ref=e1200]
+          - cell "Direct cash recovery + the AR confirm step. Terminal." [ref=e1201]
+        - row [ref=e1202]:
+          - cell "Write Off" [ref=e1203]
+          - cell [ref=e1204]:
+            - code [ref=e1205]: writeOff
+          - cell [ref=e1206]:
+            - code [ref=e1207]: WRITTEN_OFF
+          - cell "Written Off" [ref=e1208]
+          - cell "Uncollectible. Terminal." [ref=e1209]
+        - row [ref=e1210]:
+          - cell "Roll Forward" [ref=e1211]
+          - cell [ref=e1212]:
+            - code [ref=e1213]: rollToNextInvoice
+          - cell "—" [ref=e1214]
+          - cell "Rolled-Forward" [ref=e1215]
+          - cell [ref=e1216]:
+            - text: Pushes shortfall to next invoice via
+            - code [ref=e1217]: Carried_Forward_Short_Pay__c
+            - text: +
+            - code [ref=e1218]: Short_Pay_Rolled_To__c
+            - text: .
+        - row [ref=e1219]:
+          - cell "Assign to Rep" [ref=e1220]
+          - cell [ref=e1221]:
+            - code [ref=e1222]: assignToRepForCollection
+          - cell [ref=e1223]:
+            - code [ref=e1224]: REP_COLLECTION
+          - cell "Rep Collection" [ref=e1225]
+          - cell "§5." [ref=e1226]
+    - heading "7. Credit-posted resolution (trigger path)" [level=2] [ref=e1227]
+    - paragraph [ref=e1228]:
+      - text: Resolution-by-credit is
+      - strong [ref=e1229]: not
+      - text: called directly by the queue — it rides the existing
+      - code [ref=e1230]: Credit__c
+      - text: trigger, so
+      - emphasis [ref=e1231]: any
+      - text: credit posted against a short-paid invoice resolves it.
+    - document [ref=e1233]:
+      - generic [ref=e1235]:
+        - generic [ref=e1239]:
+          - paragraph [ref=e1245]: CMDT-gated ON
+          - paragraph [ref=e1251]: "OFF"
+        - generic [ref=e1252]:
+          - paragraph [ref=e1259]: Credit__c inserted/updated with Invoice__c set
+          - paragraph [ref=e1266]: CreditTriggerService afterInsert/afterUpdate
+          - paragraph [ref=e1273]: resolveShortPay method enabled?
+          - paragraph [ref=e1280]: S_ShortPayResolution.resolveByPostedCredits
+          - paragraph [ref=e1287]: no-op, ships dormant
+          - paragraph [ref=e1294]: Invoice → Resolved-Credit + audit event
+    - list [ref=e1295]:
+      - listitem [ref=e1296]:
+        - code [ref=e1297]: resolveShortPay
+        - text: is
+        - strong [ref=e1298]:
+          - text: gated by
+          - code [ref=e1299]: Trigger_Configuration__mdt
+        - text: (
+        - code [ref=e1300]: Resolve_Short_Pay_Credit_AI
+        - text: /
+        - code [ref=e1301]: _AU
+        - text: ) — ships
+        - strong [ref=e1302]: dormant
+        - text: ", AR turns it on, no deploy."
+      - listitem [ref=e1303]:
+        - strong [ref=e1304]: Additive
+        - text: — bolted onto the existing
+        - code [ref=e1305]: CreditTriggerService
+        - text: without touching existing credit logic.
+      - listitem [ref=e1306]:
+        - text: Delegated to
+        - code [ref=e1307]: S_ShortPayResolution
+        - text: so the trigger stays free of the status machine.
+    - heading "8. The two batch jobs" [level=2] [ref=e1308]
+    - table [ref=e1309]:
+      - rowgroup [ref=e1310]:
+        - row [ref=e1311]:
+          - columnheader "Batch" [ref=e1312]
+          - columnheader "What it does" [ref=e1313]
+          - columnheader "Scope" [ref=e1314]
+          - columnheader "Cadence" [ref=e1315]
+        - row [ref=e1316]:
+          - cell [ref=e1317]:
+            - code [ref=e1318]: B_Invoice_ShortPayEscalation
+          - cell [ref=e1319]:
+            - text: Flags
+            - code [ref=e1320]: Open
+            - text: /
+            - code [ref=e1321]: Rep Collection
+            - text: short pays as
+            - strong [ref=e1322]: Escalated
+            - text: when the shortfall crosses any O-1 cap for the customer's state
+          - cell [ref=e1323]:
+            - text: Invoices with
+            - code [ref=e1324]: Short_Pay_Amount__c > 0
+          - cell "⚠ not scheduled yet" [ref=e1325]
+        - row [ref=e1327]:
+          - cell [ref=e1328]:
+            - code [ref=e1329]: B_Account_ShortPayRollup
+          - cell [ref=e1330]:
+            - text: Recomputes each account's
+            - strong [ref=e1331]: TTM count + amount
+            - text: (repeat-offender signal)
+          - cell "All Accounts, trailing 365 days" [ref=e1332]
+          - cell "⚠ not scheduled yet" [ref=e1333]
+    - paragraph [ref=e1335]:
+      - strong [ref=e1336]: "Escalation \"lower-of\" dual cap:"
+      - text: escalate if shortfall ≥
+      - code [ref=e1337]: Escalation_Amount__c
+      - strong [ref=e1338]: OR
+      - text: shortfall ≥
+      - code [ref=e1339]: Escalation_Percent__c
+      - text: "% of"
+      - code [ref=e1340]: Total_Due__c
+      - strong [ref=e1341]: OR
+      - text: invoice age ≥
+      - code [ref=e1342]: Aging_Days__c
+      - text: . A
+      - strong [ref=e1343]: "null"
+      - text: threshold never trips (safe default for unconfigured states). State-specific row wins over
+      - code [ref=e1344]: "*"
+      - text: wildcard.
+    - heading "9. Approval gate (driver finalize — BMS-5631/5625)" [level=2] [ref=e1345]
+    - paragraph [ref=e1346]:
+      - text: Distinct from resolution. When a driver finalizes a stop with a shortfall, an
+      - strong [ref=e1347]: approval chain
+      - text: can block finalize until management signs off.
+    - list [ref=e1348]:
+      - listitem [ref=e1349]:
+        - code [ref=e1350]: S_ShortPayApprovalGate
+        - text: —
+        - emphasis [ref=e1351]: stateless
+        - text: "hard-gate: which layer(s) a shortfall must clear."
+      - listitem [ref=e1352]:
+        - code [ref=e1353]: S_ShortPayApprovalWorkflow
+        - text: —
+        - emphasis [ref=e1354]: stateful
+        - text: sequential chain persisted on the invoice (
+        - code [ref=e1355]: Short_Pay_Approval_State__c
+        - text: ","
+        - code [ref=e1356]: Short_Pay_Approval_Layer__c
+        - text: ","
+        - code [ref=e1357]: Short_Pay_Shortfall_Amount__c
+        - text: ). Required layers approve
+        - strong [ref=e1358]: in order
+        - text: by
+        - code [ref=e1359]: Sequence__c
+        - text: .
+      - listitem [ref=e1360]:
+        - code [ref=e1361]: S_ShortPayApproverResolver
+        - text: — resolves the approver from
+        - code [ref=e1362]: Approver_Source__c
+        - text: (role / permission set / queue).
+      - listitem [ref=e1363]:
+        - code [ref=e1364]: S_ShortPayApprovalNotifier
+        - text: — notifies the current layer (custom notification
+        - code [ref=e1365]: Short_Pay_Approval_Request
+        - text: ).
+      - listitem [ref=e1366]:
+        - strong [ref=e1367]: Key rule
+        - text: (
+        - code [ref=e1368]: isClearedByState
+        - text: "): an"
+        - code [ref=e1369]: Approved
+        - text: state clears only a shortfall
+        - strong [ref=e1370]: no larger
+        - text: than granted — a bigger shortfall re-runs the chain.
+        - code [ref=e1371]: E_DriverHome.finalizeStop
+        - text: checks this before allowing finalize. The
+        - code [ref=e1372]: shortPayApprovals
+        - text: LWC is the approver's queue.
+    - heading "10. Security model" [level=2] [ref=e1373]
+    - list [ref=e1374]:
+      - listitem [ref=e1375]:
+        - strong [ref=e1376]:
+          - code [ref=e1377]: Short Pay Back Office
+          - text: permission set
+        - text: — grants AR visibility of the short-pay + AR fields and the queue.
+        - strong [ref=e1378]: Drivers don't get it
+        - text: → drivers capture short pays but never chase them.
+      - listitem [ref=e1379]:
+        - text: All back-office automation runs
+        - code [ref=e1380]: SYSTEM_MODE
+        - text: (rule 4) with rule-citing comments; CMDT reads use
+        - code [ref=e1381]: SYSTEM_MODE
+        - text: rule 1.
+      - listitem [ref=e1382]:
+        - generic [ref=e1383]: ⚠ org config
+        - text: "Task 6.2: set driver-profile FLS so short-pay/AR fields are"
+        - strong [ref=e1384]: not readable
+        - text: to drivers, and assign the permission set to AR.
+    - heading "11. Class / component map" [level=2] [ref=e1385]
+    - table [ref=e1386]:
+      - rowgroup [ref=e1387]:
+        - row [ref=e1388]:
+          - columnheader "Layer" [ref=e1389]
+          - columnheader "Component" [ref=e1390]
+          - columnheader "Responsibility" [ref=e1391]
+        - row [ref=e1392]:
+          - cell "LWC (OMS-UI)" [ref=e1393]
+          - cell [ref=e1394]:
+            - code [ref=e1395]: shortPayReviewQueue
+          - cell "AR review queue — worklist, filters, all 5 resolve actions" [ref=e1396]
+        - row [ref=e1397]:
+          - cell [ref=e1398]
+          - cell [ref=e1399]:
+            - code [ref=e1400]: shortPayApprovals
+          - cell "Approver's decision queue (approve/reject)" [ref=e1401]
+        - row [ref=e1402]:
+          - cell [ref=e1403]
+          - cell [ref=e1404]:
+            - code [ref=e1405]: driverHomePage
+          - cell "Driver finalize + capture + approval status block" [ref=e1406]
+        - row [ref=e1407]:
+          - cell "Wrapper" [ref=e1408]
+          - cell [ref=e1409]:
+            - code [ref=e1410]: OMS_UI_Wrappers
+            - text: (short-pay methods)
+          - cell [ref=e1411]:
+            - code [ref=e1412]: "@AuraEnabled"
+            - text: bridge → executables / approval services
+        - row [ref=e1413]:
+          - cell "Executable" [ref=e1414]
+          - cell [ref=e1415]:
+            - code [ref=e1416]: E_ShortPayReview
+          - cell [ref=e1417]:
+            - text: AR read (
+            - code [ref=e1418]: getWorklist
+            - text: ","
+            - code [ref=e1419]: getStateOptions
+            - text: ) + resolve delegation
+        - row [ref=e1420]:
+          - cell [ref=e1421]
+          - cell [ref=e1422]:
+            - code [ref=e1423]: E_DriverHome
+          - cell [ref=e1424]:
+            - text: Driver finalize; consults approval state;
+            - strong [ref=e1425]:
+              - text: stamps the entry
+              - code [ref=e1426]: Open
+              - text: status on a cleared short pay
+            - text: (capture→queue hand-off, §4.1)
+        - row [ref=e1427]:
+          - cell "Service" [ref=e1428]
+          - cell [ref=e1429]:
+            - code [ref=e1430]: S_ShortPayResolution
+          - cell [ref=e1431]:
+            - text: Resolution engine — all transitions,
+            - strong [ref=e1432]: rep task creation
+            - text: ", roll-forward, audit"
+        - row [ref=e1433]:
+          - cell [ref=e1434]
+          - cell [ref=e1435]:
+            - code [ref=e1436]: S_ShortPayConfig
+          - cell "Transition key → target status + audit label (CMDT)" [ref=e1437]
+        - row [ref=e1438]:
+          - cell [ref=e1439]
+          - cell [ref=e1440]:
+            - code [ref=e1441]: S_ShortPayThresholds
+          - cell "Per-state thresholds + roll window (CMDT)" [ref=e1442]
+        - row [ref=e1443]:
+          - cell [ref=e1444]
+          - cell [ref=e1445]:
+            - code [ref=e1446]: S_ShortPayApproval*
+          - cell "Driver-finalize approval chain (Gate / Workflow / Resolver / Notifier)" [ref=e1447]
+        - row [ref=e1448]:
+          - cell "Batch" [ref=e1449]
+          - cell [ref=e1450]:
+            - code [ref=e1451]: B_Invoice_ShortPayEscalation
+          - cell "Nightly escalation" [ref=e1452]
+        - row [ref=e1453]:
+          - cell [ref=e1454]
+          - cell [ref=e1455]:
+            - code [ref=e1456]: B_Account_ShortPayRollup
+          - cell "Nightly TTM repeat-offender rollup" [ref=e1457]
+        - row [ref=e1458]:
+          - cell "Trigger" [ref=e1459]
+          - cell [ref=e1460]:
+            - code [ref=e1461]: CreditTriggerService.resolveShortPay
+          - cell "Credit-posted → resolution (CMDT-gated, additive)" [ref=e1462]
+        - row [ref=e1463]:
+          - cell "DTO" [ref=e1464]
+          - cell [ref=e1465]:
+            - code [ref=e1466]: ShortPayReviewRowDTO
+            - text: /
+            - code [ref=e1467]: DriverFinalizeResultDTO
+          - cell "LWC-ready carriers" [ref=e1468]
+        - row [ref=e1469]:
+          - cell "Data-Model" [ref=e1470]
+          - cell [ref=e1471]:
+            - text: Fields,
+            - code [ref=e1472]: Short_Pay_Event__c
+            - text: ", 4 CMDTs, permission set"
+          - cell "§3" [ref=e1473]
+    - heading "12. Outstanding / caveats" [level=2] [ref=e1474]
+    - list [ref=e1476]:
+      - listitem [ref=e1477]:
+        - strong [ref=e1478]: Threshold & approver CMDT values are AI-assumed
+        - text: — Gulf/Ops must ratify FL/AL amounts and L1–L3 approver sources (task 6.3).
+      - listitem [ref=e1479]:
+        - strong [ref=e1480]: Batches not scheduled yet
+        - text: (task 6.4).
+      - listitem [ref=e1481]:
+        - strong [ref=e1482]: Driver FLS + permission-set assignment
+        - text: is an org-config step (task 6.2).
+      - listitem [ref=e1483]:
+        - strong [ref=e1484]: "Apex coverage gap:"
+        - text: the review-queue Apex layer (
+        - code [ref=e1485]: E_ShortPayReview
+        - text: ","
+        - code [ref=e1486]: ShortPayReviewRowDTO
+        - text: ", new"
+        - code [ref=e1487]: OMS_UI_Wrappers
+        - text: short-pay methods) currently has
+        - strong [ref=e1488]: no Apex test
+        - text: (0%) — a DoD blocker being addressed.
+      - listitem [ref=e1489]:
+        - text: The rep task is due
+        - strong [ref=e1490]: today
+        - text: (immediately actionable) while the
+        - emphasis [ref=e1491]: state roll window
+        - text: governs invoice-side escalation — a deliberate split, easy to misread.
+    - contentinfo [ref=e1492]:
+      - text: "Sources:"
+      - code [ref=e1493]: S_ShortPayResolution
+      - text: ","
+      - code [ref=e1494]: E_ShortPayReview
+      - text: ","
+      - code [ref=e1495]: S_ShortPayConfig
+      - text: ","
+      - code [ref=e1496]: S_ShortPayThresholds
+      - text: ","
+      - code [ref=e1497]: B_Invoice_ShortPayEscalation
+      - text: ","
+      - code [ref=e1498]: B_Account_ShortPayRollup
+      - text: ","
+      - code [ref=e1499]: CreditTriggerService
+      - text: ","
+      - code [ref=e1500]: S_ShortPayApprovalWorkflow
+      - text: ", data-model fields + CMDT records — branch"
+      - code [ref=e1501]: demo/short-pay-epic-bms-4965
+      - text: .

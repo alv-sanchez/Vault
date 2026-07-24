@@ -1,131 +1,513 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PR #501 — /productize-demo skill</title>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR #501 Overview — /productize-demo skill</title>
 <style>
-  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
-    --be:#3fb950;--ui:#f0883e;--data:#a371f7;--test:#d29922;--accent:#58a6ff;--warn:#d29922;--danger:#f85149}
-  *{box-sizing:border-box}
-  body{margin:0 auto;max-width:940px;background:var(--bg);color:var(--txt);padding:32px 22px 60px;
-    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  h1{font-size:22px;margin:0 0 4px}.pr{color:var(--accent);text-decoration:none}
-  .stamp{color:var(--dim);font-size:12.5px;margin:0 0 14px}.stamp code{background:#1f2634;color:#9ecbff;border-radius:4px;padding:1px 6px}
-  .keys{margin:2px 0 16px}.keys span{display:inline-block;background:#1f2634;color:#9ecbff;border-radius:6px;padding:2px 9px;font-size:12.5px;font-weight:600;margin-right:6px}
-  .thesis{background:linear-gradient(180deg,#161b27,#12151d);border:1px solid var(--line);border-left:4px solid var(--accent);
-    border-radius:12px;padding:15px 18px;margin:12px 0 18px;font-size:16px;line-height:1.5}
-  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
-  .sc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 14px;min-width:82px}
-  .sc .n{font-size:20px;font-weight:700}.sc .l{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
-  .sc .n.add{color:var(--be)}.sc .n.del{color:var(--danger)}
-  h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin:26px 0 10px;color:var(--accent)}
-  code.f{background:#141a24;color:#9ecbff;border-radius:4px;padding:0 5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
-  .cmd{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#9ecbff;margin:8px 0}
+:root {
+  --bg:#2b2b2b; --surface:#fff; --surface-alt:#f5f5f0; --accent:#f5c518;
+  --text:#1a1a1a; --text-muted:#666; --border:#e0e0e0;
+  --diff-add-bg:#e6ffec; --diff-add-text:#1a7f37; --diff-del-bg:#ffebe9; --diff-del-text:#cf222e;
+  --diff-hunk-bg:#ddf4ff; --diff-hunk-text:#0969da; --diff-line-bg:#f6f8fa;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; line-height:1.5; }
+a { color:var(--diff-hunk-text); text-decoration:none; } a:hover { text-decoration:underline; }
+code { font-family:'SF Mono','Fira Code','Cascadia Code',monospace; background:var(--surface-alt); padding:.1em .35em; border-radius:4px; font-size:.9em; }
+.wrap { max-width:1100px; margin:0 auto; padding:0 20px 80px; }
+nav.sticky { position:sticky; top:0; z-index:10; background:rgba(26,26,26,.95); backdrop-filter:blur(6px); display:flex; gap:20px; align-items:center; padding:12px 20px; border-bottom:2px solid var(--accent); }
+nav.sticky a { color:#eee; font-size:.85rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+nav.sticky .exp { margin-left:auto; }
+nav.sticky button { background:var(--accent); color:#1a1a1a; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:.8rem; }
+/* Panel 1 */
+header.ctx { background:var(--bg); color:#f0f0f0; padding:32px 0 24px; }
+.kicker { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+.pr-num { color:var(--accent); font-weight:700; font-family:'SF Mono',monospace; }
+.no-ticket { background:#444; color:#ccc; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:600; }
+header.ctx h1 { margin:6px 0 14px; font-size:1.6rem; line-height:1.25; }
+.badges-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.tag { font-size:.72rem; font-weight:600; padding:3px 11px; border-radius:20px; }
+.tag.state { background:#1a7f37; color:#fff; }
+.tag.type { background:#8250df; color:#fff; }
+.tag.pkg { background:#333; color:#f5c518; border:1px solid #f5c518; }
+.summary-lead { color:#d0d0d0; font-size:.98rem; max-width:800px; }
+.summary-lead strong { color:#fff; }
+/* Panels */
+.panel { background:var(--surface); border-radius:12px; padding:28px 30px; margin-top:26px; box-shadow:0 3px 14px rgba(0,0,0,.28); }
+.panel h2 { margin:0 0 4px; font-size:1.3rem; }
+.panel .sub { color:var(--text-muted); font-size:.85rem; margin-bottom:18px; }
+.lead { font-size:1rem; margin-bottom:22px; }
+/* changelog */
+.cgroup { border:1px solid var(--border); border-radius:9px; margin-bottom:12px; overflow:hidden; }
+.cgroup > summary { cursor:pointer; padding:11px 15px; background:var(--surface-alt); font-weight:700; font-size:.95rem; }
+.cnt { background:var(--accent); color:#1a1a1a; border-radius:20px; padding:1px 9px; font-size:.75rem; margin-left:6px; }
+.frow { display:grid; grid-template-columns:minmax(180px,1fr) 90px 2fr; gap:14px; padding:12px 15px; border-top:1px solid var(--border); align-items:start; }
+.frow .fname { font-family:'SF Mono',monospace; font-size:.8rem; word-break:break-all; }
+.frow .fstats { font-family:'SF Mono',monospace; font-size:.78rem; color:var(--diff-add-text); }
+.frow .fdesc { font-size:.88rem; color:#333; }
+@media(max-width:720px) { .frow { grid-template-columns:1fr; gap:4px; } }
+/* key decisions / open items */
+.kd { border-left:4px solid var(--accent); background:var(--surface-alt); border-radius:0 8px 8px 0; padding:14px 18px; margin-top:20px; }
+.kd h3, .oi h3 { margin:0 0 10px; font-size:1rem; }
+.kd ol { margin:0; padding-left:20px; } .kd li { margin-bottom:8px; font-size:.9rem; }
+.oi { border-left:4px solid #e8890c; background:#fff8f0; border-radius:0 8px 8px 0; padding:14px 18px; margin-top:20px; }
+.oi p { margin:0; font-size:.9rem; }
+/* diffs */
+.statsbar { display:flex; gap:22px; flex-wrap:wrap; padding:14px 18px; background:var(--bg); color:#eee; border-radius:9px; margin-bottom:18px; font-family:'SF Mono',monospace; font-size:.85rem; }
+.statsbar b { color:var(--accent); }
+.fileblock { border:1px solid var(--border); border-radius:9px; margin-bottom:12px; overflow:hidden; }
+.fileblock > summary { cursor:pointer; padding:11px 15px; background:var(--surface-alt); display:flex; align-items:center; gap:12px; }
+.fileblock > summary .fpath { font-family:'SF Mono',monospace; font-size:.82rem; word-break:break-all; }
+.fileblock .badges { margin-left:auto; display:flex; gap:6px; }
+.badge { font-family:'SF Mono',monospace; font-size:.72rem; padding:1px 8px; border-radius:5px; font-weight:600; }
+.badge.add { background:var(--diff-add-bg); color:var(--diff-add-text); }
+.badge.del { background:var(--diff-del-bg); color:var(--diff-del-text); }
+.diffbody { overflow-x:auto; background:var(--diff-line-bg); font-family:'SF Mono','Fira Code','Cascadia Code',monospace; font-size:.8rem; }
+.dl { display:flex; white-space:pre; }
+.dl .ln { flex:0 0 46px; text-align:right; padding:0 8px; color:#9aa5b1; user-select:none; border-right:1px solid var(--border); }
+.dl .dc { padding:0 12px; flex:1; }
+.dl.add { background:var(--diff-add-bg); } .dl.add .dc { color:var(--diff-add-text); }
+.dl.del { background:var(--diff-del-bg); } .dl.del .dc { color:var(--diff-del-text); }
+.dl.hunk { background:var(--diff-hunk-bg); } .dl.hunk .dc { color:var(--diff-hunk-text); }
+footer { text-align:center; color:#888; font-size:.8rem; padding:34px 0 0; }
+</style></head>
+<body>
+<nav class="sticky">
+  <a href="#context">Context</a><a href="#narrative">Narrative</a><a href="#diffs">Diffs</a>
+  <span class="exp"></span>
+  <button onclick="toggleAll(true)">Expand all</button>
+  <button onclick="toggleAll(false)">Collapse all</button>
+</nav>
+<header class="ctx" id="context"><div class="wrap">
+  <div class="kicker"><span class="no-ticket">NO JIRA TICKET · tooling PR</span><span class="pr-num">PR #501</span></div>
+  <h1>feat(skills): /productize-demo — port Sales-Demos features into managed packages</h1>
+  <div class="badges-row">
+    <span class="tag state">OPEN</span>
+    <span class="tag type">feat · skills</span>
+    <span class="tag pkg">.claude/skills</span>
+    <span class="tag pkg">CLAUDE.md</span>
+  </div>
+  <p class="summary-lead">Adds a project-local Claude Code skill, <strong>/productize-demo</strong>, that turns a <strong>Sales-Demos</strong> branch/PR into a single productized PR against OHFY-Split — acquire &amp; scope the feature, produce a reuse-first <strong>Productization Map</strong> (the one hard approval gate), port demo code to managed-package conventions, deploy &amp; verify in a claimed pool org, then open a draft PR. Also tightens CLAUDE.md so Playwright is <strong>required</strong> for any <code>OHFY-*-UI/</code> change. <a href="https://github.com/Ohanafy/OHFY-Split/pull/501" style="color:var(--accent)">View PR ↗</a></p>
+</div></header>
 
-  /* 5-phase pipeline */
-  .phases{display:flex;flex-direction:column;gap:0;margin:10px 0}
-  .phase{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);position:relative}
-  .phase:last-child{border-bottom:none}
-  .phase .num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent)}
-  .phase .num.gate{background:rgba(210,153,34,.16);border-color:var(--warn);color:#f0c674}
-  .phase h3{margin:0 0 4px;font-size:14.5px;color:#e7e9f0}
-  .phase p{margin:0;font-size:13.5px;color:#a9b1c3;line-height:1.55}
-  .phase .tag{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
-    background:rgba(210,153,34,.16);color:#f0c674;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+<div class="wrap">
+<section class="panel" id="narrative">
+  <h2>Implementation Narrative</h2>
+  <div class="sub">What was built · file-by-file · key decisions · open items</div>
+  <p class="lead">This PR is pure tooling — no Apex, no LWC, no data model. It codifies an existing manual workflow (porting a proven Sales-Demos feature into the managed packages) into a repeatable skill, plus a mechanical translation reference the skill reads per-file during porting. The design principle throughout: <strong>demo code is a behavioral spec, not a copy source</strong> — every ported line must be rewritten to OHFY-Split conventions, and no product code is written until a human approves the Productization Map. A two-line CLAUDE.md edit rides along to close a real gap the skill's own dry-runs exposed (Playwright being treated as optional for UI work).</p>
 
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
-  .layer{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 15px}
-  .layer h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:7px}
-  .layer.r1 h3{color:var(--test)}.layer.r2 h3{color:var(--ui)}.layer.r3 h3{color:var(--be)}
-  .layer ul{margin:0;padding-left:2px;list-style:none}.layer li{margin:6px 0;padding-left:14px;position:relative;font-size:13.5px;color:#d7dce8}
-  .layer li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+  <details open class="cgroup"><summary>New Skill <span class="cnt">2</span></summary><div class="frow"><a href="#diff-claude-skills-productize-demo-skill-md" class="fname">.claude/skills/productize-demo/SKILL.md</a><span class="fstats">+188</span><span class="fdesc">The skill definition: a 5-phase workflow (Acquire → Productization Map → Port → Deploy &amp; verify → Pre-PR gate &amp; PR) with a <strong>hard user-approval gate</strong> before any product code is written. Demo code is treated as a behavioral spec, never copied verbatim.</span></div><div class="frow"><a href="#diff-claude-skills-productize-demo-references-translation-guide-md" class="fname">.claude/skills/productize-demo/references/translation-guide.md</a><span class="fstats">+168</span><span class="fdesc">The mechanical translation reference the Port phase reads per file: demo→product namespace/field-rename table, SOQL→QueryService, DML→DmlService, trigger framework, <code>_T</code>/Jest tests, ADR-0007 DTO hoisting, UI-wrapper facade, dual org-metadata folders, Named Credentials for callouts.</span></div></details><details open class="cgroup"><summary>Process Docs <span class="cnt">1</span></summary><div class="frow"><a href="#diff-claude-md" class="fname">CLAUDE.md</a><span class="fstats">+2 / -2</span><span class="fdesc">Hardens the Definition of Done and Pre-PR Checks: Playwright specs passing on chromium are now <strong>required</strong> for every PR touching <code>OHFY-*-UI/</code> (previously the vague "as applicable" / "user-facing flows"), with exemption only via the skip policy.</span></div></details>
 
-  .note{background:var(--card2);border-left:3px solid var(--warn);border-radius:8px;padding:9px 14px;margin:9px 0;font-size:13.5px;color:#e7e9f0}
-  .note b{color:#f0c674}
-  .note.ok{border-left-color:var(--be)}.note.ok b{color:#7ee08b}
-  .foot{color:var(--dim);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
-</style></head><body>
+  <div class="kd"><h3>Key Decisions</h3><ol>
+    <li><strong>Hard human gate before any code.</strong> Phase 2's Productization Map (package targets, field-level rename table, component mapping, platform risk flags) must be explicitly approved by the user before a single product line is written — the skill treats demo code as a spec, never a paste source.</li>
+    <li><strong>Field renames ≠ prefix strips.</strong> The translation guide calls out that demo orgs run older package vintages, so <code>ohfy__Active__c</code> may map to <code>Is_Active__c</code> — stripping the namespace is necessary but not sufficient; every field is verified against current product metadata, with two grep sweeps at the end.</li>
+    <li><strong>Delta-port awareness.</strong> Acquire checks for an existing prior port on <code>main</code> and pivots to porting only the delta rather than re-porting the whole feature.</li>
+    <li><strong>Org-only schema classification.</strong> Schema present in neither repo is flagged as "org-only" and resolved by describe against the connected demo org, rather than silently assumed.</li>
+    <li><strong>Validated by self-application.</strong> The skill was hardened across three rounds against real Sales-Demos PR #2 (956 files) — baseline, dry-run, and a full live delta port — with the ~11 findings folded back into the skill and this CLAUDE.md change.</li>
+  </ol></div>
 
-<h1>🏭 PR <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/501">#501</a> — <code class="f">/productize-demo</code> skill</h1>
-<p class="stamp">feat(skills) · <b>OPEN</b> · <code>feature/productize-demo-skill</code> → <code>main</code> · author jk-ohanafy · 4 commits</p>
-<div class="keys"><span>Tooling — no BMS ticket</span></div>
+  <div class="oi"><h3>Open Items / Review Status</h3>
+  <p>No substantive review findings. The only PR review is an automated <code>claude[bot]</code> notice that code review was skipped due to the org's monthly review-spending cap — <strong>not</strong> a finding on the content. No BLOCKER/WARNING comments to disposition. As a docs/tooling-only PR (no <code>.cls</code>/<code>.trigger</code>/LWC), the CLAUDE.md hard-constraint gates don't apply; CI on this PR is effectively lint/prettier only.</p></div>
+</section>
 
-<div class="thesis">A new project-local skill that takes a <b>Sales-Demos</b> branch/PR URL and productizes the feature into OHFY-Split — porting a proof-of-concept demo into a real, convention-compliant managed-package feature, end to end, in one command. Not a product feature itself: this PR ships the <em>tool</em> that will help build future product features out of sales demos.</div>
+<section class="panel" id="diffs">
+  <h2>Code Changes</h2>
+  <div class="statsbar">
+    <span><b>3</b> files</span>
+    <span><b>+358</b> insertions</span>
+    <span><b>-2</b> deletions</span>
+    <span><b>4</b> commits</span>
+  </div>
+  <details  id="diff-claude-skills-productize-demo-skill-md" class="fileblock">
+<summary><span class="fpath">.claude/skills/productize-demo/SKILL.md</span><span class="badges"><span class="badge add">+188</span><span class="badge del">-0</span></span></summary>
+<div class="diffbody"><div class="dl hunk"><span class="ln"></span><span class="ln"></span><span class="dc">@@ -0,0 +1,188 @@</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">1</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">2</span><span class="dc">+name: productize-demo</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">3</span><span class="dc">+description: Use when asked to productize, port, promote, or &quot;make real&quot; a feature from the Ohanafy Sales-Demos repo (github.com/Ohanafy/Sales-Demos) into the OHFY-Split managed packages — triggered by a Sales-Demos branch or PR URL, or phrases like &quot;productize this demo&quot;, &quot;port the demo feature&quot;, &quot;bring this into the product&quot;.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">4</span><span class="dc">+license: MIT</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">5</span><span class="dc">+metadata:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">6</span><span class="dc">+    author: ohanafy</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">7</span><span class="dc">+    version: &quot;1.0&quot;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">8</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">9</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">10</span><span class="dc">+Port a feature from a Sales-Demos org branch/PR into the OHFY-Split managed packages, verify behavior in a claimed dev org (side-by-side against the demo org when it&#x27;s connected), pass the pre-PR gate, and open a PR.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">11</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">12</span><span class="dc">+## How to Use</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">13</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">14</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">15</span><span class="dc">+/productize-demo &lt;Sales-Demos PR or branch URL&gt; [BMS-XXXX]</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">16</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">17</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">18</span><span class="dc">+Examples:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">19</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">20</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">21</span><span class="dc">+/productize-demo https://github.com/Ohanafy/Sales-Demos/pull/2</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">22</span><span class="dc">+/productize-demo https://github.com/Ohanafy/Sales-Demos/tree/feature/route-planner-full-deploy BMS-1234</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">23</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">24</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">25</span><span class="dc">+**Before you run it**, have ready:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">26</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">27</span><span class="dc">+- **GitHub access** to `Ohanafy/Sales-Demos` (`gh auth status`).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">28</span><span class="dc">+- **Org-pool credentials** — `OHFY_API_TOKEN` exported in your shell profile, or a live `aws sso login --profile ohanafy-dev` session. Without one, analysis still runs but deployment blocks until you provide it.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">29</span><span class="dc">+- **The demo org connected in `sf` (optional but valuable)** — `sf org login web -a &lt;alias&gt;` against the sales org that runs the feature. You&#x27;ll be asked to confirm which alias it is; with it connected the skill observes live behavior, resolves org-only schema by describe, and does side-by-side parity checks. Without it, verification degrades to code + PR description.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">30</span><span class="dc">+- **Feature-specific credentials (case by case)** — e.g. a Google Maps API key if the feature is map-based. The skill asks when it hits one; you can also choose to skip that slice of live verification.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">31</span><span class="dc">+- **A BMS ticket (optional)** — pass the key to get AC cross-checking in the map and AC coverage in the PR. The skill never creates tickets.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">32</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">33</span><span class="dc">+**What to expect during a run** — the skill is interactive at specific points and autonomous in between:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">34</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">35</span><span class="dc">+1. A few scoping questions up front (which connected org is the demo org; which feature(s) to port if the PR carries several).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">36</span><span class="dc">+2. **The Productization Map** — the one big checkpoint. You get a full mapping (packages, field-level data-model renames, component targets, platform risks, deviations) and must explicitly Approve before any code is written. Budget real review time here; it&#x27;s the lever that steers the whole port.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">37</span><span class="dc">+3. Then it runs: port → claim pool org → deploy → Apex/Jest/Playwright/live verification → **draft PR**, checking in only if a gate fails or a credential is needed. The claimed org is left running for your own poking; you&#x27;ll be prompted about releasing it after merge.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">38</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">39</span><span class="dc">+**Cost/scale note**: analysis and porting fan out subagents; a large demo PR is a long run. Point it at one feature per invocation — if the demo PR bundles several, the skill will ask you to pick.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">40</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">41</span><span class="dc">+**Input**: A Sales-Demos branch or PR URL (e.g. `https://github.com/Ohanafy/Sales-Demos/pull/2`). Optional: a BMS ticket key.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">42</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">43</span><span class="dc">+**End state**: One branch, one open PR against `main` carrying the complete productized feature — data model, backend, and UI together — deployed and verified in a claimed dev org that is left running for the user. Large demos don&#x27;t get split into phased PRs; they get subagent fan-out during analysis and porting, and the single PR carries the whole feature.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">44</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">45</span><span class="dc">+&lt;HARD-GATE&gt;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">46</span><span class="dc">+No product code is written until the user approves the Productization Map (Phase 2). Demo code is a behavioral spec, not a source to copy — every ported line must comply with OHFY-Split conventions (QueryService/DmlService, trigger framework, `_T` tests, DTO/wrapper rules, naming standards). Copying demo files verbatim into a package is a violation even if they compile.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">47</span><span class="dc">+&lt;/HARD-GATE&gt;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">48</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">49</span><span class="dc">+## Why demo code can&#x27;t be copied</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">50</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">51</span><span class="dc">+Sales-Demos is unmanaged code written *inside customer orgs that have the ohfy managed package installed*. It systematically differs from product code:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">52</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">53</span><span class="dc">+| Demo code | Product code (OHFY-Split) |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">54</span><span class="dc">+| --- | --- |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">55</span><span class="dc">+| References managed schema WITH prefix: `ohfy__Route__c`, `ohfy__Order__c` | Source is unprefixed within the namespace: `Route__c`, `Order__c` — strip the prefix AND verify the field still exists under that name (demo orgs run older package vintages; names drift: `ohfy__Active__c` → `Is_Active__c`) |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">56</span><span class="dc">+| Raw `[SELECT ...]`, raw DML, `Database.*` | `QueryService` / `DmlService` only (see `docs/security/mode-selection.md`) |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">57</span><span class="dc">+| Ad-hoc triggers or trigger logic in controllers | Trigger framework: `{Object}TriggerService` + `Trigger_Configuration__mdt` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">58</span><span class="dc">+| `FooControllerTest` naming, `insert` test data | `Foo_T` naming, `TestDataFactory.createSObject()`, `TestService` bypass |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">59</span><span class="dc">+| Flat `classes/` per feature folder | Role directories with prefixes: `executables/E_`, `services/S_`, `controllers/`, `DTOs/&lt;domain&gt;/`, `wrappers/` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">60</span><span class="dc">+| Un-instrumented catch blocks, `System.debug` | `Logger.getInstance().error(...)` + `flush()` in every catch; no `System.debug` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">61</span><span class="dc">+| Per-customer folders (`TBM/`, `Ozone/`) each holding many cross-referencing feature folders | Split across tiers: objects → Data-Model, logic → domain package, LWC → UI package, cross-package via DTO/`@namespaceAccessible`/UI-wrapper facade |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">62</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">63</span><span class="dc">+The full translation table with code examples is in `references/translation-guide.md` — **read it before Phase 3**.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">64</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">65</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">66</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">67</span><span class="dc">+## Pre-flight Checks</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">68</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">69</span><span class="dc">+Fail fast; surface any failure to the user before doing work.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">70</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">71</span><span class="dc">+1. **GitHub access**: `gh auth status` succeeds and `gh repo view Ohanafy/Sales-Demos --json name` returns.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">72</span><span class="dc">+2. **Parse the input URL**:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">73</span><span class="dc">+    - PR URL (`/pull/N`) → `gh pr view N --repo Ohanafy/Sales-Demos --json title,body,headRefName,baseRefName,changedFiles` for metadata, then the file list via `gh api repos/Ohanafy/Sales-Demos/pulls/N/files --paginate --jq &#x27;.[].filename&#x27;`. **Never use `gh pr view --json files` for the file list — it silently truncates at 100 files.** Cross-check your list&#x27;s length against `changedFiles`; mismatch = stop and fix.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">74</span><span class="dc">+    - Branch URL (`/tree/&lt;branch&gt;`) → use the branch name directly; diff against the repo default branch.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">75</span><span class="dc">+3. **Ticket (optional)**: if args contain `BMS-\d+`, load it via `getJiraIssue` (fields `summary`, `customfield_10070` for ACs). Non-blocking on failure. No ticket is ever created by this skill.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">76</span><span class="dc">+4. **Demo org detection**: `sf org list --json` — collect connected (non-`AuthDecryptError`) orgs. **Always ask the user** which alias (if any) is the demo org for this feature&#x27;s customer — never pick by name heuristic: Sales-Demos customer folders (`TBM`, `Ozone`, `Gulf`, ...) look like org aliases and make fuzzy matching false-positive-prone. If none, note it: live-behavior observation and org-only schema resolution (Phase 1) degrade to code + PR description. **The demo org is read-only in this skill — never deploy to it or modify records in it.**</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">77</span><span class="dc">+5. **Working branch**: create a feature branch off up-to-date `main`, following the repo&#x27;s branch-naming convention in CLAUDE.md (currently `feat/&lt;feature-name&gt;-bms-&lt;ticket-number&gt;` when a ticket was given, e.g. `feat/productize-dispatch-planner-bms-1234`; without a ticket, `feat/productize-&lt;feature-slug&gt;`). Never work on `main` directly.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">78</span><span class="dc">+6. **Org-pool credentials** — verify NOW, not at deploy time, so the user can re-auth while analysis runs: `OHFY_API_TOKEN` set (check `source ~/.zshrc` picks it up — env vars added mid-session aren&#x27;t in already-open shells) or a live AWS SSO session for the SSM lookup. If neither, tell the user immediately (`! aws sso login --profile ohanafy-dev` or export `OHFY_API_TOKEN`) and continue with Phases 1–3 while they sort it. Also know the pool API returns **plain-text throttle messages** (&quot;Org Factory cannot service the request. Please wait 5 minutes...&quot;) that surface as `jq` parse errors from `claim-dev.sh` — that&#x27;s a retry-in-5-minutes, not an auth failure; reproduce the raw `curl` from the script to read the real message.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">79</span><span class="dc">+7. **Dependency freshness** — if `git log -1 --format=%h -- package-lock.json` is newer than the last `npm install` (or `npx stylelint --version` errors), run `npm install`. Stale `node_modules` makes pre-commit hooks fail with misleading &quot;Task killed: prettier&quot; messages when the real failure is a missing linter added on `main`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">80</span><span class="dc">+8. **Local check baseline** — capture pre-existing failures BEFORE changing anything, so Phase 5 diffs against them instead of blaming the port (mirror of the playwright-tests skill&#x27;s tsc baseline): run `npm run lint` and `npm test` and save failure lists to the scratchpad. Known repo noise: stale `.claude/worktrees/*` copies get scanned by Jest/ESLint globs and fail in bulk — classify anything under `.claude/` as environment noise, never as port breakage, and never &quot;fix&quot; files there.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">81</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">82</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">83</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">84</span><span class="dc">+## Phase 1 — Acquire the Demo Feature</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">85</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">86</span><span class="dc">+1. **Clone the demo branch** into the scratchpad (never into the OHFY-Split working tree):</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">87</span><span class="dc">+    ```bash</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">88</span><span class="dc">+    gh repo clone Ohanafy/Sales-Demos &quot;$SCRATCHPAD/Sales-Demos&quot; -- --depth 1 --branch &lt;headRefName&gt;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">89</span><span class="dc">+    ```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">90</span><span class="dc">+2. **Scope the diff and partition it** — demo PRs are cut from working orgs and routinely carry hundreds of files of org-retrieve noise (full `objects/Account`, `objects/User`, unrelated flows) alongside the feature. Build the full changed-file set (paginated, per Pre-flight), drop `.sfdx/` typings, then partition:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">91</span><span class="dc">+    - **Feature files**: the feature folder(s) under the customer directory — note that features cross-reference each other, so grep for classes/LWCs the feature code references that live in *sibling* feature folders (e.g. a batch class in `TBM/salesRouteTracking/` used by `TBM/dispatchMap/`) — plus feature-referenced shared metadata (permsets, tabs, flexipages, VF pages, CMDTs, specific object fields).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">92</span><span class="dc">+    - **Retrieve noise**: everything else.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">93</span><span class="dc">+    - If the PR contains multiple distinct features (or the noise boundary is ambiguous), ask the user which feature(s) to port before continuing.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">94</span><span class="dc">+3. **Read the feature**: PR body and any `*RELEASE_NOTES*.md` / README first — but treat them as **unverified hints**: demo PR bodies routinely misstate file counts and label added files as &quot;modified&quot;. Verify every load-bearing claim against the actual diff. Then read the feature files; for large features (&gt;~20 files or files &gt;1k lines), fan out reader subagents per component cluster, each returning a behavior/dependency inventory. End state: a numbered inventory of behaviors — what the user sees, what actions exist, what records are read/written.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">95</span><span class="dc">+4. **Compute the schema dependency closure** — the diff alone is NOT the data model. Demo schema lives in shared folders (`objects/`, `customMetadata/`, `permissionsets/`, `flexipages/`, `tabs/`, `flows/`) and may predate the PR:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">96</span><span class="dc">+    - Grep the changed Apex/LWC for every sObject and field API name referenced (`__c`, `__mdt`, `ohfy__` tokens).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">97</span><span class="dc">+    - For each, find its definition: in the demo repo&#x27;s `objects/` folder (demo-native or demo extension of a managed object) or in OHFY-Split&#x27;s `OHFY-Data-Model` (already productized).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">98</span><span class="dc">+    - Classify each schema element: **(a)** already exists in OHFY-Split (map to it — but verify field-level names: see the prefix/rename rule in the translation guide), **(b)** demo-native object/field with an existing ohfy semantic equivalent (map onto the equivalent), **(c)** genuine gap (new metadata needed in OHFY-Data-Model, per `docs/engineering/standards/naming-conventions.md` and `quantity-conventions.md`), **(d)** **org-only** — referenced in code but defined in *neither* repo (it lives only in the customer org). For (d): if the demo org is connected, pull the truth with `sf sobject describe -s &lt;Object&gt; -o &lt;demo-alias&gt;`; otherwise reconstruct type/semantics from usage and flag the reconstruction as unverified in the map.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">99</span><span class="dc">+5. **Check for in-flight or completed overlap** — the feature (or pieces of it) may already be productized. Search open PRs (`gh pr list --repo Ohanafy/OHFY-Split`), local branches/worktrees, and `main` for the demo&#x27;s class names, LWC names, and new object names.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">100</span><span class="dc">+    - **In-flight hit** (open PR/branch): goes in the map as a coordination item, not a silent re-port.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">101</span><span class="dc">+    - **Already on `main`** (a prior partial or full port exists): the run becomes a **delta port**. Add a delta-analysis step — compare demo vs product per component (method inventories, behaviors, UI sections; fan out a comparison subagent for large surfaces) and classify every difference: *missing in product* (port it), *behavioral divergence* (decide demo-newer vs intentional product hardening — product fixes and conventions win by default), or *product-ahead* (preserve; never regress it back toward the demo). The Phase 2 map then covers only the delta, and reuse-first extends to the existing port&#x27;s architecture (e.g. demo client-side API calls conform to the product&#x27;s server-side proxy pattern, not vice versa).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">102</span><span class="dc">+6. **Observe live behavior (if demo org connected)**: open the feature in the demo org via Chrome DevTools MCP, walk the primary flows from the PR description, screenshot each state, and query a few sample records (`sf data query ... -o &lt;demo-alias&gt;`) to capture real data shapes. Save screenshots to the scratchpad — they are the parity baseline for Phase 4.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">103</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">104</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">105</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">106</span><span class="dc">+## Phase 2 — Productization Map (APPROVAL CHECKPOINT)</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">107</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">108</span><span class="dc">+Produce the map as a markdown document in the scratchpad and present it in-conversation. Required sections:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">109</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">110</span><span class="dc">+1. **Feature summary &amp; behavior inventory** — numbered list of observable behaviors (each becomes a verification item in Phase 4). Cite source: PR body, code, or demo-org observation.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">111</span><span class="dc">+2. **Target packages** — which tier-3 domain package and tier-4 UI package (and any Data-Model/Platform touches), with one-line justification each.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">112</span><span class="dc">+3. **Data-model mapping table** — every schema element from the dependency closure:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">113</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">114</span><span class="dc">+    | Demo element | Classification | Product mapping | Notes |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">115</span><span class="dc">+    | --- | --- | --- | --- |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">116</span><span class="dc">+    | `Delivery_Stop__c.Sequence__c` | (b) equivalent exists | `Delivery__c.Stop_Sequence__c` | reuse |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">117</span><span class="dc">+    | `Routing_Settings__mdt` | (c) gap | new CMDT in OHFY-Data-Model | per naming standards |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">118</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">119</span><span class="dc">+    **Default policy: reuse-first.** Map onto existing ohfy objects/fields wherever semantically equivalent; propose new metadata only for genuine gaps. Flag every (c) row prominently — new managed-package metadata is a permanent API commitment. For (a) rows, the table must map at **field level**, not object level: demo and product field names drift beyond the prefix (`ohfy__Active__c` → `Is_Active__c`, `Skipped__c` → `Is_Skipped__c`, case differences like `Day_of_Week__c` → `Day_Of_Week__c`), so every referenced field gets an explicit demo→product rename entry verified against `OHFY-Data-Model/.../objects/&lt;Obj&gt;/fields/`. Mark (d) org-only rows as verified (demo-org describe) or reconstructed-from-usage.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">120</span><span class="dc">+4. **Component mapping table** — every demo file → target path + role (`E_`/`S_`/controller/DTO/wrapper/LWC/trigger service) + key translations to apply. LWCs consumed cross-package need the UI-wrapper facade; cross-package `@AuraEnabled` shapes need `global` DTOs per ADR-0007. Reuse-first applies to code too:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">121</span><span class="dc">+    - Before proposing any new class/LWC, grep the product packages for an existing analog (e.g. existing route-stop LWCs, existing batch jobs touching the same objects) — extend rather than duplicate.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">122</span><span class="dc">+    - Apex class names are namespace-wide across **all** packages in the repo: `grep -rl &quot;class &lt;Name&gt;&quot; */force-app --include=&quot;*.cls&quot;` for every proposed name; collisions (e.g. WMS already owns `RouteDTO`) force a rename in the map.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">123</span><span class="dc">+5. **Platform risk flags** — anything that behaves differently inside a namespaced managed package than in the demo&#x27;s subscriber org: Visualforce pages (none exist in the product today), external JS libraries / static resources / map tiles, CSP Trusted URLs, iframe `postMessage` origins, Lightning Out. Each gets a flagged design question in the map, not a silent port.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">124</span><span class="dc">+6. **Permissions &amp; app surface** — permission set changes, FlexiPages/tabs (remember: org-metadata changes go in BOTH `org-metadata/managed/` and `org-metadata/scratch/` with the prefix rule). Check where existing per-feature permission sets live (`find OHFY-* -name &quot;*.permissionset-meta.xml&quot;`) — if the repo has no established home yet, propose an owning package and flag it as a design question for the user.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">125</span><span class="dc">+7. **Deliberate deviations / out of scope** — demo behaviors intentionally not ported (hacks, customer-specific hardcoding) and why.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">126</span><span class="dc">+8. **Verification plan** — which behaviors get `_T` coverage, Jest coverage, Chrome DevTools verification, and Playwright specs (required for any Tier-4 touch); whether side-by-side demo comparison is available.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">127</span><span class="dc">+9. **AC cross-check** — if a ticket was loaded, map each AC to a behavior/verification item.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">128</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">129</span><span class="dc">+Present the map with `AskUserQuestion`: **Approve** / **Edit** (iterate on their notes) / **Abort**. Do not proceed to Phase 3 without an explicit Approve.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">130</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">131</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">132</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">133</span><span class="dc">+## Phase 3 — Port</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">134</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">135</span><span class="dc">+Follow the approved map exactly; if reality forces a mapping change mid-port (e.g. a field turns out incompatible), stop and surface it — don&#x27;t silently deviate.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">136</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">137</span><span class="dc">+**Order of work** (respects dependency tiers):</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">138</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">139</span><span class="dc">+1. **OHFY-Data-Model** — new objects/fields/CMDTs from (c) rows. Follow the per-field checklist in `docs/engineering/standards/naming-conventions.md`. Update `data/sample-data-plan.json` seed data if the feature needs records to demo.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">140</span><span class="dc">+2. **Domain package** (OMS/WMS/REX/Platform) — Apex per the translation guide (`references/translation-guide.md`): role directories, QueryService/DmlService, trigger framework registration, Logger-instrumented catches, `@namespaceAccessible`/DTO for cross-package surface, `_T` test per class with assertions.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">141</span><span class="dc">+3. **UI package** — LWCs (strip `ohfy__` prefixes from all schema references; Apex imports go through the package&#x27;s `*_UI_Wrappers.cls` facade), Jest test per component, `data-testid` on interactive elements.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">142</span><span class="dc">+4. **Org metadata** — FlexiPages/tabs/quickActions in both `org-metadata/managed/` and `org-metadata/scratch/` variants.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">143</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">144</span><span class="dc">+**For large ports** (roughly &gt;15 demo files), fan out subagents per component group from the map (e.g. one per Apex domain cluster, one per LWC cluster), each given the map rows + translation guide; review their output against the map before integrating.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">145</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">146</span><span class="dc">+Run `npm run prettier` when done porting.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">147</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">148</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">149</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">150</span><span class="dc">+## Phase 4 — Deploy &amp; Verify</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">151</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">152</span><span class="dc">+1. **Claim an org** — always through the pool, never `sf org create scratch`. The alias is a **positional** argument (verify with `head -15 utilityScripts/claim-dev.sh` — the interface has changed before):</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">153</span><span class="dc">+    ```bash</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">154</span><span class="dc">+    bash utilityScripts/claim-dev.sh productize-&lt;slug&gt;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">155</span><span class="dc">+    ```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">156</span><span class="dc">+2. **Deploy** affected packages in tier order (`sf project deploy start -d &lt;Package&gt;/force-app -o &lt;alias&gt;` per package), or `npm run deploy:full -- --target-org &lt;alias&gt;` if Data-Model changed broadly. Fix and redeploy until clean.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">157</span><span class="dc">+3. **Apex tests**: run every new/affected `_T` class (`sf apex run test -n &quot;&lt;list&gt;&quot; -r human -w 10 -o &lt;alias&gt;`) — selection per the Test Relevance Guidance in CLAUDE.md (trigger-object cascades included).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">158</span><span class="dc">+4. **Seed data**: ensure the feature has records to exercise — seed plan import or targeted anonymous Apex using `seed:`-prefixed `External_Id__c` values.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">159</span><span class="dc">+5. **Drive the feature** via Chrome DevTools MCP in the dev org: walk every behavior from the map&#x27;s inventory, screenshot each.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">160</span><span class="dc">+6. **Side-by-side parity (if demo org connected)**: for each behavior, compare the dev-org result against the Phase 1 demo-org screenshots/flows. Record ✅ match / ⚠ deviation (+ whether it&#x27;s a map-approved deliberate deviation).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">161</span><span class="dc">+7. **Playwright — required whenever the port touches a Tier-4 (`OHFY-*-UI/`) package**, which for a productized demo feature is nearly always: invoke `/playwright-tests` to author/update specs, then run `npm run test:playwright:chromium` for the affected specs until green. Skipping requires the per-check skip policy (ask the user), never a silent pass.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">162</span><span class="dc">+8. **Iterate** until every behavior verifies or is an approved deviation. Cap unguided iteration at 3 rounds per behavior — then surface to the user with evidence.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">163</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">164</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">165</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">166</span><span class="dc">+## Phase 5 — Pre-PR Gate &amp; PR</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">167</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">168</span><span class="dc">+Run the repo&#x27;s full **Pre-PR Checks and Definition of Done from CLAUDE.md** (and `docs/engineering/sdlc/pre-pr-checklist.md`) — those documents are authoritative over this summary: prettier:verify, branch synced with `origin/main`, conventional commits with the ticket key, no stray debug output, `_T` existence/pass with coverage threshold, `sf project deploy validate ... -l RunSpecifiedTests`, no raw SOQL/DML in diff, SYSTEM_MODE comments cite rules, no explicit `AccessLevel.USER_MODE`, `npm run lint`, `npm test` — **both diffed against the pre-flight baseline (only new failures block; also verify the port&#x27;s own files pass targeted runs)**, **Playwright specs passing for any Tier-4 touch**, AC walk if ticket loaded. The skip policy applies: never skip a failing check silently — ask per-check.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">169</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">170</span><span class="dc">+Then:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">171</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">172</span><span class="dc">+1. Commit on the single feature branch in tier-ordered conventional commits so the large PR reviews cleanly — e.g. `feat(data-model): ...`, then `feat(oms): ...`, then `feat(oms-ui): ...` — referencing the BMS ticket if provided.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">173</span><span class="dc">+2. Open the PR per the repo&#x27;s Git Workflow (currently: `gh pr create --draft` against `main`; drafts skip CI until marked ready, and marking ready requires the user&#x27;s explicit signoff — prompt, never auto-convert). PR body must include: the Sales-Demos source PR/branch link, the behavior-parity table from Phase 4, the data-model mapping summary (especially new metadata), deliberate deviations, and the AC coverage table if a ticket was loaded.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">174</span><span class="dc">+3. **Report to the user**: PR URL, org alias (left claimed and deployed — remind them the org-release prompt comes after merge per house rules), parity results, any ⚠ items needing human judgment, and suggested follow-ups (`/document` for product docs, `/set-risk` and `/end-ticket` if a ticket was loaded).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">175</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">176</span><span class="dc">+---</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">177</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">178</span><span class="dc">+## Guardrails</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">179</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">180</span><span class="dc">+- **Never copy a demo file verbatim** into a package — even &quot;it compiles&quot; is not compliance.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">181</span><span class="dc">+- **Strip every `ohfy__` prefix** from schema references when porting (demo code sees the installed package; product source is unprefixed).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">182</span><span class="dc">+- **Never** raw SOQL/DML/`Database.*` in non-`_T` classes; never explicit `AccessLevel.USER_MODE`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">183</span><span class="dc">+- **Never deploy to or modify the demo org** — it belongs to sales; read-only observation only.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">184</span><span class="dc">+- **Never `sf org create scratch`** — claim from the pool via `utilityScripts/claim-dev.sh`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">185</span><span class="dc">+- **Never modify the Sales-Demos repo** — no branches, commits, or comments there.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">186</span><span class="dc">+- **Never proceed past Phase 2 without explicit approval**, and never silently deviate from the approved map.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">187</span><span class="dc">+- **Demo hacks don&#x27;t ship**: hardcoded IDs/names, customer-specific logic, `System.debug`, commented-out code — all get translated or land in &quot;deliberate deviations&quot;, never ported as-is.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">188</span><span class="dc">+- **Jira MCP and demo-org access are optional** — degrade gracefully and note the degradation in the map and final report.</span></div></div>
+</details><details  id="diff-claude-skills-productize-demo-references-translation-guide-md" class="fileblock">
+<summary><span class="fpath">.claude/skills/productize-demo/references/translation-guide.md</span><span class="badges"><span class="badge add">+168</span><span class="badge del">-0</span></span></summary>
+<div class="diffbody"><div class="dl hunk"><span class="ln"></span><span class="ln"></span><span class="dc">@@ -0,0 +1,168 @@</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">1</span><span class="dc">+# Demo → Product Translation Guide</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">2</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">3</span><span class="dc">+Read this before porting any file (Phase 3 of `productize-demo`). Each section shows the demo pattern and its required product form. Authoritative sources are linked — when this guide and a linked doc disagree, the doc wins.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">4</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">5</span><span class="dc">+## 1. Namespace prefixes AND field renames</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">6</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">7</span><span class="dc">+Demo orgs have the `ohfy` managed package **installed**, so demo code references managed schema with the prefix. Product source lives *inside* the namespace and is unprefixed. **Stripping the prefix is necessary but NOT sufficient** — demo orgs run older package vintages and field names drift, so every stripped name must be verified against current product metadata.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">8</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">9</span><span class="dc">+| In demo code | In OHFY-Split source |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">10</span><span class="dc">+| --- | --- |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">11</span><span class="dc">+| `ohfy__Route__c`, `ohfy__Order__c.ohfy__Status__c` | `Route__c`, `Order__c.Status__c` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">12</span><span class="dc">+| `ohfy__Route__c.ohfy__Active__c` | `Route__c.Is_Active__c` — a **rename**, not a strip |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">13</span><span class="dc">+| `ohfy__Day_of_Week__c` | `Day_Of_Week__c` — case differs; `@salesforce/schema` imports and metadata refs are case-sensitive |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">14</span><span class="dc">+| `@salesforce/schema/ohfy__Route__c.ohfy__Name__c` (LWC) | `@salesforce/schema/Route__c.Name__c` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">15</span><span class="dc">+| Demo-native `Delivery_Stop__c.Skipped__c` (unprefixed in demo) | Per the approved map — often a rename onto an already-productized field (`Is_Skipped__c`), or new metadata in OHFY-Data-Model |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">16</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">17</span><span class="dc">+Process: for every referenced field, confirm the exact product API name exists at `OHFY-Data-Model/force-app/main/default/objects/&lt;Obj&gt;/fields/&lt;Field&gt;.field-meta.xml` and record it in the map&#x27;s rename table. Then apply the rename table during the port. Two sweeps at the end:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">18</span><span class="dc">+1. `grep -rn &quot;ohfy__&quot; &lt;ported paths&gt;` — nothing except comments/docs.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">19</span><span class="dc">+2. Every demo field name from the rename table&#x27;s left column — nothing (`grep -rn &quot;Active__c&quot; ...` style spot-checks for the risky renames).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">20</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">21</span><span class="dc">+## 2. SOQL → QueryService</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">22</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">23</span><span class="dc">+```apex</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">24</span><span class="dc">+// DEMO</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">25</span><span class="dc">+List&lt;ohfy__Route__c&gt; routes = [</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">26</span><span class="dc">+    SELECT Id, Name, ohfy__Status__c FROM ohfy__Route__c</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">27</span><span class="dc">+    WHERE ohfy__Delivery_Date__c = :deliveryDate ORDER BY Name</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">28</span><span class="dc">+];</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">29</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">30</span><span class="dc">+// PRODUCT</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">31</span><span class="dc">+List&lt;Route__c&gt; routes = (List&lt;Route__c&gt;) QueryService.newBuilder(</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">32</span><span class="dc">+        new List&lt;String&gt;{ &#x27;Id&#x27;, &#x27;Name&#x27;, &#x27;Status__c&#x27; },</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">33</span><span class="dc">+        &#x27;Route__c&#x27;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">34</span><span class="dc">+    )</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">35</span><span class="dc">+    .filters(new List&lt;String&gt;{ &#x27;Delivery_Date__c = :deliveryDate&#x27; })</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">36</span><span class="dc">+    .orderBy(new List&lt;String&gt;{ &#x27;Name ASC&#x27; })</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">37</span><span class="dc">+    .build()</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">38</span><span class="dc">+    .execute(new Map&lt;String, Object&gt;{ &#x27;deliveryDate&#x27; =&gt; deliveryDate });</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">39</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">40</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">41</span><span class="dc">+No `AccessLevel` argument = dynamic default (correct for almost all sites). Explicit `AccessLevel.SYSTEM_MODE` only for rules 1/2/3/4/6 in `docs/security/mode-selection.md`, with a rule-citing comment on the line above. Never explicit `AccessLevel.USER_MODE`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">42</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">43</span><span class="dc">+- **Aggregate queries** (`COUNT(Id) ... GROUP BY`): QueryService supports `.groupBy(...)` — port aggregates through the builder like any other read; results come back as `AggregateResult`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">44</span><span class="dc">+- **Dynamic SOQL with config-driven field names** (demo pattern: field API names read from a CMDT and interpolated into a query string): mechanically portable since QueryService takes string field lists, but the config value is user-influenced input — validate each configured field name against the object&#x27;s describe (or an explicit allowlist) before building the query. Never interpolate raw CMDT strings into a filter clause.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">45</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">46</span><span class="dc">+## 3. DML → DmlService</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">47</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">48</span><span class="dc">+```apex</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">49</span><span class="dc">+// DEMO</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">50</span><span class="dc">+insert stops;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">51</span><span class="dc">+update route;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">52</span><span class="dc">+Database.delete(oldStops, false);</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">53</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">54</span><span class="dc">+// PRODUCT</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">55</span><span class="dc">+DmlService.doInsert(stops);</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">56</span><span class="dc">+DmlService.doUpdate(new List&lt;Route__c&gt;{ route });</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">57</span><span class="dc">+DmlService.doDelete(oldStops, false); // allOrNone=false preserved</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">58</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">59</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">60</span><span class="dc">+## 4. Class placement &amp; naming</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">61</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">62</span><span class="dc">+| Demo class role | Product location | Naming |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">63</span><span class="dc">+| --- | --- | --- |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">64</span><span class="dc">+| LWC controller (`@AuraEnabled` entry) | domain package `controllers/` | no prefix, e.g. `DispatchRouteController` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">65</span><span class="dc">+| Reusable business logic | `executables/` | `E_` prefix |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">66</span><span class="dc">+| Domain service | `services/` | `S_` prefix |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">67</span><span class="dc">+| Batch/schedulable | `batchJobs/` | `B_` / `BA_` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">68</span><span class="dc">+| Queueable | `queueables/` | `Q_` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">69</span><span class="dc">+| Cross-package LWC-serializable shape | `DTOs/&lt;domain&gt;/` | `XxxDTO`, per ADR-0007 (`global`, `{ get; set; }` props, single no-arg ctor) |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">70</span><span class="dc">+| **Inner-class `@AuraEnabled` wrappers** (the most common demo DTO shape — plain public fields nested inside a controller) | hoist to top-level files in `DTOs/&lt;domain&gt;/` | same ADR-0007 rules; plain fields without `{ get; set; }` silently null out across the cross-package Aura bridge |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">71</span><span class="dc">+| Internal wrapper/builder | `wrappers/` | no prefix, never `@AuraEnabled` param/return |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">72</span><span class="dc">+| Test class `FooTest`/`FooControllerTest` | `tests/` subdir (DTO tests alongside the DTO) | `Foo_T` |</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">73</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">74</span><span class="dc">+Demo classes often mix roles (one controller doing query + calculation + DML). Split per role during the port; the map&#x27;s component table defines the split.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">75</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">76</span><span class="dc">+**Name collisions**: Apex class names are unique across the whole `ohfy` namespace, not per package. Check every proposed name against all 11 packages before creating it (`grep -rl &quot;class RouteDTO&quot; */force-app --include=&quot;*.cls&quot;`); rename with a feature prefix (e.g. `DispatchRouteDTO`) on collision.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">77</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">78</span><span class="dc">+## 5. Triggers</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">79</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">80</span><span class="dc">+Demo triggers (or trigger-ish logic inside controllers) become trigger-framework registrations:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">81</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">82</span><span class="dc">+1. Logic goes in `{Object}TriggerService` (domain package, `triggerServices/`) implementing `ObjectTriggerService`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">83</span><span class="dc">+2. Register method in `Trigger_Configuration__mdt` (sObject + context + method name, `Bypass__c` false).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">84</span><span class="dc">+3. The `.trigger` file itself is the standard one-liner `new TriggerHandler().run()` — only needed if the object is new and has no trigger yet.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">85</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">86</span><span class="dc">+## 6. Tests</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">87</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">88</span><span class="dc">+```apex</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">89</span><span class="dc">+// DEMO</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">90</span><span class="dc">+Account a = new Account(Name = &#x27;Test&#x27;);</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">91</span><span class="dc">+insert a;</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">92</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">93</span><span class="dc">+// PRODUCT (_T class)</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">94</span><span class="dc">+Account a = (Account) TestDataFactory.createSObject(&#x27;Account&#x27;, new Map&lt;String, Object&gt;{ &#x27;Name&#x27; =&gt; &#x27;Test&#x27; });</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">95</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">96</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">97</span><span class="dc">+- `@isTest` + `@TestSetup`; `TestService` to bypass trigger methods in setup; `Test.startTest()/stopTest()`; `Assert.*` (not `System.assert*`).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">98</span><span class="dc">+- `_T` classes MAY use raw SOQL/DML (test exemption).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">99</span><span class="dc">+- Every ported public method needs assertion coverage in a `_T` class — demo test classes are a starting inventory of scenarios, not portable code.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">100</span><span class="dc">+- **`HttpCalloutMock` doubles** in demo tests port fine (callout tests still need them) — but retarget them at the Named Credential endpoint (§12).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">101</span><span class="dc">+- **Demo tests that assign permission sets in `@TestSetup` + `System.runAs()` to dodge FLS**: under the product&#x27;s `AccessLevelResolver` regime, use `AccessLevelResolver.bypassOverrideForTest` + `AccessLevelResolver.resetCacheForTest()` to exercise specific access modes instead.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">102</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">103</span><span class="dc">+## 7. Catch blocks &amp; debug output</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">104</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">105</span><span class="dc">+Every catch gets the two-line Logger pattern at the top (including &quot;ignored&quot; catches — rename `ignored` → `e`):</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">106</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">107</span><span class="dc">+```apex</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">108</span><span class="dc">+} catch (Exception e) {</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">109</span><span class="dc">+    Logger.getInstance().error(&#x27;DispatchRouteController.createRoute failed&#x27;, e);</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">110</span><span class="dc">+    Logger.getInstance().flush();</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">111</span><span class="dc">+    // existing handling</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">112</span><span class="dc">+}</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">113</span><span class="dc">+```</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">114</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">115</span><span class="dc">+Delete every `System.debug(` and `console.log(` — they&#x27;re pre-PR blocks.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">116</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">117</span><span class="dc">+## 8. Cross-package surface</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">118</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">119</span><span class="dc">+- Sibling-package Apex access: `@namespaceAccessible`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">120</span><span class="dc">+- LWC in a UI package calling Apex: exclusively through that package&#x27;s `*_UI_Wrappers.cls` facade (`@AuraEnabled` method delegating 1:1 to a `@namespaceAccessible` domain method). Never import domain controllers directly from a tier-4 LWC. Demo `@AuraEnabled(cacheable=true)` methods keep `cacheable=true` on the **wrapper** method (the domain method it delegates to is plain `@namespaceAccessible`).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">121</span><span class="dc">+- Custom Apex types crossing an `@AuraEnabled` boundary between packages: `global` DTO per ADR-0007 — **`{ get; set; }` accessors are mandatory** (plain fields silently null out across the Aura bridge).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">122</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">123</span><span class="dc">+## 9. LWC specifics</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">124</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">125</span><span class="dc">+- Strip `ohfy__` from `@salesforce/schema` imports, `getRecord` field arrays, and any hardcoded field API names in JS/HTML.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">126</span><span class="dc">+- Apex imports point at the UI wrapper: `import createRoute from &quot;@salesforce/apex/WMS_UI_Wrappers.createRoute&quot;;`</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">127</span><span class="dc">+- Add `data-testid` to elements Playwright will touch.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">128</span><span class="dc">+- One Jest test file per component in `__tests__/`, mocking Apex via `jest.mock`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">129</span><span class="dc">+- Demo CSS/static resources: check for hardcoded customer branding before porting. Static resources port to the owning UI package; verify licensing on any bundled third-party asset.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">130</span><span class="dc">+- **JS-only LWC service modules** (shared stores, util modules with no template): valid LWC — port as modules with Jest coverage for the pure functions. LWC modules do NOT resolve across packages: if consumed by components that land in different UI packages, the module goes in `OHFY-PLTFM-UI` (shared LWC home) — flag this placement in the map.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">131</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">132</span><span class="dc">+## 10. Schema &amp; seed data</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">133</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">134</span><span class="dc">+- New objects/fields follow `docs/engineering/standards/naming-conventions.md` (labels, API names, lookup relationship names) and `quantity-conventions.md` for quantity fields.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">135</span><span class="dc">+- Do NOT create an `External_Id__c` manually on new objects without checking the standard — every custom object gets one, auto-populated by `ExternalIdPopulator`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">136</span><span class="dc">+- Demo hardcoded record IDs/names → seed records in `data/sample-data-plan.json` with `seed:&lt;obj&gt;-&lt;key&gt;` external IDs, looked up at runtime.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">137</span><span class="dc">+- Demo CMDT records: port the CMDT type to OHFY-Data-Model and default records that make sense product-wide; customer-specific values stay behind (note in deviations).</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">138</span><span class="dc">+- FlexiPages/tabs/quickActions: both `org-metadata/managed/` (with `ohfy__`/`ohfy:` prefixes) and `org-metadata/scratch/` (unprefixed) variants — see the CLAUDE.md prefix table.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">139</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">140</span><span class="dc">+## 11. Platform-sensitive pieces (flag, don&#x27;t silently port)</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">141</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">142</span><span class="dc">+These behave differently inside a namespaced managed package than in the demo&#x27;s subscriber org — each needs a flagged design question in the Phase 2 map:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">143</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">144</span><span class="dc">+- **Visualforce pages** — none exist in the product today; consider rebuilding on LWC (`lightning:map`, LMS) instead of introducing VF.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">145</span><span class="dc">+- **External JS libraries / static resources** (map tiles, charting libs) — licensing, CSP Trusted URLs, and static-resource namespacing all change under the package.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">146</span><span class="dc">+- **iframe / `postMessage` origins, Lightning Out** — origins differ on subscriber-org domains.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">147</span><span class="dc">+- **Hardcoded aggregation limits / thresholds** — consider CMDT-configurable instead of a magic number.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">148</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">149</span><span class="dc">+## 12. Callouts &amp; secrets</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">150</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">151</span><span class="dc">+Demo code calls external APIs directly (`Http` + hardcoded URL) with API keys stored in CMDT fields or org config. In a managed package:</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">152</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">153</span><span class="dc">+- **Endpoint** → Named Credential (packaged as external credential + named credential metadata), never a hardcoded URL or Remote Site Setting instruction in code.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">154</span><span class="dc">+- **Secret** → never in a CMDT field, custom setting, or source. The key lives in the subscriber org&#x27;s Named Credential / external credential principal; document the admin setup step in the feature&#x27;s product docs.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">155</span><span class="dc">+- Callout classes get `_T` coverage via `HttpCalloutMock`.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">156</span><span class="dc">+- Flag any external API dependency (quota, licensing, terms for redistribution) as a design question in the map.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">157</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">158</span><span class="dc">+## 13. Known demo defects</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">159</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">160</span><span class="dc">+Demo release notes sometimes document bugs that were deliberately left in (&quot;we left it alone&quot;). Never port a known defect silently: list each in the map under deliberate deviations with a decision — fix it in the product version (default) or preserve it with justification. Behavior parity in Phase 4 compares against the *decided* behavior, not blindly against the demo.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">161</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">162</span><span class="dc">+## 14. Things that never port</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">163</span><span class="dc">+</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">164</span><span class="dc">+- Customer-specific hardcoding (names, IDs, URLs, branding, feature toggles for one org)</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">165</span><span class="dc">+- Demo-only shortcuts: `without sharing` used to dodge permissions, `SeeAllData=true` tests, commented-out code</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">166</span><span class="dc">+- Per-customer folders/structure (`TBM/...`) — product structure only</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">167</span><span class="dc">+- Demo permission sets granting `ModifyAllData` — build a scoped per-feature permission set instead</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">168</span><span class="dc">+- `.sfdx/` typings, `*RELEASE_NOTES*.md` (regenerate product docs post-merge via `/document`)</span></div></div>
+</details><details open id="diff-claude-md" class="fileblock">
+<summary><span class="fpath">CLAUDE.md</span><span class="badges"><span class="badge add">+2</span><span class="badge del">-2</span></span></summary>
+<div class="diffbody"><div class="dl hunk"><span class="ln"></span><span class="ln"></span><span class="dc">@@ -293,7 +293,7 @@ Full SDLC detail and environment definitions: [`docs/engineering/sdlc/developer-</span></div>
+<div class="dl ctx"><span class="ln">293</span><span class="ln">293</span><span class="dc"> A ticket is **Done** when:</span></div>
+<div class="dl ctx"><span class="ln">294</span><span class="ln">294</span><span class="dc"> </span></div>
+<div class="dl ctx"><span class="ln">295</span><span class="ln">295</span><span class="dc"> 1. **Feature fully implemented** — every acceptance criterion demonstrably met.</span></div>
+<div class="dl del"><span class="ln">296</span><span class="ln"></span><span class="dc">-2. **All applicable workflow skills run** — `/ohfy-design`, `/playwright-tests`, `/document` as applicable.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">296</span><span class="dc">+2. **All applicable workflow skills run** — `/ohfy-design` for any UI/LWC change, `/playwright-tests` for any change touching `OHFY-*-UI/` (required, not optional — see Pre-PR Checks), `/document` for package-affecting changes.</span></div>
+<div class="dl ctx"><span class="ln">297</span><span class="ln">297</span><span class="dc"> 3. **All tests green** — relevant Apex `_T` classes and Jest suite pass 100%.</span></div>
+<div class="dl ctx"><span class="ln">298</span><span class="ln">298</span><span class="dc"> 4. **Apex coverage ≥ 90%** on every touched file.</span></div>
+<div class="dl ctx"><span class="ln">299</span><span class="ln">299</span><span class="dc"> 5. **Acceptance criteria smoke tested live** via Chrome DevTools MCP.</span></div>
+<div class="dl hunk"><span class="ln"></span><span class="ln"></span><span class="dc">@@ -307,7 +307,7 @@ Full checklist with all tables: [`docs/engineering/sdlc/pre-pr-checklist.md`](./</span></div>
+<div class="dl ctx"><span class="ln">307</span><span class="ln">307</span><span class="dc"> </span></div>
+<div class="dl ctx"><span class="ln">308</span><span class="ln">308</span><span class="dc"> **Universal (every PR):** `npm run prettier:verify` · branch synced with `main` · conventional commits + Jira key · no `System.debug`/`console.log`/`.only(` · AC confirmed.</span></div>
+<div class="dl ctx"><span class="ln">309</span><span class="ln">309</span><span class="dc"> </span></div>
+<div class="dl del"><span class="ln">310</span><span class="ln"></span><span class="dc">-**UI changes (Tier 4):** `/ohfy-design` skill · `npm run lint` · `npm test` · Chrome DevTools live verify · Playwright for user-facing flows.</span></div>
+<div class="dl add"><span class="ln"></span><span class="ln">310</span><span class="dc">+**UI changes (Tier 4):** `/ohfy-design` skill · `npm run lint` · `npm test` · Chrome DevTools live verify · Playwright specs added/updated and passing on chromium — required for **every** PR touching `OHFY-*-UI/`, not just &quot;user-facing flows&quot;; exemption only via the skip policy below.</span></div>
+<div class="dl ctx"><span class="ln">311</span><span class="ln">311</span><span class="dc"> </span></div>
+<div class="dl ctx"><span class="ln">312</span><span class="ln">312</span><span class="dc"> **Backend changes (Tiers 0–3):** Apex tests exist + pass · `sf project deploy validate` · no raw SOQL/DML · `SYSTEM_MODE` calls have rule citations · no explicit `USER_MODE` · no cross-package concrete type refs or released-metadata changes (rule 8).</span></div>
+<div class="dl ctx"><span class="ln">313</span><span class="ln">313</span><span class="dc"> </span></div>
+<div class="dl ctx"><span class="ln">314</span><span class="ln">314</span><span class="dc"></span></div></div>
+</details>
+</section>
 
-<div class="stats">
-  <div class="sc"><div class="n add">+358</div><div class="l">added</div></div>
-  <div class="sc"><div class="n del">−2</div><div class="l">removed</div></div>
-  <div class="sc"><div class="n">3</div><div class="l">files</div></div>
-  <div class="sc"><div class="n">5</div><div class="l">phases</div></div>
-  <div class="sc"><div class="n">11</div><div class="l">findings fixed</div></div>
+<footer>
+  Ohanafy/OHFY-Split · branch <code>feature/productize-demo-skill</code> → <code>main</code> · 4 commits · generated July 21, 2026
+</footer>
 </div>
-
-<h2>▶️ How to use it</h2>
-<div class="cmd">/productize-demo &lt;Sales-Demos PR or branch URL&gt; [BMS-XXXX]</div>
-<div class="cmd">/productize-demo https://github.com/Ohanafy/Sales-Demos/pull/2</div>
-<div class="cmd">/productize-demo https://github.com/Ohanafy/Sales-Demos/tree/feature/route-planner-full-deploy BMS-1234</div>
-<p style="color:var(--dim);font-size:13.5px">The BMS ticket key is optional — pass it and the skill cross-checks its ACs during mapping and cites AC coverage in the PR. It never creates tickets itself.</p>
-
-<h2>🧭 The five-phase pipeline</h2>
-<div class="phases">
-  <div class="phase">
-    <div class="num">1</div>
-    <div><h3>Acquire</h3>
-      <p>Paginated PR file listing (plain <code class="f">gh pr view --json files</code> truncates at 100 files — a real problem, since the validation PR itself had 956 changed files). Partitions feature code from retrieve-noise, walks the schema dependency closure, and classifies schema that exists in <b>neither</b> repo as org-only. Checks for in-flight/completed overlap — if a prior port already exists on <code class="f">main</code>, pivots to a <b>delta port</b> (gap-fill only, never regresses product-ahead code).</p></div>
-  </div>
-  <div class="phase">
-    <div class="num gate">2</div>
-    <div><h3>Productization Map <span class="tag">Hard approval gate</span></h3>
-      <p>The one checkpoint that blocks all code. Reuse-first data-model mapping with a field-level rename table (e.g. demo <code class="f">ohfy__Active__c</code> ≠ product <code class="f">Is_Active__c</code> — same-looking field, different reality), component-mapping with namespace-wide class-name collision checks, and platform risk flags (Visualforce, external libraries, CSP, secrets sitting in Custom Metadata). Nothing is written until this map is explicitly approved.</p></div>
-  </div>
-  <div class="phase">
-    <div class="num">3</div>
-    <div><h3>Port</h3>
-      <p>Follows <code class="f">references/translation-guide.md</code>: routes all reads/writes through <code class="f">QueryService</code>/<code class="f">DmlService</code>, wires into the trigger framework, generates <code class="f">_T</code>/Jest tests, hoists DTOs per ADR-0007, builds the UI-wrapper facade, mirrors both org-metadata folders, and sets up Named Credentials for any callouts — the demo's shortcuts become the product's conventions.</p></div>
-  </div>
-  <div class="phase">
-    <div class="num">4</div>
-    <div><h3>Deploy &amp; verify</h3>
-      <p>Claims a <b>pool org</b> (never a raw scratch org), deploys in tier order, cascade-selects which Apex tests to run, walks the feature's behavior live via Chrome DevTools, and — when a demo org is connected — runs a read-only side-by-side parity check against it. Playwright is now <b>required</b>, not conditional, for any Tier-4 (UI) touch.</p></div>
-  </div>
-  <div class="phase">
-    <div class="num">5</div>
-    <div><h3>Pre-PR gate &amp; PR</h3>
-      <p>Runs the full CLAUDE.md check suite, commits in tier order with conventional-commit + ticket-key messages, and opens a single <b>draft</b> PR.</p></div>
-  </div>
-</div>
-
-<h2>🔬 Validated in three rounds against a real demo</h2>
-<div class="grid">
-  <div class="layer r1"><h3>① Baseline — no skill</h3><ul>
-    <li>Ran the port manually first, no skill, to see what a human/agent misses unaided</li>
-    <li>Surfaced gaps the skill now covers: demo-org parity verification, class-name collisions, component reuse, platform risk flags</li>
-  </ul></div>
-  <div class="layer r2"><h3>② Dry-run — with skill</h3><ul>
-    <li>Caught 3 derailing bugs before they'd have silently corrupted a real port: the 100-file <code class="f">gh</code> truncation, a prefix-strip that produced nonexistent field names, and mishandled org-only schema</li>
-  </ul></div>
-  <div class="layer r3"><h3>③ Full live run — real port</h3><ul>
-    <li>Executed end-to-end on Sales-Demos PR #2 (<b>TBM Dispatch Route Planner, 956 changed files</b>) — a delta port of the dispatch map layer</li>
-    <li>Surfaced <b>8 more findings</b>, all fixed: positional <code class="f">claim-dev.sh</code> alias arg, delta-port mode, pre-flight org-pool credential check + throttle-response messaging, dependency-freshness check, lint/Jest baselining, draft-PR/DoD alignment, Playwright made unconditional for Tier-4</li>
-  </ul></div>
-</div>
-
-<h2>🔨 What's in the diff</h2>
-<div class="grid">
-  <div class="layer"><h3>📄 <code class="f">.claude/skills/productize-demo/SKILL.md</code></h3><ul>
-    <li><b>+188 lines</b> — the 5-phase workflow definition, invocation syntax, prerequisites (GitHub access, org-pool creds, optional connected demo org, optional feature-specific creds, optional BMS ticket), and the interactive checkpoints to expect</li>
-  </ul></div>
-  <div class="layer"><h3>📄 <code class="f">references/translation-guide.md</code></h3><ul>
-    <li><b>+168 lines</b> — the concrete demo→product conversion rules Phase 3 follows: QueryService/DmlService routing, trigger framework wiring, DTO hoisting, dual org-metadata mirroring, Named Credentials for callouts</li>
-  </ul></div>
-  <div class="layer"><h3>📄 <code class="f">CLAUDE.md</code></h3><ul>
-    <li><b>+2/−2</b> — hardens the root Definition of Done: Playwright specs passing on chromium are now <b>required</b> (not "as applicable") for every PR touching <code class="f">OHFY-*-UI/</code>, exemption only via the existing skip policy</li>
-  </ul></div>
-</div>
-
-<h2>⚠️ Notes &amp; decisions</h2>
-<div class="note"><b>The Productization Map gate is the load-bearing safety mechanism here.</b> Everything before it (acquire) is read-only analysis; everything after it (port/deploy/PR) is automated. The field-level rename table specifically exists because a demo field and a product field can share a name while meaning different things — skipping this gate is exactly how a demo's shortcuts leak into the managed package.</div>
-<div class="note ok"><b>This PR quietly raises the bar for every future Tier-4 PR</b>, not just ones built by this skill — the CLAUDE.md change makes Playwright non-optional org-wide. Worth knowing if you're mid-flight on a UI PR without Playwright coverage.</div>
-<div class="note" style="border-color:var(--dim)"><b>One feature per invocation by design.</b> If a Sales-Demos PR bundles several features, the skill asks which one to port rather than trying to do all of them — a large demo PR is already a long run on its own.</div>
-
-<p class="foot">Overview of PR #501 as of its current head · generated from GitHub PR metadata + commit history. This PR ships a skill and a CLAUDE.md policy change, not application code — no screenshots to capture.</p>
+<script>
+function toggleAll(open) { document.querySelectorAll('#diffs details.fileblock').forEach(d => d.open = open); }
+</script>
 </body></html>

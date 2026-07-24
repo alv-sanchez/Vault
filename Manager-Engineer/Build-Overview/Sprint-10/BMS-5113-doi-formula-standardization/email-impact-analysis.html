@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMS-5113 — DOI Formula: Email → Build Impact</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1a1d23;
+    --ink-soft: #5b6270;
+    --line: #e3e6eb;
+    --accent: #2b6cb0;
+    --accent-soft: #ebf3fb;
+    --green: #2f855a;
+    --green-soft: #e9f5ee;
+    --amber: #b7791f;
+    --amber-soft: #fdf3e2;
+    --red: #c53030;
+    --red-soft: #fbeaea;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171c; --panel: #1c2027; --ink: #e6e9ef; --ink-soft: #9aa3b2;
+      --line: #2b313a; --accent: #63a4e0; --accent-soft: #1b2a3a;
+      --green: #68d391; --green-soft: #16281d; --amber: #e0b155; --amber-soft: #2c2312;
+      --red: #f2837f; --red-soft: #2c1717;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171c; --panel: #1c2027; --ink: #e6e9ef; --ink-soft: #9aa3b2;
+    --line: #2b313a; --accent: #63a4e0; --accent-soft: #1b2a3a;
+    --green: #68d391; --green-soft: #16281d; --amber: #e0b155; --amber-soft: #2c2312;
+    --red: #f2837f; --red-soft: #2c1717;
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f8fa; --panel: #ffffff; --ink: #1a1d23; --ink-soft: #5b6270;
+    --line: #e3e6eb; --accent: #2b6cb0; --accent-soft: #ebf3fb;
+    --green: #2f855a; --green-soft: #e9f5ee; --amber: #b7791f; --amber-soft: #fdf3e2;
+    --red: #c53030; --red-soft: #fbeaea;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.page { border-bottom: 2px solid var(--line); padding-bottom: 22px; margin-bottom: 32px; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 8px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; letter-spacing: -.02em; }
+  .sub { color: var(--ink-soft); font-size: 15px; margin: 0; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip { font-size: 12px; font-family: var(--mono); background: var(--accent-soft); color: var(--accent); padding: 4px 10px; border-radius: 999px; }
+  section { margin: 38px 0 0; }
+  h2 { font-size: 20px; letter-spacing: -.01em; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  h2 .num { font-family: var(--mono); font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 8px; }
+  .lead { color: var(--ink-soft); margin: 4px 0 18px; font-size: 15px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; }
+  .panel + .panel { margin-top: 16px; }
+  blockquote { margin: 0; padding: 14px 18px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--ink); font-size: 15px; }
+  blockquote .who { display: block; font-size: 12px; color: var(--ink-soft); margin-top: 8px; font-style: normal; }
+  .formula { font-family: var(--mono); font-size: 15px; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 18px 20px; text-align: center; margin: 18px 0; overflow-x: auto; }
+  .formula .big { font-size: 18px; font-weight: 600; display: block; margin-bottom: 6px; color: var(--ink); }
+  .formula .note { font-size: 12.5px; color: var(--ink-soft); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: var(--panel); }
+  .card h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--bg); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .t-green { background: var(--green-soft); color: var(--green); }
+  .t-amber { background: var(--amber-soft); color: var(--amber); }
+  .t-red { background: var(--red-soft); color: var(--red); }
+  .callout { border-radius: 12px; padding: 18px 22px; border: 1px solid; margin-top: 16px; }
+  .callout.green { background: var(--green-soft); border-color: var(--green); }
+  .callout.amber { background: var(--amber-soft); border-color: var(--amber); }
+  .callout.red { background: var(--red-soft); border-color: var(--red); }
+  .callout h3 { margin: 0 0 6px; font-size: 15px; }
+  .callout p { margin: 0; font-size: 14px; }
+  code.inline { font-family: var(--mono); font-size: .9em; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+  ul.clean { margin: 10px 0 0; padding-left: 20px; }
+  ul.clean li { margin-bottom: 8px; font-size: 14.5px; }
+  .verdict { display: grid; grid-template-columns: auto 1fr; gap: 14px 18px; align-items: start; margin-top: 14px; }
+  .verdict .k { font-weight: 700; font-size: 14px; }
+  .verdict .v { font-size: 14px; color: var(--ink); }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); }
+  .flow { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; margin: 8px 0 4px; }
+  .flow .step { flex: 1 1 120px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; position: relative; }
+  .flow .step .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); display: block; margin-bottom: 4px; }
+  .flow .arrow { align-self: center; color: var(--accent); font-size: 20px; padding: 0 8px; }
+  @media (max-width: 680px) { .flow .arrow { transform: rotate(90deg); padding: 4px 0; width: 100%; text-align: center; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <p class="eyebrow">BMS-5113 · Sprint 10 · Impact Brief</p>
+    <h1>The DOI Email → What It Confirms, What It Changes</h1>
+    <p class="sub">Pete Teske's email defines how the customer actually calculates Days-on-Inventory. This brief maps that definition against what BMS-5113 has already built, and calls out the deltas for v1.</p>
+    <div class="meta-row">
+      <span class="chip">Source: Teske, Pete (via Pete → Sanchez)</span>
+      <span class="chip">Packages: OHFY-WMS · OHFY-Data-Model</span>
+      <span class="chip">Spec: DOH DOI QQ.xlsx (decoded §02)</span>
+      <span class="chip">Verdict: formula confirmed, forecast de-scoped</span>
+    </div>
+  </header>
+
+  <!-- 0. The problem being solved -->
+  <section>
+    <h2><span class="num">00</span> What I'm solving — the issue, the impact, the need</h2>
+    <p class="lead">Before the email even matters, here's the underlying problem BMS-5113 exists to fix.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>The issue</h3>
+        <p style="font-size:14px; margin:0;">Days-on-Inventory had <strong>no single authoritative definition</strong>. It was derived from a <em>day-over-day on-hand-decrease proxy</em> — inferring "sales" from inventory dropping — rather than from actual sales. That proxy counts every reason on-hand falls (transfers, adjustments, shrinkage, corrections) as depletion, so the DOI figure drifts from reality and can't be reconciled against how the customer themselves computes it.</p>
+      </div>
+      <div class="card">
+        <h3>Why it matters (impact)</h3>
+        <p style="font-size:14px; margin:0;">DOI is a <strong>decision number</strong> — it drives replenishment, ordering, and coverage calls. A wrong DOI means over-ordering (dead stock, tied-up cash) or under-ordering (stockouts, missed sales). And when Ohanafy's DOI doesn't match the customer's own spreadsheet, <strong>trust in the whole platform erodes</strong> — every downstream inventory report gets second-guessed.</p>
+      </div>
+    </div>
+
+    <div class="callout red" style="margin-top:16px;">
+      <h3>The core problem in one line</h3>
+      <p>An inventory metric that people <em>act on</em> was being computed from a proxy that doesn't equal sales — inconsistently, with no shared source of truth.</p>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h3 style="margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);">Who the user is</h3>
+      <div class="grid2">
+        <div class="card">
+          <h3>Day-to-day user</h3>
+          <p style="font-size:14px; margin:0;"><strong>Inventory / replenishment planners &amp; buyers</strong> at the distributor. They read DOI to decide what to reorder, how much, and when — so they are the ones a wrong number actually burns. They consume it through the native <code class="inline">Days_of_Inventory</code> report.</p>
+        </div>
+        <div class="card">
+          <h3>Customer stakeholders</h3>
+          <p style="font-size:14px; margin:0;"><strong>Pete Teske</strong> (defined the formula; out this week) and <strong>Steve Sloane</strong> (copied in as the standing collaborator) on the customer side. They own the "does this match how <em>we</em> calculate DOI?" sign-off — the reconciliation gate.</p>
+        </div>
+      </div>
+      <p style="font-size:13.5px; color:var(--ink-soft); margin:12px 0 0;">Note: the formula comes from the customer's own practice, so "the user" and "the spec author" are the same people — which is why matching their number exactly is the whole point.</p>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h3 style="margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);">Why it's needed / what "solved" looks like</h3>
+      <ul class="clean">
+        <li><strong>One authoritative calculation.</strong> Sourced from <em>completed invoiced quantity</em> (real sales), at item × warehouse grain — not an on-hand-decrease guess.</li>
+        <li><strong>Computed once, read everywhere.</strong> A nightly batch stamps <code class="inline">Current_DOI__c</code> / <code class="inline">DOI_Status__c</code> so every surface shows the same number, not a per-report recompute.</li>
+        <li><strong>Standard trailing windows.</strong> 30 / 60 / 90-day views (and per the email, potentially 10-day) so coverage can be read over the horizon the business cares about.</li>
+        <li><strong>Reconcilable to the customer.</strong> The formula must match how they actually calculate DOI — which is exactly what the email pins down.</li>
+      </ul>
+    </div>
+
+    <div class="flow" style="margin-top:18px;">
+      <div class="step" style="border-color:var(--red);"><span class="lbl">Before</span>On-hand <em>decrease</em> proxy → drifting, unverifiable DOI</div>
+      <div class="arrow">→</div>
+      <div class="step" style="border-color:var(--green);"><span class="lbl">After (BMS-5113)</span>Invoiced-qty sales rate → one nightly, reconcilable DOI everywhere</div>
+    </div>
+  </section>
+
+  <!-- 1. What the email says -->
+  <section>
+    <h2><span class="num">01</span> What the email actually says</h2>
+    <p class="lead">Two things: (1) drop the "forecasted DOI" framing, and (2) here is the real formula.</p>
+
+    <div class="panel">
+      <blockquote>
+        "I think it'd be best not to draw too much from the past conversations about <em>forecasted DOI</em>… those statements were made before we had the chance to see the tool."
+        <span class="who">— on scope: the trailing-history calculation is the ask, not a forecast engine</span>
+      </blockquote>
+      <blockquote style="margin-top:14px;">
+        "We calculate DOI based off <strong>Units on hand</strong> / <strong>Units sold</strong> during a previous time period (10/30/60/90) × the number of days in the time period… (and the subsequent daily rate of sales)."
+        <span class="who">— on formula: on-hand ÷ average daily rate of sale over a trailing window</span>
+      </blockquote>
+
+      <div class="formula">
+        <span class="big">DOI = Units on Hand ÷ Average Daily Rate of Sale</span>
+        <span class="note">Average Daily Rate of Sale = Units Sold in Window ÷ Days in Window &nbsp;·&nbsp; Windows: 10 / 30 / 60 / 90 days</span>
+      </div>
+
+      <p style="margin:0; font-size:14px; color:var(--ink-soft);">A distilled Excel example was attached to the email as the canonical spec artifact — that file is the source of truth for edge-case behavior (rounding, zero-sales, partial windows).</p>
+    </div>
+  </section>
+
+  <!-- 1.5 The attached spreadsheet decoded -->
+  <section>
+    <h2><span class="num">02</span> The attached spreadsheet — decoded &amp; reconciled</h2>
+    <p class="lead">The <code class="inline">DOH DOI QQ.xlsx</code> file is now in hand. It's the pure, distilled formula — four rows, one calculation.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>A · Units on hand</th><th>B · Units sold (window)</th><th>C · Days in window</th><th>D · <code class="inline">=B/C</code> daily rate</th><th>E · <code class="inline">=(A/B)*C</code> DOI</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2,250,000</td><td>3,000,000</td><td><strong>10</strong></td><td>300,000</td><td><strong>7.5</strong></td></tr>
+          <tr><td>2,250,000</td><td>3,000,000</td><td><strong>30</strong></td><td>100,000</td><td><strong>22.5</strong></td></tr>
+          <tr><td>2,250,000</td><td>3,000,000</td><td><strong>60</strong></td><td>50,000</td><td><strong>45</strong></td></tr>
+          <tr><td>2,250,000</td><td>3,000,000</td><td><strong>90</strong></td><td>33,333.33…</td><td><strong>67.5</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="formula">
+      <span class="big">DOI = (Units on Hand ÷ Units Sold in window) × Days in window</span>
+      <span class="note">algebraically identical to → Units on Hand ÷ Average Daily Rate of Sale &nbsp; (rate = Units Sold ÷ Days)</span>
+    </div>
+
+    <div class="callout green">
+      <h3>✓ Formula matches what's built</h3>
+      <p>The sheet's <code class="inline">=(A/B)*C</code> is the same math as <code class="inline">S_InventoryDOI.calculate()</code> — on-hand over an invoiced-quantity daily rate. No rework to the core calculation. The customer's own spreadsheet is now the reconciliation reference the epic was missing a definition for.</p>
+    </div>
+
+    <div class="grid2" style="margin-top:16px;">
+      <div class="card">
+        <h3>⚠ 10-day window is real</h3>
+        <p style="font-size:14px; margin:0;">It's row 1 of their own sheet — not illustrative. We ship 30/60/90. This is now a <strong>confirmed additive delta</strong> (a 10-day field mirroring the existing pattern), not an open question.</p>
+      </div>
+      <div class="card">
+        <h3>⚠ Edge cases still uncovered</h3>
+        <p style="font-size:14px; margin:0;">The sheet has <strong>no zero-sales guard</strong> (B=0 → divide-by-zero), <strong>no rounding rule</strong> (D shows 33,333.33…, E is clean by luck), and is <strong>aggregate totals</strong> — no item × warehouse grain. These stay open; the sheet doesn't answer them.</p>
+      </div>
+    </div>
+
+    <div class="callout amber" style="margin-top:16px;">
+      <h3>DOH vs DOI — one label, one formula shown</h3>
+      <p>The file is titled <strong>DOH DOI</strong> (Days-on-Hand vs Days-on-Inventory) but shows a <em>single</em> calculation. Confirm with Steve whether DOH and DOI are the same number here, or whether DOH is meant to use a different on-hand basis (e.g. sellable vs total).</p>
+    </div>
+  </section>
+
+  <!-- 2. Mapping to what's built -->
+  <section>
+    <h2><span class="num">03</span> How it maps onto what's already built</h2>
+    <p class="lead">The email's formula lines up almost 1:1 with the mechanism BMS-3742 already shipped. The one semantic swap that was the whole risk of this epic is exactly what Pete describes.</p>
+
+    <div class="flow">
+      <div class="step"><span class="lbl">Email term</span>Units sold in prior window</div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="lbl">Built as</span>Completed <strong>invoiced</strong> quantity (source swap)</div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="lbl">Field</span><code class="inline">Average_Daily_Depletion__c</code></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="lbl">Result</span><code class="inline">Current_DOI__c</code> via nightly batch</div>
+    </div>
+
+    <div class="table-scroll" style="margin-top:16px;">
+      <table>
+        <thead>
+          <tr><th>Email says</th><th>Already built (BMS-5113)</th><th>Status for v1</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"Units sold during a previous period" as the rate driver</td>
+            <td>Sales-rate <strong>source swap</strong> from on-hand-decrease proxy → completed invoiced qty (<code class="inline">S_InventoryDOI.calculate()</code>, <code class="inline">B_InventoryDOI</code> nightly batch)</td>
+            <td><span class="tag t-green">Confirmed correct</span></td>
+          </tr>
+          <tr>
+            <td>"Units on hand ÷ daily rate of sales"</td>
+            <td>The arithmetic <code class="inline">S_InventoryDOI</code> already performs; stamps <code class="inline">Current_DOI__c</code> / <code class="inline">DOI_Status__c</code> on <code class="inline">Inventory__c</code></td>
+            <td><span class="tag t-green">Confirmed correct</span></td>
+          </tr>
+          <tr>
+            <td>Windows: 30 / 60 / 90</td>
+            <td>6 additive <code class="inline">Inventory__c</code> fields + one aggregate pass; report type extended with 60/90-day columns</td>
+            <td><span class="tag t-green">Built</span></td>
+          </tr>
+          <tr>
+            <td>Window: <strong>10-day</strong> (row 1 of their sheet)</td>
+            <td>Not built — only 30/60/90 windows exist today</td>
+            <td><span class="tag t-amber">Confirmed delta — build it</span></td>
+          </tr>
+          <tr>
+            <td>"Don't draw from forecasted DOI"</td>
+            <td>No forecast engine was built for v1 (future-DOI is the separate existing tool)</td>
+            <td><span class="tag t-green">De-scoped — aligned</span></td>
+          </tr>
+          <tr>
+            <td>Attached Excel = canonical formula</td>
+            <td>Sheet decoded (§02): <code class="inline">=(A/B)*C</code> matches <code class="inline">S_InventoryDOI.calculate()</code>. Edge cases (zero-sales, rounding) not in the sheet</td>
+            <td><span class="tag t-green">Formula reconciled</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3.5 Before vs After -->
+  <section>
+    <h2><span class="num">04</span> Before vs After — the number actually moved</h2>
+    <p class="lead">Same physical inventory, same fixture. Only the <em>source</em> of the sales rate changed — and the DOI it produces changed with it.</p>
+
+    <div class="grid2">
+      <div class="card" style="border-color:var(--red);">
+        <h3 style="color:var(--red);">Before — on-hand-decrease proxy</h3>
+        <p style="font-size:34px; font-weight:700; margin:2px 0 6px;">DOI = 24</p>
+        <p style="font-size:14px; margin:0;">Sales rate inferred from <em>any</em> drop in on-hand — transfers, adjustments, shrinkage, corrections all counted as "depletion." That inflates the apparent daily rate, so DOI reads artificially <strong>short</strong>.</p>
+      </div>
+      <div class="card" style="border-color:var(--green);">
+        <h3 style="color:var(--green);">After — completed invoiced quantity</h3>
+        <p style="font-size:34px; font-weight:700; margin:2px 0 6px;">DOI = 48</p>
+        <p style="font-size:14px; margin:0;">Sales rate from <em>actual</em> completed invoiced sales only. Real throughput → true daily rate → DOI that reflects how long stock will genuinely last.</p>
+      </div>
+    </div>
+
+    <div class="formula" style="margin-top:16px;">
+      <span class="big">24 → 48 &nbsp;(×2 on the same fixture)</span>
+      <span class="note">DOI = On Hand ÷ Daily Rate · the proxy over-counted the rate, halving the runway the calc reported</span>
+    </div>
+
+    <div class="callout red">
+      <h3>Why this is the whole point</h3>
+      <p>The old proxy told buyers a SKU would run out in <strong>24 days</strong> when it truly had <strong>48</strong> — a signal that drives <em>over-ordering</em> (buy sooner/more than needed) and won't reconcile against Gulf's own numbers. The source swap is what makes the figure both correct and reconcilable.</p>
+    </div>
+
+    <p style="font-size:13px; color:var(--ink-soft); margin-top:12px;">Reference fixture from PR #513 (BMS-3742). <strong>Note:</strong> the "before" value is <em>not</em> a stored field — the old proxy code was replaced, so only the new (after) DOI is persisted/stamped. 24 → 48 is a dev-time side-by-side, not two live fields.</p>
+  </section>
+
+  <!-- 4.5 Where DOI flows in the system -->
+  <section>
+    <h2><span class="num">05</span> Where this calculation flows in the system</h2>
+    <p class="lead">DOI isn't just a report number. The nightly batch stamps two things on <code class="inline">Inventory__c</code> — the <strong>sales rate</strong> (<code class="inline">Average_Daily_Depletion__c</code>) and the <strong>DOI figure</strong> (<code class="inline">Current_DOI__c</code> / <code class="inline">DOI_Status__c</code>) — and both are read downstream.</p>
+
+    <div class="flow">
+      <div class="step" style="border-color:var(--accent);"><span class="lbl">Source of truth</span>Nightly <code class="inline">B_InventoryDOI</code> → stamps rate + DOI on <code class="inline">Inventory__c</code></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="lbl">consumed by</span>4 downstream areas ↓</div>
+    </div>
+
+    <div class="table-scroll" style="margin-top:16px;">
+      <table>
+        <thead>
+          <tr><th>Consumer</th><th>Reads</th><th>What it does with it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Days of Inventory report</strong><br><span style="font-size:12px;color:var(--ink-soft);">Days_of_Inventory report type</span></td>
+            <td><code class="inline">Current_DOI__c</code>, <code class="inline">DOI_Status__c</code></td>
+            <td>The visibility surface — buyers read DOI + status band (Below Min / In Range / Above Max) per SKU × warehouse.</td>
+          </tr>
+          <tr>
+            <td><strong>Replenishment order sizing</strong><br><span style="font-size:12px;color:var(--ink-soft);">S_ReplenishmentOrderSizing</span></td>
+            <td><code class="inline">Average_Daily_Depletion__c</code> (rate)</td>
+            <td><code class="inline">targetCases = round(targetDOH × dailyRate ÷ unitsPerCase)</code> — the actual <strong>reorder quantity</strong> is computed from the rate.</td>
+          </tr>
+          <tr>
+            <td><strong>Replenishment task generation</strong><br><span style="font-size:12px;color:var(--ink-soft);">E_ReplenishmentTask</span></td>
+            <td><code class="inline">Average_Daily_Depletion__c</code> (rate)</td>
+            <td>Reads the rate per Item × Location to drive which replenishment tasks are raised.</td>
+          </tr>
+          <tr>
+            <td><strong>Safety stock</strong><br><span style="font-size:12px;color:var(--ink-soft);">S_SafetyStockImpact · SafetyStockOverrideController</span></td>
+            <td><code class="inline">Average_Daily_Depletion__c</code> (rate)</td>
+            <td>Translates safety stock ↔ days-of-cover using the rate (impact analysis + override UI).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout red" style="margin-top:16px;">
+      <h3>This is the real blast radius</h3>
+      <p>Three of the four consumers read the <strong>rate</strong>, not the displayed DOI. Because BMS-3742 changed how that rate is sourced (proxy → invoiced sales), the swap silently changes <strong>reorder quantities and safety-stock math</strong> across replenishment — not just a number on a report. That is exactly why the live reconciliation + PO sign-off gate matters before this ships.</p>
+    </div>
+
+    <p style="font-size:12px; color:var(--ink-soft); margin-top:10px;">Config: <code class="inline">Configuration_Preference.DOI_Velocity_Window_Days</code> (CMDT) + <code class="inline">DOI_Velocity_Window_Days__c</code> set the primary window (so the primary window is already config-changeable — e.g. to 25 days — though 60/90 remain fixed fields). Security: <code class="inline">Days_Of_Inventory_Report_Access</code> permission set.</p>
+  </section>
+
+  <!-- 3. The forecast de-scope -->
+  <section>
+    <h2><span class="num">06</span> The biggest impact: forecast ambiguity is dead</h2>
+    <div class="callout green">
+      <h3>✓ Design question resolved</h3>
+      <p>The stall on this epic was "is <em>future / forecasted</em> DOI in scope for v1?" Pete answers it directly: don't draw from those conversations — the trailing-window historical calc <em>is</em> the ask, and the forecasting is what the existing tool already does. That means the built mechanism is the right v1, and no forecast engine needs to be built. You can proceed to BMS-4543 (mockups) on this basis without further PO input.</p>
+    </div>
+  </section>
+
+  <!-- 4. What the email does NOT resolve -->
+  <section>
+    <h2><span class="num">07</span> What's still open (after the email <em>and</em> the sheet)</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Reconciliation gate</h3>
+        <p style="font-size:14px; margin:0;">SESSION.md's one real blocker: a live before/after DOI reconciliation against <strong>real</strong> invoice/inventory data + PO sign-off. The email defines the formula; it does not supply the Gulf data or a call on representative synthetic data. Still gates BMS-3742 ready-for-review.</p>
+      </div>
+      <div class="card">
+        <h3>Edge-case rules</h3>
+        <p style="font-size:14px; margin:0;">The sheet doesn't define them: <strong>zero-sales</strong> (B=0 → what does DOI show — blank, ∞, capped?), <strong>rounding</strong> (whole days? one decimal?), and <strong>partial windows</strong> (item with &lt; window days of history). Needs a call from Steve.</p>
+      </div>
+      <div class="card">
+        <h3>DOH vs DOI semantics</h3>
+        <p style="font-size:14px; margin:0;">File is titled DOH <em>and</em> DOI but shows one formula. Confirm they're the same number, or whether DOH uses a different on-hand basis (sellable vs total on hand).</p>
+      </div>
+      <div class="card">
+        <h3>Steve Sloane hand-off</h3>
+        <p style="font-size:14px; margin:0;">Pete is out and copied Steve Sloane as the collaborator. Reconciliation questions and the 10-day / Excel confirmations route to Steve while Pete is away.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Verdict -->
+  <section>
+    <h2><span class="num">08</span> Verdict</h2>
+    <div class="panel">
+      <div class="verdict">
+        <div class="k">For v1 <em>formula / design</em></div>
+        <div class="v"><span class="tag t-green">Sufficient</span> &nbsp;The email confirms the built mechanism and kills the forecast-scope ambiguity. Design is unblocked.</div>
+        <div class="k">For v1 <em>"done"</em></div>
+        <div class="v"><span class="tag t-amber">Not yet</span> &nbsp;Still needs: the live reconciliation gate (real data or synthetic sign-off), the <strong>10-day window built</strong>, edge-case rules from Steve, and the DOH-vs-DOI confirmation.</div>
+        <div class="k">Net impact on the build</div>
+        <div class="v">No rework to the core calc — the sheet confirms it. One confirmed additive: the <strong>10-day window</strong> (mirrors the existing additive-field pattern). Everything else is verification + a rules call, not core engineering.</div>
+      </div>
+    </div>
+    <div class="callout amber">
+      <h3>Next moves</h3>
+      <p>1 · <strong>Done</strong> — sheet decoded, formula matches the build (§02). &nbsp; 2 · Build the <strong>10-day window</strong> (additive field, existing pattern). &nbsp; 3 · Route to Steve Sloane: edge-case rules (zero-sales / rounding / partial windows), DOH-vs-DOI, and reconciliation data (or bless synthetic). &nbsp; 4 · Proceed with BMS-4543 mockups on the confirmed formula in parallel.</p>
+    </div>
+  </section>
+
+  <footer>
+    BMS-5113 — DOI Formula Standardization · Sprint 10 · Built from the Teske DOI email and SESSION.md. This is an internal impact brief; it does not itself gate the ticket.
+  </footer>
+
+</div>
+<script>
+  // Respect an Obsidian/OS theme toggle if one stamps data-theme; otherwise prefers-color-scheme handles it.
+</script>
+</body>
+</html>

@@ -1,14 +1,14 @@
 {
   "stamp": {
-    "iso": "2026-07-20",
-    "human": "2026-07-20 16:36",
-    "file": "2026-07-20-1636"
+    "iso": "2026-07-23",
+    "human": "2026-07-23 16:51",
+    "file": "2026-07-23-1651"
   },
   "counts": {
     "matched": 0,
-    "standing": 10,
-    "unmatchedOrgs": 3,
-    "orphanBranches": 38
+    "standing": 13,
+    "unmatchedOrgs": 0,
+    "orphanBranches": 41
   },
   "tied": [],
   "orphanBranches": [
@@ -23,6 +23,10 @@
     {
       "bms": "3838",
       "branch": "story/BMS-3838"
+    },
+    {
+      "bms": "3921",
+      "branch": "feat/stalled-cart-rep-alert-bms-3921"
     },
     {
       "bms": "3923",
@@ -109,6 +113,10 @@
       "branch": "demo/short-pay-epic-bms-4965"
     },
     {
+      "bms": "4996",
+      "branch": "integration/bms-4996-validation"
+    },
+    {
       "bms": "4997",
       "branch": "feat/call-center-order-visibility-reporting-bms-4997"
     },
@@ -163,11 +171,11 @@
     {
       "bms": "5754",
       "branch": "feat/safety-stock-impact-value-bms-5754"
+    },
+    {
+      "bms": "5967",
+      "branch": "feat/pricing-crawl-bms-5967-5968-5969-5970"
     }
   ],
-  "unmatchedOrgs": [
-    "bms-4996-notif",
-    "ohfy-val-shortPay",
-    "sltransfer-validate"
-  ]
+  "unmatchedOrgs": []
 }

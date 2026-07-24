@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Short-Pay Automation — Demo Run-Through (BMS-4965)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#fff;--fg:#1b1f24;--muted:#5b6570;--line:#e4e7eb;--card:#f7f9fb;
+    --accent:#2563eb;--accent-soft:#eef4ff;--th:#eef1f5;--code-bg:#f2f4f7;
+    --ok:#0f7b3f;--ok-bg:#e9f7ef;--no:#b42318;--no-bg:#fdecea;--int:#6b21a8;--int-bg:#f5ecfb;
+    --warn:#9a6a00;--warn-bg:#fdf4e3;--star:#d97706;--maxw:1080px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0f1419;--fg:#e6e9ec;--muted:#9aa4af;--line:#263039;--card:#161c23;
+    --accent:#6ea8fe;--accent-soft:#16202e;--th:#1a222c;--code-bg:#1a2029;
+    --ok:#5fd08a;--ok-bg:#123020;--no:#f2a196;--no-bg:#2c1512;--int:#c99cf0;--int-bg:#241832;
+    --warn:#e8b24a;--warn-bg:#2a2410;--star:#f0b429;
+  }}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px 120px}
+  header.hero{border-bottom:1px solid var(--line);padding:48px 24px 30px;background:linear-gradient(180deg,var(--accent-soft),transparent)}
+  header.hero .inner{max-width:var(--maxw);margin:0 auto}
+  .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);padding:3px 10px;border-radius:999px;margin-bottom:12px}
+  h1{font-size:2rem;margin:0 0 8px;line-height:1.18}
+  .sub{color:var(--muted);max-width:800px;font-size:1.03rem}
+  h2{font-size:1.45rem;margin:50px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line);scroll-margin-top:20px}
+  h3{font-size:1.14rem;margin:26px 0 8px}
+  p{margin:11px 0}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  code{background:var(--code-bg);padding:1.5px 6px;border-radius:5px;font:13px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px;display:block;overflow-x:auto}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:var(--th);font-weight:700;white-space:nowrap}
+  tr:nth-child(even) td{background:var(--card)}
+  ul,ol{margin:11px 0;padding-left:22px}li{margin:5px 0}
+  blockquote{margin:16px 0;padding:12px 18px;background:var(--card);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}
+  blockquote p{margin:5px 0}
+  .quote{font-style:italic;color:var(--fg)}
+  .mermaid{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin:20px 0;text-align:center;overflow-x:auto}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .stat .big{font-size:2rem;font-weight:800;color:var(--accent);line-height:1.1}
+  .stat .lbl{color:var(--muted);font-size:13px;margin-top:4px}
+  .badge{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .b-built{color:var(--ok);background:var(--ok-bg)}
+  .b-no{color:var(--no);background:var(--no-bg)}
+  .b-int{color:var(--int);background:var(--int-bg)}
+  .b-you{color:var(--accent);background:var(--accent-soft)}
+  .callout{background:var(--warn-bg);border:1px solid #d9b45f;border-radius:10px;padding:13px 17px;margin:16px 0}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .step h4{margin:0 0 6px;font-size:1.02rem}
+  .step .n{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;margin-right:8px}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0}
+  .toc h4{margin:0 0 8px;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase}
+  .toc ol{columns:2;column-gap:30px;margin:0;padding-left:18px;font-size:14px}
+  @media(max-width:640px){.toc ol{columns:1}h1{font-size:1.6rem}}
+  footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <span class="tag">BMS-4965 · Short-Pay Automation · Demo Run-Through</span>
+    <h1>Short-Pay Automation — what we built, why, and how to demo it</h1>
+    <p class="sub">A walk-through for demoing the short-pay work to Gulf: the problem and its cost, Gulf's own stated intent, exactly what's shipped vs. deferred, the click-path for the demo, and the integration + decision work that remains. Sourced from the <strong>Gulf on-site (Jul 14, 2026) Short-Pay / Publix-EFT transcript</strong>.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#impact">The problem &amp; who it hurts</a></li>
+      <li><a href="#why">Why it happens (root causes)</a></li>
+      <li><a href="#intent">What Gulf actually wants</a></li>
+      <li><a href="#built">What we built (v1)</a></li>
+      <li><a href="#demo">The demo run-through</a></li>
+      <li><a href="#notbuilt">What's NOT built</a></li>
+      <li><a href="#integration">Assumed integration work</a></li>
+      <li><a href="#next">Next steps &amp; open decisions</a></li>
+    </ol>
+  </div>
+
+  <h2 id="impact">1. The problem &amp; who it hurts</h2>
+  <p>A <strong>short pay</strong> is when the amount paid ≠ the total due, discovered <em>after</em> the money has moved. The headline case is <strong>Publix paying by EFT</strong> for less than Gulf billed — but Gulf was explicit it's far broader: checks, DEX/DSD deliveries, net-30. In their words: <span class="quote">"there is no such thing as a no-pay — that is a short pay."</span></p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="big">$20M+</div><div class="lbl">lost to short pays (customer-stated scale of the problem)</div></div>
+    <div class="stat"><div class="big">~1,000</div><div class="lbl">short pays sitting on the books, <strong>never followed up</strong></div></div>
+    <div class="stat"><div class="big">$0</div><div class="lbl">controls today — <span class="quote">"you just accept it"</span> (no gate, no owner)</div></div>
+    <div class="stat"><div class="big">Bank rec</div><div class="lbl">the only place shorts are caught today — far too late</div></div>
+  </div>
+
+  <p><strong>Who feels it:</strong></p>
+  <table>
+    <tr><th>Persona</th><th>Pain today</th></tr>
+    <tr><td><strong>AR / Collections</strong> (Terry, AR mgr)</td><td>No queue, no owner. ~1,000 uncollected shorts invisible until bank reconciliation. <span class="quote">"I want a person responsible for frankly everything."</span></td></tr>
+    <tr><td><strong>Delivery managers</strong></td><td>Never told a driver left a stop short until it's too late to act.</td></tr>
+    <tr><td><strong>Drivers</strong></td><td>No guardrail — accept any short and move on; often void a whole invoice instead of cutting one line (training gap).</td></tr>
+    <tr><td><strong>Finance</strong> (Lisa — EFT)</td><td>Discovers the gap weeks later at bank rec; nothing reconciles it back to a delivery.</td></tr>
+  </table>
+
+  <h2 id="why">2. Why it happens (root causes Gulf named)</h2>
+  <div class="mermaid">
+flowchart TD
+    SP[Short pay: amount paid ≠ total due]
+    SP --> P[Pricing discrepancy<br/>Gulf's system vs. retailer's]
+    SP --> Q[Quantity / item change at delivery<br/>broken case, didn't scan, wrong item]
+    SP --> D[Customer takes a discount<br/>at payment time — no driver in loop]
+    SP --> E[EFT settles async<br/>no in-person moment to reconcile]
+    SP --> N[Net-30 / after goods transfer<br/>delivery closed before payment lands]
+    SP --> T[Driver training<br/>voids whole invoice vs. cutting one line]
+  </div>
+  <div class="callout">
+    <strong>The key insight for the demo:</strong> fixing the invoice <em>at delivery</em> only cures the <em>quantity/item</em> class. Price mismatches, EFT timing, net-30, promos, and <strong>a discount the customer applies when paying</strong> all survive a perfect at-delivery invoice. Gulf said it themselves for EFT: <span class="quote">"we can't stop it from happening… it only gets us by the time we're doing a bank reconciliation."</span> → <strong>a residual short pay always slips through, so a back-office handling path is mandatory.</strong> That handling path is what this build delivers.
+  </div>
+
+  <h2 id="intent">3. What Gulf actually wants</h2>
+  <p>Three layers, in Gulf's priority order:</p>
+  <ol>
+    <li><strong>Prevent at source</strong> (their ideal) — get the invoice right at delivery so what Publix EFTs later matches (driver/DEX reconciles qty &amp; price; a Publix/DEX integration syncs in real time).</li>
+    <li><strong>Detect at the stop</strong> (safety net) — a handheld check-scan / payment-validation layer flags amount-paid ≠ total-due <em>before</em> the driver leaves.</li>
+    <li><strong>Handle the residual</strong> (mandatory fallback) — approval gate at the stop, reason codes, an AR review queue, escalation, collection, roll-to-next-invoice, write-off — because EFT shorts can never hit zero.</li>
+  </ol>
+  <p>This build is a complete, shippable <strong>Layer 3 (+ the approval gate of Layer 2)</strong>. Layers 1 and the check-scan half of 2 are integration/hardware work (see §7).</p>
+
+  <h2 id="built">4. What we built (v1)</h2>
+  <div class="legend">
+    <span class="badge b-built">● BUILT</span>
+    <span class="badge b-you">● Consumer LWC (built in-house)</span>
+  </div>
+  <table>
+    <tr><th>Capability</th><th>What it does</th><th></th></tr>
+    <tr><td><strong>Short-pay capture</strong> (BMS-3844)</td><td>Driver records the shortfall + a mandatory reason at finalize.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>Driver finalize approval gate</strong> (BMS-5625/5631)</td><td>Stateful, sequential N-layer approval chain (Supervisor → Sales Mgr → Regional Dir). A driver can't finalize a short pay over threshold until the right layer signs off; approvals notify via a custom push/bell.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>Approval queue LWC</strong> (<code>shortPayApprovals</code>)</td><td>The approver's console — pending approvals + one-click approve/reject + durable decision history.</td><td><span class="badge b-you">Consumer LWC</span></td></tr>
+    <tr><td><strong>Capture → queue hand-off</strong></td><td>A cleared short pay is stamped <code>Open</code> so it actually reaches AR (this wiring was missing — now fixed).</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>AR review queue LWC</strong> (<code>shortPayReviewQueue</code>)</td><td>AR's worklist of open shorts, filterable by status/state, with four resolution actions.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>4 resolution outcomes</strong></td><td>Post Credit · Mark Collected · Assign to Rep (creates the rep's collection task on their route) · Write Off. Plus AR "Confirm Collection" for rep-collected balances.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>Per-state escalation</strong></td><td>Nightly batch escalates aging/large shorts by state (AL $0, FL $50/2%/7-day — legally grounded per AL Ch. 20-X-8 &amp; FL §561.42).</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>Repeat-offender signals</strong></td><td>Account trailing-12-month <strong>short-pay count</strong>, <strong>$ total</strong>, and — new — <strong>escalation count</strong>, surfaced as a <strong>⚠ N×</strong> badge in both the review &amp; approval queues.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>Immutable audit trail</strong></td><td>One durable <code>Short_Pay_Event__c</code> row per approval/resolution decision.</td><td><span class="badge b-built">BUILT</span></td></tr>
+    <tr><td><strong>AR-only security</strong></td><td>Permission set gates the short-pay/AR fields to back-office; drivers capture but never chase.</td><td><span class="badge b-built">BUILT</span></td></tr>
+  </table>
+
+  <h2 id="demo">5. The demo run-through</h2>
+  <p>All against org <code>ohfy-val-shortPay-2</code>, seeded with the <code>BMS4965 SHOWCASE - Repeat Offender Co (FL)</code> account (4 short pays, 3 escalated).</p>
+
+  <div class="step"><h4><span class="n">1</span>Frame the pain</h4>
+    Open on the number: ~1,000 shorts on the books, never followed up; caught only at bank rec. "Today, you just accept it — there's no gate and no owner."</div>
+
+  <div class="step"><h4><span class="n">2</span>Driver finalizes a short pay → approval gate</h4>
+    On the driver handheld view, finalize a stop paying short over threshold. Show that the driver <strong>cannot complete the stop</strong> — it routes into the approval chain and fires the push/bell. This is Gulf's "they cannot complete that stop until they've gotten approval."</div>
+
+  <div class="step"><h4><span class="n">3</span>Approver acts (the consumer LWC you built)</h4>
+    Open <strong>Short-Pay Approvals</strong>. Show the pending item — note the <strong>⚠ 3×</strong> repeat-offender badge telling the approver this is a chronic short-payer. Approve it. Show the decision lands in the durable history.</div>
+
+  <div class="step"><h4><span class="n">4</span>It reaches AR automatically</h4>
+    Open <strong>Short-Pay Review Queue</strong>. The cleared short now sits here as an open row (the capture→queue hand-off). Filter by <em>Escalated</em> and by <em>state</em>. Point out the <strong>⚠ N×</strong> badges — AR instantly sees who the repeat offenders are.</div>
+
+  <div class="step"><h4><span class="n">5</span>Resolve it four ways</h4>
+    Open the resolve modal on a row. Walk the four Gulf-named outcomes: <strong>Post Credit</strong>, <strong>Mark Collected</strong>, <strong>Assign to Rep</strong> (show it creates the rep's collection task on their route — the "sales attorney"), <strong>Write Off</strong>. Resolve one and show it leaves the queue with an audit row.</div>
+
+  <div class="step"><h4><span class="n">6</span>Repeat-offender &amp; escalation story</h4>
+    On the showcase account, show the trailing-12-month <strong>short-pay count = 4</strong> vs. <strong>escalation count = 3</strong> — the distinction between "shorts often" and "shorts badly enough to escalate." This is the durable signal that survives resolution.</div>
+
+  <h2 id="notbuilt">6. What's NOT built (be upfront)</h2>
+  <div class="legend"><span class="badge b-no">● NOT BUILT</span></div>
+  <table>
+    <tr><th>Gap</th><th>Why it's out of v1</th><th></th></tr>
+    <tr><td><strong>Prevention at source</strong> (invoice-right-at-delivery)</td><td>Gated on the unresolved "can the driver edit/cut the invoice, and who authorizes" decision (Jimmy/Ashton pricing call).</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Check-scan / payment-validation layer</strong></td><td>Handheld image capture + AI check-read + rules (payee, memo invoice ref, signature, overpayment/multi-invoice heuristics). Sizeable, hardware-adjacent.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Roll-to-next-invoice (true re-bill)</strong></td><td>v1 tracks a carry-forward but does <em>not</em> re-bill the customer. Deferred pending Gulf's rebill decision; metadata orphans kept.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Formal "Dispute" &amp; "Rebill" outcomes</strong></td><td>Dispute exists only as a driver reason code; rebill never settled as a distinct outcome.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>SMS / Twilio alerts</strong></td><td>Gulf wanted text; Twilio not enabled. Push/bell + queue are built; SMS is not.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Notification channel + recipient (final)</strong></td><td>Gulf wanted "max visibility" but never picked the primary channel or the single accountable recipient. Push/bell demoed; Chatter never named.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Sales-rep approval layer</strong></td><td>Requested idea; the rep is in the <em>collection</em> flow, not the <em>approval</em> chain. Needs a policy call (reps approving their own customers).</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>Non-deliverable-until-paid enforcement</strong></td><td>Floated by Gulf, with their own caveat "a lot of times it's our fault." Not built.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+    <tr><td><strong>EOD report / dashboard, batch scheduling</strong></td><td>Report <em>types</em> to ship; concrete reports + the nightly cron are per-org post-install steps.</td><td><span class="badge b-no">NOT BUILT</span></td></tr>
+  </table>
+
+  <h2 id="integration">7. Assumed integration work</h2>
+  <div class="legend"><span class="badge b-int">● INTEGRATION</span></div>
+  <p>These are external-system builds — not Salesforce config — and each is its own scoping/vendor conversation:</p>
+  <table>
+    <tr><th>Integration</th><th>Purpose</th><th></th></tr>
+    <tr><td><strong>Publix / DEX (DSD) sync</strong> — Xerecistech-style</td><td>Sync the invoice to the retailer's DSD in real time so quantities/prices match at source — the "prevent" lever. Build-vs-consume call <em>not made</em>.</td><td><span class="badge b-int">INTEGRATION</span></td></tr>
+    <tr><td><strong>Publix EFT / Bank-rec feed</strong></td><td>Detect the EFT short — either consume the existing bank-reconciliation flag (Lisa's process) or a direct EFT feed. The build-vs-consume path for the EFT case itself is open.</td><td><span class="badge b-int">INTEGRATION</span></td></tr>
+    <tr><td><strong>Twilio (SMS)</strong></td><td>Text alerts to driver managers / AR that Gulf asked for; Twilio credential not yet configured.</td><td><span class="badge b-int">INTEGRATION</span></td></tr>
+    <tr><td><strong>Check scanner / handheld imaging</strong></td><td>Image-based check capture feeding the payment-validation layer; possible portable check scanners + a finance-team deposit handoff.</td><td><span class="badge b-int">INTEGRATION</span></td></tr>
+  </table>
+
+  <h2 id="next">8. Next steps &amp; open decisions</h2>
+  <p><strong>Product/engineering — finish v1:</strong></p>
+  <ul>
+    <li>Schedule the two nightly batches (escalation, TTM rollup) — per-org post-install.</li>
+    <li>Assign the <code>Short Pay Back Office</code> permission set to AR + set driver-profile FLS.</li>
+    <li>Top up Apex coverage on the review-queue controller; add Jest for the two badge getters.</li>
+    <li>Ship report <em>types</em> for a short-pay EOD report / dashboard.</li>
+  </ul>
+  <p><strong>Gulf / Ops decisions to close (route these):</strong></p>
+  <ol>
+    <li><strong>Ratify the FL/AL thresholds</strong> against real invoice sizes ($50 / 2% / 7-day are AI-assumed defaults; AL $0 is legally grounded).</li>
+    <li><strong>Can drivers edit/cut the invoice, and who authorizes a cut?</strong> — Jimmy/Ashton pricing call. Gates the whole prevention layer.</li>
+    <li><strong>Publix EFT/DEX integration — build or consume?</strong> — Product scope decision.</li>
+    <li><strong>Notification channel + authoritative recipient</strong> for the finalize-with-short event — Ops + AR.</li>
+    <li><strong>"Rebill" as a formal outcome</strong> vs. fold into correct-invoice / next-invoice.</li>
+    <li><strong>Manual check-key fallback</strong> — failed-scan count before manual entry — Accounting + Ops.</li>
+  </ol>
+
+  <footer>
+    Sourced from <code>Transcripts/Gulf On-site/Short Pay/Short-Pay-Publix-EFT Extraction.md</code> (Gulf on-site, Jul 14 2026). Build verified on <code>ohfy-val-shortPay-2</code>, branch <code>demo/short-pay-epic-bms-4965</code>. Scope: BMS-4965 (umbrella) incl. 3844 capture, 5625/5631 approval gate, 4059/4060 thresholds &amp; resolution.
+  </footer>
+
+</div>
+<script>
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({startOnLoad:true,theme:dark?'dark':'default',themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'},flowchart:{useMaxWidth:true,htmlLabels:true}});
+</script>
+</body>
+</html>

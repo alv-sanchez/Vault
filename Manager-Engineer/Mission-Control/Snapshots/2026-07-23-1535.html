@@ -1,0 +1,1682 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="900">
+<title>Mission Control — Active Epics</title>
+<style>
+  :root{--bg:#0d1017;--card:#151925;--card2:#1a1f2e;--line:#252b3b;--txt:#e7e9f0;--dim:#8891a5;
+    --done:#3fb950;--prog:#d29922;--todo:#333b4d;--review:#a371f7;--refine:#58a6ff;--accent:#58a6ff;}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:26px}
+  h1{font-size:21px;margin:0 0 2px} .sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  .sc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:104px}
+  .sc .n{font-size:24px;font-weight:700} .sc .l{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .sc.done .n{color:var(--done)} .sc.prog .n{color:var(--prog)} .sc.review .n{color:var(--review)} .sc.todo .n{color:var(--refine)}
+  section.todo-epics{background:linear-gradient(180deg,#12151d,#111722);border:1px dashed #2c3346;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  section.todo-epics>h2{font-size:13px;margin:0 0 14px;color:var(--refine);text-transform:uppercase;letter-spacing:.05em}
+  .phgroup{margin-bottom:14px} .phgroup:last-child{margin-bottom:0}
+  .phlabel{display:flex;align-items:center;gap:8px;margin:0 0 8px} .phlabel .phn{color:var(--dim);font-size:12px}
+  .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  a.tcard{display:block;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;text-decoration:none;transition:.12s}
+  a.tcard:hover{border-color:#3b4a6b;background:#1e2536;transform:translateY(-1px)}
+  .tc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .tkey{color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;font-size:12.5px}
+  .tc-title{color:var(--txt);font-weight:600;font-size:13px;line-height:1.35;margin-bottom:3px}
+  .tc-dom{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+  .tc-sum{color:#9aa3b8;font-size:12px;line-height:1.4}
+  .ph{display:inline-block;padding:1px 8px;border-radius:11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .ph.ph-crawl{background:rgba(63,185,80,.16);color:var(--done)}
+  .ph.ph-walk{background:rgba(210,153,34,.16);color:var(--prog)}
+  .ph.ph-run{background:rgba(163,113,247,.18);color:var(--review)}
+  .band{background:linear-gradient(180deg,#1c1526,#151925);border:1px solid #3a2d52;border-radius:12px;padding:14px 18px;margin-bottom:22px}
+  .band h2{font-size:13px;margin:0 0 10px;color:var(--review);text-transform:uppercase;letter-spacing:.05em}
+  .band .row{display:flex;gap:10px;align-items:center;padding:5px 0;flex-wrap:wrap}
+  .band .row a.k{color:var(--accent);text-decoration:none;font-weight:600}
+  .band .row .t{color:#c9cfe0} .band .row .ep{color:var(--dim);font-size:12px}
+  .band .bnote{flex-basis:100%;color:#9aa3b8;font-size:12.5px;line-height:1.45;margin:2px 0 4px;padding-left:2px}
+  .band .bnote.missing{color:#d29922;font-style:italic}
+  .prage{font-size:11px;color:var(--dim);background:#1c2130;border:1px solid var(--line);border-radius:6px;padding:0 7px;white-space:nowrap}
+  .prage.stale{color:#f0b429;background:rgba(210,153,34,.12);border-color:rgba(210,153,34,.35)}
+  section.orgs,details.orgs{background:linear-gradient(180deg,#101a17,#111722);border:1px solid #24402f;border-radius:12px;padding:14px 18px;margin-bottom:22px}
+  section.orgs>h2{font-size:13px;margin:0 0 12px;color:#3fb950;text-transform:uppercase;letter-spacing:.05em}
+  details.orgs>summary{font-size:13px;margin:0;color:#3fb950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;font-weight:600;list-style:none}
+  details.orgs>summary::-webkit-details-marker{display:none}
+  details.orgs>summary::before{content:"▸ ";color:var(--dim)}
+  details.orgs[open]>summary::before{content:"▾ "}
+  details.orgs[open]>summary{margin-bottom:12px}
+  table.orgtbl td{vertical-align:middle}
+  .orgtbl .tdim{color:var(--dim);font-size:12px}
+  .expd{font-size:11px;color:var(--dim);margin-left:4px}
+  .expd.soon{color:#f0b429;font-weight:600}
+  .wt-dirty{color:#f0b429;font-size:11.5px;font-weight:600}
+  .wt-prune{background:rgba(136,145,165,.16);color:#8891a5;border-radius:6px;padding:0 7px;font-size:11px;font-weight:600}
+  .wt-servescell{max-width:280px}
+  .wt-serves{color:#9aa3b8;font-size:12px;line-height:1.4}
+  .prune-hd{color:#8891a5;font-weight:600;font-size:12px;text-transform:none;letter-spacing:0}
+  details.done-epics{background:linear-gradient(180deg,#101710,#111722);border:1px solid #234023;border-radius:12px;padding:10px 18px;margin-bottom:22px}
+  details.done-epics>summary{font-size:13px;color:#3fb950;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;font-weight:600;list-style:none}
+  details.done-epics>summary::-webkit-details-marker{display:none}
+  details.done-epics>summary::before{content:"▸ ";color:var(--dim)}
+  details.done-epics[open]>summary::before{content:"▾ "}
+  details.done-epics .twrap{margin-top:12px}
+  .doneat{color:#8fce8f;font-variant-numeric:tabular-nums;font-size:12.5px;white-space:nowrap}
+  .expcell{white-space:nowrap;font-size:12px;color:#9aa3b8}
+  section.epic{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  .ehead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .etitle a{color:var(--accent);text-decoration:none;font-weight:600}
+  .etitle b{font-weight:600} .dom{color:var(--dim);font-size:12px;margin-left:6px}
+  .eprog{min-width:210px;text-align:right} .pnum{color:var(--dim);font-size:12px;margin-left:8px} .pnum b{color:var(--txt)}
+  .esum{color:#b9c0d2;font-size:13px;margin:8px 0 10px;max-width:70ch}
+  .ecounts{margin:8px 0 12px}
+  .bar{display:inline-flex;vertical-align:middle;width:150px;height:8px;border-radius:5px;overflow:hidden;background:var(--todo)}
+  .seg{height:100%} .seg.done{background:var(--done)}.seg.prog{background:var(--prog)}.seg.todo{background:var(--todo)}
+  .twrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+  table.tix{border-collapse:collapse;width:100%;min-width:640px}
+  table.tix th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:8px 12px;background:var(--card2);border-bottom:1px solid var(--line)}
+  table.tix td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.tix tr:last-child td{border-bottom:none}
+  table.tix tr:hover td{background:var(--card2)}
+  .k a{color:var(--accent);text-decoration:none;font-weight:600;font-variant-numeric:tabular-nums}
+  .tt{color:#cdd3e2;max-width:44ch} .prc .dim,.dim{color:var(--dim)}
+  a.pr{color:var(--accent);text-decoration:none;font-weight:600}
+  .st{display:inline-block;padding:1px 8px;border-radius:11px;font-size:12px;font-weight:600;white-space:nowrap}
+  .st-review{background:rgba(163,113,247,.18);color:var(--review)}
+  .st-testing{background:rgba(240,180,41,.16);color:#f0b429}
+  section.doneopen{background:linear-gradient(180deg,#1a1710,#111722);border-color:#40381f}
+  section.doneopen>h2{color:#f0b429}
+  .do-epic{margin-top:14px} .do-head{margin-bottom:6px;font-size:13px} .do-head .do-title{color:var(--fg)}
+  .st-prog{background:rgba(210,153,34,.18);color:var(--prog)}
+  .st-done{background:rgba(63,185,80,.18);color:var(--done)}
+  .st-refine{background:rgba(88,166,255,.16);color:var(--refine)}
+  .st-todo{background:rgba(136,145,165,.14);color:var(--dim)}
+  .tag{display:inline-block;padding:0 7px;border-radius:6px;font-size:11px;font-weight:600;margin-left:4px}
+  .tag.pin{background:rgba(210,153,34,.16);color:var(--prog)}
+  .tag.rev{background:rgba(163,113,247,.2);color:var(--review)}
+  .tag.merged{background:rgba(163,113,247,.2);color:#c9a5ff}
+  .tag.closed{background:rgba(248,81,73,.16);color:#f85149}
+  .tag.draft{background:rgba(136,145,165,.18);color:var(--dim)}
+  .tag.open{background:rgba(63,185,80,.16);color:#3fb950}
+  .tag.exp{background:rgba(248,81,73,.16);color:#f85149}
+  .tag.ty-story{background:#22283a;color:#9fb4e6}.tag.ty-spike{background:#2a2340;color:#c4a5f5}.tag.ty-demo{background:#243024;color:#8fce8f}
+  .tag.pol{background:rgba(88,166,255,.16);color:#79c0ff}
+  .tag.bd{border:1px solid transparent}
+  .tag.bd.bd-ui{background:rgba(219,109,222,.16);color:#e29aff;border-color:rgba(219,109,222,.35)}
+  .tag.bd.bd-be{background:rgba(88,166,255,.14);color:#8cc2ff;border-color:rgba(88,166,255,.32)}
+  .tag.bd.bd-both{background:rgba(63,185,80,.15);color:#7ee787;border-color:rgba(63,185,80,.32)}
+  .tag.bd.bd-spike{background:rgba(163,113,247,.18);color:#c4a5f5;border-color:rgba(163,113,247,.35)}
+  .tag.bd.bd-docs{background:rgba(136,145,165,.16);color:#b3bccf;border-color:rgba(136,145,165,.32)}
+  .tnote{color:#8891a5;font-size:12px;line-height:1.4;margin-top:3px}
+  .ectx{display:flex;flex-direction:column;gap:5px;margin:2px 0 12px;padding:10px 12px;background:var(--card2);border:1px solid var(--line);border-radius:8px;max-width:78ch}
+  .ectx .ctx{display:flex;gap:9px;align-items:baseline;font-size:12.5px;line-height:1.45}
+  .ectx .cl{flex:0 0 92px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .ectx .cl-user{color:#8cc2ff} .ectx .cl-impact{color:var(--prog)} .ectx .cl-sol{color:var(--done)}
+  .ectx .cv{color:#c9cfe0}
+  .tc-impact{color:#c9a24a;font-size:11.5px;line-height:1.4;margin-top:5px}
+  .pill{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin-right:5px}
+  .pill.done{background:rgba(63,185,80,.16);color:var(--done)}.pill.prog{background:rgba(210,153,34,.16);color:var(--prog)}
+  .pill.todo{background:rgba(136,145,165,.14);color:var(--dim)}.pill.tot{background:#222a3c;color:var(--txt)}
+  .pill.pol{background:rgba(88,166,255,.16);color:#79c0ff}
+  .orgchips{margin-left:6px;color:var(--dim);font-size:12px}
+  td.org code,.orgchips code{background:#1f2634;color:#9ecbff;border-radius:5px;padding:1px 6px;font-size:12px}
+  .cpy{cursor:pointer;transition:.12s} .cpy:hover{background:#2a3550 !important;color:#c9e0ff !important;outline:1px solid #3b4a6b}
+  a.wt-open{color:var(--txt);text-decoration:none;border-bottom:1px dashed #3b4a6b;transition:.12s}
+  a.wt-open:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  a.wt-open .wt-openico{color:var(--dim);font-size:11px;margin-left:5px}
+  a.wt-open:hover .wt-openico{color:var(--accent)}
+  .cmdblock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 13px;margin:14px 0 4px;font-size:13px}
+  .cmdblock .lbl{color:var(--dim)} .cmdblock code{background:#0d1017;border:1px solid var(--line);color:#9ecbff;border-radius:6px;padding:4px 9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .cmdblock .hint{color:var(--dim);font-size:11.5px;margin-left:auto}
+  .cpybtn{background:var(--accent);color:#08131f;border:none;border-radius:6px;padding:4px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+  .cpybtn:hover{filter:brightness(1.08)}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2634;color:#e7e9f0;border:1px solid #3b4a6b;border-radius:8px;padding:9px 16px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 24px rgba(0,0,0,.4);z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{color:var(--dim);font-size:12px;margin-top:16px}
+</style></head><body>
+  <h1>🛰️ Mission Control</h1>
+  <div class="sub">5 active epics · 32 tickets · refreshed <b>2026-07-23 15:35</b> · auto-reloads every 15 min</div>
+  <div class="cmdblock"><span class="lbl">Open a dev org →</span><code class="cpy" data-copy="sf org open --target-org &lt;orgName&gt;">sf org open --target-org &lt;orgName&gt;</code><button class="cpybtn" data-copy="sf org open --target-org &lt;orgName&gt;">Copy</button><span class="hint">tip: click any org below to copy its real command</span></div>
+
+  <div class="cards">
+    <div class="sc"><div class="n">5</div><div class="l">Active epics</div></div>
+    <div class="sc"><div class="n">32</div><div class="l">Tickets</div></div>
+    <div class="sc prog"><div class="n">14</div><div class="l">In progress</div></div>
+    <div class="sc review"><div class="n">16</div><div class="l">In review / PR</div></div>
+    <div class="sc done"><div class="n">4</div><div class="l">Done</div></div>
+    <div class="sc todo"><div class="n">5</div><div class="l">To-do epics</div></div>
+  </div>
+
+  <div class="band"><h2>⚡ Needs your eyes — in review / open PR</h2>
+    <div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3921">BMS-3921</a>
+      <span class="st st-prog">In Progress</span>
+      <span class="t">Retailer Engagement Notifications</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/607">PR #607 (draft)</a><span class="prage" title="PR opened 1 day ago">1d old</span>
+      <span class="ep">· BMS-4996</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a>
+      <span class="st st-prog">In Progress</span>
+      <span class="t">Short Pay — Ph 2: Compliance Escalation (FL/AL)</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">PR #582</a><span class="prage" title="PR opened 5 days ago">5d old</span>
+      <span class="ep">· BMS-4965</span><div class="bnote">Applies FL/AL compliance escalation rules to short-pay events — the regulated core of the epic; sits between driver detection (Ph1) and resolution (Ph3).</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a>
+      <span class="st st-prog">In Progress</span>
+      <span class="t">Short Pay — Ph 3: Resolution, Reporting &amp; History</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">PR #582</a><span class="prage" title="PR opened 5 days ago">5d old</span>
+      <span class="ep">· BMS-4965</span><div class="bnote">Closes the loop: resolution workflow + historical reporting on short-pay exceptions, so finance can track recovery over time.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a>
+      <span class="st st-prog">In Progress</span>
+      <span class="t">Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">PR #582</a><span class="prage" title="PR opened 5 days ago">5d old</span>
+      <span class="ep">· BMS-4965</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a>
+      <span class="st st-todo">Backlog</span>
+      <span class="t">Short Pay — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">PR #582</a><span class="prage" title="PR opened 5 days ago">5d old</span>
+      <span class="ep">· BMS-4965</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a>
+      <span class="st st-review">Review</span>
+      <span class="t">DOI Formula Standardization</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/513">PR #513 (draft)</a><span class="prage stale" title="PR opened 13 days ago">13d old ⏳</span>
+      <span class="ep">· BMS-5113</span><div class="bnote">The authoritative DOI calc itself (Apex resolver + additive Inventory__c fields); everything else in the epic feeds off or reports on this.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4545">BMS-4545</a>
+      <span class="st st-review">Review</span>
+      <span class="t">Reporting Build — DOI Formula Standardization</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      
+      <span class="ep">· BMS-5113</span><div class="bnote">Builds the DOI reporting surface on top of the standardized calc so planners actually see the unified metric; in review awaiting sign-off.</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Gulf login page (passwordless) + registration placeholder</span> <span class="tag bd bd-ui" title="what gets built">UI</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/458">PR #458</a><span class="prage stale" title="PR opened 17 days ago">2w old ⏳</span>
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Self-service account management (address, contacts)</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">PR #388</a><span class="prage stale" title="PR opened 27 days ago">3w old ⏳</span>
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4051">BMS-4051</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Cart &amp; Checkout — Ph 2: Volume Tiers + Promos</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4053">BMS-4053</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Retailer Portal Product Card — Ph 1: Card Component</span> <span class="tag bd bd-ui" title="what gets built">UI</span>
+      
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-4054">BMS-4054</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Retailer Portal Product Card — Ph 2: Grid Layout + Reuse</span> <span class="tag bd bd-ui" title="what gets built">UI</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/604">PR #604 (draft)</a><span class="prage" title="PR opened 1 day ago">1d old</span>
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5321">BMS-5321</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Segmented promotional banners at login</span> <span class="tag bd bd-ui" title="what gets built">UI</span>
+      
+      <span class="ep">· BMS-5576</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5790">BMS-5790</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Freight billback generation → existing billback rails</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      <a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/514">PR #514 (draft)</a><span class="prage stale" title="PR opened 13 days ago">13d old ⏳</span>
+      <span class="ep">· BMS-5161</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5792">BMS-5792</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Design / Prototype / Demo — Supplier Freight Cost Billbacks</span> <span class="tag bd bd-both" title="what gets built">Both</span>
+      
+      <span class="ep">· BMS-5161</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div><div class="row"><a class="k" href="https://ohanafy.atlassian.net/browse/BMS-5909">BMS-5909</a>
+      <span class="st st-testing">Testing</span>
+      <span class="t">Multi-supplier freight attribution &amp; cost allocation</span> <span class="tag bd bd-be" title="what gets built">Backend</span>
+      
+      <span class="ep">· BMS-5161</span><div class="bnote missing">⚠ no summary — add a one-line "what it solves" note</div></div>
+  </div>
+
+  <section class="orgs doneopen">
+    <h2>✅ Shipped — children still in flight · 3 epics</h2>
+    <p class="sub">Epic is marked Done, but these children are still open (Testing / review / in progress). They stay visible until every child lands.</p>
+    <div class="do-epic">
+      <div class="do-head"><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a> <span class="st st-done">Done</span> <span class="do-title">Ecom — Phase 2: Pricing/Promo Completion &amp; Checkout</span> <span class="dim">· 6 of 6 children still open</span></div>
+      <div class="twrap"><table class="tix">
+        <thead><tr><th>Key</th><th>Type</th><th>Title</th><th>Status</th><th>PR</th></tr></thead>
+        <tbody><tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a></td>
+          <td><span class="tag bd bd-ui" title="what gets built">UI</span></td>
+          <td class="tt">Gulf login page (passwordless) + registration placeholder</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/458">#458</a> <span class='tag merged'>merged</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a></td>
+          <td><span class="tag bd bd-both" title="what gets built">Both</span></td>
+          <td class="tt">Self-service account management (address, contacts)</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">#388</a></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4051">BMS-4051</a></td>
+          <td><span class="tag bd bd-both" title="what gets built">Both</span></td>
+          <td class="tt">Cart &amp; Checkout — Ph 2: Volume Tiers + Promos</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4053">BMS-4053</a></td>
+          <td><span class="tag bd bd-ui" title="what gets built">UI</span></td>
+          <td class="tt">Retailer Portal Product Card — Ph 1: Card Component</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4054">BMS-4054</a></td>
+          <td><span class="tag bd bd-ui" title="what gets built">UI</span></td>
+          <td class="tt">Retailer Portal Product Card — Ph 2: Grid Layout + Reuse</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/604">#604</a> <span class='tag draft'>draft</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5321">BMS-5321</a></td>
+          <td><span class="tag bd bd-ui" title="what gets built">UI</span></td>
+          <td class="tt">Segmented promotional banners at login</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr></tbody>
+      </table></div>
+    </div>
+<div class="do-epic">
+      <div class="do-head"><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a> <span class="st st-done">Done</span> <span class="do-title">Supplier Freight Cost Billbacks — State-Line Transfers</span> <span class="dim">· 3 of 3 children still open</span></div>
+      <div class="twrap"><table class="tix">
+        <thead><tr><th>Key</th><th>Type</th><th>Title</th><th>Status</th><th>PR</th></tr></thead>
+        <tbody><tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5790">BMS-5790</a></td>
+          <td><span class="tag bd bd-be" title="what gets built">Backend</span></td>
+          <td class="tt">Freight billback generation → existing billback rails</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/514">#514</a> <span class='tag draft'>draft</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5792">BMS-5792</a></td>
+          <td><span class="tag bd bd-both" title="what gets built">Both</span></td>
+          <td class="tt">Design / Prototype / Demo — Supplier Freight Cost Billbacks</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr>
+<tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5909">BMS-5909</a></td>
+          <td><span class="tag bd bd-be" title="what gets built">Backend</span></td>
+          <td class="tt">Multi-supplier freight attribution &amp; cost allocation</td>
+          <td><span class="st st-testing">Testing</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr></tbody>
+      </table></div>
+    </div>
+<div class="do-epic">
+      <div class="do-head"><a href="https://ohanafy.atlassian.net/browse/BMS-4995">BMS-4995</a> <span class="st st-done">Done</span> <span class="do-title">Ecom — Phase 1: Retailer Storefront MVP</span> <span class="dim">· 1 of 1 child still open</span></div>
+      <div class="twrap"><table class="tix">
+        <thead><tr><th>Key</th><th>Type</th><th>Title</th><th>Status</th><th>PR</th></tr></thead>
+        <tbody><tr>
+          <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4171">BMS-4171</a></td>
+          <td><span class="tag bd bd-both" title="what gets built">Both</span></td>
+          <td class="tt">Enforce Order Case Minimum (desktop/mobile)</td>
+          <td><span class="st st-todo">Build</span></td>
+          <td><span class='dim'>—</span></td>
+        </tr></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  
+
+  <details class="orgs" open>
+    <summary>🌳 Active worktrees · 20</summary>
+    <p class="sub">Each worktree and the branch checked out in it.</p>
+    <div class="twrap"><table class="tix orgtbl">
+      <thead><tr><th>Branch</th><th>Ticket</th><th>Epic</th><th>Serves</th><th>PR</th><th>State</th><th>Worktree</th></tr></thead>
+      <tbody><tr>
+        <td><code>main</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag pin">primary</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split" title="Open /Users/alvarosanchez_1/OHFY-Split in VS Code (code /Users/alvarosanchez_1/OHFY-Split)">OHFY-Split <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/safety-stock-doh-sizing-bms-4217</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4217">BMS-4217</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag draft">agent</span> <span class="wt-dirty">● 4 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a105153cce532e4ba)">agent-a105153cce532e4ba <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>(detached)</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag draft">agent</span> <span class="wt-dirty">● 20 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a5464025ea0502ef4" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a5464025ea0502ef4 in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a5464025ea0502ef4)">agent-a5464025ea0502ef4 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/short-pay-approval-workflow-bms-5631</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a> <span class="st st-todo">Backlog</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/561">#561</a> <span class="tag closed">closed</span></td>
+        <td><span class="tag draft">agent</span> <span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a56cb35b56b5dacc2" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a56cb35b56b5dacc2 in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a56cb35b56b5dacc2)">agent-a56cb35b56b5dacc2 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a7c058ba6230654b8</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-058">BMS-058</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag draft">agent</span> <span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a7c058ba6230654b8" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a7c058ba6230654b8 in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a7c058ba6230654b8)">agent-a7c058ba6230654b8 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/redbull-allocation-import-bms-4120</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4120">BMS-4120</a> <span class="st st-prog">In Progress</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4935">BMS-4935</a></td>
+        <td class="wt-servescell"><span class="wt-serves">The working core: ingest the allocation file, validate it, and split quantities across the 5 warehouses — currently being built.</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag draft">agent</span> <span class="wt-dirty">● 1 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-a860fb80c977e2daf)">agent-a860fb80c977e2daf <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/short-pay-backoffice-bms-4965</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/557">#557</a> <span class="tag closed">closed</span></td>
+        <td><span class="tag draft">agent</span> <span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ab12d88f178a1a799" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ab12d88f178a1a799 in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ab12d88f178a1a799)">agent-ab12d88f178a1a799 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>(detached)</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="tag draft">agent</span> <span class="wt-dirty">● 1 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ac18097f1ce3eb453" title="Open /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ac18097f1ce3eb453 in VS Code (code /Users/alvarosanchez_1/OHFY-Split/.claude/worktrees/agent-ac18097f1ce3eb453)">agent-ac18097f1ce3eb453 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>alv-sanchez/mumbai</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai" title="Open /Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai in VS Code (code /Users/alvarosanchez_1/conductor/workspaces/OHFY-Split/mumbai)">mumbai <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>chore/scale-code-review-large-prs</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/578">#578</a> <span class="tag draft">draft</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//private/tmp/claude-502/-Users-alvarosanchez-1/8b4bd414-247c-4f5a-a4e4-60f4d3e365f2/scratchpad/ohfy-scale-review-wt" title="Open /private/tmp/claude-502/-Users-alvarosanchez-1/8b4bd414-247c-4f5a-a4e4-60f4d3e365f2/scratchpad/ohfy-scale-review-wt in VS Code (code /private/tmp/claude-502/-Users-alvarosanchez-1/8b4bd414-247c-4f5a-a4e4-60f4d3e365f2/scratchpad/ohfy-scale-review-wt)">ohfy-scale-review-wt <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/doi-invoiced-source-bms-3742</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a> <span class="st st-review">Review</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a></td>
+        <td class="wt-servescell"><span class="wt-serves">The authoritative DOI calc itself (Apex resolver + additive Inventory__c fields); everything else in the epic feeds off or reports on this.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/513">#513</a> <span class="tag draft">draft</span></td>
+        <td><span class="wt-dirty">● 1 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3742" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3742 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3742)">OHFY-Split-BMS-3742 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/self-service-account-mgmt-bms-3932</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="wt-dirty">● 12 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3932" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3932 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3932)">OHFY-Split-BMS-3932 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>bk-bms-3932-20260624-213413</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/388">#388</a> <span class="tag open">open</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix)">OHFY-Split-BMS-3932-fix <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/cart-volume-tiers-promos-bms-4051</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4051">BMS-4051</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="wt-dirty">● 10 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-4051" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-4051 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-4051)">OHFY-Split-BMS-4051 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/call-center-order-visibility-reporting-bms-4997</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4997">BMS-4997</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4997">BMS-4997</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Consolidated agent dashboards (account insights + active promos + order status) — faster, more informed customer interactions and upsell.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/612">#612</a> <span class="tag draft">draft</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-4997" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-4997 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-4997)">OHFY-Split-BMS-4997 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>main'</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5481" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5481 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5481)">OHFY-Split-BMS-5481 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>feat/driver-finalize-approval-gate-bms-5625</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a> <span class="st st-prog">In Progress</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/439">#439</a> <span class="tag closed">closed</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-BMS-5625" title="Open /Users/alvarosanchez_1/OHFY-Split-BMS-5625 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-BMS-5625)">OHFY-Split-BMS-5625 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>demo/short-pay-epic-bms-4965</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">#582</a> <span class="tag open">open</span></td>
+        <td><span class="wt-dirty">● 24 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-demo-shortpay" title="Open /Users/alvarosanchez_1/OHFY-Split-demo-shortpay in VS Code (code /Users/alvarosanchez_1/OHFY-Split-demo-shortpay)">OHFY-Split-demo-shortpay <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>integration/bms-4996-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up.</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="wt-dirty">● 35 uncommitted</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-integration-4996" title="Open /Users/alvarosanchez_1/OHFY-Split-integration-4996 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-integration-4996)">OHFY-Split-integration-4996 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr>
+<tr>
+        <td><code>integration/bms-5113-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a></td>
+        <td class="wt-servescell"><span class="wt-serves">One authoritative Days-on-Inventory calc across departments — kills conflicting over/understock signals that undermine supply planning.</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">active</span></td>
+        <td class="tdim"><a class="wt-open" href="vscode://file//Users/alvarosanchez_1/OHFY-Split-integration-5113" title="Open /Users/alvarosanchez_1/OHFY-Split-integration-5113 in VS Code (code /Users/alvarosanchez_1/OHFY-Split-integration-5113)">OHFY-Split-integration-5113 <span class="wt-openico">↗ VS Code</span></a></td>
+      </tr></tbody>
+    </table></div>
+  </details>
+
+  <details class="orgs">
+    <summary>🌿 Branches · 67 · <span class="prune-hd">11 merged</span></summary>
+    <p class="sub">Local branches with no worktree checked out — the rest of the branch inventory.</p>
+    <div class="twrap"><table class="tix orgtbl">
+      <thead><tr><th>Branch</th><th>Ticket</th><th>Epic</th><th>Serves</th><th>PR</th><th>State</th></tr></thead>
+      <tbody><tr>
+        <td><code>ci/ecom-playwright-e2e-bms-5305</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5305">BMS-5305</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/576">#576</a> <span class="tag open">open</span></td>
+        <td><span class="dim">active</span></td>
+      </tr>
+<tr>
+        <td><code>feat/ecom-package-build-and-coverage</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/376">#376</a> <span class="tag open">open</span></td>
+        <td><span class="dim">active</span></td>
+      </tr>
+<tr>
+        <td><code>feat/stalled-cart-rep-alert-bms-3921</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3921">BMS-3921</a> <span class="st st-prog">In Progress</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up.</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/607">#607</a> <span class="tag draft">draft</span></td>
+        <td><span class="dim">active</span></td>
+      </tr>
+<tr>
+        <td><code>fix/prettier-oms-docs</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/473">#473</a> <span class="tag closed">closed</span></td>
+        <td><span class="dim">active</span></td>
+      </tr>
+<tr>
+        <td><code>alv-sanchez/doha</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>alv-sanchez/porto</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>alv-sanchez/prague</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>bk/bms-5237-20260528-152745</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5237">BMS-5237</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>chore/claude-code-review</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>chore/document-skill-ecom-auth</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>chore/ecom-org-setup</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>chore/gulf-uat-demo-data-audit-bms-4184</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4184">BMS-4184</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>ci/enable-ecom-playwright-e2e</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>develop</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>docs/ecom-readme-update</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>docs/order-history-pricing-bms-3929</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3929">BMS-3929</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>ecom-to-split</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>fable-project-as</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/cart-basic-pricing-bms-4050</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4050">BMS-4050</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/ecom-notifications-bms-4073</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4073">BMS-4073</a> <span class="st st-prog">In Progress</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up.</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/multi-account-registration-bms-4258</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4258">BMS-4258</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/order-history-enhancements-bms-3929</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3929">BMS-3929</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/pick-capacity-reporting-bms-4467</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4467">BMS-4467</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/picker-incentive-engine-bms-5481</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5481">BMS-5481</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5481">BMS-5481</a></td>
+        <td class="wt-servescell"><span class="wt-serves">Picker incentive engine + bonus visibility (payroll-integrated) — an enhancement on top of the scan task model, pending cutover scope.</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/product-card-component-bms-4053</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4053">BMS-4053</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/product-grid-reuse-bms-4054</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4054">BMS-4054</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feature/polish-skill</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>fix/bms-3932-review-findings</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3932">BMS-3932</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>fix/reorder-banner-theming-bms-5344</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5344">BMS-5344</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>integration/bms-5161-inboundPO-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>integration/bms-5161-validation</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5161">BMS-5161</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>pr-271-review</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-271">BMS-271</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>pr-286-review</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-286">BMS-286</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>pr-327</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-327">BMS-327</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>pr-489-check</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-489">BMS-489</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3838</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3838">BMS-3838</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3923</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3923">BMS-3923</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3926</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3929</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3929">BMS-3929</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3930</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3930">BMS-3930</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-4390</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4390">BMS-4390</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-5252</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5252">BMS-5252</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>story/ticket-creation-workflow</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>tailwind-implementation</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>team7-ohanalens</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a105153cce532e4ba</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-1051">BMS-1051</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a1b01252593cf133a</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-0125">BMS-0125</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a3a41df500f3a5d0b</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-500">BMS-500</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a3ebc428db41f0906</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-428">BMS-428</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a5464025ea0502ef4</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5464">BMS-5464</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a56cb35b56b5dacc2</code></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a6e0d4b0033a12aa8</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-0033">BMS-0033</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-a860fb80c977e2daf</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-860">BMS-860</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-ab12d88f178a1a799</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-178">BMS-178</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-ac18097f1ce3eb453</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-1809">BMS-1809</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>worktree-agent-ac8bb636f9eb45e6e</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-636">BMS-636</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><span class='dim'>—</span></td>
+        <td><span class="dim">no PR</span></td>
+      </tr>
+<tr>
+        <td><code>feat/ecom-phase2-pricing-checkout-bms-5576</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a> <span class="st st-todo"></span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/560">#560</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/min-transfer-qty-thresholds-bms-4665</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4665">BMS-4665</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/355">#355</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/practical-doh-variance-bms-3816</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3816">BMS-3816</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/481">#481</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/pricing-crawl-bms-5967-5968-5969-5970</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5967">BMS-5967</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/596">#596</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/safety-stock-controls-bms-5068</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5068">BMS-5068</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/442">#442</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/safety-stock-impact-value-bms-5754</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5754">BMS-5754</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/492">#492</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/shift-end-ph2-ph3-bms-4079</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4079">BMS-4079</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/470">#470</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/shift-end-workflow-bms-4078</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4078">BMS-4078</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/431">#431</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>feat/transfer-dock-optimization-bms-4490</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-4490">BMS-4490</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/354">#354</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>fix/wms-playwright-blind-receiving-bms-5710</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5710">BMS-5710</a></td>
+        <td><span class='dim'>—</span></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/459">#459</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr>
+<tr>
+        <td><code>story/BMS-3926-fix</code></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-3926">BMS-3926</a> <span class="st st-testing">Testing</span></td>
+        <td><a href="https://ohanafy.atlassian.net/browse/BMS-5576">BMS-5576</a></td>
+        <td class="wt-servescell"><span class='dim'>—</span></td>
+        <td><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/458">#458</a> <span class="tag merged">merged</span></td>
+        <td><span class="tag merged">merged</span></td>
+      </tr></tbody>
+    </table></div>
+  </details>
+
+  <section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4996">BMS-4996</a> <b>Retailer Engagement Notifications</b>
+        
+        
+        <span class="dom">E-Commerce &amp; Ordering · walk</span></div>
+      <div class="eprog"><div class="bar" title="3 done · 3 in progress · 0 to do of 6">
+    <span class="seg done" style="width:50%"></span><span class="seg prog" style="width:50%"></span><span class="seg todo" style="width:0%"></span></div><span class="pnum"><b>50%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">Picked up + polished. Notification service backbone built (abandoned-cart, order-confirmation, rep emails); gaps = promotion notifications + order-status tracking.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf retailers ordering via the storefront + sales reps</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">3 done</span><span class="pill prog">3 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">6 total</span><span class="pill pol">✨ 6/6 polished</span><span class="orgchips">🖥️ <code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3921">BMS-3921</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer Engagement Notifications <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/607">#607</a> <span class='tag draft'>draft</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3931">BMS-3931</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Order status tracking &amp; delivery notifications <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4073">BMS-4073</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Notification Services: Abandoned Cart Reminder &amp; Order Confirmation <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4192">BMS-4192</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Sales rep notifications on order confirmation <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4534">BMS-4534</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Discovery Spike — Retailer Engagement Notifications <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4535">BMS-4535</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — Retailer Engagement Notifications <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Won't Do</span></td>
+      <td class="org"><code class="cpy" data-copy="sf org open --target-org bms-4996-notif2" title="Copy: sf org open --target-org bms-4996-notif2">bms-4996-notif2</code></td>
+      <td class="prc"></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4965">BMS-4965</a> <b>Short Pay Automation</b>
+        
+        
+        <span class="dom">Delivery · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 5 in progress · 9 to do of 14">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:36%"></span><span class="seg todo" style="width:64%"></span></div><span class="pnum"><b>0%</b> done · 36% started</span></div>
+    </div>
+    <div class="esum">Ph2/Ph3 compliance escalation + resolution in progress; spike/detection/reporting + go-live Phases 4–6 still To Do.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf delivery drivers collecting payment at point of delivery + AR/finance</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">Driver-side reason coding → compliance escalation rules → resolution/reporting, phased crawl build.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">5 in progress</span><span class="pill todo">9 to do</span><span class="pill tot">14 total</span><span class="pill pol">✨ 2/14 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4057">BMS-4057</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Spike: Data Model &amp; Compliance Rules <span class="tag bd bd-spike" title="what gets built">Spike</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4058">BMS-4058</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 1: Driver Detection &amp; Reason Coding <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4059">BMS-4059</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 2: Compliance Escalation (FL/AL) <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">Applies FL/AL compliance escalation rules to short-pay events — the regulated core of the epic; sits between driver detection (Ph1) and resolution (Ph3).</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">#582</a></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4060">BMS-4060</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 3: Resolution, Reporting &amp; History <span class="tag bd bd-both" title="what gets built">Both</span><div class="tnote">Closes the loop: resolution workflow + historical reporting on short-pay exceptions, so finance can track recovery over time.</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">#582</a></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4784">BMS-4784</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — Short Pay <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4785">BMS-4785</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — Short Pay <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4786">BMS-4786</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — Short Pay <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5561">BMS-5561</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Returns mismatch detection with recon credit hold <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5625">BMS-5625</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable) <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">#582</a></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5626">BMS-5626</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 5: EFT Short Pay Detection via Bank Reconciliation <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5627">BMS-5627</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 6: AR Aging Visibility (Net-30 Not-Yet-Due) [Pending Product Confirmation] <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5631">BMS-5631</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Ph 4b: Stateful Multi-Layer Approve/Reject Workflow <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/582">#582</a></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-6021">BMS-6021</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — Unified short-pay audit event log (Short_Pay_Event__c) <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-6022">BMS-6022</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Short Pay — AR confirmation gate for rep-collected short pays (interim status) <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5113">BMS-5113</a> <b>DOI Formula Standardization</b>
+        
+        
+        <span class="dom">Purchasing &amp; Supply Planning · walk</span></div>
+      <div class="eprog"><div class="bar" title="1 done · 3 in progress · 2 to do of 6">
+    <span class="seg done" style="width:17%"></span><span class="seg prog" style="width:50%"></span><span class="seg todo" style="width:33%"></span></div><span class="pnum"><b>17%</b> done · 67% started</span></div>
+    </div>
+    <div class="esum">Core resolver done; standardization story + reporting build in Review; reporting spike In Progress; demo remains.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Purchasing / warehouse / finance planners</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">One authoritative Days-on-Inventory calc across departments — kills conflicting over/understock signals that undermine supply planning.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">S_InventoryDOI sales-rate switch + additive Inventory__c fields, propagated to views/reports.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">1 done</span><span class="pill prog">3 in progress</span><span class="pill todo">2 to do</span><span class="pill tot">6 total</span><span class="pill pol">✨ 4/6 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3742">BMS-3742</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">DOI Formula Standardization <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">The authoritative DOI calc itself (Apex resolver + additive Inventory__c fields); everything else in the epic feeds off or reports on this.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><a class="pr" href="https://github.com/Ohanafy/OHFY-Split/pull/513">#513</a> <span class='tag draft'>draft</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3822">BMS-3822</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Inventory Threshold — Baseline Object &amp; Resolver <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-done">Done</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4543">BMS-4543</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — DOI Formula Standardization <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4544">BMS-4544</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — DOI Formula Standardization <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4545">BMS-4545</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — DOI Formula Standardization <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">Builds the DOI reporting surface on top of the standardized calc so planners actually see the unified metric; in review awaiting sign-off.</div></td>
+      <td class="stt"><span class="st st-review">Review</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-6071">BMS-6071</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">DOI Formula — 10-day window + edge-case rules (per Gulf DOH/DOI sheet) <span class="tag bd bd-be" title="what gets built">Backend</span><div class="tnote">Needs Gulf input (needs-gulf-input) — edge-case + 10-day window rules from the Gulf DOH/DOI sheet.</div></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4935">BMS-4935</a> <b>Red Bull Allocation Import Automation</b>
+        
+        
+        <span class="dom">Allocation &amp; Launch Planning · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 1 in progress · 3 to do of 4">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:25%"></span><span class="seg todo" style="width:75%"></span></div><span class="pnum"><b>0%</b> done · 25% started</span></div>
+    </div>
+    <div class="esum">Ph1 import/validation/warehouse-split In Progress; baseline + spike + Ph2 (mapping/seasonality/audit) polished and queued.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf demand planners processing Red Bull weekly allocation spreadsheets</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Automates ingest + 5-warehouse split of supplier allocation files with validation and audit trail — removes a manual, error-prone step.</span></div>
+      <div class="ctx"><span class="cl cl-sol">🛠️ Solution</span><span class="cv">File-format spike → import/validate/split Ph1 → account mapping + seasonality + audit Ph2.</span></div>
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">1 in progress</span><span class="pill todo">3 to do</span><span class="pill tot">4 total</span><span class="pill pol">✨ 4/4 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3735">BMS-3735</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Allocation Import Automation (baseline) <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4119">BMS-4119</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Red Bull Import — Spike: File Format &amp; Validation Rules <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4120">BMS-4120</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Import — Ph 1: Import, Validation &amp; Warehouse Split <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span><div class="tnote">The working core: ingest the allocation file, validate it, and split quantities across the 5 warehouses — currently being built.</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4121">BMS-4121</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Red Bull Import — Ph 2: Account Mapping, Seasonality &amp; Audit <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-4997">BMS-4997</a> <b>Call Center Order Visibility</b>
+        
+        
+        <span class="dom">E-Commerce &amp; Ordering · run</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 2 in progress · 0 to do of 2">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:100%"></span><span class="seg todo" style="width:0%"></span></div><span class="pnum"><b>0%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">Picked up — call-center agent dashboards (account insights + promos + order context); 2 stories pending grooming.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf call-center agents handling inbound orders</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Consolidated agent dashboards (account insights + active promos + order status) — faster, more informed customer interactions and upsell.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">2 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">2 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3858">BMS-3858</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Call Center Order Visibility <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3922">BMS-3922</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Call Center Order Visibility <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="todo-epics">
+    <h2>📋 To Do — assigned to you · 5 epics (children expanded)</h2>
+    <section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5481">BMS-5481</a> <b>Picker Incentive Engine</b>
+        
+        
+        <span class="dom">Warehouse · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 1 to do of 1">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">On-site net-new scope; single polished story (BMS-5529) — gated on warehouse go-live cutover decision.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Warehouse pickers + warehouse managers</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Picker incentive engine + bonus visibility (payroll-integrated) — an enhancement on top of the scan task model, pending cutover scope.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">1 to do</span><span class="pill tot">1 total</span><span class="pill pol">✨ 1/1 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5529">BMS-5529</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Picker incentive engine and bonus visibility <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5768">BMS-5768</a> <b>Return Pre-Visibility — Production Hardening</b>
+        
+        
+        <span class="dom">Delivery · crawl</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 1 in progress · 0 to do of 1">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:100%"></span><span class="seg todo" style="width:0%"></span></div><span class="pnum"><b>0%</b> done · 100% started</span></div>
+    </div>
+    <div class="esum">Post-demo hardening; single story (BMS-5399) In Progress — wire real backend, gated on Gulf product decisions (BMS-5399/5399).</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Warehouse receiving / returns staff</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Replaces Return Pre-Visibility demo scaffolding (fake ETAs, simulated statuses, hardcoded branding) with real data — Apex already data-backed, LWC is the scope.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">1 in progress</span><span class="pill todo">0 to do</span><span class="pill tot">1 total</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5399">BMS-5399</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Return Pre-Visibility — Remove hardcoded / demo values &amp; wire real backend <span class="tag bd bd-ui" title="what gets built">UI</span><div class="tnote">Swaps the demo LWC's fake truck ETAs/statuses/bay list/branding for real data sources; gated on Gulf decisions about ETA source and lifecycle.</div></td>
+      <td class="stt"><span class="st st-prog">In Progress</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5577">BMS-5577</a> <b>Ecom — Post-MVP: Credit, Self-Service v2, Allocation, Availability, Reporting</b>
+        
+        
+        <span class="dom">E-Commerce &amp; Ordering · walk</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 6 to do of 6">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">Post-MVP bucket — dependency-gated storefront work (AR sync, self-service v2, allocation, availability, reporting).</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf retailer storefront shoppers + AR/finance</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Deferred/dependency-gated ecom work that doesn't block Ph1/Ph2 MVP — credit AR sync, self-service v2, allocation constraints, availability, reporting.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">6 to do</span><span class="pill tot">6 total</span><span class="pill pol">✨ 1/6 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3920">BMS-3920</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Supplier allocation constraints &amp; case-pack rounding on storefront orders <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3925">BMS-3925</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Product Catalog &amp; Availability for Retailers <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-refine">Needs Refinement</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4494">BMS-4494</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — Retailer Online Ordering Experience <span class="tag bd bd-spike" title="what gets built">Spike</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4495">BMS-4495</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — Retailer Online Ordering Experience <span class="tag bd bd-be" title="what gets built">Backend</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4525">BMS-4525</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Retailer credit terms — Ph 2: AR sync, invoice list &amp; payment history <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">To Do</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5322">BMS-5322</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Self-service account management v2 — zone model, address validation, change-approval <span class="tag bd bd-both" title="what gets built">Both</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+<section class="epic">
+    <div class="ehead">
+      <div class="etitle"><a href="https://ohanafy.atlassian.net/browse/BMS-5155">BMS-5155</a> <b>DOT-Aware Transfer Scheduling Logic</b>
+        
+        
+        <span class="dom">Transfers &amp; Compliance · walk</span></div>
+      <div class="eprog"><div class="bar" title="0 done · 0 in progress · 4 to do of 4">
+    <span class="seg done" style="width:0%"></span><span class="seg prog" style="width:0%"></span><span class="seg todo" style="width:100%"></span></div><span class="pnum"><b>0%</b> done · 0% started</span></div>
+    </div>
+    <div class="esum">All 4 tracks polished + queued (build/demo/reporting-spike/reporting-build); greenfield HOS logic layered on Shipment__c scheduler.</div>
+    <div class="ectx">
+      <div class="ctx"><span class="cl cl-user">👤 User</span><span class="cv">Gulf transfer planners + inter-warehouse drivers</span></div>
+      <div class="ctx"><span class="cl cl-impact">💥 Impact</span><span class="cv">Flags DOT hours-of-service violations before dispatch on long AL↔FL corridors — prevents FMCSA violations, stranded loads, and destination stockouts.</span></div>
+      
+    </div>
+    <div class="ecounts"><span class="pill done">0 done</span><span class="pill prog">0 in progress</span><span class="pill todo">4 to do</span><span class="pill tot">4 total</span><span class="pill pol">✨ 4/4 polished</span></div>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Title</th><th>Status</th><th>Org</th><th>PR</th></tr></thead>
+      <tbody><tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-3788">BMS-3788</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">DOT-Aware Transfer Scheduling Logic <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4738">BMS-4738</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Design / Prototype / Demo — DOT-Aware Transfer Scheduling Logic <span class="tag bd bd-both" title="what gets built">Both</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4739">BMS-4739</a></td>
+      <td class="ty"><span class="tag ty-spike">SPIKE</span></td>
+      <td class="tt">Reporting Spike — DOT-Aware Transfer Scheduling Logic <span class="tag bd bd-spike" title="what gets built">Spike</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr>
+<tr>
+      <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4740">BMS-4740</a></td>
+      <td class="ty"><span class="tag ty-story">Story</span></td>
+      <td class="tt">Reporting Build — DOT-Aware Transfer Scheduling Logic <span class="tag bd bd-be" title="what gets built">Backend</span> <span class="tag pol" title="polished / bk-polish-complete">✨ polished</span></td>
+      <td class="stt"><span class="st st-todo">Backlog</span></td>
+      <td class="org"><span class='dim'>—</span></td>
+      <td class="prc"><span class='dim'>—</span></td>
+    </tr></tbody>
+    </table></div>
+  </section>
+    
+      <div class="phgroup"><div class="phlabel"><span class="ph ph-crawl">crawl</span> <span class="phn">1</span></div>
+      <div class="tgrid"><a class="tcard" href="https://ohanafy.atlassian.net/browse/BMS-5164">
+    <div class="tc-top"><span class="tkey">BMS-5164</span><span class="ph ph-crawl">crawl</span></div>
+    <div class="tc-title">FL Transfer Certificate Automation</div>
+    <div class="tc-dom">Transfers &amp; Compliance</div>
+    <div class="tc-sum">Not yet decomposed — pending grooming; expected to mirror AL (BMS-5160) spike→Ph1-3 and share the certificate engine.</div>
+    <div class="tc-impact">💥 Auto-generate + persist FL transfer certificates at transfer creation — removes manual prep and reduces compliance risk.</div>
+  </a></div></div>
+  </section>
+
+  <details class="done-epics">
+    <summary>✅ Done / Shipped · 12 epics <span class="dim">(click to expand)</span></summary>
+    <div class="twrap"><table class="tix">
+      <thead><tr><th>Epic</th><th>Title</th><th>Domain</th><th>Shipped / merged</th></tr></thead>
+      <tbody><tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4971">BMS-4971</a></td>
+        <td class="tt">Delivery Check-In Process</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4936">BMS-4936</a></td>
+        <td class="tt">Launch Planning Coordination</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5068">BMS-5068</a></td>
+        <td class="tt">Safety Stock Controls</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5070">BMS-5070</a></td>
+        <td class="tt">Shift-End Workflow</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5067">BMS-5067</a></td>
+        <td class="tt">Practical Days on Hand</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5074">BMS-5074</a></td>
+        <td class="tt">Crane SKU Flagging</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5162">BMS-5162</a></td>
+        <td class="tt">Minimum Transfer Quantity Thresholds</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5163">BMS-5163</a></td>
+        <td class="tt">Transfer Dock Optimization</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4963">BMS-4963</a></td>
+        <td class="tt">Delivery Truck Visibility</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-4973">BMS-4973</a></td>
+        <td class="tt">Driver Manager View</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5057">BMS-5057</a></td>
+        <td class="tt">Seasonal DOI Adjustments</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr>
+<tr>
+        <td class="k"><a href="https://ohanafy.atlassian.net/browse/BMS-5058">BMS-5058</a></td>
+        <td class="tt">Code Date Management</td>
+        <td class="tdim"></td>
+        <td class="doneat">—</td>
+      </tr></tbody>
+    </table></div>
+  </details>
+
+  <footer>🛰️ Generated by the <code>mission-control</code> skill from live Jira + GitHub. Status = Jira; PRs matched by BMS number on the branch. Re-run the skill (or <code>/loop</code> it) to refresh.</footer>
+  <div id="toast"></div>
+  <script>
+    document.addEventListener('click', function(e){
+      var el = e.target.closest('[data-copy]'); if(!el) return;
+      var cmd = el.getAttribute('data-copy');
+      (navigator.clipboard ? navigator.clipboard.writeText(cmd) : Promise.reject()).catch(function(){
+        var ta=document.createElement('textarea'); ta.value=cmd; document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta);
+      });
+      var t=document.getElementById('toast'); t.textContent='📋 Copied — '+cmd;
+      t.classList.add('show'); clearTimeout(window._t); window._t=setTimeout(function(){t.classList.remove('show');},1700);
+    });
+  </script>
+</body></html>

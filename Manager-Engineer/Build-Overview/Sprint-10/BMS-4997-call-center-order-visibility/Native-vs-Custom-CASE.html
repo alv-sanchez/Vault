@@ -1,0 +1,407 @@
+<title>BMS-4997 — Why a Reports page couldn't do it</title>
+<style>
+  :root {
+    --ground: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef0f4;
+    --ink: #171b24;
+    --ink-soft: #414a5c;
+    --ink-faint: #6b7488;
+    --hair: #dfe3ea;
+    --hair-strong: #cbd1dc;
+    --accent: #4a4fd6;
+    --accent-soft: #ecedfb;
+    /* verdict semantics — distinct from each other */
+    --native: #1f8a5b;     --native-bg: #e6f4ec;
+    --reuse: #4a4fd6;      --reuse-bg: #ecedfb;
+    --partial: #b5791a;    --partial-bg: #f8efdc;
+    --custom: #c93b57;     --custom-bg: #fbe8ec;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0e1117; --surface: #161b24; --surface-2: #1d232e; --ink: #e9ecf3;
+      --ink-soft: #b3bccd; --ink-faint: #7c8697; --hair: #262d3a; --hair-strong: #333c4c;
+      --accent: #8b8ff2; --accent-soft: #21243b;
+      --native: #4cc38a; --native-bg: #12271d; --reuse: #8b8ff2; --reuse-bg: #21243b;
+      --partial: #e0aa4a; --partial-bg: #2a2113; --custom: #f0728c; --custom-bg: #2c1319;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #f6f7f9; --surface: #ffffff; --surface-2: #eef0f4; --ink: #171b24;
+    --ink-soft: #414a5c; --ink-faint: #6b7488; --hair: #dfe3ea; --hair-strong: #cbd1dc;
+    --accent: #4a4fd6; --accent-soft: #ecedfb;
+    --native: #1f8a5b; --native-bg: #e6f4ec; --reuse: #4a4fd6; --reuse-bg: #ecedfb;
+    --partial: #b5791a; --partial-bg: #f8efdc; --custom: #c93b57; --custom-bg: #fbe8ec;
+  }
+  :root[data-theme="dark"] {
+    --ground: #0e1117; --surface: #161b24; --surface-2: #1d232e; --ink: #e9ecf3;
+    --ink-soft: #b3bccd; --ink-faint: #7c8697; --hair: #262d3a; --hair-strong: #333c4c;
+    --accent: #8b8ff2; --accent-soft: #21243b;
+    --native: #4cc38a; --native-bg: #12271d; --reuse: #8b8ff2; --reuse-bg: #21243b;
+    --partial: #e0aa4a; --partial-bg: #2a2113; --custom: #f0728c; --custom-bg: #2c1319;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem) clamp(1.1rem, 4vw, 2.5rem) 5rem; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+    display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.1rem;
+  }
+  .eyebrow .tkt { color: var(--ink-faint); }
+  h1 {
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem); line-height: 1.04; letter-spacing: -0.02em;
+    font-weight: 760; margin: 0 0 1rem; text-wrap: balance; max-width: 20ch;
+  }
+  .lede { font-size: clamp(1.02rem, 1.7vw, 1.22rem); color: var(--ink-soft); max-width: 64ch; margin: 0; }
+  .lede strong { color: var(--ink); font-weight: 650; }
+
+  .thesis {
+    margin: 2.4rem 0 0; border: 1px solid var(--hair-strong); background: var(--surface);
+    border-radius: 14px; padding: 1.4rem 1.5rem;
+    display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: start;
+  }
+  .thesis .mark {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft); border-radius: 6px;
+    padding: 0.4rem 0.55rem; white-space: nowrap; margin-top: 0.15rem;
+  }
+  .thesis p { margin: 0; font-size: 1.02rem; color: var(--ink); }
+  .thesis p + p { margin-top: 0.7rem; }
+  .thesis .em { color: var(--ink); font-weight: 660; }
+  .thesis code { font-family: var(--mono); font-size: 0.88em; color: var(--accent); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; margin: 2.6rem 0 0; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--hair); border-radius: 12px;
+    padding: 1.15rem 1.2rem; position: relative; overflow: hidden;
+  }
+  .stat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .stat.s-native::before { background: var(--native); }
+  .stat.s-reuse::before { background: var(--reuse); }
+  .stat.s-custom::before { background: var(--custom); }
+  .stat .num {
+    font-family: var(--mono); font-size: 2.1rem; font-weight: 600;
+    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.02em;
+  }
+  .stat.s-native .num { color: var(--native); }
+  .stat.s-reuse .num { color: var(--reuse); }
+  .stat.s-custom .num { color: var(--custom); }
+  .stat .lbl { margin-top: 0.5rem; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.4; }
+  .stat .lbl strong { color: var(--ink); }
+
+  /* legend */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.3rem; margin: 2rem 0 0;
+    padding: 0.9rem 1.1rem; background: var(--surface-2); border-radius: 10px;
+    font-size: 0.82rem; color: var(--ink-soft);
+  }
+  .legend .li { display: flex; align-items: center; gap: 0.45rem; }
+  .legend .dot { width: 0.7rem; height: 0.7rem; border-radius: 3px; flex-shrink: 0; }
+  .dot.native { background: var(--native); } .dot.reuse { background: var(--reuse); }
+  .dot.partial { background: var(--partial); } .dot.custom { background: var(--custom); }
+  .legend b { color: var(--ink); font-weight: 620; }
+
+  .band { margin-top: 3.2rem; }
+  .band-head {
+    display: flex; align-items: baseline; gap: 0.85rem; flex-wrap: wrap;
+    padding-bottom: 0.85rem; border-bottom: 2px solid var(--hair-strong); margin-bottom: 1.4rem;
+  }
+  .band-head h2 { font-size: clamp(1.25rem, 2.4vw, 1.6rem); letter-spacing: -0.015em; margin: 0; font-weight: 720; }
+  .band-head .sub { font-size: 0.9rem; color: var(--ink-faint); font-family: var(--mono); }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .card {
+    background: var(--surface); border: 1px solid var(--hair); border-radius: 13px;
+    padding: 1.2rem 1.25rem 1.3rem 1.45rem; position: relative;
+    display: flex; flex-direction: column; gap: 0.7rem;
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 13px 0 0 13px; }
+  .card.v-native::before { background: var(--native); }
+  .card.v-reuse::before { background: var(--reuse); }
+  .card.v-partial::before { background: var(--partial); }
+  .card.v-custom::before { background: var(--custom); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: start; gap: 0.8rem; }
+  .cap { font-size: 1.05rem; font-weight: 650; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+  .ac { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.25rem; letter-spacing: 0.02em; }
+  .verdict {
+    flex-shrink: 0; font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.03em; text-transform: uppercase; padding: 0.32rem 0.55rem;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .verdict.native { background: var(--native-bg); color: var(--native); }
+  .verdict.reuse { background: var(--reuse-bg); color: var(--reuse); }
+  .verdict.partial { background: var(--partial-bg); color: var(--partial); }
+  .verdict.custom { background: var(--custom-bg); color: var(--custom); }
+
+  .delivered { font-size: 0.83rem; color: var(--ink-soft); }
+  .delivered .k {
+    font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-faint); margin-right: 0.4rem;
+  }
+  .arg { font-size: 0.92rem; color: var(--ink); margin: 0; padding-top: 0.65rem; border-top: 1px dashed var(--hair-strong); }
+  code, .m {
+    font-family: var(--mono); font-size: 0.85em; background: var(--surface-2);
+    padding: 0.06em 0.34em; border-radius: 4px; color: var(--ink); word-break: break-word;
+  }
+
+  /* rule */
+  .rule { margin-top: 3.6rem; border-radius: 16px; padding: clamp(1.6rem, 4vw, 2.6rem); background: var(--ink); color: var(--ground); }
+  @media (prefers-color-scheme: dark) { .rule { background: var(--surface-2); color: var(--ink); border: 1px solid var(--hair-strong); } }
+  :root[data-theme="dark"] .rule { background: var(--surface-2); color: var(--ink); border: 1px solid var(--hair-strong); }
+  :root[data-theme="light"] .rule { background: var(--ink); color: var(--ground); border: none; }
+  .rule .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.9rem; }
+  .rule p { font-size: clamp(1.1rem, 2.2vw, 1.42rem); line-height: 1.5; margin: 0; max-width: 56ch; font-weight: 500; text-wrap: balance; }
+  .rule .hi { color: var(--partial); font-weight: 680; }
+  .rule .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem 2.5rem; margin-top: 1.6rem; }
+  .rule .split div { border-top: 1px solid rgba(127,127,127,0.35); padding-top: 0.85rem; }
+  .rule .split h4 { margin: 0 0 0.35rem; font-size: 0.85rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; }
+  .rule .split p { font-size: 0.95rem; font-weight: 400; opacity: 0.92; line-height: 1.5; }
+
+  /* validation band */
+  .valid { margin-top: 3.2rem; background: var(--surface); border: 1px solid var(--hair); border-radius: 14px; padding: clamp(1.3rem, 3vw, 1.9rem); }
+  .valid h3 { margin: 0 0 0.3rem; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .valid .note { font-size: 0.85rem; color: var(--ink-faint); margin: 0 0 1.25rem; font-family: var(--mono); }
+  .valid ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; }
+  .valid li { display: grid; grid-template-columns: auto 1fr; gap: 0.7rem; align-items: start; font-size: 0.9rem; }
+  .valid .badge {
+    font-family: var(--mono); font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 0.28rem 0.5rem; border-radius: 6px; white-space: nowrap; margin-top: 0.05rem;
+  }
+  .badge.fixed { background: var(--custom-bg); color: var(--custom); }
+  .badge.held { background: var(--native-bg); color: var(--native); }
+  .valid li .txt { color: var(--ink-soft); }
+  .valid li .txt b { color: var(--ink); font-weight: 640; }
+
+  footer {
+    margin-top: 3rem; font-family: var(--mono); font-size: 0.76rem; color: var(--ink-faint);
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; border-top: 1px solid var(--hair); padding-top: 1.2rem;
+  }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .thesis { grid-template-columns: 1fr; }
+    .rule .split { grid-template-columns: 1fr; }
+    .valid li { grid-template-columns: 1fr; gap: 0.35rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span>Engineering rationale</span><span class="tkt">· BMS-4997 · Call Center Order Visibility</span><span class="tkt">· validated against source</span></div>
+    <h1>Why this couldn't live in a Reports page</h1>
+    <p class="lede">The account order-visibility panel builds custom UI for <strong>only</strong> the views a Salesforce report can't produce. This version is corrected against the actual OHFY-OMS source — the honest line is sharper than "stored vs. runtime data."</p>
+  </header>
+
+  <div class="thesis">
+    <span class="mark">The real test</span>
+    <div>
+      <p><span class="em">Nearly every object here is already report-enabled</span> — promotions, invoices, inventory, deliveries all carry <code>enableReports=true</code>. So the dividing line is <span class="em">not</span> "can a report see the data." It's: is the value a <span class="em">stored attribute</span> a report can group and filter — or a <span class="em">computed decision</span>, the output of a multi-step resolution that only runs in code?</p>
+      <p>Build custom <span class="em">only</span> for the computed decisions: the account's resolved price, whether a promotion is eligible <span class="em">and why not</span>, the restriction-resolved sellable catalog. A report can list the raw rows behind these; it cannot run the algorithm that turns them into an answer.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat s-native">
+      <div class="num">3</div>
+      <div class="lbl">Reportable → <strong>stays native</strong>. Stored attributes; Reports &amp; related lists already cover them.</div>
+    </div>
+    <div class="stat s-reuse">
+      <div class="num">2</div>
+      <div class="lbl">Runtime, but <strong>already built</strong> → reused. A report can't do it either — a shipped component already does.</div>
+    </div>
+    <div class="stat s-custom">
+      <div class="num">6</div>
+      <div class="lbl">Computed decision → <strong>built here</strong>. 3 are net-new impossible-in-a-report; 3 are partly reportable, noted honestly.</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="dot native"></span><b>Native</b> — reportable stored attribute</span>
+    <span class="li"><span class="dot reuse"></span><b>Reuse</b> — existing runtime component</span>
+    <span class="li"><span class="dot partial"></span><b>Partial</b> — data reportable, resolution/UX custom</span>
+    <span class="li"><span class="dot custom"></span><b>Custom</b> — computed decision, not reportable</span>
+  </div>
+
+  <!-- ============ NATIVE / REUSE ============ -->
+  <section class="band">
+    <div class="band-head">
+      <h2>Left native or reused — deliberately not rebuilt</h2>
+      <span class="sub">stored attributes → Reports · runtime → existing LWC</span>
+    </div>
+    <div class="grid">
+
+      <div class="card v-native">
+        <div class="card-top">
+          <div><h3 class="cap">Order history</h3><span class="ac">AC 3858-1 · 3922-1 / 4</span></div>
+          <span class="verdict native">Native</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span>Invoices related list + list views</div>
+        <p class="arg"><span class="m">Invoice__c</span> is master-detail to Account via <span class="m">Customer__c</span>, with <span class="m">enableReports=true</span>; it's wired as a native related list on the Account-Customer layout. Stored records, native surface — a custom history panel would duplicate it.</p>
+      </div>
+
+      <div class="card v-native">
+        <div class="card-top">
+          <div><h3 class="cap">Supervisor multi-warehouse aggregate</h3><span class="ac">AC 3858-4</span></div>
+          <span class="verdict native">Native</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span>Report / Dashboard grouped by fulfillment location</div>
+        <p class="arg">Confirmed: <span class="m">Invoice__c.Fulfillment_Location__c</span> is a real lookup to <span class="m">Location__c</span>. A standard report groups reportable invoices by it across all accounts — no rollup, no Apex. Packaging a dashboard would freeze it, so it's left to the customer.</p>
+      </div>
+
+      <div class="card v-reuse">
+        <div class="card-top">
+          <div><h3 class="cap">Price code + resolved account prices</h3><span class="ac">AC 3858-3 · 3922-1</span></div>
+          <span class="verdict reuse">Reuse</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountPricingPanel</span> (BMS-5679)</div>
+        <p class="arg">A report can't do this either — resolved price is a runtime cascade through <span class="m">S_PriceResolver</span> → <span class="m">S_FrontLinePricing</span> (account exception → group → item-default), not a stored field. But a shipped panel already renders price code, list→net, and upcoming prices. So: reuse, not rebuild.</p>
+      </div>
+
+      <div class="card v-reuse">
+        <div class="card-top">
+          <div><h3 class="cap">Live quote / order creation + promo auto-apply</h3><span class="ac">AC 3922-3</span></div>
+          <span class="verdict reuse">Reuse</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span>Order-entry modal (<span class="m">createInvoice</span>)</div>
+        <p class="arg">Also runtime, also already built: <span class="m">CreateInvoiceController</span> resolves the whole cart through one <span class="m">S_PriceResolver.resolve()</span> at order entry. Transactional and out of scope for a read-only panel.</p>
+      </div>
+
+      <div class="card v-native">
+        <div class="card-top">
+          <div><h3 class="cap">Credit status, balances, rep</h3><span class="ac">AC 3858-1</span></div>
+          <span class="verdict native">Native</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span>Account fields + related lists + standard Notes</div>
+        <p class="arg">Stored fields on Account — <span class="m">Credit_Status__c</span>, <span class="m">Credit_Limit__c</span>, <span class="m">Account_Balance__c</span>, <span class="m">Past_Due_Balance__c</span>, <span class="m">Sales_Rep__c</span> (<span class="m">Available_Credit__c</span> is a formula). All show natively and report without any custom plumbing.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ BUILT HERE ============ -->
+  <section class="band">
+    <div class="band-head">
+      <h2>Built here — the computed decisions</h2>
+      <span class="sub">a report can list the rows; it can't run the resolution</span>
+    </div>
+    <div class="grid">
+
+      <div class="card v-custom">
+        <div class="card-top">
+          <div><h3 class="cap">Eligible promotions, per account, at runtime</h3><span class="ac">AC 3858-2 · 3922-2</span></div>
+          <span class="verdict custom">Custom</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span> → <span class="m">S_PriceResolver</span></div>
+        <p class="arg">Every promotion object is reportable — but eligibility is a <em>decision</em>, not a field. <span class="m">filterEligiblePromotions</span> combines status/date window, audience-group membership, a one-day-sale carve-out, location/channel/chain/account scope, exclusion, item-scope match, and QD-tier selection by cart quantity — then a <span class="em">priority winnow</span> and <span class="em">deepest-discount tiebreak</span>. A report can't run that selection algorithm.</p>
+      </div>
+
+      <div class="card v-custom">
+        <div class="card-top">
+          <div><h3 class="cap">Not-eligible promotions + the reason</h3><span class="ac">AC 3922-2</span></div>
+          <span class="verdict custom">Custom</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span></div>
+        <p class="arg">The sharpest case: it computes which product-relevant promotions the account <em>fails</em>, and annotates <em>why</em>. No report — cross-filter or otherwise — derives ineligibility, let alone attaches a human-readable reason to it.</p>
+      </div>
+
+      <div class="card v-partial">
+        <div class="card-top">
+          <div><h3 class="cap">Inventory availability — orderable catalog @ warehouse</h3><span class="ac">AC 3858-6 · 3922-5</span></div>
+          <span class="verdict partial">Partial</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span></div>
+        <p class="arg">Raw <span class="m">Inventory__c.Quantity_Available__c</span> is reportable. What isn't: the account's sellable catalog is a <span class="em">most-specific-wins</span> restriction resolution (<span class="m">S_MarketRestrictions.resolveForAccount</span> ranks geo/territory/chain/account tiers in memory — not a cross-filter), plus the cases/units split from <span class="m">Units_Per_Case__c</span>. The number a report shows and the number an agent needs aren't the same number.</p>
+      </div>
+
+      <div class="card v-partial">
+        <div class="card-top">
+          <div><h3 class="cap">Delivery / route banner — next date, cutoff, last delivery</h3><span class="ac">AC 3858-5</span></div>
+          <span class="verdict partial">Partial</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span></div>
+        <p class="arg"><em>Corrected:</em> cutoff <span class="em">is</span> a stored, reportable field (<span class="m">Route__c.Cutoff_Time__c</span>), and real <span class="m">Delivery__c</span> records are reportable — but only via a multi-hop custom report type (Delivery→Route→Account_Route→Account) with a per-account min-future-date. The panel itself shows a <em>cadence-projected estimate</em> (<span class="m">Last_Visit_Date__c</span> + 7/14/28), flagged estimated. The custom part is composing next-date + cutoff + last-delivery into one inline banner.</p>
+      </div>
+
+      <div class="card v-custom">
+        <div class="card-top">
+          <div><h3 class="cap">Search / filter / pagination on the computed panels</h3><span class="ac">cross-cutting</span></div>
+          <span class="verdict custom">Custom</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span></div>
+        <p class="arg">These panels are computed result sets, not list views, so they can't inherit native list-view filtering — their own search/filter/paging had to be built.</p>
+      </div>
+
+      <div class="card v-partial">
+        <div class="card-top">
+          <div><h3 class="cap">Top ordered products (frequency + avg cases)</h3><span class="ac">AC 3922-4</span></div>
+          <span class="verdict partial">Partial</span>
+        </div>
+        <div class="delivered"><span class="k">Delivered by</span><span class="m">accountOrderVisibility</span></div>
+        <p class="arg">Honestly reportable: a report grouped by item on <span class="m">Invoice_Item__c</span> could produce this. Delivered inline as a per-account top-5 with averages for agent UX, not because a report can't sum. The one item where "custom" is a convenience call, not a necessity.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ RULE ============ -->
+  <section class="rule">
+    <div class="tag">The rule this encodes</div>
+    <p>Custom UI is spent <span class="hi">only</span> on computed decisions — values that don't exist until an algorithm produces them. Everything that's a stored attribute stays native, and stays the customer's to report and configure.</p>
+    <div class="split">
+      <div>
+        <h4>Stored attribute → native / reuse</h4>
+        <p>Order history · supervisor aggregate · credit &amp; balances (reportable). Account pricing · order creation (runtime, but already shipped — reuse, don't rebuild).</p>
+      </div>
+      <div>
+        <h4>Computed decision → built here</h4>
+        <p>Promotion eligibility &amp; the reason for ineligibility · most-specific-wins restriction-filtered inventory · the composed delivery banner. Outputs of a resolution — no report can select them.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VALIDATION NOTES ============ -->
+  <section class="valid">
+    <h3>What validation changed</h3>
+    <p class="note">checked against OHFY-OMS / OHFY-Data-Model source · 2026-07-24</p>
+    <ul>
+      <li>
+        <span class="badge fixed">Fixed</span>
+        <span class="txt"><b>Promotions no longer claim a "most-specific-wins item cascade."</b> Each <span class="m">Promotion__c</span> has one <span class="m">Item_Scope_Level__c</span>; matching is flat. Resolution is priority winnow + deepest-discount tiebreak. (The specificity-cascade in that file belongs to supplier-funding floors — a different feature.)</span>
+      </li>
+      <li>
+        <span class="badge fixed">Fixed</span>
+        <span class="txt"><b>Dropped "reports can't do NOT IN."</b> <span class="m">Promotion_Account_Exclusion__c</span> is a 2-field, report-enabled junction a cross-filter could reproduce alone. The real blocker is the multi-factor selection algorithm, not the anti-join.</span>
+      </li>
+      <li>
+        <span class="badge fixed">Fixed</span>
+        <span class="txt"><b>Delivery downgraded ❌ → Partial.</b> Cutoff is a stored reportable field, and deliveries are reportable via a custom multi-hop report type. Only the inline composed banner and the cadence estimate are genuinely custom.</span>
+      </li>
+      <li>
+        <span class="badge fixed">Fixed</span>
+        <span class="txt"><b>Pricing / order creation recast as "reuse," not "native report."</b> Both are runtime cascades a report can't reproduce — they're covered by shipped components, not by reporting.</span>
+      </li>
+      <li>
+        <span class="badge held">Held</span>
+        <span class="txt"><b>Promotion eligibility, ineligibility-with-reason, and restriction-filtered inventory stand.</b> Confirmed as genuine computed decisions in <span class="m">S_PriceResolver</span> / <span class="m">S_MarketRestrictions</span> — reportable data, but not a report-producible answer.</span>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>BMS-4997 · Call Center Order Visibility</span>
+    <span>OHFY-OMS · OHFY-OMS-UI · OHFY-Data-Model</span>
+    <span>native-vs-custom · source-validated</span>
+  </footer>
+
+</div>

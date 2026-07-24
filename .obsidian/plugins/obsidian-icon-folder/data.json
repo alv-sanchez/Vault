@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
+      "LiActivity",
       "LiAlertOctagon",
       "LiAlertCircle",
       "LiAlarmClockCheck",
-      "LiAlignHorizontalDistributeCenter",
-      "LiAlarmSmoke"
+      "LiAlignHorizontalDistributeCenter"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -48,5 +48,10 @@
   "Manager-Engineer/Mission-Control/mission-control.html": {
     "iconName": "LiAlertCircle",
     "iconColor": "#ff0000"
+  },
+  "Claude Session Manager/Session Manager.md": "LiAlertOctagon",
+  "Manager-Engineer/Build-Overview": {
+    "iconName": "LiActivity",
+    "iconColor": "#fc9403"
   }
 }

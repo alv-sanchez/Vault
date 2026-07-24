@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-20 16:36",
-  "stampFile": "2026-07-20-1636",
+  "generated": "2026-07-23 16:50",
+  "stampFile": "2026-07-23-1650",
   "epics": [
     {
       "key": "BMS-4996",
@@ -15,36 +15,41 @@
           "key": "BMS-3921",
           "type": "Story",
           "title": "Retailer Engagement Notifications",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true,
-          "pr": null,
-          "org": "bms-4996-notif",
+          "pr": {
+            "number": 607,
+            "state": "open",
+            "draft": true,
+            "createdAt": "2026-07-22T14:45:33Z"
+          },
+          "org": "bms-4996-notif2",
           "orgLive": true
         },
         {
           "key": "BMS-3931",
           "type": "Story",
           "title": "Order status tracking & delivery notifications",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true,
           "pr": null,
-          "org": "bms-4996-notif",
+          "org": "bms-4996-notif2",
           "orgLive": true
         },
         {
           "key": "BMS-4073",
           "type": "Story",
           "title": "Notification Services: Abandoned Cart Reminder & Order Confirmation",
-          "status": "To Do",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Backend",
           "polished": true,
           "pr": null,
-          "org": "bms-4996-notif",
+          "org": "bms-4996-notif2",
           "orgLive": true
         },
         {
@@ -56,7 +61,7 @@
           "build": "Backend",
           "polished": true,
           "pr": null,
-          "org": "bms-4996-notif",
+          "org": "bms-4996-notif2",
           "orgLive": true
         },
         {
@@ -68,7 +73,7 @@
           "build": "Spike",
           "polished": true,
           "pr": null,
-          "org": "bms-4996-notif",
+          "org": "bms-4996-notif2",
           "orgLive": true
         },
         {
@@ -80,7 +85,7 @@
           "build": "Both",
           "polished": true,
           "pr": null,
-          "org": "bms-4996-notif",
+          "org": "bms-4996-notif2",
           "orgLive": true
         }
       ]
@@ -100,8 +105,8 @@
           "key": "BMS-4057",
           "type": "Story",
           "title": "Short Pay — Spike: Data Model & Compliance Rules",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Spike",
           "polished": false,
           "pr": null,
@@ -112,8 +117,8 @@
           "key": "BMS-4058",
           "type": "Story",
           "title": "Short Pay — Ph 1: Driver Detection & Reason Coding",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false,
           "pr": null,
@@ -208,8 +213,8 @@
           "key": "BMS-5625",
           "type": "Story",
           "title": "Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
-          "status": "Needs Refinement",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": true,
           "pr": {
@@ -259,6 +264,30 @@
             "draft": false,
             "createdAt": "2026-07-17T19:52:50Z"
           },
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-6021",
+          "type": "Story",
+          "title": "Short Pay — Unified short-pay audit event log (Short_Pay_Event__c)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
+          "org": null,
+          "orgLive": null
+        },
+        {
+          "key": "BMS-6022",
+          "type": "Story",
+          "title": "Short Pay — AR confirmation gate for rep-collected short pays (interim status)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "pr": null,
           "org": null,
           "orgLive": null
         }
@@ -341,6 +370,19 @@
           "pr": null,
           "org": null,
           "orgLive": null
+        },
+        {
+          "key": "BMS-6071",
+          "type": "Story",
+          "title": "DOI Formula — 10-day window + edge-case rules (per Gulf DOH/DOI sheet)",
+          "status": "Backlog",
+          "statusCategory": "To Do",
+          "build": "Backend",
+          "polished": false,
+          "note": "Needs Gulf input (needs-gulf-input) — edge-case + 10-day window rules from the Gulf DOH/DOI sheet.",
+          "pr": null,
+          "org": null,
+          "orgLive": null
         }
       ]
     },
@@ -405,15 +447,13 @@
           "orgLive": null
         }
       ]
-    }
-  ],
-  "todoEpics": [
+    },
     {
       "key": "BMS-4997",
       "title": "Call Center Order Visibility",
       "domain": "E-Commerce & Ordering",
       "phase": "run",
-      "summary": "Two stories (3858, 3922) pending decomposition/grooming — agent dashboards for account/promo/order context.",
+      "summary": "Picked up — call-center agent dashboards (account insights + promos + order context); 2 stories pending grooming.",
       "user": "Gulf call-center agents handling inbound orders",
       "impact": "Consolidated agent dashboards (account insights + active promos + order status) — faster, more informed customer interactions and upsell.",
       "tickets": [
@@ -421,8 +461,8 @@
           "key": "BMS-3858",
           "type": "Story",
           "title": "Call Center Order Visibility",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false,
           "pr": null,
@@ -433,8 +473,8 @@
           "key": "BMS-3922",
           "type": "Story",
           "title": "Call Center Order Visibility",
-          "status": "Backlog",
-          "statusCategory": "To Do",
+          "status": "In Progress",
+          "statusCategory": "In Progress",
           "build": "Both",
           "polished": false,
           "pr": null,
@@ -442,7 +482,9 @@
           "orgLive": null
         }
       ]
-    },
+    }
+  ],
+  "todoEpics": [
     {
       "key": "BMS-5481",
       "title": "Picker Incentive Engine",
@@ -759,18 +801,6 @@
           "orgLive": null
         },
         {
-          "key": "BMS-4052",
-          "type": "Story",
-          "title": "Cart & Checkout — Ph 3: Checkout + Tax + Order",
-          "status": "Testing",
-          "statusCategory": "In Progress",
-          "build": "Both",
-          "polished": true,
-          "pr": null,
-          "org": null,
-          "orgLive": null
-        },
-        {
           "key": "BMS-4053",
           "type": "Story",
           "title": "Retailer Portal Product Card — Ph 1: Card Component",
@@ -791,10 +821,10 @@
           "build": "UI",
           "polished": true,
           "pr": {
-            "number": 296,
-            "state": "closed",
+            "number": 604,
+            "state": "open",
             "draft": true,
-            "createdAt": "2026-06-12T14:15:42Z"
+            "createdAt": "2026-07-22T11:05:11Z"
           },
           "org": null,
           "orgLive": null
@@ -819,23 +849,6 @@
       "domain": "Transfers & Compliance",
       "doneAt": null,
       "tickets": [
-        {
-          "key": "BMS-5789",
-          "type": "Story",
-          "title": "Source-agnostic freight cost capture on cross-state transfers",
-          "status": "Testing",
-          "statusCategory": "In Progress",
-          "build": "Backend",
-          "polished": true,
-          "pr": {
-            "number": 511,
-            "state": "open",
-            "draft": true,
-            "createdAt": "2026-07-10T15:50:46Z"
-          },
-          "org": null,
-          "orgLive": null
-        },
         {
           "key": "BMS-5790",
           "type": "Story",
@@ -900,34 +913,7 @@
       ]
     }
   ],
-  "scratchOrgs": [
-    {
-      "alias": "ohfy-val-shortPay",
-      "username": "test-hukqsmvfh9sh@example.com",
-      "expirationDate": "2026-08-13",
-      "devHub": "product@ohanafy.com",
-      "tie": null
-    },
-    {
-      "alias": "sltransfer-validate",
-      "username": "test-7hjsvgfkjwxf@example.com",
-      "expirationDate": "2026-08-13",
-      "devHub": "product@ohanafy.com",
-      "tie": null
-    },
-    {
-      "alias": "bms-4996-notif",
-      "username": "test-nog1c9ryj7vi@example.com",
-      "expirationDate": "2026-08-19",
-      "devHub": "product@ohanafy.com",
-      "tie": {
-        "key": "BMS-4996",
-        "epicKey": "BMS-4996",
-        "title": "Retailer Engagement Notifications (epic)",
-        "status": ""
-      }
-    }
-  ],
+  "scratchOrgs": [],
   "worktrees": [
     {
       "name": "OHFY-Split",
@@ -1115,7 +1101,7 @@
       "branch": "feat/doi-invoiced-source-bms-3742",
       "bms": "BMS-3742",
       "primary": false,
-      "dirty": 0,
+      "dirty": 1,
       "merged": false,
       "pr": {
         "number": 513,
@@ -1157,12 +1143,17 @@
     {
       "name": "OHFY-Split-BMS-3932-fix",
       "path": "/Users/alvarosanchez_1/OHFY-Split-BMS-3932-fix",
-      "branch": "fix/bms-3932-review-findings",
+      "branch": "bk-bms-3932-20260624-213413",
       "bms": "BMS-3932",
       "primary": false,
       "dirty": 0,
       "merged": false,
-      "pr": null,
+      "pr": {
+        "number": 388,
+        "state": "open",
+        "draft": false,
+        "createdAt": "2026-06-26T03:53:17Z"
+      },
       "prunable": false,
       "agent": false,
       "tie": {
@@ -1200,9 +1191,14 @@
       "branch": "feat/call-center-order-visibility-reporting-bms-4997",
       "bms": "BMS-4997",
       "primary": false,
-      "dirty": 1,
+      "dirty": 0,
       "merged": false,
-      "pr": null,
+      "pr": {
+        "number": 612,
+        "state": "open",
+        "draft": true,
+        "createdAt": "2026-07-23T03:28:03Z"
+      },
       "prunable": false,
       "agent": false,
       "tie": {
@@ -1249,7 +1245,7 @@
         "key": "BMS-5625",
         "epicKey": "BMS-4965",
         "title": "Short Pay — Ph 4: Driver Finalize-Stop Approval Gate (Configurable)",
-        "status": "Needs Refinement"
+        "status": "In Progress"
       },
       "epicKey": "BMS-4965",
       "serves": "Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history."
@@ -1260,7 +1256,7 @@
       "branch": "demo/short-pay-epic-bms-4965",
       "bms": "BMS-4965",
       "primary": false,
-      "dirty": 0,
+      "dirty": 24,
       "merged": false,
       "pr": {
         "number": 582,
@@ -1278,6 +1274,26 @@
       },
       "epicKey": "BMS-4965",
       "serves": "Replaces a manual, error-prone short-pay exception process end-to-end — detection, FL/AL compliance escalation, resolution + history."
+    },
+    {
+      "name": "OHFY-Split-integration-4996",
+      "path": "/Users/alvarosanchez_1/OHFY-Split-integration-4996",
+      "branch": "integration/bms-4996-validation",
+      "bms": "BMS-4996",
+      "primary": false,
+      "dirty": 35,
+      "merged": false,
+      "pr": null,
+      "prunable": false,
+      "agent": false,
+      "tie": {
+        "key": "BMS-4996",
+        "epicKey": "BMS-4996",
+        "title": "Retailer Engagement Notifications (epic)",
+        "status": ""
+      },
+      "epicKey": "BMS-4996",
+      "serves": "Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up."
     },
     {
       "name": "OHFY-Split-integration-5113",
@@ -1302,25 +1318,6 @@
   ],
   "branches": [
     {
-      "branch": "bk-bms-3932-20260624-213413",
-      "bms": "BMS-3932",
-      "merged": false,
-      "pr": {
-        "number": 388,
-        "state": "open",
-        "draft": false,
-        "createdAt": "2026-06-26T03:53:17Z"
-      },
-      "tie": {
-        "key": "BMS-3932",
-        "epicKey": "BMS-5576",
-        "title": "Self-service account management (address, contacts)",
-        "status": "Testing"
-      },
-      "epicKey": "BMS-5576",
-      "serves": null
-    },
-    {
       "branch": "ci/ecom-playwright-e2e-bms-5305",
       "bms": "BMS-5305",
       "merged": false,
@@ -1329,20 +1326,6 @@
         "state": "open",
         "draft": false,
         "createdAt": "2026-07-17T16:20:47Z"
-      },
-      "tie": null,
-      "epicKey": null,
-      "serves": null
-    },
-    {
-      "branch": "ci/enable-ecom-playwright-e2e",
-      "bms": null,
-      "merged": false,
-      "pr": {
-        "number": 304,
-        "state": "closed",
-        "draft": true,
-        "createdAt": "2026-06-15T05:53:48Z"
       },
       "tie": null,
       "epicKey": null,
@@ -1363,23 +1346,23 @@
       "serves": null
     },
     {
-      "branch": "feat/product-grid-reuse-bms-4054",
-      "bms": "BMS-4054",
+      "branch": "feat/stalled-cart-rep-alert-bms-3921",
+      "bms": "BMS-3921",
       "merged": false,
       "pr": {
-        "number": 296,
-        "state": "closed",
+        "number": 607,
+        "state": "open",
         "draft": true,
-        "createdAt": "2026-06-12T14:15:42Z"
+        "createdAt": "2026-07-22T14:45:33Z"
       },
       "tie": {
-        "key": "BMS-4054",
-        "epicKey": "BMS-5576",
-        "title": "Retailer Portal Product Card — Ph 2: Grid Layout + Reuse",
-        "status": "Testing"
+        "key": "BMS-3921",
+        "epicKey": "BMS-4996",
+        "title": "Retailer Engagement Notifications",
+        "status": "In Progress"
       },
-      "epicKey": "BMS-5576",
-      "serves": null
+      "epicKey": "BMS-4996",
+      "serves": "Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up."
     },
     {
       "branch": "fix/prettier-oms-docs",
@@ -1441,6 +1424,15 @@
       "serves": null
     },
     {
+      "branch": "chore/document-skill-ecom-auth",
+      "bms": null,
+      "merged": false,
+      "pr": null,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
       "branch": "chore/ecom-org-setup",
       "bms": null,
       "merged": false,
@@ -1459,6 +1451,15 @@
       "serves": null
     },
     {
+      "branch": "ci/enable-ecom-playwright-e2e",
+      "bms": null,
+      "merged": false,
+      "pr": null,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
       "branch": "develop",
       "bms": null,
       "merged": false,
@@ -1470,6 +1471,15 @@
     {
       "branch": "docs/ecom-readme-update",
       "bms": null,
+      "merged": false,
+      "pr": null,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
+      "branch": "docs/order-history-pricing-bms-3929",
+      "bms": "BMS-3929",
       "merged": false,
       "pr": null,
       "tie": null,
@@ -1512,10 +1522,19 @@
         "key": "BMS-4073",
         "epicKey": "BMS-4996",
         "title": "Notification Services: Abandoned Cart Reminder & Order Confirmation",
-        "status": "To Do"
+        "status": "In Progress"
       },
       "epicKey": "BMS-4996",
       "serves": "Automated cart-abandonment / order-due / promo notifications — drives order completion without manual rep follow-up."
+    },
+    {
+      "branch": "feat/multi-account-registration-bms-4258",
+      "bms": "BMS-4258",
+      "merged": false,
+      "pr": null,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
     },
     {
       "branch": "feat/order-history-enhancements-bms-3929",
@@ -1564,8 +1583,45 @@
       "serves": null
     },
     {
+      "branch": "feat/product-grid-reuse-bms-4054",
+      "bms": "BMS-4054",
+      "merged": false,
+      "pr": null,
+      "tie": {
+        "key": "BMS-4054",
+        "epicKey": "BMS-5576",
+        "title": "Retailer Portal Product Card — Ph 2: Grid Layout + Reuse",
+        "status": "Testing"
+      },
+      "epicKey": "BMS-5576",
+      "serves": null
+    },
+    {
       "branch": "feature/polish-skill",
       "bms": null,
+      "merged": false,
+      "pr": null,
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
+      "branch": "fix/bms-3932-review-findings",
+      "bms": "BMS-3932",
+      "merged": false,
+      "pr": null,
+      "tie": {
+        "key": "BMS-3932",
+        "epicKey": "BMS-5576",
+        "title": "Self-service account management (address, contacts)",
+        "status": "Testing"
+      },
+      "epicKey": "BMS-5576",
+      "serves": null
+    },
+    {
+      "branch": "fix/reorder-banner-theming-bms-5344",
+      "bms": "BMS-5344",
       "merged": false,
       "pr": null,
       "tie": null,
@@ -1831,34 +1887,6 @@
       "serves": null
     },
     {
-      "branch": "chore/document-skill-ecom-auth",
-      "bms": null,
-      "merged": true,
-      "pr": {
-        "number": 298,
-        "state": "merged",
-        "draft": false,
-        "createdAt": "2026-06-12T17:23:05Z"
-      },
-      "tie": null,
-      "epicKey": null,
-      "serves": null
-    },
-    {
-      "branch": "docs/order-history-pricing-bms-3929",
-      "bms": "BMS-3929",
-      "merged": true,
-      "pr": {
-        "number": 301,
-        "state": "merged",
-        "draft": false,
-        "createdAt": "2026-06-12T19:58:49Z"
-      },
-      "tie": null,
-      "epicKey": null,
-      "serves": null
-    },
-    {
       "branch": "feat/ecom-phase2-pricing-checkout-bms-5576",
       "bms": "BMS-5576",
       "merged": true,
@@ -1892,20 +1920,6 @@
       "serves": null
     },
     {
-      "branch": "feat/multi-account-registration-bms-4258",
-      "bms": "BMS-4258",
-      "merged": true,
-      "pr": {
-        "number": 303,
-        "state": "merged",
-        "draft": false,
-        "createdAt": "2026-06-15T02:19:00Z"
-      },
-      "tie": null,
-      "epicKey": null,
-      "serves": null
-    },
-    {
       "branch": "feat/practical-doh-variance-bms-3816",
       "bms": "BMS-3816",
       "merged": true,
@@ -1914,6 +1928,20 @@
         "state": "merged",
         "draft": false,
         "createdAt": "2026-07-07T17:20:54Z"
+      },
+      "tie": null,
+      "epicKey": null,
+      "serves": null
+    },
+    {
+      "branch": "feat/pricing-crawl-bms-5967-5968-5969-5970",
+      "bms": "BMS-5967",
+      "merged": true,
+      "pr": {
+        "number": 596,
+        "state": "merged",
+        "draft": false,
+        "createdAt": "2026-07-20T20:58:44Z"
       },
       "tie": null,
       "epicKey": null,
@@ -1984,20 +2012,6 @@
         "state": "merged",
         "draft": false,
         "createdAt": "2026-06-23T04:35:44Z"
-      },
-      "tie": null,
-      "epicKey": null,
-      "serves": null
-    },
-    {
-      "branch": "fix/reorder-banner-theming-bms-5344",
-      "bms": "BMS-5344",
-      "merged": true,
-      "pr": {
-        "number": 302,
-        "state": "merged",
-        "draft": false,
-        "createdAt": "2026-06-14T18:46:59Z"
       },
       "tie": null,
       "epicKey": null,

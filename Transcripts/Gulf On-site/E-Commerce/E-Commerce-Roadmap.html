@@ -1,0 +1,204 @@
+<title>E-Commerce Roadmap — Gulf on-site draft tickets</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff;
+    --green:#1a7f47; --green-soft:#e5f4ec; --amber:#9a6a00; --amber-soft:#fbf1d9;
+    --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+    --w1:#1a7f47; --w2:#2f6df6; --w3:#7c4dff; --w4:#5b6472;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+      --accent:#6ea0ff; --accent-soft:#1a2740;
+      --green:#5fd08a; --green-soft:#12251a; --amber:#e6b85c; --amber-soft:#2a2210;
+      --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+      --w1:#5fd08a; --w2:#6ea0ff; --w3:#b39dff; --w4:#9aa4b2;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6472; --line:#e4e7ec;
+    --accent:#2f6df6; --accent-soft:#eaf1ff; --green:#1a7f47; --green-soft:#e5f4ec;
+    --amber:#9a6a00; --amber-soft:#fbf1d9; --red:#b3261e; --red-soft:#fbe6e4; --chip:#eef1f5;
+    --w1:#1a7f47; --w2:#2f6df6; --w3:#7c4dff; --w4:#5b6472;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1116; --card:#171a21; --ink:#e8eaed; --muted:#9aa4b2; --line:#262b34;
+    --accent:#6ea0ff; --accent-soft:#1a2740; --green:#5fd08a; --green-soft:#12251a;
+    --amber:#e6b85c; --amber-soft:#2a2210; --red:#f2938c; --red-soft:#2a1513; --chip:#222732;
+    --w1:#5fd08a; --w2:#6ea0ff; --w3:#b39dff; --w4:#9aa4b2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 20px 64px;}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px;}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+  h1{font-size:27px;line-height:1.2;margin:6px 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px;}
+  .meta b{color:var(--ink);font-weight:600;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--ink);border:1px solid var(--line);}
+  .pill.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent;}
+  h2{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:34px 0 12px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+  /* critical path strip */
+  .cp{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;margin-bottom:8px;}
+  .cp .node{font-size:13px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--red-soft);color:var(--red);}
+  .cp .node.mid{background:var(--amber-soft);color:var(--amber);}
+  .cp .node.end{background:var(--accent-soft);color:var(--accent);}
+  .cp .arw{color:var(--muted);font-weight:700;}
+  .cp .note{font-size:12.5px;color:var(--muted);margin-left:auto;}
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12.5px;color:var(--muted);margin:10px 0 6px;}
+  .legend span b{color:var(--ink);}
+  /* wave */
+  .wave{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:18px;background:var(--card);}
+  .wave .hd{display:flex;align-items:center;gap:12px;padding:14px 18px;border-left:6px solid var(--wc);}
+  .wave .hd .w-num{font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--wc);}
+  .wave .hd .w-title{font-weight:750;font-size:17px;letter-spacing:-.01em;}
+  .wave .hd .w-sub{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right;max-width:52%;}
+  .wave.w1{--wc:var(--w1);} .wave.w2{--wc:var(--w2);} .wave.w3{--wc:var(--w3);} .wave.w4{--wc:var(--w4);}
+  .gate{background:var(--red-soft);color:var(--red);font-size:12.5px;font-weight:600;padding:8px 18px;border-top:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  td,th{text-align:left;padding:9px 18px;border-top:1px solid var(--line);vertical-align:top;}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+  .tid{font-weight:700;white-space:nowrap;font-size:12.5px;}
+  .tid.bug{color:var(--red);}
+  .why{color:var(--muted);}
+  .why b{color:var(--ink);font-weight:600;}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+  .b-build{background:var(--green-soft);color:var(--green);}
+  .b-config{background:var(--accent-soft);color:var(--accent);}
+  .b-other{background:var(--amber-soft);color:var(--amber);}
+  .b-spike{background:var(--chip);color:var(--muted);}
+  .b-dep{background:var(--red-soft);color:var(--red);}
+  /* parallel lane */
+  .lane{border:1px dashed var(--red);border-radius:14px;padding:4px 0;background:transparent;}
+  .lane .lh{font-weight:700;color:var(--red);padding:12px 18px 4px;font-size:14px;}
+  .foot{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);margin-top:36px;padding-top:14px;}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+  @media(max-width:640px){.wave .hd .w-sub{display:none;} td,th{padding:8px 12px;}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">E-Commerce · Delivery Roadmap</div>
+    <h1>What comes next — sequenced from the Gulf on-site tickets</h1>
+    <div class="meta">
+      <span><b>Source:</b> Jul-15 Gulf on-site draft tickets</span>
+      <span><b>Owner:</b> Alvaro Sanchez (E-Comm SME)</span>
+      <span><b>Prepared:</b> 2026-07-23</span>
+    </div>
+    <div class="pills">
+      <span class="pill accent">2 epics + 1 parallel lane</span>
+      <span class="pill">Waves relative, not dated</span>
+      <span class="pill">Draft — no Jira issues yet</span>
+    </div>
+  </header>
+
+  <!-- CRITICAL PATH -->
+  <h2>Critical path</h2>
+  <div class="cp">
+    <span class="node">DEP-1 · MBO / promotion object</span>
+    <span class="arw">→</span>
+    <span class="node mid">DISC-1 · Olivia's scenarios</span>
+    <span class="arw">→</span>
+    <span class="node end">Wave 3 · Selling Engine</span>
+    <span class="note">Waves 1–2 are independent of this path — start now.</span>
+  </div>
+  <div class="legend">
+    <span><b>Types:</b></span>
+    <span class="badge b-build">BUILD</span> net-new dev
+    <span class="badge b-config">CONFIG</span> turn-on of existing capability
+    <span class="badge b-other">OTHER EPIC</span> in-flight elsewhere
+    <span class="badge b-spike">SPIKE / DECISION</span>
+    <span class="badge b-dep">DEP</span> upstream blocker
+  </div>
+
+  <!-- WAVE 1 -->
+  <div class="wave w1">
+    <div class="hd"><div><div class="w-num">WAVE 1 · NOW</div><div class="w-title">Quick-win fixes &amp; config</div></div>
+      <div class="w-sub">Cheap, visible relief. No blockers. · Epic A</div></div>
+    <table>
+      <tr><th>Ticket</th><th>Type</th><th>What &amp; why</th></tr>
+      <tr><td class="tid bug">ECOM-22</td><td><span class="badge b-build">BUILD·bug</span></td><td class="why"><b>Search fix</b> — Deerfish unsearchable / "DF". <i>"stopping all of us from making money."</i></td></tr>
+      <tr><td class="tid">ECOM-3</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Next-delivery-date display</b> at top of home — ends every-other-week confusion.</td></tr>
+      <tr><td class="tid">ECOM-23</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Missing-product-image report.</b></td></tr>
+      <tr><td class="tid">ECOM-28</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Invoice-PDF download</b> in order history.</td></tr>
+      <tr><td class="tid">ECOM-2</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Cutoff windows</b> — already configurable; set Gulf's.</td></tr>
+      <tr><td class="tid">ECOM-8</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Abandoned-cart alert</b> — exists; validate + turn on.</td></tr>
+      <tr><td class="tid">ECOM-10</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Confirmation ≠ notification</b> separation.</td></tr>
+      <tr><td class="tid">ECOM-14</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>User mgmt</b> — deactivate-not-delete.</td></tr>
+      <tr><td class="tid">ECOM-24</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Supplier asset feed</b> — confirm ingestion for big suppliers.</td></tr>
+    </table>
+  </div>
+
+  <!-- WAVE 2 -->
+  <div class="wave w2">
+    <div class="hd"><div><div class="w-num">WAVE 2 · NEXT</div><div class="w-title">Top friction relievers</div></div>
+      <div class="w-sub">Kill the blindness &amp; manual bottlenecks. · Epic A</div></div>
+    <table>
+      <tr><th>Ticket</th><th>Type</th><th>What &amp; why</th></tr>
+      <tr><td class="tid">ECOM-20</td><td><span class="badge b-config">CONFIG→BUILD</span></td><td class="why"><b>Short-term ops metrics + dashboards</b> — #1 friction: 12% of revenue, zero visibility. Signups, on-time %, dormant 30/60/90.</td></tr>
+      <tr><td class="tid">ECOM-12</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Self-registration</b> w/ alcohol-license verification — kills the "email Mindy" bottleneck.</td></tr>
+      <tr><td class="tid">ECOM-13</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Bulk-enable e-comm</b> on new-license import.</td></tr>
+      <tr><td class="tid">ECOM-1</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Modify-order-until-cutoff + validation</b> — removes manual order-editing. Builds on ECOM-2.</td></tr>
+      <tr><td class="tid">ECOM-6</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Rep-homepage "yet to order" table</b> + at-risk alerts.</td></tr>
+      <tr><td class="tid">ECOM-7</td><td><span class="badge b-config">CONFIG</span></td><td class="why"><b>Escalating nudges</b> email→SMS.</td></tr>
+      <tr><td class="tid">ECOM-9</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Notification-preference center + SMS opt-in/STOP</b> (Twilio).</td></tr>
+      <tr><td class="tid">ECOM-4</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Sold-out → substitution suggestions</b> (needs similar-item table).</td></tr>
+      <tr><td class="tid">ECOM-11</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>In-app retailer⇄Gulf chat.</b></td></tr>
+    </table>
+  </div>
+
+  <!-- WAVE 3 -->
+  <div class="wave w3">
+    <div class="hd"><div><div class="w-num">WAVE 3 · THEN</div><div class="w-title">The Selling Engine</div></div>
+      <div class="w-sub">Turn the storefront into a salesperson. · Epic B</div></div>
+    <div class="gate">⛔ Gated — cannot start until <code>DEP-1</code> (MBO/promotion object) exists and <code>DISC-1</code> (Olivia's scenario list) is in hand. These define the eligibility rules the whole wave runs on.</div>
+    <table>
+      <tr><th>Ticket</th><th>Type</th><th>What &amp; why</th></tr>
+      <tr><td class="tid">ECOM-15</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Suggestive-selling engine</b> — MBO/drive prompts product→cart→checkout, auto by eligibility.</td></tr>
+      <tr><td class="tid">ECOM-16</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>QD / upsell nudges</b> — "buy 2 more for the 10-case QD," frequently-bought-together.</td></tr>
+      <tr><td class="tid">ECOM-17</td><td><span class="badge b-other">OTHER·TBM</span></td><td class="why"><b>Per-account dynamic banners</b> — coordinate with in-flight TBM work.</td></tr>
+      <tr><td class="tid">ECOM-19</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>New-item / mis-order flag</b> at checkout + batched rep notice.</td></tr>
+      <tr><td class="tid">ECOM-18</td><td><span class="badge b-build">BUILD</span></td><td class="why"><b>Request-signage action</b> on the order.</td></tr>
+    </table>
+  </div>
+
+  <!-- WAVE 4 -->
+  <div class="wave w4">
+    <div class="hd"><div><div class="w-num">WAVE 4 · LATER / HORIZON</div><div class="w-title">Depth, scale &amp; spikes</div></div>
+      <div class="w-sub">Mostly other epics — route, don't rebuild.</div></div>
+    <table>
+      <tr><th>Ticket</th><th>Type</th><th>What &amp; why</th></tr>
+      <tr><td class="tid">ECOM-21</td><td><span class="badge b-other">OTHER·TBM</span></td><td class="why"><b>Full-funnel web analytics</b> — traffic, CTR, cart drop-off, page/product views.</td></tr>
+      <tr><td class="tid">ECOM-25</td><td><span class="badge b-other">OTHER·Supplier Portal</span></td><td class="why"><b>Supplier-portal asset intake</b> at new-item setup + stale-asset report.</td></tr>
+      <tr><td class="tid">ECOM-27</td><td><span class="badge b-other">OTHER·Enablement</span></td><td class="why"><b>Guided walkthroughs / tutorials</b> for retailers.</td></tr>
+      <tr><td class="tid">ECOM-26</td><td><span class="badge b-spike">SPIKE</span></td><td class="why"><b>AI product-image generation</b> for SKUs w/o assets.</td></tr>
+      <tr><td class="tid">ECOM-29</td><td><span class="badge b-spike">SPIKE</span></td><td class="why"><b>Multi-language (Spanish)</b> storefront toggle.</td></tr>
+      <tr><td class="tid">ECOM-30</td><td><span class="badge b-spike">DECISION</span></td><td class="why"><b>Mobile app</b> scope — Gulf assumes app+web; uncommitted.</td></tr>
+      <tr><td class="tid">ECOM-5</td><td><span class="badge b-spike">DECISION</span></td><td class="why"><b>Show/hide on-hand quantity</b> — config once DISC-4 decided.</td></tr>
+    </table>
+  </div>
+
+  <!-- PARALLEL LANE -->
+  <h2>Parallel lane — prerequisites (push weekly)</h2>
+  <div class="lane">
+    <div class="lh">Not E-Comm's to build — but Wave 3 is blocked without them</div>
+    <table>
+      <tr><th>Item</th><th>Owner</th><th>Feeds</th></tr>
+      <tr><td class="tid" style="color:var(--red)">DEP-1</td><td class="why"><b>MBO / promotion object in core</b> (eligible accounts + dates + supplier). Today: scattered spreadsheets, nobody owns cleanly.</td><td class="why">Sales/Marketing → Wave 3</td></tr>
+      <tr><td class="tid">DISC-1</td><td class="why"><b>Olivia's MBO/promo/upsell scenario list</b> (she committed to send).</td><td class="why">Olivia → Wave 3 rules</td></tr>
+      <tr><td class="tid">DISC-4</td><td class="why"><b>Show-on-hand-qty policy.</b></td><td class="why">Gulf → ECOM-5</td></tr>
+      <tr><td class="tid">DISC-2/3</td><td class="why"><b>POS inventory depth · resale-on-ecom.</b></td><td class="why">Gulf ops → future catalog scope</td></tr>
+      <tr><td class="tid">DEP-2/3</td><td class="why"><b>Catalog structure + resale price book.</b></td><td class="why">Core/Ops → catalog visibility &amp; scale</td></tr>
+    </table>
+  </div>
+
+  <div class="foot">
+    Draft roadmap — no Jira issues created. Waves are relative sequence, not calendar dates. Companion docs: <code>E-Commerce-Roadmap.md</code>, <code>E-Commerce-Action-Items.md</code>, <code>E-Commerce-Extraction.md</code>, <code>E-Commerce-Takeaways.html</code>. Prepared by Alvaro Sanchez, 2026-07-23.
+  </div>
+</div>

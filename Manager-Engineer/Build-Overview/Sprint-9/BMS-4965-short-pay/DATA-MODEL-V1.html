@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Short-Pay Data Model — as it lives in v1 (BMS-4965)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg:#fff; --fg:#1c2024; --muted:#5b6570; --line:#e4e7eb; --card:#f7f9fb;
+    --accent:#2563eb; --accent-soft:#eef4ff; --th:#eef1f5; --code-bg:#f2f4f7;
+    --ok:#0f7b3f; --ok-bg:#e9f7ef; --orphan:#9a6a00; --orphan-bg:#fdf4e3;
+    --reuse:#6b21a8; --reuse-bg:#f5ecfb; --warn-bg:#fff8e6; --warn-line:#f5c518;
+    --maxw:1040px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0f1419; --fg:#e6e9ec; --muted:#9aa4af; --line:#263039; --card:#161c23;
+      --accent:#6ea8fe; --accent-soft:#16202e; --th:#1a222c; --code-bg:#1a2029;
+      --ok:#5fd08a; --ok-bg:#123020; --orphan:#e8b24a; --orphan-bg:#2a2410;
+      --reuse:#c99cf0; --reuse-bg:#241832; --warn-bg:#2a2410; --warn-line:#b8890a;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px 120px}
+  header.hero{border-bottom:1px solid var(--line);padding:44px 24px 30px;background:linear-gradient(180deg,var(--accent-soft),transparent)}
+  header.hero .inner{max-width:var(--maxw);margin:0 auto}
+  .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);padding:3px 10px;border-radius:999px;margin-bottom:12px}
+  h1{font-size:1.9rem;margin:0 0 8px;line-height:1.2}
+  .sub{color:var(--muted);max-width:780px}
+  h2{font-size:1.4rem;margin:48px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line);scroll-margin-top:20px}
+  h3{font-size:1.12rem;margin:26px 0 8px}
+  p{margin:11px 0}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  code{background:var(--code-bg);padding:1.5px 6px;border-radius:5px;font:13px/1.5 "SF Mono",ui-monospace,Consolas,monospace}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px;display:block;overflow-x:auto}
+  th,td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+  th{background:var(--th);font-weight:700;white-space:nowrap}
+  tr:nth-child(even) td{background:var(--card)}
+  ul,ol{margin:11px 0;padding-left:22px} li{margin:4px 0}
+  .mermaid{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin:20px 0;text-align:center;overflow-x:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid var(--line)}
+  .b-active{color:var(--ok);background:var(--ok-bg)}
+  .b-orphan{color:var(--orphan);background:var(--orphan-bg)}
+  .b-reuse{color:var(--reuse);background:var(--reuse-bg)}
+  td .badge{white-space:nowrap}
+  .callout{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:13px 17px;margin:16px 0}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0}
+  .toc h4{margin:0 0 8px;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase}
+  .toc ol{columns:2;column-gap:30px;margin:0;padding-left:18px;font-size:14px}
+  @media (max-width:640px){.toc ol{columns:1}h1{font-size:1.55rem}}
+  .orphan-row td{background:var(--orphan-bg) !important}
+  footer{color:var(--muted);font-size:13px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line)}
+  hr{border:none;border-top:1px solid var(--line);margin:36px 0}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <span class="tag">BMS-4965 · Short-Pay · v1 as-built</span>
+    <h1>Short-Pay Data Model — how it lives inside v1</h1>
+    <p class="sub">The data model <strong>as actually shipped in what's been built</strong> — reconciled against the resolution spike (2026-07-21). Roll-to-next-invoice is <strong>not</strong> in v1; its metadata artifacts remain as inert orphans and are flagged as such. This is a visibility doc, scoped to reality, not the original plan.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="legend">
+    <span class="badge b-active">● ACTIVE in v1</span>
+    <span class="badge b-orphan">● INERT ORPHAN (metadata kept, no code writes it)</span>
+    <span class="badge b-reuse">● REUSED (pre-existing object)</span>
+  </div>
+
+  <div class="toc">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#scope">What v1 actually is</a></li>
+      <li><a href="#erd">v1 entity map</a></li>
+      <li><a href="#invoice">Invoice__c fields</a></li>
+      <li><a href="#account">Account rollups</a></li>
+      <li><a href="#event">Short_Pay_Event__c (audit)</a></li>
+      <li><a href="#task">Task / Activity link</a></li>
+      <li><a href="#cmdt">Config CMDTs</a></li>
+      <li><a href="#reuse">Reused objects</a></li>
+      <li><a href="#motion">Data in motion — the 4 outcomes</a></li>
+      <li><a href="#status">Status value lifecycle</a></li>
+      <li><a href="#orphans">Inert orphans (roll artifacts)</a></li>
+    </ol>
+  </div>
+
+  <h2 id="scope">1. What v1 actually is</h2>
+  <p>Per the spike, v1 gives AR <strong>four</strong> ways to resolve a short pay — <strong>Post Credit · Mark Collected · Assign to Rep · Write Off</strong> — plus AR's <strong>Confirm</strong> step that closes a rep-collected balance. <strong>Roll-to-next-invoice was pulled</strong> (it only tracked a carry-forward, it never re-billed), and its <code>rollToNextInvoice</code> code was removed. No new "short pay" child objects: the model <em>extends</em> <code>Invoice__c</code>/<code>Account</code>, adds one <strong>audit</strong> object + four <strong>config CMDTs</strong>, and <em>reuses</em> <code>Credit__c</code> and the routing objects.</p>
+  <div class="callout">
+    <strong>Note on "Under Review":</strong> it appears in a stale LWC comment but is <strong>not</strong> a real <code>Short_Pay_Status__c</code> value and no code writes it — treat it as non-existent in v1.
+  </div>
+
+  <h2 id="erd">2. v1 entity map</h2>
+  <p>Only the relationships that are live in v1. Dashed = reused/standard objects the feature leans on.</p>
+  <pre class="mermaid">
+erDiagram
+    Account ||--o{ Invoice : "Customer__c"
+    Account ||--o{ Credit : "Account__c"
+    Invoice ||--o{ Credit : "Invoice__c (reused, resolution)"
+    Invoice ||--o{ ShortPayEvent : "Invoice__c (audit)"
+    Invoice ||--o{ Task : "Short_Pay_Invoice__c (rep task)"
+    Account ||--o{ SalesRoute : "Driver__c"
+    SalesRoute ||--o{ SalesRouteStop : "route stops"
+    StateThreshold_mdt }o--|| Account : "matched by BillingState"
+    StatusConfig_mdt ||--o{ Invoice : "drives transitions"
+    TaskTemplate_mdt ||--o{ Task : "rep-task wording"
+    ApprovalLayer_mdt ||--o{ Invoice : "driver-finalize approval chain"
+  </pre>
+
+  <h2 id="invoice">3. <code>Invoice__c</code> — the short-pay record</h2>
+  <h3>Active fields</h3>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Role in v1</th><th></th></tr>
+    <tr><td><code>Short_Pay_Amount__c</code></td><td>Currency (formula)</td><td>The live shortfall. <code>Total_Due__c − Amount_Paid__c + Carried_Forward_Short_Pay__c</code>. <code>&gt; 0</code> = a short pay. In v1 the carry-forward term is always 0 (see orphans), so effectively <code>Total_Due − Amount_Paid</code>.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Status__c</code></td><td>Picklist</td><td>Back-office lifecycle state. v1 values: Open, Escalated, Rep Collection, Rep Collected - Pending AR, Resolved-Credit, Resolved-Collected, Written Off.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Resolved_Date__c</code></td><td>Date</td><td>Stamped only on a terminal close (Resolved-Credit / Resolved-Collected / Written Off).</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Reason__c</code> / <code>Short_Pay_Note__c</code></td><td>Picklist / Text</td><td>Driver-captured reason (BMS-3844). Mandatory reason on every accepted short.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Approval_State__c</code></td><td>Picklist</td><td>None / Pending / Approved / Rejected — driver-finalize approval chain state.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Approval_Layer__c</code></td><td>Number</td><td><code>Sequence__c</code> of the layer awaiting a decision.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Shortfall_Amount__c</code></td><td>Currency</td><td>The shortfall the approval chain was started for (a larger later shortfall re-runs it).</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+  </table>
+  <h3>Orphan fields (kept in metadata, no code writes them in v1)</h3>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Why it exists / status</th><th></th></tr>
+    <tr class="orphan-row"><td><code>Carried_Forward_Short_Pay__c</code></td><td>Currency</td><td>Was written only by the removed <code>rollToNextInvoice</code>. Still a term in the <code>Short_Pay_Amount__c</code> formula but stays 0/null in v1. Kept for the deferred rebill design.</td><td><span class="badge b-orphan">ORPHAN</span></td></tr>
+    <tr class="orphan-row"><td><code>Short_Pay_Rolled_To__c</code></td><td>Lookup(Invoice__c)</td><td>Was set by the removed roll. No writer in v1. Kept in case it holds historical data; remove in a cleanup if roll is not resurrected.</td><td><span class="badge b-orphan">ORPHAN</span></td></tr>
+  </table>
+
+  <h2 id="account">4. <code>Account</code> — repeat-offender rollups</h2>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Role</th><th></th></tr>
+    <tr><td><code>Short_Pay_Count_TTM__c</code></td><td>Number</td><td># short-paid invoices in trailing 365 days.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Short_Pay_Amount_TTM__c</code></td><td>Currency</td><td>Sum of shortfalls in trailing 365 days.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+  </table>
+  <p>Maintained by the <code>B_Account_ShortPayRollup</code> batch (TTM window can't be a native roll-up summary). <code>Account.BillingState</code> is the key that matches a <code>Short_Pay_State_Threshold__mdt</code> row.</p>
+
+  <h2 id="event">5. <code>Short_Pay_Event__c</code> — the audit object</h2>
+  <p>One immutable row per resolution action (insert-only; audit failures are logged-and-swallowed, never blocking the resolution). This is the unified audit log — it replaced the spike-era <code>Short_Pay_Resolution__c</code>.</p>
+  <table>
+    <tr><th>Field</th><th>Purpose</th><th></th></tr>
+    <tr><td><code>Event_Type__c</code></td><td><code>Resolution</code> (and approval events).</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Action__c</code></td><td>Human label — "Credit Posted", "Collected", "Rep Collection", "Written Off" — from <code>S_ShortPayConfig.auditAction()</code>.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Resulting_Value__c</code></td><td>Status the invoice moved to.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Amount__c</code></td><td>Shortfall at the time.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Actor__c</code></td><td><code>UserInfo.getUserId()</code>.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>Invoice__c</code> / <code>Layer__c</code></td><td>The invoice; approval layer where relevant.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+    <tr><td><code>External_Id__c</code></td><td>Standard UUID external id.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+  </table>
+
+  <h2 id="task">6. <code>Activity</code> (Task) — the rep collection task</h2>
+  <table>
+    <tr><th>Field</th><th>Purpose</th><th></th></tr>
+    <tr><td><code>Short_Pay_Invoice__c</code> (on Activity)</td><td>Links the rep's collection Task to the specific short-paid invoice. The Task's <code>WhatId</code> points at the customer <strong>Account</strong> (Invoice has activities disabled), so this custom lookup is the real link — it's what lets completing the task move the invoice to <em>Rep Collected - Pending AR</em>.</td><td><span class="badge b-active">ACTIVE</span></td></tr>
+  </table>
+
+  <h2 id="cmdt">7. Config — Custom Metadata Types</h2>
+  <table>
+    <tr><th>CMDT</th><th>Drives</th><th>Key fields</th></tr>
+    <tr><td><code>Short_Pay_State_Threshold__mdt</code></td><td>Per-state escalation caps + roll window</td><td><code>Compliance_State__c</code> (<code>*</code> wildcard), <code>Escalation_Amount__c</code>, <code>Escalation_Percent__c</code>, <code>Aging_Days__c</code>, <code>Rollover_Window_Days__c</code></td></tr>
+    <tr><td><code>Short_Pay_Status_Config__mdt</code></td><td>Status transitions (key → target + audit label)</td><td>Keys in v1: <code>OPEN</code>, <code>CREDIT_POSTED</code>, <code>MANUAL_COLLECTED</code>, <code>ESCALATED</code>, <code>WRITTEN_OFF</code>, <code>REP_COLLECTION</code>, <code>REP_COLLECTED_PENDING</code></td></tr>
+    <tr><td><code>Short_Pay_Task_Template__mdt</code></td><td>Rep-task wording</td><td><code>Template_Key__c</code> (<code>REP_COLLECTION</code>), <code>Subject_Template__c</code>, <code>Description_Template__c</code> — tokens <code>{customer} {amount} {invoice}</code></td></tr>
+    <tr><td><code>Short_Pay_Approval_Layer__mdt</code></td><td>Driver-finalize approval chain</td><td><code>Sequence__c</code>, <code>Approver_Source__c</code>, <code>Threshold_Min__c</code>, <code>Threshold_Percent__c</code></td></tr>
+    <tr><td><code>Configuration_Preference.Short_Pay_Notification_Recipients</code></td><td>Approval-notifier recipient config (a Configuration_Preference record, not a dedicated CMDT)</td><td>recipient list for <code>S_ShortPayApprovalNotifier</code></td></tr>
+  </table>
+  <div class="callout">
+    <strong>⚠️ Threshold &amp; approver values are AI-assumed</strong> (AL $0/0d; FL $50 / 2% / 7d aging / 10d roll; approver layers L1 Delivery_Supervisor → L2 Sales_Manager → L3 Regional_Director) — pending Gulf/Ops ratification.
+  </div>
+
+  <h2 id="reuse">8. Reused / standard objects</h2>
+  <table>
+    <tr><th>Object</th><th>How v1 uses it</th><th></th></tr>
+    <tr><td><code>Credit__c</code></td><td>Resolution reuses it — a posted credit on a short-paid invoice (<code>Invoice__c</code> lookup) resolves it to Resolved-Credit via the CMDT-gated <code>CreditTriggerService.resolveShortPay</code>.</td><td><span class="badge b-reuse">REUSED</span></td></tr>
+    <tr><td><code>Sales_Route__c</code> / <code>Sales_Route_Stop__c</code></td><td>Assign-to-Rep ensures the customer is a stop on the rep's route today so the collection Task surfaces on Sales Rep Home (route-driven view).</td><td><span class="badge b-reuse">REUSED</span></td></tr>
+  </table>
+
+  <h2 id="motion">9. Data in motion — the four v1 outcomes</h2>
+  <p>What each resolution actually writes:</p>
+  <table>
+    <tr><th>AR action</th><th>Writes</th><th><code>Short_Pay_Status__c</code> →</th><th>Resolved date?</th><th>Other records</th></tr>
+    <tr><td><strong>Post Credit</strong></td><td>inserts a <code>Credit__c</code> (1 case @ shortfall)</td><td><code>Resolved-Credit</code> (via Credit trigger)</td><td>✅</td><td>Credit__c + audit event</td></tr>
+    <tr><td><strong>Mark Collected</strong></td><td><code>Short_Pay_Status__c</code>, <code>Short_Pay_Resolved_Date__c</code></td><td><code>Resolved-Collected</code></td><td>✅</td><td>audit event</td></tr>
+    <tr><td><strong>Assign to Rep</strong></td><td><code>Short_Pay_Status__c</code>; inserts a <code>Task</code> (+ route/stop)</td><td><code>Rep Collection</code></td><td>✗ (interim)</td><td>Task, Sales_Route(_Stop), audit event</td></tr>
+    <tr><td><strong>Write Off</strong></td><td><code>Short_Pay_Status__c</code>, <code>Short_Pay_Resolved_Date__c</code></td><td><code>Written Off</code></td><td>✅</td><td>audit event</td></tr>
+    <tr><td><strong>Confirm</strong> (after rep collects)</td><td>rep completes Task → <code>Rep Collected - Pending AR</code>; AR confirms → close</td><td><code>Resolved-Collected</code></td><td>✅ (on AR confirm)</td><td>audit event</td></tr>
+  </table>
+
+  <h2 id="status">10. Status value lifecycle (v1)</h2>
+  <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Open : driver finalize stamps Open
+    Open --> Escalated : escalation batch (state threshold)
+    Open --> RepCollection : Assign to Rep
+    Escalated --> RepCollection : Assign to Rep
+    Open --> ResolvedCredit : Post Credit
+    Escalated --> ResolvedCredit : Post Credit
+    Open --> ResolvedCollected : Mark Collected
+    Escalated --> ResolvedCollected : Mark Collected
+    Open --> WrittenOff : Write Off
+    Escalated --> WrittenOff : Write Off
+    RepCollection --> RepCollectedPending : rep completes task
+    RepCollectedPending --> ResolvedCollected : AR confirms cash
+    RepCollectedPending --> WrittenOff : cash never landed
+    RepCollection --> ResolvedCredit : Post Credit
+    ResolvedCredit --> [*]
+    ResolvedCollected --> [*]
+    WrittenOff --> [*]
+  </pre>
+  <p><strong>Open / resolvable</strong>: Open, Escalated, Rep Collection, Rep Collected - Pending AR (shown in the queue). <strong>Terminal</strong>: Resolved-Credit, Resolved-Collected, Written Off. The <code>Rolled-Forward</code> value exists in the picklist but is unreachable in v1 (no transition targets it).</p>
+
+  <h2 id="orphans">11. Inert orphans (roll artifacts kept in metadata)</h2>
+  <p>Left behind when roll was pulled from v1 — <strong>safe, documented, and intentionally not removed</strong> (they may hold historical data and anchor the deferred rebill design). Nothing in v1 code writes or reads them:</p>
+  <ul>
+    <li><span class="badge b-orphan">ORPHAN</span> <code>Invoice__c.Carried_Forward_Short_Pay__c</code> — a term in the <code>Short_Pay_Amount__c</code> formula; always 0 in v1.</li>
+    <li><span class="badge b-orphan">ORPHAN</span> <code>Invoice__c.Short_Pay_Rolled_To__c</code> — lookup with no v1 writer.</li>
+    <li><span class="badge b-orphan">ORPHAN</span> <code>Short_Pay_Status__c = 'Rolled-Forward'</code> — picklist value with no v1 transition into it.</li>
+  </ul>
+  <p>If Gulf ratifies <em>true rebill</em>, the clean path is a <strong>"Carried short pay" line item</strong> on the target invoice (so <code>Subtotal → Total_Due</code> actually charges it) — never editing the released <code>Total_Due__c</code> formula. If roll stays dead, drop these three in a dedicated cleanup.</p>
+
+  <footer>
+    Reconciled against <code>SPIKE-short-pay-resolution-outcomes.md</code> (2026-07-21) and verified against branch <code>demo/short-pay-epic-bms-4965</code>: roll code removed, orphan fields never written, "Under Review" absent from the picklist. Scope: v1 as-built.
+  </footer>
+
+</div>
+
+<script>
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({
+    startOnLoad:true, theme: dark ? 'dark' : 'default',
+    themeVariables:{ fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif' },
+    flowchart:{ useMaxWidth:true, htmlLabels:true }, sequence:{ useMaxWidth:true }
+  });
+</script>
+</body>
+</html>
